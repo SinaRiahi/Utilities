@@ -7,9 +7,13 @@
 
     <!-- KaTeX CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-    <!-- highlight.js CSS (GitHub theme) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="hljs-light-theme">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" id="hljs-dark-theme" disabled>
+    <!-- highlight.js CSS themes (only one active at a time) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="hljs-theme-github" class="hljs-theme-link">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" id="hljs-theme-github-dark" class="hljs-theme-link" disabled>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css" id="hljs-theme-atom-one-light" class="hljs-theme-link" disabled>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" id="hljs-theme-atom-one-dark" class="hljs-theme-link" disabled>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/monokai.min.css" id="hljs-theme-monokai" class="hljs-theme-link" disabled>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/vs2015.min.css" id="hljs-theme-vs2015" class="hljs-theme-link" disabled>
 
     <style>
         :root {
@@ -127,6 +131,25 @@
         .toolbar button.accent:hover {
             background: var(--accent-hover);
             border-color: var(--accent-hover);
+        }
+        .toolbar button.prompt-btn {
+            background: #fef3c7;
+            color: #92400e;
+            border-color: #fcd34d;
+            font-weight: 600;
+        }
+        [data-theme="dark"] .toolbar button.prompt-btn {
+            background: #3b2e0a;
+            color: #fcd34d;
+            border-color: #6b5100;
+        }
+        .toolbar button.prompt-btn:hover {
+            background: #fde68a;
+            border-color: #f59e0b;
+        }
+        [data-theme="dark"] .toolbar button.prompt-btn:hover {
+            background: #5a4200;
+            border-color: #fcd34d;
         }
         .toolbar .btn-group {
             display: flex;
@@ -299,6 +322,50 @@
             color: #e4e6ea;
         }
 
+        /* ── Cover Page ───────────────── */
+        .cover-page {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 80vh;
+            text-align: center;
+            padding: 40px 20px;
+            page-break-after: always;
+            border-bottom: 3px double #dee2e6;
+            margin-bottom: 2em;
+            font-family: var(--font-sans);
+        }
+        .cover-page .cover-title {
+            font-size: 2.4em;
+            font-weight: 700;
+            margin-bottom: 0.4em;
+            color: var(--text);
+            letter-spacing: -0.02em;
+        }
+        .cover-page .cover-subtitle {
+            font-size: 1.3em;
+            font-weight: 400;
+            color: var(--text-secondary);
+            margin-bottom: 1.2em;
+            font-style: italic;
+        }
+        .cover-page .cover-meta {
+            font-size: 1em;
+            color: var(--text-muted);
+            margin-top: 1.5em;
+            line-height: 1.8;
+        }
+        .cover-page .cover-divider {
+            width: 80px;
+            height: 2px;
+            background: var(--accent);
+            margin: 1em auto;
+        }
+        [data-theme="dark"] .cover-page {
+            border-bottom-color: #3a3c42;
+        }
+
         /* Preview typography */
         .preview-container h1,
         .preview-container h2,
@@ -351,6 +418,7 @@
             background: var(--accent-light);
             border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
             color: var(--text-secondary);
+            page-break-inside: avoid;
         }
         .preview-container code {
             font-family: var(--font-mono);
@@ -381,6 +449,7 @@
             padding: 0;
             font-size: 0.85em;
             line-height: 1.55;
+            display: block;
         }
         .copy-code-btn {
             position: absolute;
@@ -396,6 +465,7 @@
             transition: opacity var(--transition);
             color: var(--text-secondary);
             font-family: var(--font-sans);
+            z-index: 5;
         }
         .preview-container pre:hover .copy-code-btn {
             opacity: 1;
@@ -509,6 +579,23 @@
             font-size: 0.8em;
             page-break-after: always;
         }
+        .preview-container .katex-block {
+            margin: 1.2em 0;
+            text-align: center;
+            overflow-x: auto;
+            overflow-y: hidden;
+            page-break-inside: avoid;
+        }
+        .preview-container .katex-error {
+            color: #e03131;
+            padding: 8px 12px;
+            background: #fff5f5;
+            border: 1px solid #ffc9c9;
+            border-radius: var(--radius-sm);
+            margin: 0.5em 0;
+            font-family: var(--font-mono);
+            font-size: 0.85em;
+        }
 
         /* ── Search bar ───────────────── */
         .search-bar {
@@ -572,9 +659,9 @@
             border-radius: var(--radius);
             box-shadow: var(--shadow-lg);
             padding: 24px 28px;
-            max-width: 560px;
-            width: 90%;
-            max-height: 80vh;
+            max-width: 620px;
+            width: 92%;
+            max-height: 85vh;
             overflow-y: auto;
             color: var(--text);
         }
@@ -582,12 +669,22 @@
             margin: 0 0 16px;
             font-family: var(--font-sans);
             font-size: 1.2em;
+            border-bottom: 1px solid var(--border-light);
+            padding-bottom: 10px;
+        }
+        .modal h4 {
+            margin: 18px 0 8px;
+            font-family: var(--font-sans);
+            font-size: 0.95em;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
         }
         .modal label {
             display: block;
             font-size: 13px;
             font-weight: 600;
-            margin: 12px 0 4px;
+            margin: 10px 0 4px;
             color: var(--text-secondary);
             font-family: var(--font-sans);
         }
@@ -608,6 +705,8 @@
             gap: 8px;
             justify-content: flex-end;
             margin-top: 18px;
+            border-top: 1px solid var(--border-light);
+            padding-top: 14px;
         }
         .modal button {
             padding: 8px 16px;
@@ -622,6 +721,32 @@
         .modal button.accent {
             background: var(--accent);
             color: #fff;
+            border-color: var(--accent);
+        }
+        .modal .cover-fields {
+            border-left: 3px solid var(--accent);
+            padding-left: 14px;
+            margin: 8px 0;
+            display: none;
+        }
+        .modal .cover-fields.visible {
+            display: block;
+        }
+        .modal textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 12.5px;
+            background: var(--bg-tertiary);
+            color: var(--text);
+            font-family: var(--font-mono);
+            resize: vertical;
+            min-height: 200px;
+            line-height: 1.5;
+            outline: none;
+        }
+        .modal textarea:focus {
             border-color: var(--accent);
         }
 
@@ -661,8 +786,8 @@
 
         /* ── Print styles ─────────────── */
         @media print {
-            /* Override restrictive layout for full-page printing */
-            html, body {
+            html,
+            body {
                 overflow: visible !important;
                 height: auto !important;
                 background: #fff !important;
@@ -728,14 +853,20 @@
                 page-break-after: avoid;
             }
             .preview-container blockquote,
-            .preview-container .mermaid svg,
-            .preview-container img {
+            .preview-container .mermaid-rendered,
+            .preview-container .mermaid-rendered svg,
+            .preview-container img,
+            .preview-container .katex-block {
                 page-break-inside: avoid;
             }
             .preview-container .toc-container {
                 page-break-after: always;
                 background: #fafafa !important;
                 border: 1px solid #e0e0e0 !important;
+            }
+            .preview-container .cover-page {
+                page-break-after: always;
+                border-bottom: 3px double #ccc !important;
             }
             .preview-container .pagebreak-marker {
                 page-break-after: always;
@@ -754,7 +885,6 @@
             .hljs {
                 background: #f8f9fa !important;
             }
-
             @page {
                 size: A4;
                 margin: 20mm;
@@ -813,7 +943,6 @@
 </head>
 <body data-theme="light">
 
-    <!-- ═══════════ TOOLBAR ═══════════ -->
     <div class="toolbar" id="toolbar">
         <button onclick="App.openFile()" title="Open Markdown file (Ctrl+O)">📂 Open</button>
         <button onclick="App.saveMarkdown()" title="Save Markdown file (Ctrl+S)">💾 Save</button>
@@ -825,6 +954,7 @@
         <span class="sep"></span>
         <button onclick="App.toggleSettings()" title="Page & Typography Settings">⚙️ Settings</button>
         <button onclick="App.toggleTheme()" title="Toggle Light/Dark Mode" id="theme-btn">🌓 Theme</button>
+        <button class="prompt-btn" onclick="App.openPromptGenerator()" title="Generate AI prompt for better Markdown">🤖 Prompt</button>
         <button onclick="App.clearAll()" title="Clear editor">🗑️ Clear</button>
         <span class="spacer"></span>
         <span class="badge" id="word-count-badge">Words: 0</span>
@@ -832,7 +962,6 @@
         <span class="badge" id="read-time-badge">~0 min read</span>
     </div>
 
-    <!-- ═══════════ SEARCH BAR ═══════════ -->
     <div class="search-bar" id="search-bar">
         <input type="text" id="search-input" placeholder="Search (Ctrl+F)..." />
         <input type="text" id="replace-input" placeholder="Replace with..." style="flex:0.7;" />
@@ -845,7 +974,6 @@
         <button onclick="App.closeSearch()">✕</button>
     </div>
 
-    <!-- ═══════════ MAIN LAYOUT ═══════════ -->
     <div class="main-container" id="main-container">
         <div class="pane pane-left" id="pane-left">
             <div class="pane-header">
@@ -857,15 +985,15 @@
             <div class="editor-wrapper" id="editor-wrapper">
                 <div class="line-numbers" id="line-numbers">1</div>
                 <textarea class="editor-textarea" id="editor" placeholder="# Start writing Markdown here...
-        Or drag & drop a .md file...
+Or drag & drop a .md file...
 
-        ## Features
-        - **Live preview** on the right
-        - Syntax highlighting
-        - LaTeX math: $E = mc^2$
-        - Mermaid diagrams
-        - Table of contents
-        - Export to PDF, HTML, DOCX"></textarea>
+## Features
+- **Live preview** on the right
+- Syntax highlighting
+- LaTeX math: $E = mc^2$
+- Mermaid diagrams
+- Table of contents
+- Export to PDF, HTML, DOCX"></textarea>
             </div>
         </div>
 
@@ -886,33 +1014,28 @@
         </div>
     </div>
 
-    <!-- ═══════════ SETTINGS MODAL ═══════════ -->
+    <!-- Settings Modal -->
     <div class="modal-overlay" id="settings-modal">
         <div class="modal">
             <h3>⚙️ Page & Typography Settings</h3>
+            <h4>📄 Page Setup</h4>
             <label>Paper Size</label>
             <select id="setting-paper-size">
-                <option value="A4">A4</option>
-                <option value="Letter">Letter</option>
-                <option value="Legal">Legal</option>
-                <option value="A3">A3</option>
+                <option value="A4">A4</option><option value="Letter">Letter</option><option value="Legal">Legal</option><option value="A3">A3</option>
             </select>
             <label>Orientation</label>
             <select id="setting-orientation">
-                <option value="portrait">Portrait</option>
-                <option value="landscape">Landscape</option>
+                <option value="portrait">Portrait</option><option value="landscape">Landscape</option>
             </select>
             <label>Margins</label>
             <select id="setting-margins">
-                <option value="small">Small (10mm)</option>
-                <option value="medium" selected>Medium (20mm)</option>
-                <option value="large">Large (30mm)</option>
-                <option value="custom">Custom</option>
+                <option value="small">Small (10mm)</option><option value="medium" selected>Medium (20mm)</option><option value="large">Large (30mm)</option><option value="custom">Custom</option>
             </select>
             <div id="custom-margin-group" style="display:none;">
                 <label>Custom Margin (mm)</label>
                 <input type="number" id="setting-custom-margin" value="20" min="5" max="50" />
             </div>
+            <h4>🎨 Typography</h4>
             <label>Font Family</label>
             <select id="setting-font-family">
                 <option value="Georgia, 'Times New Roman', serif">Georgia (Serif)</option>
@@ -923,14 +1046,41 @@
             <input type="number" id="setting-font-size" value="11" min="8" max="18" />
             <label>Line Height</label>
             <input type="number" id="setting-line-height" value="1.6" min="1.2" max="2.5" step="0.05" />
-            <label>Table of Contents</label>
-            <select id="setting-toc">
-                <option value="enabled">Enabled</option>
-                <option value="disabled">Disabled</option>
+            <h4>💻 Code Theme</h4>
+            <label>Syntax Highlighting Theme (independent of app theme)</label>
+            <select id="setting-code-theme">
+                <option value="github">GitHub Light</option>
+                <option value="github-dark">GitHub Dark</option>
+                <option value="atom-one-light">Atom One Light</option>
+                <option value="atom-one-dark">Atom One Dark</option>
+                <option value="monokai">Monokai</option>
+                <option value="vs2015">VS Code Dark</option>
             </select>
-            <label>TOC Depth (heading levels)</label>
-            <input type="number" id="setting-toc-depth" value="3" min="1" max="6" />
-            <label>Header Text (optional)</label>
+            <h4>📑 Table of Contents</h4>
+            <label>TOC</label>
+            <select id="setting-toc">
+                <option value="enabled">Enabled</option><option value="disabled">Disabled</option>
+            </select>
+            <label>TOC Depth (which heading levels to include)</label>
+            <select id="setting-toc-depth">
+                <option value="1">H1 only</option><option value="2">H1 + H2</option><option value="3" selected>H1 + H2 + H3</option><option value="4">H1 + H2 + H3 + H4</option><option value="5">H1–H5</option><option value="6">H1–H6 (all)</option>
+            </select>
+            <h4>📔 Cover Page</h4>
+            <label>Enable Cover Page</label>
+            <select id="setting-cover-enabled">
+                <option value="disabled">Disabled</option><option value="enabled">Enabled</option>
+            </select>
+            <div class="cover-fields" id="cover-fields-group">
+                <label>Cover Title</label>
+                <input type="text" id="setting-cover-title" placeholder="Document Title" />
+                <label>Subtitle (optional)</label>
+                <input type="text" id="setting-cover-subtitle" placeholder="Subtitle" />
+                <label>Author (optional)</label>
+                <input type="text" id="setting-cover-author" placeholder="Author Name" />
+                <label>Date (optional)</label>
+                <input type="text" id="setting-cover-date" placeholder="e.g., 2026-08-01" />
+            </div>
+            <label>Header Text (optional, for page headers)</label>
             <input type="text" id="setting-header-text" placeholder="Document title for header…" />
             <div class="modal-actions">
                 <button onclick="App.closeSettings()">Cancel</button>
@@ -939,21 +1089,43 @@
         </div>
     </div>
 
-    <!-- ═══════════ TOAST ═══════════ -->
-    <div class="toast" id="toast"></div>
+    <!-- Prompt Generator Modal -->
+    <div class="modal-overlay" id="prompt-modal">
+        <div class="modal" style="max-width:680px;">
+            <h3>🤖 AI Prompt</h3>
+            <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;line-height:1.5;">
+                Different AI models produce different Markdown quality. Copy the prompt below and paste it into
+                <strong>ChatGPT, Claude, DeepSeek, Gemini</strong>, or any other LLM to get consistently
+                well-formatted, document-ready Markdown output.
+            </p>
+            <label>Generated Prompt <span style="font-weight:400;color:var(--text-muted);">(editable — customize before copying)</span></label>
+            <textarea id="prompt-textarea" rows="18"></textarea>
+            <div class="modal-actions">
+                <button onclick="App.closePromptGenerator()">Close</button>
+                <button class="accent" onclick="App.copyPrompt()">📋 Copy Prompt</button>
+            </div>
+        </div>
+    </div>
 
-    <!-- ═══════════ HIDDEN FILE INPUT ═══════════ -->
+    <div class="toast" id="toast"></div>
     <input type="file" id="file-input" accept=".md,.markdown,.txt" style="display:none;" />
 
-    <!-- ═══════════ SCRIPTS ═══════════ -->
-    <script src="https://cdn.jsdelivr.net/npm/markdown-it@14.1.0/dist/markdown-it.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/markdown-it-footnote@4.0.0/dist/markdown-it-footnote.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/markdown-it-task-lists@2.1.1/dist/markdown-it-task-lists.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/markdown-it-deflist@3.0.0/dist/markdown-it-deflist.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.8/dist/purify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it@14.1.0/dist/markdown-it.min.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it-footnote@4.0.0/dist/markdown-it-footnote.min.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it-task-lists@2.1.1/dist/markdown-it-task-lists.min.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it-deflist@3.0.0/dist/markdown-it-deflist.min.js">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.8/dist/purify.min.js">
+    </script>
 
     <script>
         (function() {
@@ -972,13 +1144,14 @@
                     const max = state.eMarks[startLine];
                     const lineText = state.src.slice(pos, max);
                     if (lineText.startsWith('$$') && lineText.length > 2) {
-                        const endIdx = lineText.indexOf('$$', 2);
+                        const rest = lineText.slice(2);
+                        const endIdx = rest.indexOf('$$');
                         if (endIdx !== -1) {
                             if (!silent) {
-                                const formula = lineText.slice(2, endIdx).trim();
+                                const formula = rest.slice(0, endIdx).trim();
                                 try {
                                     const html = katex.renderToString(formula, { displayMode: true,
-                                        throwOnError: false });
+                                        throwOnError: false, trust: false });
                                     const token = state.push('html_block', '', 0);
                                     token.content = '<div class="katex-block">' + html + '</div>';
                                     token.block = true;
@@ -994,40 +1167,65 @@
                             return true;
                         }
                     }
-                    if (lineText === '$$') {
+                    if (lineText.trim() === '$$' || (lineText.startsWith('$$') && lineText.length === 2)) {
                         let nextLine = startLine + 1;
+                        let formulaLines = [];
+                        if (lineText.startsWith('$$') && lineText.length > 2) {
+                            formulaLines.push(lineText.slice(2).trim());
+                        }
                         while (nextLine < endLine) {
                             const np = state.bMarks[nextLine] + state.tShift[nextLine];
                             const nm = state.eMarks[nextLine];
-                            const nt = state.src.slice(np, nm);
-                            if (nt.trim() === '$$') {
+                            const nt = state.src.slice(np, nm).trim();
+                            if (nt === '$$') {
                                 if (!silent) {
-                                    const formulaLines = [];
-                                    for (let i = startLine + 1; i < nextLine; i++) {
-                                        const lp = state.bMarks[i] + state.tShift[i];
-                                        const lm = state.eMarks[i];
-                                        formulaLines.push(state.src.slice(lp, lm));
-                                    }
                                     const formula = formulaLines.join('\n').trim();
-                                    try {
-                                        const html = katex.renderToString(formula, { displayMode: true,
-                                            throwOnError: false });
-                                        const token = state.push('html_block', '', 0);
-                                        token.content = '<div class="katex-block">' + html + '</div>';
-                                        token.block = true;
-                                    } catch (e) {
-                                        const token = state.push('html_block', '', 0);
-                                        token.content =
-                                            '<div class="katex-error">[KaTeX Error: ' + md.utils.escapeHtml(e
-                                                .message) + ']</div>';
-                                        token.block = true;
+                                    if (formula) {
+                                        try {
+                                            const html = katex.renderToString(formula, { displayMode: true,
+                                                throwOnError: false, trust: false });
+                                            const token = state.push('html_block', '', 0);
+                                            token.content = '<div class="katex-block">' + html + '</div>';
+                                            token.block = true;
+                                        } catch (e) {
+                                            const token = state.push('html_block', '', 0);
+                                            token.content =
+                                                '<div class="katex-error">[KaTeX Error: ' + md.utils
+                                                .escapeHtml(e.message) + ']</div>';
+                                            token.block = true;
+                                        }
                                     }
                                 }
                                 state.line = nextLine + 1;
                                 return true;
                             }
+                            if (nt.startsWith('$$') && nt.endsWith('$$') && nt.length > 4) {
+                                formulaLines.push(nt.slice(2, -2).trim());
+                                if (!silent) {
+                                    const formula = formulaLines.join('\n').trim();
+                                    if (formula) {
+                                        try {
+                                            const html = katex.renderToString(formula, { displayMode: true,
+                                                throwOnError: false, trust: false });
+                                            const token = state.push('html_block', '', 0);
+                                            token.content = '<div class="katex-block">' + html + '</div>';
+                                            token.block = true;
+                                        } catch (e) {
+                                            const token = state.push('html_block', '', 0);
+                                            token.content =
+                                                '<div class="katex-error">[KaTeX Error: ' + md.utils
+                                                .escapeHtml(e.message) + ']</div>';
+                                            token.block = true;
+                                        }
+                                    }
+                                }
+                                state.line = nextLine + 1;
+                                return true;
+                            }
+                            formulaLines.push(state.src.slice(np, nm));
                             nextLine++;
                         }
+                        return false;
                     }
                     return false;
                 });
@@ -1045,13 +1243,16 @@
                     if (end === pos + 1) return false;
                     if (!silent) {
                         const formula = state.src.slice(pos + 1, end).trim();
-                        try {
-                            const html = katex.renderToString(formula, { displayMode: false, throwOnError: false });
-                            const token = state.push('html_inline', '', 0);
-                            token.content = html;
-                        } catch (e) {
-                            const token = state.push('text', '', 0);
-                            token.content = '[KaTeX Error]';
+                        if (formula) {
+                            try {
+                                const html = katex.renderToString(formula, { displayMode: false,
+                                    throwOnError: false, trust: false });
+                                const token = state.push('html_inline', '', 0);
+                                token.content = html;
+                            } catch (e) {
+                                const token = state.push('text', '', 0);
+                                token.content = '[KaTeX Error]';
+                            }
                         }
                     }
                     state.pos = end + 1;
@@ -1068,21 +1269,22 @@
                 highlight: function(str, lang) {
                     if (lang && hljs.getLanguage(lang)) {
                         try {
-                            const highlighted = hljs.highlight(str, { language: lang, ignoreIllegals: true }).value;
-                            return '<pre class="hljs"><code class="hljs language-' + md.utils.escapeHtml(lang) +
-                                '">' + highlighted +
-                                '</code><button class="copy-code-btn" onclick="App.copyCodeBlock(this)">📋 Copy</button></pre>';
+                            const highlighted = hljs.highlight(str, { language: lang, ignoreIllegals: true })
+                                .value;
+                            return '<pre class="hljs"><code class="hljs language-' + md.utils.escapeHtml(
+                                lang) + '">' + highlighted +
+                                '</code><button class="copy-code-btn" onclick="App.copyCodeBlock(this)" title="Copy code">📋 Copy</button></pre>';
                         } catch (e) {}
                     }
                     try {
                         const result = hljs.highlightAuto(str);
                         if (result.language && result.relevance > 3) {
                             return '<pre class="hljs"><code class="hljs">' + result.value +
-                                '</code><button class="copy-code-btn" onclick="App.copyCodeBlock(this)">📋 Copy</button></pre>';
+                                '</code><button class="copy-code-btn" onclick="App.copyCodeBlock(this)" title="Copy code">📋 Copy</button></pre>';
                         }
                     } catch (e) {}
                     return '<pre class="hljs"><code>' + md.utils.escapeHtml(str) +
-                        '</code><button class="copy-code-btn" onclick="App.copyCodeBlock(this)">📋 Copy</button></pre>';
+                        '</code><button class="copy-code-btn" onclick="App.copyCodeBlock(this)" title="Copy code">📋 Copy</button></pre>';
                 },
             });
 
@@ -1101,14 +1303,19 @@
                     fontFamily: "Georgia, 'Times New Roman', serif",
                     fontSize: 11,
                     lineHeight: 1.6,
+                    codeTheme: 'github',
                     tocEnabled: true,
                     tocDepth: 3,
+                    coverEnabled: false,
+                    coverTitle: '',
+                    coverSubtitle: '',
+                    coverAuthor: '',
+                    coverDate: '',
                     headerText: '',
                     theme: 'light',
                 },
                 isDirty: false,
                 lastRendered: '',
-                mermaidPlaceholders: [],
             };
 
             function loadSettings() {
@@ -1130,7 +1337,6 @@
                 try { localStorage.setItem('md2pdf-document', content); } catch (e) {}
             }
 
-            // ── DOM references ──────────────────────
             const editorEl = document.getElementById('editor');
             const previewEl = document.getElementById('preview');
             const lineNumbersEl = document.getElementById('line-numbers');
@@ -1145,6 +1351,7 @@
             const charCountBadge = document.getElementById('char-count-badge');
             const readTimeBadge = document.getElementById('read-time-badge');
             const settingsModal = document.getElementById('settings-modal');
+            const promptModal = document.getElementById('prompt-modal');
             const toastEl = document.getElementById('toast');
             const fileInput = document.getElementById('file-input');
             const themeBtn = document.getElementById('theme-btn');
@@ -1184,64 +1391,110 @@
                 readTimeBadge.textContent = '~' + readTime + ' min read';
             }
 
-            // ── TOC generation (works on live DOM) ──
+            // ── Check if a heading is inside a code block or blockquote ──
+            function isInsideExcludedContainer(el) {
+                let current = el.parentElement;
+                while (current) {
+                    if (current.tagName === 'PRE' || current.tagName === 'CODE' || current.tagName ===
+                        'BLOCKQUOTE') {
+                        return true;
+                    }
+                    if (current === previewEl) break;
+                    current = current.parentElement;
+                }
+                return false;
+            }
+
+            // ── SIMPLE & RELIABLE TOC generation ─────
             function buildTOCFromDOM(depth) {
-                const headings = previewEl.querySelectorAll('h1, h2, h3, h4, h5, h6');
+                const allHeadings = previewEl.querySelectorAll('h1, h2, h3, h4, h5, h6');
+                const headings = [];
+                allHeadings.forEach(h => {
+                    const level = parseInt(h.tagName[1]);
+                    if (level <= depth && !isInsideExcludedContainer(h)) {
+                        headings.push(h);
+                    }
+                });
                 if (headings.length === 0) return null;
 
-                // Assign IDs if missing
+                // Assign unique IDs for anchor links
+                const usedIds = new Set();
                 headings.forEach((h, idx) => {
                     if (!h.id) {
-                        h.id = 'toc-heading-' + idx;
+                        let baseId = 'toc-heading-' + idx;
+                        const text = h.textContent.trim().toLowerCase().replace(/[^\w]+/g, '-').replace(
+                            /^-+|-+$/g, '');
+                        if (text && text.length > 1) baseId = text;
+                        let candidate = baseId;
+                        let counter = 1;
+                        while (usedIds.has(candidate)) {
+                            candidate = baseId + '-' + counter;
+                            counter++;
+                        }
+                        usedIds.add(candidate);
+                        h.id = candidate;
+                    } else {
+                        usedIds.add(h.id);
                     }
                 });
 
+                // Build flat TOC list with indentation based on heading level
                 const tocContainer = document.createElement('div');
                 tocContainer.className = 'toc-container';
                 tocContainer.innerHTML = '<h3>📑 Table of Contents</h3>';
                 const ul = document.createElement('ul');
-                const stack = [{ level: 0, ul: ul }];
+                ul.style.listStyle = 'none';
+                ul.style.paddingLeft = '0';
 
                 headings.forEach(h => {
                     const level = parseInt(h.tagName[1]);
-                    if (level > depth) return;
                     const li = document.createElement('li');
+                    li.style.paddingLeft = (level - 1) * 1.2 + 'em';
                     const a = document.createElement('a');
                     a.href = '#' + h.id;
                     a.textContent = h.textContent.trim();
+                    a.style.fontSize = (1 - (level - 1) * 0.04) + 'em';
                     li.appendChild(a);
-
-                    // Adjust stack
-                    while (stack.length > 0 && stack[stack.length - 1].level >= level) {
-                        stack.pop();
-                    }
-                    const parent = stack[stack.length - 1];
-                    if (level > parent.level) {
-                        const subUl = document.createElement('ul');
-                        const lastLi = parent.ul.lastElementChild;
-                        if (lastLi) {
-                            lastLi.appendChild(subUl);
-                            stack.push({ level, ul: subUl });
-                            subUl.appendChild(li);
-                        } else {
-                            parent.ul.appendChild(li);
-                            stack.push({ level, ul: parent.ul });
-                        }
-                    } else {
-                        parent.ul.appendChild(li);
-                        stack[stack.length - 1] = { level, ul: parent.ul };
-                    }
+                    ul.appendChild(li);
                 });
 
                 tocContainer.appendChild(ul);
                 return tocContainer;
             }
 
+            // ── Build cover page element ────────────
+            function buildCoverPage() {
+                const s = state.settings;
+                if (!s.coverEnabled) return null;
+                const cover = document.createElement('div');
+                cover.className = 'cover-page';
+                let html = '';
+                if (s.coverTitle) html += '<h1 class="cover-title">' + escapeHTML(s.coverTitle) + '</h1>';
+                if (s.coverSubtitle) html += '<p class="cover-subtitle">' + escapeHTML(s.coverSubtitle) + '</p>';
+                html += '<div class="cover-divider"></div>';
+                if (s.coverAuthor) html += '<p class="cover-meta"><strong>Author:</strong> ' + escapeHTML(s
+                    .coverAuthor) + '</p>';
+                if (s.coverDate) html += '<p class="cover-meta"><strong>Date:</strong> ' + escapeHTML(s.coverDate) +
+                    '</p>';
+                if (!s.coverTitle && !s.coverSubtitle && !s.coverAuthor && !s.coverDate) {
+                    html +=
+                        '<p class="cover-meta" style="color:var(--text-muted);">(Configure cover page details in Settings)</p>';
+                }
+                cover.innerHTML = html;
+                return cover;
+            }
+
+            function escapeHTML(str) {
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            }
+
             // ── Render preview ─────────────────────
             function renderPreview() {
                 const markdown = editorEl.value;
-                if (markdown === state.lastRendered && previewEl.children.length > 0 && previewEl.querySelector(
-                        '.mermaid-placeholder') === null) {
+                if (markdown === state.lastRendered && previewEl.children.length > 0 &&
+                    !previewEl.querySelector('.mermaid-placeholder')) {
                     return;
                 }
                 state.lastRendered = markdown;
@@ -1258,20 +1511,37 @@
                     '<div class="pagebreak-marker">— Page Break —</div>');
                 let html = md.render(processedMarkdown);
                 html = DOMPurify.sanitize(html, {
-                    ADD_TAGS: ['div', 'span', 'svg', 'path', 'g', 'defs', 'line', 'marker', 'arrowhead'],
+                    ADD_TAGS: ['div', 'span', 'svg', 'path', 'g', 'defs', 'line', 'marker', 'arrowhead',
+                        'polygon', 'polyline', 'rect', 'circle', 'ellipse', 'text', 'tspan', 'title', 'desc'
+                    ],
                     ADD_ATTR: ['class', 'id', 'viewBox', 'xmlns', 'd', 'fill', 'stroke', 'stroke-width',
-                        'marker-end', 'transform', 'style', 'width', 'height'
+                        'marker-end', 'marker-start', 'transform', 'style', 'width', 'height', 'x', 'y', 'cx',
+                        'cy', 'r', 'rx', 'ry', 'points', 'dx', 'dy', 'text-anchor', 'dominant-baseline',
+                        'font-size', 'font-family', 'font-weight', 'textLength', 'lengthAdjust', 'aria-hidden',
+                        'role', 'stroke-linecap', 'stroke-linejoin', 'stroke-dasharray', 'opacity'
                     ],
                 });
 
                 previewEl.innerHTML = html;
 
-                // Insert TOC if enabled (after DOM is built)
+                // Insert cover page first (if enabled)
+                const coverEl = buildCoverPage();
+                if (coverEl) {
+                    previewEl.insertBefore(coverEl, previewEl.firstChild);
+                }
+
+                // Insert TOC after cover page (if enabled)
                 if (state.settings.tocEnabled && state.settings.tocDepth > 0) {
                     const tocEl = buildTOCFromDOM(state.settings.tocDepth);
                     if (tocEl) {
-                        // Prepend TOC at the beginning of preview
-                        previewEl.insertBefore(tocEl, previewEl.firstChild);
+                        const coverInDOM = previewEl.querySelector('.cover-page');
+                        if (coverInDOM && coverInDOM.nextSibling) {
+                            previewEl.insertBefore(tocEl, coverInDOM.nextSibling);
+                        } else if (coverInDOM) {
+                            previewEl.appendChild(tocEl);
+                        } else {
+                            previewEl.insertBefore(tocEl, previewEl.firstChild);
+                        }
                     }
                 }
 
@@ -1287,13 +1557,11 @@
             function renderMermaidDiagrams() {
                 const mermaidBlocks = previewEl.querySelectorAll('pre code.language-mermaid, pre code.language-mmd');
                 if (mermaidBlocks.length === 0) return;
-
                 mermaidBlocks.forEach(async (codeEl, index) => {
                     const preEl = codeEl.closest('pre');
                     if (!preEl || preEl.dataset.mermaidRendered === 'true') return;
                     const mermaidCode = codeEl.textContent.trim();
                     if (!mermaidCode) return;
-
                     preEl.dataset.mermaidRendered = 'pending';
                     const uniqueId = 'mermaid-svg-' + Date.now() + '-' + index;
                     const placeholder = document.createElement('div');
@@ -1303,7 +1571,6 @@
                     placeholder.style.cssText =
                         'padding:20px;text-align:center;background:#f8f9fa;border-radius:8px;border:1px dashed #dee2e6;margin:1em 0;font-family:var(--font-sans);font-size:13px;color:#868e96;';
                     preEl.parentNode.replaceChild(placeholder, preEl);
-
                     try {
                         const { svg } = await mermaid.render(uniqueId, mermaidCode);
                         const wrapper = document.createElement('div');
@@ -1312,15 +1579,14 @@
                         wrapper.style.cssText =
                             'text-align:center;margin:1em 0;overflow-x:auto;page-break-inside:avoid;';
                         const svgEl = wrapper.querySelector('svg');
-                        if (svgEl) {
-                            svgEl.style.maxWidth = '100%';
-                            svgEl.style.height = 'auto';
-                        }
+                        if (svgEl) { svgEl.style.maxWidth = '100%';
+                            svgEl.style.height = 'auto'; }
                         placeholder.parentNode.replaceChild(wrapper, placeholder);
                     } catch (e) {
                         placeholder.textContent = '⚠️ Mermaid diagram could not be rendered: ' + e.message;
                         placeholder.style.color = '#e03131';
                         placeholder.style.borderColor = '#e03131';
+                        placeholder.dataset.mermaidError = 'true';
                     }
                 });
             }
@@ -1334,17 +1600,7 @@
                 previewEl.style.fontSize = s.fontSize + 'pt';
                 previewEl.style.lineHeight = s.lineHeight;
                 document.body.dataset.theme = s.theme;
-
-                const lightTheme = document.getElementById('hljs-light-theme');
-                const darkTheme = document.getElementById('hljs-dark-theme');
-                if (s.theme === 'dark') {
-                    lightTheme.disabled = true;
-                    darkTheme.disabled = false;
-                } else {
-                    lightTheme.disabled = false;
-                    darkTheme.disabled = true;
-                }
-
+                applyCodeTheme(s.codeTheme);
                 mermaid.initialize({
                     startOnLoad: false,
                     theme: s.theme === 'dark' ? 'dark' : 'default',
@@ -1352,6 +1608,15 @@
                 });
                 themeBtn.textContent = s.theme === 'dark' ? '☀️ Light' : '🌓 Dark';
                 updatePrintStyles();
+            }
+
+            function applyCodeTheme(themeName) {
+                document.querySelectorAll('.hljs-theme-link').forEach(link => { link.disabled = true; });
+                const targetLink = document.getElementById('hljs-theme-' + themeName);
+                if (targetLink) { targetLink.disabled = false; } else {
+                    const fallback = document.getElementById('hljs-theme-github');
+                    if (fallback) fallback.disabled = false;
+                }
             }
 
             function updatePrintStyles() {
@@ -1367,7 +1632,6 @@
                 const sizeMap = { A4: 'A4', Letter: 'letter', Legal: 'legal', A3: 'A3' };
                 const paperSize = sizeMap[s.paperSize] || 'A4';
                 const orientation = s.orientation === 'landscape' ? 'landscape' : '';
-
                 styleEl.textContent = `
         @media print {
           @page {
@@ -1392,11 +1656,18 @@
                 document.getElementById('setting-font-family').value = s.fontFamily;
                 document.getElementById('setting-font-size').value = s.fontSize;
                 document.getElementById('setting-line-height').value = s.lineHeight;
+                document.getElementById('setting-code-theme').value = s.codeTheme;
                 document.getElementById('setting-toc').value = s.tocEnabled ? 'enabled' : 'disabled';
                 document.getElementById('setting-toc-depth').value = s.tocDepth;
+                document.getElementById('setting-cover-enabled').value = s.coverEnabled ? 'enabled' : 'disabled';
+                document.getElementById('setting-cover-title').value = s.coverTitle;
+                document.getElementById('setting-cover-subtitle').value = s.coverSubtitle;
+                document.getElementById('setting-cover-author').value = s.coverAuthor;
+                document.getElementById('setting-cover-date').value = s.coverDate;
                 document.getElementById('setting-header-text').value = s.headerText;
                 document.getElementById('custom-margin-group').style.display = s.margins === 'custom' ? 'block' :
                     'none';
+                document.getElementById('cover-fields-group').classList.toggle('visible', s.coverEnabled);
                 settingsModal.classList.add('active');
             }
 
@@ -1410,11 +1681,18 @@
                 state.settings.fontFamily = document.getElementById('setting-font-family').value;
                 state.settings.fontSize = parseInt(document.getElementById('setting-font-size').value) || 11;
                 state.settings.lineHeight = parseFloat(document.getElementById('setting-line-height').value) || 1.6;
+                state.settings.codeTheme = document.getElementById('setting-code-theme').value;
                 state.settings.tocEnabled = document.getElementById('setting-toc').value === 'enabled';
                 state.settings.tocDepth = parseInt(document.getElementById('setting-toc-depth').value) || 3;
-                state.settings.headerText = document.getElementById('setting-header-text').value;
+                state.settings.coverEnabled = document.getElementById('setting-cover-enabled').value === 'enabled';
+                state.settings.coverTitle = document.getElementById('setting-cover-title').value.trim();
+                state.settings.coverSubtitle = document.getElementById('setting-cover-subtitle').value.trim();
+                state.settings.coverAuthor = document.getElementById('setting-cover-author').value.trim();
+                state.settings.coverDate = document.getElementById('setting-cover-date').value.trim();
+                state.settings.headerText = document.getElementById('setting-header-text').value.trim();
                 saveSettings();
                 applyPreviewSettings();
+                updatePrintStyles();
                 state.lastRendered = '';
                 renderPreview();
                 closeSettingsModal();
@@ -1437,15 +1715,17 @@
                 const htmlContent = previewEl.innerHTML;
                 const fullHTML = `<!DOCTYPE html>
         <html lang="en">
-        <head>
-        <meta charset="UTF-8"><title>Exported Document</title>
+        <head><meta charset="UTF-8"><title>Exported Document</title>
         <style>
         body { font-family: ${state.settings.fontFamily}; font-size: ${state.settings.fontSize}pt; line-height: ${state.settings.lineHeight}; max-width: 800px; margin: 40px auto; padding: 0 20px; color: #1a1a2e; }
         pre { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 16px; overflow-x: auto; }
-        code { font-family: 'SF Mono', 'Consolas', 'Monaco', monospace; font-size: 0.88em; }
+        code { font-family: 'SF Mono','Consolas','Monaco',monospace; font-size: 0.88em; }
         table { border-collapse: collapse; width: 100%; } table th, table td { border: 1px solid #dee2e6; padding: 8px 12px; } table th { background: #f1f3f5; }
-        a { color: #4c6ef5; } .toc-container { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 16px 20px; margin: 1em 0; }
-        .pagebreak-marker { page-break-after: always; border-top: 2px dashed #dee2e6; margin: 2em 0; text-align: center; color: #adb5bd; }
+        a { color: #4c6ef5; } .toc-container { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 16px 20px; margin: 1em 0; page-break-after:always; }
+        .cover-page { text-align:center; padding:60px 20px; border-bottom:3px double #ccc; margin-bottom:2em; page-break-after:always; }
+        .cover-page .cover-title { font-size:2.4em; font-weight:700; } .cover-page .cover-subtitle { font-size:1.3em; color:#495057; font-style:italic; }
+        .pagebreak-marker { page-break-after:always; border-top:2px dashed #dee2e6; margin:2em 0; text-align:center; color:#adb5bd; }
+        h1, h2, h3, h4 { page-break-after:avoid; }
 </style></head><body>${htmlContent}</body></html>`;
 const blob = new Blob([fullHTML], { type: 'text/html;charset=utf-8' });
 const url = URL.createObjectURL(blob);
@@ -1459,8 +1739,9 @@ const docHTML = `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"><style>
 body { font-family: ${state.settings.fontFamily}; font-size: ${state.settings.fontSize}pt; line-height: ${state.settings.lineHeight}; }
 pre { background: #f8f9fa; border: 1px solid #e9ecef; padding: 12px; } table { border-collapse: collapse; width: 100%; }
-table th, table td { border: 1px solid #000; padding: 6px 10px; } .toc-container { background: #f8f9fa; border: 1px solid #e9ecef; padding: 12px 16px; }
-.pagebreak-marker { page-break-after: always; }
+table th, table td { border: 1px solid #000; padding: 6px 10px; } .toc-container { background: #f8f9fa; border: 1px solid #e9ecef; padding: 12px 16px; page-break-after:always; }
+.cover-page { text-align:center; padding:60px 20px; border-bottom:3px double #ccc; margin-bottom:2em; page-break-after:always; }
+.pagebreak-marker { page-break-after:always; } h1, h2, h3, h4 { page-break-after:avoid; }
 </style></head><body>${htmlContent}</body></html>`;
 const blob = new Blob([docHTML], { type: 'application/msword;charset=utf-8' });
 const url = URL.createObjectURL(blob);
@@ -1473,14 +1754,52 @@ navigator.clipboard.writeText(previewEl.innerHTML).then(() => showToast('📋 HT
 showToast('⚠️ Failed to copy'));
 }
 
+// ── FIXED Copy code block — with fallback for local file:// access ──
 function copyCodeBlock(btn) {
-const codeEl = btn.parentElement.querySelector('code');
-if (codeEl) {
-navigator.clipboard.writeText(codeEl.textContent).then(() => {
+const preEl = btn.closest('pre');
+if (!preEl) return;
+const codeEl = preEl.querySelector('code');
+if (!codeEl) return;
+const codeText = codeEl.textContent || '';
+
+// Try modern clipboard API first
+if (navigator.clipboard && navigator.clipboard.writeText) {
+navigator.clipboard.writeText(codeText).then(() => {
 btn.textContent = '✅ Copied!';
 setTimeout(() => { btn.textContent = '📋 Copy'; }, 1800);
-}).catch(() => showToast('⚠️ Failed to copy code'));
+showToast('📋 Code copied to clipboard');
+}).catch(() => {
+fallbackCopy(codeText, btn);
+});
+} else {
+// Fallback for file:// or older browsers
+fallbackCopy(codeText, btn);
 }
+}
+
+function fallbackCopy(text, btn) {
+const textarea = document.createElement('textarea');
+textarea.value = text;
+textarea.style.position = 'fixed';
+textarea.style.left = '-9999px';
+textarea.style.top = '-9999px';
+textarea.setAttribute('readonly', '');
+document.body.appendChild(textarea);
+textarea.focus();
+textarea.select();
+try {
+const success = document.execCommand('copy');
+if (success) {
+btn.textContent = '✅ Copied!';
+setTimeout(() => { btn.textContent = '📋 Copy'; }, 1800);
+showToast('📋 Code copied to clipboard');
+} else {
+showToast('⚠️ Failed to copy code');
+}
+} catch (e) {
+showToast('⚠️ Failed to copy code');
+}
+document.body.removeChild(textarea);
 }
 
 // ── File operations ──────────────────────
@@ -1511,14 +1830,19 @@ function clearAll() {
 if (editorEl.value.trim() && !confirm('Clear the editor? Unsaved changes will be lost.')) return;
 editorEl.value = '';
 state.lastRendered = '';
-previewEl.innerHTML = '<p style="color:#adb5bd;text-align:center;margin-top:60px;font-family:var(--font-sans);">Start typing in the editor to see a live preview…</p>';
+previewEl.innerHTML =
+'<p style="color:#adb5bd;text-align:center;margin-top:60px;font-family:var(--font-sans);">Start typing in the editor to see a live preview…</p>';
 updateLineNumbers(); updateStats(); saveDocument('');
 showToast('🗑️ Cleared');
 }
 
 // ── Search & Replace ─────────────────────
-function openSearch() { searchBarEl.classList.add('active'); searchInput.focus(); searchInput.select(); }
-function closeSearch() { searchBarEl.classList.remove('active'); searchCountEl.textContent = ''; }
+function openSearch() { searchBarEl.classList.add('active');
+searchInput.focus();
+searchInput.select(); }
+
+function closeSearch() { searchBarEl.classList.remove('active');
+searchCountEl.textContent = ''; }
 
 function doSearch() {
 const query = searchInput.value;
@@ -1527,58 +1851,47 @@ const caseSensitive = document.getElementById('search-case').checked;
 const useRegex = document.getElementById('search-regex').checked;
 let flags = 'g'; if (!caseSensitive) flags += 'i';
 let pattern;
-try { pattern = useRegex ? new RegExp(query, flags) : new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), flags); }
-catch (e) { searchCountEl.textContent = 'Invalid regex'; return; }
+try { pattern = useRegex ? new RegExp(query, flags) : new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+flags); } catch (e) { searchCountEl.textContent = 'Invalid regex'; return; }
 const matches = editorEl.value.match(pattern);
 const count = matches ? matches.length : 0;
 searchCountEl.textContent = count + ' match' + (count !== 1 ? 'es' : '');
-if (matches && count > 0) {
-const idx = editorEl.value.search(pattern);
-if (idx >= 0) {
-editorEl.focus();
+if (matches && count > 0) { const idx = editorEl.value.search(pattern); if (idx >= 0) { editorEl.focus();
 editorEl.setSelectionRange(idx, idx + matches[0].length);
 const lineNum = editorEl.value.slice(0, idx).split('\n').length;
 const lineHeight = parseFloat(getComputedStyle(editorEl).lineHeight) || 22;
-editorEl.scrollTop = Math.max(0, (lineNum - 1) * lineHeight - editorEl.clientHeight / 3);
-}
-}
+editorEl.scrollTop = Math.max(0, (lineNum - 1) * lineHeight - editorEl.clientHeight / 3); } }
 }
 
 function doReplace() {
-const query = searchInput.value;
-const replacement = replaceInput.value;
-if (!query) return;
+const query = searchInput.value; const replacement = replaceInput.value; if (!query) return;
 const caseSensitive = document.getElementById('search-case').checked;
 const useRegex = document.getElementById('search-regex').checked;
 let flags = ''; if (!caseSensitive) flags += 'i';
 let pattern;
-try { pattern = useRegex ? new RegExp(query, flags) : new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), flags); }
-catch (e) { showToast('Invalid regex'); return; }
+try { pattern = useRegex ? new RegExp(query, flags) : new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+flags); } catch (e) { showToast('Invalid regex'); return; }
 const match = editorEl.value.match(pattern);
-if (match) {
-editorEl.value = editorEl.value.replace(pattern, replacement);
-state.lastRendered = ''; renderPreview(); showToast('↻ Replaced 1 occurrence');
-} else showToast('No matches found');
+if (match) { editorEl.value = editorEl.value.replace(pattern, replacement);
+state.lastRendered = ''; renderPreview();
+showToast('↻ Replaced 1 occurrence'); } else showToast('No matches found');
 }
 
 function doReplaceAll() {
-const query = searchInput.value;
-const replacement = replaceInput.value;
-if (!query) return;
+const query = searchInput.value; const replacement = replaceInput.value; if (!query) return;
 const caseSensitive = document.getElementById('search-case').checked;
 const useRegex = document.getElementById('search-regex').checked;
 let flags = 'g'; if (!caseSensitive) flags += 'i';
 let pattern;
-try { pattern = useRegex ? new RegExp(query, flags) : new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), flags); }
-catch (e) { showToast('Invalid regex'); return; }
+try { pattern = useRegex ? new RegExp(query, flags) : new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+flags); } catch (e) { showToast('Invalid regex'); return; }
 const count = (editorEl.value.match(pattern) || []).length;
-if (count > 0) {
-editorEl.value = editorEl.value.replace(pattern, replacement);
-state.lastRendered = ''; renderPreview(); showToast('↻↻ Replaced ' + count + ' occurrences');
-} else showToast('No matches found');
+if (count > 0) { editorEl.value = editorEl.value.replace(pattern, replacement);
+state.lastRendered = ''; renderPreview();
+showToast('↻↻ Replaced ' + count + ' occurrences'); } else showToast('No matches found');
 }
 
-// ── Theme ────────────────────────────────
+// ── Theme toggle ─────────────────────────
 function toggleTheme() {
 state.settings.theme = state.settings.theme === 'dark' ? 'light' : 'dark';
 saveSettings(); applyPreviewSettings();
@@ -1586,19 +1899,95 @@ state.lastRendered = ''; renderPreview();
 showToast(state.settings.theme === 'dark' ? '🌙 Dark mode' : '☀️ Light mode');
 }
 
-// ── Fullscreen ───────────────────────────
+// ── Fullscreen pane ──────────────────────
 function fullscreenPane(side) {
 const pane = side === 'left' ? paneLeftEl : paneRightEl;
 const isFullscreen = pane.classList.contains('fullscreen');
-if (isFullscreen) {
-pane.classList.remove('fullscreen'); pane.style.width = ''; pane.style.flex = '';
-dividerEl.style.display = '';
-if (side === 'left') { paneLeftEl.style.width = '50%'; paneLeftEl.style.flex = ''; paneRightEl.style.display = ''; }
-else { paneRightEl.style.display = ''; }
+if (isFullscreen) { pane.classList.remove('fullscreen');
+pane.style.width = ''; pane.style.flex = ''; dividerEl.style.display = '';
+if (side === 'left') { paneLeftEl.style.width = '50%';
+paneLeftEl.style.flex = ''; paneRightEl.style.display = ''; } else { paneRightEl.style.display = ''; }
+} else { pane.classList.add('fullscreen');
+dividerEl.style.display = 'none'; if (side === 'left') paneRightEl.style.display = 'none'; else paneLeftEl.style
+.display = 'none'; }
+}
+
+// ── AI Prompt Generator ──────────────────
+function getDefaultPrompt() {
+return `You are a technical documentation assistant. When generating content for a Markdown-to-PDF converter, follow these rules strictly:
+
+## Heading Structure
+- Use # (H1) ONLY for major chapters or document titles — sparingly
+- Use ## (H2) for major sections within chapters
+- Use ### (H3) for sub-sections only when truly necessary
+- NEVER use H4, H5, or H6 unless absolutely required
+- NEVER skip heading levels (do not go from H1 to H3 directly)
+- Avoid creating too many small sections — consolidate where possible
+
+## Code Blocks
+- ALWAYS wrap code in fenced code blocks using \`\`\`
+- ALWAYS specify the language: \`\`\`python, \`\`\`javascript, \`\`\`bash, etc.
+- Preserve correct indentation inside code blocks
+- Use inline \`code\` only for short references like variable names
+
+## Mathematics (KaTeX)
+- Use $...$ for inline math: $E = mc^2$
+- Use $$...$$ for block/display math
+- Ensure all LaTeX is syntactically correct
+
+## Tables
+- Use proper GitHub Flavored Markdown table formatting
+- Align columns with spaces for readability
+- Keep tables reasonably sized
+
+## Diagrams
+- Use \`\`\`mermaid for flowcharts, sequence diagrams, etc. when appropriate
+- Keep diagrams simple and readable
+
+## Document Structure
+- Insert ---pagebreak--- on its own line before every major chapter
+- Use consistent list formatting
+- Use blockquotes (>) for callouts and tips
+- Use horizontal rules (---) sparingly
+- Avoid malformed Markdown
+
+## General Rules
+- Output GitHub Flavored Markdown (GFM)
+- Be consistent with formatting throughout
+- Generate clean, well-structured, document-quality output
+- Do not include comments or meta-commentary
+- Produce ONLY the Markdown content, ready to paste into the converter`;
+}
+
+function openPromptGenerator() {
+document.getElementById('prompt-textarea').value = getDefaultPrompt();
+promptModal.classList.add('active');
+}
+
+function closePromptGenerator() { promptModal.classList.remove('active'); }
+
+function copyPrompt() {
+const textarea = document.getElementById('prompt-textarea');
+const text = textarea.value;
+if (navigator.clipboard && navigator.clipboard.writeText) {
+navigator.clipboard.writeText(text).then(() => {
+showToast('📋 Prompt copied! Paste it into ChatGPT, Claude, or any LLM.');
+closePromptGenerator();
+}).catch(() => {
+textarea.select();
+textarea.setSelectionRange(0, 999999);
+showToast('⚠️ Please press Ctrl+C to copy the selected prompt');
+});
 } else {
-pane.classList.add('fullscreen'); dividerEl.style.display = 'none';
-if (side === 'left') paneRightEl.style.display = 'none';
-else paneLeftEl.style.display = 'none';
+textarea.select();
+textarea.setSelectionRange(0, 999999);
+try {
+document.execCommand('copy');
+showToast('📋 Prompt copied! Paste it into ChatGPT, Claude, or any LLM.');
+closePromptGenerator();
+} catch (e) {
+showToast('⚠️ Please press Ctrl+C to copy the selected prompt');
+}
 }
 }
 
@@ -1610,7 +1999,8 @@ e.preventDefault();
 const file = e.dataTransfer.files[0];
 if (file && (file.name.endsWith('.md') || file.name.endsWith('.markdown') || file.name.endsWith('.txt'))) {
 const reader = new FileReader();
-reader.onload = ev => { editorEl.value = ev.target.result; state.lastRendered = ''; renderPreview();
+reader.onload = ev => { editorEl.value = ev.target.result;
+state.lastRendered = ''; renderPreview();
 showToast('📂 File dropped: ' + file.name); };
 reader.readAsText(file);
 }
@@ -1618,53 +2008,36 @@ reader.readAsText(file);
 editorEl.addEventListener('dragover', e => { e.preventDefault();
 editorEl.style.boxShadow = 'inset 0 0 0 3px var(--accent)'; });
 editorEl.addEventListener('dragleave', () => { editorEl.style.boxShadow = ''; });
-editorEl.addEventListener('drop', e => {
-e.preventDefault();
-editorEl.style.boxShadow = '';
-const file = e.dataTransfer.files[0];
-if (file) {
-const reader = new FileReader();
-reader.onload = ev => { editorEl.value = ev.target.result; state.lastRendered = ''; renderPreview();
+editorEl.addEventListener('drop', e => { e.preventDefault();
+editorEl.style.boxShadow = ''; const file = e.dataTransfer.files[0]; if (file) { const reader = new FileReader();
+reader.onload = ev => { editorEl.value = ev.target.result;
+state.lastRendered = ''; renderPreview();
 showToast('📂 File dropped: ' + file.name); };
-reader.readAsText(file);
-}
-});
+reader.readAsText(file); } });
 }
 
-// ── Divider ──────────────────────────────
+// ── Draggable divider ────────────────────
 function setupDivider() {
-let isDragging = false, startX, startLeftWidth;
-dividerEl.addEventListener('mousedown', e => {
-isDragging = true; startX = e.clientX; startLeftWidth = paneLeftEl.getBoundingClientRect().width;
-dividerEl.classList.add('active'); document.body.style.cursor = 'col-resize';
-document.body.style.userSelect = 'none'; e.preventDefault();
-});
-document.addEventListener('mousemove', e => {
-if (!isDragging) return;
-const containerWidth = document.getElementById('main-container').getBoundingClientRect().width;
-let newWidth = startLeftWidth + (e.clientX - startX);
-newWidth = Math.max(220, Math.min(containerWidth - 220, newWidth));
-paneLeftEl.style.width = newWidth + 'px'; paneLeftEl.style.flex = 'none';
-paneRightEl.style.flex = '1';
-});
-document.addEventListener('mouseup', () => {
-if (isDragging) { isDragging = false; dividerEl.classList.remove('active');
-document.body.style.cursor = ''; document.body.style.userSelect = ''; }
-});
-dividerEl.addEventListener('touchstart', e => {
-isDragging = true; startX = e.touches[0].clientX; startLeftWidth = paneLeftEl.getBoundingClientRect().width;
-dividerEl.classList.add('active'); e.preventDefault();
-});
-document.addEventListener('touchmove', e => {
-if (!isDragging) return;
-const containerWidth = document.getElementById('main-container').getBoundingClientRect().width;
-let newWidth = startLeftWidth + (e.touches[0].clientX - startX);
-newWidth = Math.max(220, Math.min(containerWidth - 220, newWidth));
-paneLeftEl.style.width = newWidth + 'px'; paneLeftEl.style.flex = 'none';
-paneRightEl.style.flex = '1';
-}, { passive: false });
-document.addEventListener('touchend', () => { if (isDragging) { isDragging = false;
-dividerEl.classList.remove('active'); } });
+let isDragging = false,
+startX, startLeftWidth;
+dividerEl.addEventListener('mousedown', e => { isDragging = true; startX = e.clientX; startLeftWidth =
+paneLeftEl.getBoundingClientRect().width; dividerEl.classList.add('active'); document.body.style.cursor =
+'col-resize'; document.body.style.userSelect = 'none'; e.preventDefault(); });
+document.addEventListener('mousemove', e => { if (!isDragging) return; const containerWidth = document
+.getElementById('main-container').getBoundingClientRect().width; let newWidth = startLeftWidth + (e.clientX -
+startX); newWidth = Math.max(220, Math.min(containerWidth - 220, newWidth)); paneLeftEl.style.width = newWidth +
+'px'; paneLeftEl.style.flex = 'none'; paneRightEl.style.flex = '1'; });
+document.addEventListener('mouseup', () => { if (isDragging) { isDragging = false; dividerEl.classList.remove(
+'active'); document.body.style.cursor = ''; document.body.style.userSelect = ''; } });
+dividerEl.addEventListener('touchstart', e => { isDragging = true; startX = e.touches[0].clientX;
+startLeftWidth = paneLeftEl.getBoundingClientRect().width; dividerEl.classList.add('active'); e
+.preventDefault(); });
+document.addEventListener('touchmove', e => { if (!isDragging) return; const containerWidth = document
+.getElementById('main-container').getBoundingClientRect().width; let newWidth = startLeftWidth + (e.touches[0]
+.clientX - startX); newWidth = Math.max(220, Math.min(containerWidth - 220, newWidth)); paneLeftEl.style.width =
+newWidth + 'px'; paneLeftEl.style.flex = 'none'; paneRightEl.style.flex = '1'; }, { passive: false });
+document.addEventListener('touchend', () => { if (isDragging) { isDragging = false; dividerEl.classList.remove(
+'active'); } });
 }
 
 // ── Keyboard shortcuts ───────────────────
@@ -1679,13 +2052,10 @@ if (ctrl && e.key === 'p') { e.preventDefault();
 exportPDF(); }
 if (ctrl && e.key === 'f') { e.preventDefault();
 openSearch(); }
-if (e.key === 'Escape') {
-closeSearch();
-const fullscreenPane = document.querySelector('.pane.fullscreen');
-if (fullscreenPane) { fullscreenPane.classList.remove('fullscreen');
-fullscreenPane.style.width = ''; fullscreenPane.style.flex = ''; dividerEl.style.display = '';
-paneLeftEl.style.display = ''; paneRightEl.style.display = ''; }
-}
+if (e.key === 'Escape') { closeSearch(); const fp = document.querySelector('.pane.fullscreen'); if (fp) { fp
+.classList.remove('fullscreen');
+fp.style.width = ''; fp.style.flex = ''; dividerEl.style.display = ''; paneLeftEl.style.display =
+''; paneRightEl.style.display = ''; } }
 });
 }
 
@@ -1694,29 +2064,39 @@ function setupSettingsListeners() {
 document.getElementById('setting-margins').addEventListener('change', function() {
 document.getElementById('custom-margin-group').style.display = this.value === 'custom' ? 'block' : 'none';
 });
+document.getElementById('setting-cover-enabled').addEventListener('change', function() {
+document.getElementById('cover-fields-group').classList.toggle('visible', this.value === 'enabled');
+});
 settingsModal.addEventListener('click', e => { if (e.target === settingsModal) closeSettingsModal(); });
+promptModal.addEventListener('click', e => { if (e.target === promptModal) closePromptGenerator(); });
 }
 
-// ── Editor scroll sync ───────────────────
 editorEl.addEventListener('scroll', () => { lineNumbersEl.scrollTop = editorEl.scrollTop; });
 
 // ── Initialize ───────────────────────────
 function init() {
-loadSettings(); applyPreviewSettings(); updatePrintStyles();
+loadSettings();
+applyPreviewSettings();
+updatePrintStyles();
+
 const savedDoc = loadDocument();
-if (savedDoc) editorEl.value = savedDoc;
-else editorEl.value = `# Welcome to Markdown → PDF Converter
+if (savedDoc) {
+editorEl.value = savedDoc;
+} else {
+editorEl.value = `# Welcome to Markdown → PDF Converter
 
 This is a **professional-grade** Markdown to PDF converter built entirely in the browser.
 
 ## Features
 
 - **Live preview** with synchronized scrolling
-- Syntax highlighting for code blocks
+- Syntax highlighting for code blocks (multiple themes!)
 - LaTeX mathematics: $E = mc^2$
 - Mermaid diagrams
-- Automatic Table of Contents
+- Configurable Table of Contents
+- Optional cover page
 - Export to PDF, HTML, and DOCX
+- AI Prompt Generator for better LLM output
 
 ## Mathematics
 
@@ -1761,23 +2141,34 @@ graph TD
 | LaTeX         | ✅ Done   | High     |
 | Mermaid       | ✅ Done   | Medium   |
 | TOC           | ✅ Done   | High     |
-| PDF Export    | ✅ Done   | Critical |
+| Cover Page    | ✅ Done   | Medium   |
+| Code Themes   | ✅ Done   | Medium   |
+| Prompt Gen    | ✅ Done   | Nice     |
 
-> **Tip:** Use \`---pagebreak---\` on its own line to force a page break in the exported PDF.
+> **Tip:** Use \`---pagebreak---\` on its own line to force a page break in the exported PDF. This is the only way to start a new chapter page — headings do NOT automatically create page breaks.
 
 ---
 *Start editing to see the live preview update in real-time!*
 `;
-state.lastRendered = '';
-renderPreview(); updateLineNumbers(); updateStats();
+}
 
-editorEl.addEventListener('input', () => { debouncedRender();
+state.lastRendered = '';
+renderPreview();
+updateLineNumbers();
+updateStats();
+
+editorEl.addEventListener('input', () => {
+debouncedRender();
 debouncedMermaidRender();
 updateLineNumbers();
-updateStats(); });
+updateStats();
+});
 editorEl.addEventListener('scroll', () => { lineNumbersEl.scrollTop = editorEl.scrollTop; });
 fileInput.addEventListener('change', handleFileOpen);
-setupDivider(); setupDragDrop(); setupKeyboardShortcuts(); setupSettingsListeners();
+setupDivider();
+setupDragDrop();
+setupKeyboardShortcuts();
+setupSettingsListeners();
 
 setInterval(() => { if (editorEl.value !== loadDocument()) saveDocument(editorEl.value); }, 3000);
 showToast('✨ Ready — Start editing or drop a .md file');
@@ -1785,10 +2176,27 @@ showToast('✨ Ready — Start editing or drop a .md file');
 
 // ── Public API ───────────────────────────
 window.App = {
-openFile, saveMarkdown, exportPDF, exportHTML, exportDOCX, copyHTML, copyCodeBlock, clearAll,
-toggleTheme, toggleSettings: openSettingsModal, closeSettings: closeSettingsModal,
-applySettings: applySettingsFromModal, fullscreenPane, openSearch, closeSearch, doSearch,
-doReplace, doReplaceAll,
+openFile,
+saveMarkdown,
+exportPDF,
+exportHTML,
+exportDOCX,
+copyHTML,
+copyCodeBlock,
+clearAll,
+toggleTheme,
+toggleSettings: openSettingsModal,
+closeSettings: closeSettingsModal,
+applySettings: applySettingsFromModal,
+fullscreenPane,
+openSearch,
+closeSearch,
+doSearch,
+doReplace,
+doReplaceAll,
+openPromptGenerator,
+closePromptGenerator,
+copyPrompt,
 };
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
