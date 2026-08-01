@@ -661,27 +661,16 @@
 
         /* ── Print styles ─────────────── */
         @media print {
-            @page {
-                size: A4;
-                margin: 20mm;
-                @bottom-center {
-                    content: "Page " counter(page) " of " counter(pages);
-                    font-size: 9px;
-                    color: #666;
-                    font-family: 'Inter', 'Segoe UI', sans-serif;
-                }
-            }
-            @page :first {
-                @bottom-center {
-                    content: none;
-                }
-            }
-
-            body {
+            /* Override restrictive layout for full-page printing */
+            html, body {
+                overflow: visible !important;
+                height: auto !important;
                 background: #fff !important;
-                color: #000 !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
+            }
+            .main-container {
+                display: block !important;
+                height: auto !important;
+                overflow: visible !important;
             }
             .toolbar,
             .divider,
@@ -691,21 +680,25 @@
             .modal-overlay,
             .toast,
             .copy-code-btn,
-            .pane-actions {
+            .pane-actions,
+            .line-numbers {
                 display: none !important;
             }
             .pane-right {
+                display: block !important;
                 width: 100% !important;
                 min-width: 0 !important;
-                flex: 1;
-                border: none;
-                position: static;
-                background: #fff !important;
+                flex: none !important;
+                height: auto !important;
                 overflow: visible !important;
+                border: none;
+                background: #fff !important;
+                position: static !important;
             }
             .preview-container {
                 padding: 0 !important;
                 overflow: visible !important;
+                height: auto !important;
                 background: #fff !important;
                 color: #000 !important;
                 font-size: 11pt;
@@ -761,10 +754,21 @@
             .hljs {
                 background: #f8f9fa !important;
             }
-        }
-        @media print and (orientation: landscape) {
+
             @page {
-                size: landscape;
+                size: A4;
+                margin: 20mm;
+                @bottom-center {
+                    content: "Page " counter(page) " of " counter(pages);
+                    font-size: 9px;
+                    color: #666;
+                    font-family: 'Inter', 'Segoe UI', sans-serif;
+                }
+            }
+            @page :first {
+                @bottom-center {
+                    content: none;
+                }
             }
         }
 
@@ -843,7 +847,6 @@
 
     <!-- ═══════════ MAIN LAYOUT ═══════════ -->
     <div class="main-container" id="main-container">
-        <!-- Left pane: Editor -->
         <div class="pane pane-left" id="pane-left">
             <div class="pane-header">
                 <span>📝 Markdown Editor</span>
@@ -866,10 +869,8 @@
             </div>
         </div>
 
-        <!-- Divider -->
         <div class="divider" id="divider" title="Drag to resize panels"></div>
 
-        <!-- Right pane: Preview -->
         <div class="pane pane-right" id="pane-right">
             <div class="pane-header">
                 <span>👁️ Live Preview</span>
@@ -945,34 +946,18 @@
     <input type="file" id="file-input" accept=".md,.markdown,.txt" style="display:none;" />
 
     <!-- ═══════════ SCRIPTS ═══════════ -->
-    <!-- markdown-it -->
-    <script src="https://cdn.jsdelivr.net/npm/markdown-it@14.1.0/dist/markdown-it.min.js">
-    </script>
-    <!-- markdown-it plugins -->
-    <script src="https://cdn.jsdelivr.net/npm/markdown-it-footnote@4.0.0/dist/markdown-it-footnote.min.js">
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/markdown-it-task-lists@2.1.1/dist/markdown-it-task-lists.min.js">
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/markdown-it-deflist@3.0.0/dist/markdown-it-deflist.min.js">
-    </script>
-    <!-- highlight.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js">
-    </script>
-    <!-- KaTeX -->
-    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js">
-    </script>
-    <!-- mermaid -->
-    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js">
-    </script>
-    <!-- DOMPurify -->
-    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.8/dist/purify.min.js">
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it@14.1.0/dist/markdown-it.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it-footnote@4.0.0/dist/markdown-it-footnote.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it-task-lists@2.1.1/dist/markdown-it-task-lists.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it-deflist@3.0.0/dist/markdown-it-deflist.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.0/dist/mermaid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.8/dist/purify.min.js"></script>
 
     <script>
         (function() {
-            // ─────────────────────────────────────
-            // Initialize mermaid
-            // ─────────────────────────────────────
+            // ── Initialize mermaid ─────────────────
             mermaid.initialize({
                 startOnLoad: false,
                 theme: 'default',
@@ -980,11 +965,8 @@
                 fontFamily: 'var(--font-sans)',
             });
 
-            // ─────────────────────────────────────
-            // KaTeX custom markdown-it plugin
-            // ─────────────────────────────────────
+            // ── KaTeX plugin for markdown-it ────────
             function katexPlugin(md) {
-                // Block math: $$...$$
                 md.block.ruler.before('fence', 'katex_block', function(state, startLine, endLine, silent) {
                     const pos = state.bMarks[startLine] + state.tShift[startLine];
                     const max = state.eMarks[startLine];
@@ -995,10 +977,8 @@
                             if (!silent) {
                                 const formula = lineText.slice(2, endIdx).trim();
                                 try {
-                                    const html = katex.renderToString(formula, {
-                                        displayMode: true,
-                                        throwOnError: false,
-                                    });
+                                    const html = katex.renderToString(formula, { displayMode: true,
+                                        throwOnError: false });
                                     const token = state.push('html_block', '', 0);
                                     token.content = '<div class="katex-block">' + html + '</div>';
                                     token.block = true;
@@ -1014,7 +994,6 @@
                             return true;
                         }
                     }
-                    // Multi-line $$ blocks
                     if (lineText === '$$') {
                         let nextLine = startLine + 1;
                         while (nextLine < endLine) {
@@ -1031,19 +1010,16 @@
                                     }
                                     const formula = formulaLines.join('\n').trim();
                                     try {
-                                        const html = katex.renderToString(formula, {
-                                            displayMode: true,
-                                            throwOnError: false,
-                                        });
+                                        const html = katex.renderToString(formula, { displayMode: true,
+                                            throwOnError: false });
                                         const token = state.push('html_block', '', 0);
-                                        token.content = '<div class="katex-block">' + html +
-                                            '</div>';
+                                        token.content = '<div class="katex-block">' + html + '</div>';
                                         token.block = true;
                                     } catch (e) {
                                         const token = state.push('html_block', '', 0);
                                         token.content =
-                                            '<div class="katex-error">[KaTeX Error: ' + md.utils
-                                            .escapeHtml(e.message) + ']</div>';
+                                            '<div class="katex-error">[KaTeX Error: ' + md.utils.escapeHtml(e
+                                                .message) + ']</div>';
                                         token.block = true;
                                     }
                                 }
@@ -1056,7 +1032,6 @@
                     return false;
                 });
 
-                // Inline math: $...$
                 md.inline.ruler.after('escape', 'katex_inline', function(state, silent) {
                     const pos = state.pos;
                     const max = state.posMax;
@@ -1071,10 +1046,7 @@
                     if (!silent) {
                         const formula = state.src.slice(pos + 1, end).trim();
                         try {
-                            const html = katex.renderToString(formula, {
-                                displayMode: false,
-                                throwOnError: false,
-                            });
+                            const html = katex.renderToString(formula, { displayMode: false, throwOnError: false });
                             const token = state.push('html_inline', '', 0);
                             token.content = html;
                         } catch (e) {
@@ -1087,9 +1059,7 @@
                 });
             }
 
-            // ─────────────────────────────────────
-            // Initialize markdown-it
-            // ─────────────────────────────────────
+            // ── Initialize markdown-it ─────────────
             const md = window.markdownit({
                 html: true,
                 linkify: true,
@@ -1098,14 +1068,12 @@
                 highlight: function(str, lang) {
                     if (lang && hljs.getLanguage(lang)) {
                         try {
-                            const highlighted = hljs.highlight(str, { language: lang, ignoreIllegals: true })
-                                .value;
-                            return '<pre class="hljs"><code class="hljs language-' + md.utils.escapeHtml(
-                                lang) + '">' + highlighted +
+                            const highlighted = hljs.highlight(str, { language: lang, ignoreIllegals: true }).value;
+                            return '<pre class="hljs"><code class="hljs language-' + md.utils.escapeHtml(lang) +
+                                '">' + highlighted +
                                 '</code><button class="copy-code-btn" onclick="App.copyCodeBlock(this)">📋 Copy</button></pre>';
                         } catch (e) {}
                     }
-                    // Auto-detect language
                     try {
                         const result = hljs.highlightAuto(str);
                         if (result.language && result.relevance > 3) {
@@ -1118,15 +1086,12 @@
                 },
             });
 
-            // Add plugins
             md.use(markdownitFootnote);
             md.use(markdownitTaskLists, { enabled: true, label: true });
             md.use(markdownitDeflist);
             md.use(katexPlugin);
 
-            // ─────────────────────────────────────
-            // Application state
-            // ─────────────────────────────────────
+            // ── Application state ──────────────────
             const state = {
                 settings: {
                     paperSize: 'A4',
@@ -1146,44 +1111,26 @@
                 mermaidPlaceholders: [],
             };
 
-            // ─────────────────────────────────────
-            // Load settings from localStorage
-            // ─────────────────────────────────────
             function loadSettings() {
                 try {
                     const saved = localStorage.getItem('md2pdf-settings');
-                    if (saved) {
-                        const parsed = JSON.parse(saved);
-                        Object.assign(state.settings, parsed);
-                    }
-                } catch (e) { /* ignore */ }
+                    if (saved) Object.assign(state.settings, JSON.parse(saved));
+                } catch (e) {}
             }
 
             function saveSettings() {
-                try {
-                    localStorage.setItem('md2pdf-settings', JSON.stringify(state.settings));
-                } catch (e) { /* ignore */ }
+                try { localStorage.setItem('md2pdf-settings', JSON.stringify(state.settings)); } catch (e) {}
             }
 
             function loadDocument() {
-                try {
-                    const doc = localStorage.getItem('md2pdf-document');
-                    if (doc) {
-                        return doc;
-                    }
-                } catch (e) { /* ignore */ }
-                return '';
+                try { return localStorage.getItem('md2pdf-document') || ''; } catch (e) { return ''; }
             }
 
             function saveDocument(content) {
-                try {
-                    localStorage.setItem('md2pdf-document', content);
-                } catch (e) { /* ignore */ }
+                try { localStorage.setItem('md2pdf-document', content); } catch (e) {}
             }
 
-            // ─────────────────────────────────────
-            // DOM references
-            // ─────────────────────────────────────
+            // ── DOM references ──────────────────────
             const editorEl = document.getElementById('editor');
             const previewEl = document.getElementById('preview');
             const lineNumbersEl = document.getElementById('line-numbers');
@@ -1202,9 +1149,6 @@
             const fileInput = document.getElementById('file-input');
             const themeBtn = document.getElementById('theme-btn');
 
-            // ─────────────────────────────────────
-            // Toast helper
-            // ─────────────────────────────────────
             let toastTimer;
 
             function showToast(msg) {
@@ -1214,9 +1158,6 @@
                 toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2200);
             }
 
-            // ─────────────────────────────────────
-            // Debounce utility
-            // ─────────────────────────────────────
             function debounce(fn, delay) {
                 let timer;
                 return function(...args) {
@@ -1225,21 +1166,14 @@
                 };
             }
 
-            // ─────────────────────────────────────
-            // Update line numbers
-            // ─────────────────────────────────────
             function updateLineNumbers() {
                 const lines = editorEl.value.split('\n').length;
                 const nums = [];
                 for (let i = 1; i <= lines; i++) nums.push(i);
                 lineNumbersEl.textContent = nums.join('\n');
-                // Sync scroll
                 lineNumbersEl.scrollTop = editorEl.scrollTop;
             }
 
-            // ─────────────────────────────────────
-            // Update stats (word count, etc.)
-            // ─────────────────────────────────────
             function updateStats() {
                 const text = editorEl.value;
                 const chars = text.length;
@@ -1250,84 +1184,79 @@
                 readTimeBadge.textContent = '~' + readTime + ' min read';
             }
 
-            // ─────────────────────────────────────
-            // Generate TOC HTML
-            // ─────────────────────────────────────
-            function generateTOC(html, depth) {
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-                const headings = doc.querySelectorAll('h1, h2, h3, h4, h5, h6');
-                if (headings.length === 0) return '';
+            // ── TOC generation (works on live DOM) ──
+            function buildTOCFromDOM(depth) {
+                const headings = previewEl.querySelectorAll('h1, h2, h3, h4, h5, h6');
+                if (headings.length === 0) return null;
 
-                let tocHTML = '<div class="toc-container"><h3>📑 Table of Contents</h3><ul>';
-                const stack = [{ level: 0, ul: null }];
-                let currentUL = null;
-                const rootUL = [];
-
+                // Assign IDs if missing
                 headings.forEach((h, idx) => {
+                    if (!h.id) {
+                        h.id = 'toc-heading-' + idx;
+                    }
+                });
+
+                const tocContainer = document.createElement('div');
+                tocContainer.className = 'toc-container';
+                tocContainer.innerHTML = '<h3>📑 Table of Contents</h3>';
+                const ul = document.createElement('ul');
+                const stack = [{ level: 0, ul: ul }];
+
+                headings.forEach(h => {
                     const level = parseInt(h.tagName[1]);
                     if (level > depth) return;
-                    const id = 'toc-heading-' + idx;
-                    h.id = id;
-                    const text = h.textContent.trim();
-                    const li = '<li><a href="#' + id + '">' + text + '</a></li>';
+                    const li = document.createElement('li');
+                    const a = document.createElement('a');
+                    a.href = '#' + h.id;
+                    a.textContent = h.textContent.trim();
+                    li.appendChild(a);
 
+                    // Adjust stack
                     while (stack.length > 0 && stack[stack.length - 1].level >= level) {
                         stack.pop();
                     }
                     const parent = stack[stack.length - 1];
-                    if (!parent || !parent.ul) {
-                        rootUL.push(li);
-                        stack.push({ level, ul: rootUL });
-                    } else {
-                        if (level > parent.level) {
-                            const subUL = [li];
-                            const parentLi = parent.ul[parent.ul.length - 1];
-                            parent.ul[parent.ul.length - 1] = parentLi.replace('</li>', '<ul>' + subUL.join(
-                                '') + '</ul></li>');
-                            stack.push({ level, ul: subUL });
+                    if (level > parent.level) {
+                        const subUl = document.createElement('ul');
+                        const lastLi = parent.ul.lastElementChild;
+                        if (lastLi) {
+                            lastLi.appendChild(subUl);
+                            stack.push({ level, ul: subUl });
+                            subUl.appendChild(li);
                         } else {
-                            parent.ul.push(li);
-                            stack[stack.length - 1] = { level, ul: parent.ul };
+                            parent.ul.appendChild(li);
+                            stack.push({ level, ul: parent.ul });
                         }
+                    } else {
+                        parent.ul.appendChild(li);
+                        stack[stack.length - 1] = { level, ul: parent.ul };
                     }
                 });
 
-                tocHTML += rootUL.join('') + '</ul></div>';
-                // Update the original headings with IDs
-                headings.forEach((h, idx) => {
-                    if (parseInt(h.tagName[1]) <= depth && !h.id) {
-                        h.id = 'toc-heading-' + idx;
-                    }
-                });
-                return tocHTML;
+                tocContainer.appendChild(ul);
+                return tocContainer;
             }
 
-            // ─────────────────────────────────────
-            // Render preview
-            // ─────────────────────────────────────
+            // ── Render preview ─────────────────────
             function renderPreview() {
                 const markdown = editorEl.value;
                 if (markdown === state.lastRendered && previewEl.children.length > 0 && previewEl.querySelector(
                         '.mermaid-placeholder') === null) {
-                    return; // No change
+                    return;
                 }
                 state.lastRendered = markdown;
 
                 if (!markdown.trim()) {
                     previewEl.innerHTML =
                         '<p style="color:#adb5bd;text-align:center;margin-top:60px;font-family:var(--font-sans);">Start typing in the editor to see a live preview…</p>';
+                    updateLineNumbers();
+                    updateStats();
                     return;
                 }
 
-                // Handle pagebreak markers
                 let processedMarkdown = markdown.replace(/^---pagebreak---$/gm,
                     '<div class="pagebreak-marker">— Page Break —</div>');
-
-                // Render markdown to HTML
                 let html = md.render(processedMarkdown);
-
-                // Sanitize
                 html = DOMPurify.sanitize(html, {
                     ADD_TAGS: ['div', 'span', 'svg', 'path', 'g', 'defs', 'line', 'marker', 'arrowhead'],
                     ADD_ATTR: ['class', 'id', 'viewBox', 'xmlns', 'd', 'fill', 'stroke', 'stroke-width',
@@ -1335,40 +1264,26 @@
                     ],
                 });
 
-                // Generate TOC if enabled
+                previewEl.innerHTML = html;
+
+                // Insert TOC if enabled (after DOM is built)
                 if (state.settings.tocEnabled && state.settings.tocDepth > 0) {
-                    const tocHTML = generateTOC(html, state.settings.tocDepth);
-                    if (tocHTML) {
-                        // Insert TOC after the first heading or at the beginning
-                        const firstHeadingMatch = html.match(/<h[1-6][^>]*>/);
-                        if (firstHeadingMatch) {
-                            const idx = html.indexOf(firstHeadingMatch[0]);
-                            html = html.slice(0, idx) + tocHTML + html.slice(idx);
-                        } else {
-                            html = tocHTML + html;
-                        }
+                    const tocEl = buildTOCFromDOM(state.settings.tocDepth);
+                    if (tocEl) {
+                        // Prepend TOC at the beginning of preview
+                        previewEl.insertBefore(tocEl, previewEl.firstChild);
                     }
                 }
 
-                // Set preview HTML
-                previewEl.innerHTML = html;
-
-                // Render mermaid diagrams
                 renderMermaidDiagrams();
-
-                // Update line numbers and stats
                 updateLineNumbers();
                 updateStats();
-
-                // Auto-save
                 saveDocument(markdown);
             }
 
             const debouncedRender = debounce(renderPreview, 250);
 
-            // ─────────────────────────────────────
-            // Mermaid rendering
-            // ─────────────────────────────────────
+            // ── Mermaid rendering ──────────────────
             function renderMermaidDiagrams() {
                 const mermaidBlocks = previewEl.querySelectorAll('pre code.language-mermaid, pre code.language-mmd');
                 if (mermaidBlocks.length === 0) return;
@@ -1376,7 +1291,6 @@
                 mermaidBlocks.forEach(async (codeEl, index) => {
                     const preEl = codeEl.closest('pre');
                     if (!preEl || preEl.dataset.mermaidRendered === 'true') return;
-
                     const mermaidCode = codeEl.textContent.trim();
                     if (!mermaidCode) return;
 
@@ -1388,7 +1302,6 @@
                     placeholder.textContent = 'Rendering diagram…';
                     placeholder.style.cssText =
                         'padding:20px;text-align:center;background:#f8f9fa;border-radius:8px;border:1px dashed #dee2e6;margin:1em 0;font-family:var(--font-sans);font-size:13px;color:#868e96;';
-
                     preEl.parentNode.replaceChild(placeholder, preEl);
 
                     try {
@@ -1408,17 +1321,13 @@
                         placeholder.textContent = '⚠️ Mermaid diagram could not be rendered: ' + e.message;
                         placeholder.style.color = '#e03131';
                         placeholder.style.borderColor = '#e03131';
-                        placeholder.dataset.mermaidError = 'true';
                     }
                 });
             }
 
-            // Debounced mermaid render (longer delay for performance)
             const debouncedMermaidRender = debounce(renderMermaidDiagrams, 800);
 
-            // ─────────────────────────────────────
-            // Apply settings to preview
-            // ─────────────────────────────────────
+            // ── Apply settings ─────────────────────
             function applyPreviewSettings() {
                 const s = state.settings;
                 previewEl.style.fontFamily = s.fontFamily;
@@ -1426,7 +1335,6 @@
                 previewEl.style.lineHeight = s.lineHeight;
                 document.body.dataset.theme = s.theme;
 
-                // Update highlight.js theme
                 const lightTheme = document.getElementById('hljs-light-theme');
                 const darkTheme = document.getElementById('hljs-dark-theme');
                 if (s.theme === 'dark') {
@@ -1437,16 +1345,12 @@
                     darkTheme.disabled = true;
                 }
 
-                // Update mermaid theme
                 mermaid.initialize({
                     startOnLoad: false,
                     theme: s.theme === 'dark' ? 'dark' : 'default',
                     securityLevel: 'loose',
                 });
-
                 themeBtn.textContent = s.theme === 'dark' ? '☀️ Light' : '🌓 Dark';
-
-                // Update print media query
                 updatePrintStyles();
             }
 
@@ -1478,9 +1382,7 @@
         }`;
             }
 
-            // ─────────────────────────────────────
-            // Settings modal
-            // ─────────────────────────────────────
+            // ── Settings modal ─────────────────────
             function openSettingsModal() {
                 const s = state.settings;
                 document.getElementById('setting-paper-size').value = s.paperSize;
@@ -1493,14 +1395,12 @@
                 document.getElementById('setting-toc').value = s.tocEnabled ? 'enabled' : 'disabled';
                 document.getElementById('setting-toc-depth').value = s.tocDepth;
                 document.getElementById('setting-header-text').value = s.headerText;
-                document.getElementById('custom-margin-group').style.display = s.margins === 'custom' ?
-                    'block' : 'none';
+                document.getElementById('custom-margin-group').style.display = s.margins === 'custom' ? 'block' :
+                    'none';
                 settingsModal.classList.add('active');
             }
 
-            function closeSettingsModal() {
-                settingsModal.classList.remove('active');
-            }
+            function closeSettingsModal() { settingsModal.classList.remove('active'); }
 
             function applySettingsFromModal() {
                 state.settings.paperSize = document.getElementById('setting-paper-size').value;
@@ -1515,26 +1415,19 @@
                 state.settings.headerText = document.getElementById('setting-header-text').value;
                 saveSettings();
                 applyPreviewSettings();
-                updatePrintStyles();
-                state.lastRendered = ''; // Force re-render
+                state.lastRendered = '';
                 renderPreview();
                 closeSettingsModal();
                 showToast('✅ Settings applied');
             }
 
-            // ─────────────────────────────────────
-            // Export functions
-            // ─────────────────────────────────────
+            // ── Export functions ────────────────────
             function exportPDF() {
-                // Ensure all mermaid diagrams are rendered before printing
                 const pendingMermaids = previewEl.querySelectorAll('.mermaid-placeholder');
                 if (pendingMermaids.length > 0) {
                     showToast('⏳ Rendering diagrams… Please wait and try again.');
-                    // Force render
                     renderMermaidDiagrams();
-                    setTimeout(() => {
-                        window.print();
-                    }, 1200);
+                    setTimeout(() => window.print(), 1200);
                 } else {
                     window.print();
                 }
@@ -1545,28 +1438,19 @@
                 const fullHTML = `<!DOCTYPE html>
         <html lang="en">
         <head>
-        <meta charset="UTF-8">
-        <title>Exported Document</title>
+        <meta charset="UTF-8"><title>Exported Document</title>
         <style>
         body { font-family: ${state.settings.fontFamily}; font-size: ${state.settings.fontSize}pt; line-height: ${state.settings.lineHeight}; max-width: 800px; margin: 40px auto; padding: 0 20px; color: #1a1a2e; }
         pre { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 16px; overflow-x: auto; }
         code { font-family: 'SF Mono', 'Consolas', 'Monaco', monospace; font-size: 0.88em; }
-        table { border-collapse: collapse; width: 100%; }
-        table th, table td { border: 1px solid #dee2e6; padding: 8px 12px; }
-        table th { background: #f1f3f5; }
-        a { color: #4c6ef5; }
-        .toc-container { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 16px 20px; margin: 1em 0; }
+        table { border-collapse: collapse; width: 100%; } table th, table td { border: 1px solid #dee2e6; padding: 8px 12px; } table th { background: #f1f3f5; }
+        a { color: #4c6ef5; } .toc-container { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 16px 20px; margin: 1em 0; }
         .pagebreak-marker { page-break-after: always; border-top: 2px dashed #dee2e6; margin: 2em 0; text-align: center; color: #adb5bd; }
 </style></head><body>${htmlContent}</body></html>`;
-
 const blob = new Blob([fullHTML], { type: 'text/html;charset=utf-8' });
 const url = URL.createObjectURL(blob);
-const a = document.createElement('a');
-a.href = url;
-a.download = 'document.html';
-a.click();
-URL.revokeObjectURL(url);
-showToast('✅ HTML exported');
+const a = document.createElement('a'); a.href = url; a.download = 'document.html'; a.click();
+URL.revokeObjectURL(url); showToast('✅ HTML exported');
 }
 
 function exportDOCX() {
@@ -1574,51 +1458,33 @@ const htmlContent = previewEl.innerHTML;
 const docHTML = `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"><style>
 body { font-family: ${state.settings.fontFamily}; font-size: ${state.settings.fontSize}pt; line-height: ${state.settings.lineHeight}; }
-pre { background: #f8f9fa; border: 1px solid #e9ecef; padding: 12px; }
-table { border-collapse: collapse; width: 100%; }
-table th, table td { border: 1px solid #000; padding: 6px 10px; }
-.toc-container { background: #f8f9fa; border: 1px solid #e9ecef; padding: 12px 16px; }
+pre { background: #f8f9fa; border: 1px solid #e9ecef; padding: 12px; } table { border-collapse: collapse; width: 100%; }
+table th, table td { border: 1px solid #000; padding: 6px 10px; } .toc-container { background: #f8f9fa; border: 1px solid #e9ecef; padding: 12px 16px; }
 .pagebreak-marker { page-break-after: always; }
 </style></head><body>${htmlContent}</body></html>`;
-
 const blob = new Blob([docHTML], { type: 'application/msword;charset=utf-8' });
 const url = URL.createObjectURL(blob);
-const a = document.createElement('a');
-a.href = url;
-a.download = 'document.doc';
-a.click();
-URL.revokeObjectURL(url);
-showToast('✅ DOCX exported (Word-compatible)');
+const a = document.createElement('a'); a.href = url; a.download = 'document.doc'; a.click();
+URL.revokeObjectURL(url); showToast('✅ DOCX exported (Word-compatible)');
 }
 
 function copyHTML() {
-const htmlContent = previewEl.innerHTML;
-navigator.clipboard.writeText(htmlContent).then(() => {
-showToast('📋 HTML copied to clipboard');
-}).catch(() => {
-showToast('⚠️ Failed to copy');
-});
+navigator.clipboard.writeText(previewEl.innerHTML).then(() => showToast('📋 HTML copied to clipboard')).catch(() =>
+showToast('⚠️ Failed to copy'));
 }
 
 function copyCodeBlock(btn) {
 const codeEl = btn.parentElement.querySelector('code');
 if (codeEl) {
-const text = codeEl.textContent;
-navigator.clipboard.writeText(text).then(() => {
+navigator.clipboard.writeText(codeEl.textContent).then(() => {
 btn.textContent = '✅ Copied!';
 setTimeout(() => { btn.textContent = '📋 Copy'; }, 1800);
-}).catch(() => {
-showToast('⚠️ Failed to copy code');
-});
+}).catch(() => showToast('⚠️ Failed to copy code'));
 }
 }
 
-// ─────────────────────────────────────
-// File operations
-// ─────────────────────────────────────
-function openFile() {
-fileInput.click();
-}
+// ── File operations ──────────────────────
+function openFile() { fileInput.click(); }
 
 function handleFileOpen(e) {
 const file = e.target.files[0];
@@ -1635,15 +1501,10 @@ fileInput.value = '';
 }
 
 function saveMarkdown() {
-const content = editorEl.value;
-const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
+const blob = new Blob([editorEl.value], { type: 'text/markdown;charset=utf-8' });
 const url = URL.createObjectURL(blob);
-const a = document.createElement('a');
-a.href = url;
-a.download = 'document.md';
-a.click();
-URL.revokeObjectURL(url);
-showToast('💾 Markdown saved');
+const a = document.createElement('a'); a.href = url; a.download = 'document.md'; a.click();
+URL.revokeObjectURL(url); showToast('💾 Markdown saved');
 }
 
 function clearAll() {
@@ -1651,56 +1512,34 @@ if (editorEl.value.trim() && !confirm('Clear the editor? Unsaved changes will be
 editorEl.value = '';
 state.lastRendered = '';
 previewEl.innerHTML = '<p style="color:#adb5bd;text-align:center;margin-top:60px;font-family:var(--font-sans);">Start typing in the editor to see a live preview…</p>';
-updateLineNumbers();
-updateStats();
-saveDocument('');
+updateLineNumbers(); updateStats(); saveDocument('');
 showToast('🗑️ Cleared');
 }
 
-// ─────────────────────────────────────
-// Search & Replace
-// ─────────────────────────────────────
-function openSearch() {
-searchBarEl.classList.add('active');
-searchInput.focus();
-searchInput.select();
-}
-
-function closeSearch() {
-searchBarEl.classList.remove('active');
-searchCountEl.textContent = '';
-}
+// ── Search & Replace ─────────────────────
+function openSearch() { searchBarEl.classList.add('active'); searchInput.focus(); searchInput.select(); }
+function closeSearch() { searchBarEl.classList.remove('active'); searchCountEl.textContent = ''; }
 
 function doSearch() {
 const query = searchInput.value;
 if (!query) { searchCountEl.textContent = ''; return; }
 const caseSensitive = document.getElementById('search-case').checked;
 const useRegex = document.getElementById('search-regex').checked;
-let flags = 'g';
-if (!caseSensitive) flags += 'i';
+let flags = 'g'; if (!caseSensitive) flags += 'i';
 let pattern;
-try {
-pattern = useRegex ? new RegExp(query, flags) : new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g,
-'\\$&'), flags);
-} catch (e) {
-searchCountEl.textContent = 'Invalid regex';
-return;
-}
-const text = editorEl.value;
-const matches = text.match(pattern);
+try { pattern = useRegex ? new RegExp(query, flags) : new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), flags); }
+catch (e) { searchCountEl.textContent = 'Invalid regex'; return; }
+const matches = editorEl.value.match(pattern);
 const count = matches ? matches.length : 0;
 searchCountEl.textContent = count + ' match' + (count !== 1 ? 'es' : '');
-// Highlight in editor by selecting first match
 if (matches && count > 0) {
-const idx = text.search(pattern);
+const idx = editorEl.value.search(pattern);
 if (idx >= 0) {
 editorEl.focus();
 editorEl.setSelectionRange(idx, idx + matches[0].length);
-// Scroll to selection
-const lineNum = text.slice(0, idx).split('\n').length;
+const lineNum = editorEl.value.slice(0, idx).split('\n').length;
 const lineHeight = parseFloat(getComputedStyle(editorEl).lineHeight) || 22;
-editorEl.scrollTop = Math.max(0, (lineNum - 1) * lineHeight - editorEl.clientHeight /
-3);
+editorEl.scrollTop = Math.max(0, (lineNum - 1) * lineHeight - editorEl.clientHeight / 3);
 }
 }
 }
@@ -1711,26 +1550,15 @@ const replacement = replaceInput.value;
 if (!query) return;
 const caseSensitive = document.getElementById('search-case').checked;
 const useRegex = document.getElementById('search-regex').checked;
-let flags = '';
-if (!caseSensitive) flags += 'i';
+let flags = ''; if (!caseSensitive) flags += 'i';
 let pattern;
-try {
-pattern = useRegex ? new RegExp(query, flags) : new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g,
-'\\$&'), flags);
-} catch (e) {
-showToast('Invalid regex');
-return;
-}
-const text = editorEl.value;
-const match = text.match(pattern);
+try { pattern = useRegex ? new RegExp(query, flags) : new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), flags); }
+catch (e) { showToast('Invalid regex'); return; }
+const match = editorEl.value.match(pattern);
 if (match) {
-editorEl.value = text.replace(pattern, replacement);
-state.lastRendered = '';
-renderPreview();
-showToast('↻ Replaced 1 occurrence');
-} else {
-showToast('No matches found');
-}
+editorEl.value = editorEl.value.replace(pattern, replacement);
+state.lastRendered = ''; renderPreview(); showToast('↻ Replaced 1 occurrence');
+} else showToast('No matches found');
 }
 
 function doReplaceAll() {
@@ -1739,273 +1567,145 @@ const replacement = replaceInput.value;
 if (!query) return;
 const caseSensitive = document.getElementById('search-case').checked;
 const useRegex = document.getElementById('search-regex').checked;
-let flags = 'g';
-if (!caseSensitive) flags += 'i';
+let flags = 'g'; if (!caseSensitive) flags += 'i';
 let pattern;
-try {
-pattern = useRegex ? new RegExp(query, flags) : new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g,
-'\\$&'), flags);
-} catch (e) {
-showToast('Invalid regex');
-return;
-}
-const text = editorEl.value;
-const count = (text.match(pattern) || []).length;
+try { pattern = useRegex ? new RegExp(query, flags) : new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), flags); }
+catch (e) { showToast('Invalid regex'); return; }
+const count = (editorEl.value.match(pattern) || []).length;
 if (count > 0) {
-editorEl.value = text.replace(pattern, replacement);
-state.lastRendered = '';
-renderPreview();
-showToast('↻↻ Replaced ' + count + ' occurrences');
-} else {
-showToast('No matches found');
-}
+editorEl.value = editorEl.value.replace(pattern, replacement);
+state.lastRendered = ''; renderPreview(); showToast('↻↻ Replaced ' + count + ' occurrences');
+} else showToast('No matches found');
 }
 
-// ─────────────────────────────────────
-// Theme toggle
-// ─────────────────────────────────────
+// ── Theme ────────────────────────────────
 function toggleTheme() {
 state.settings.theme = state.settings.theme === 'dark' ? 'light' : 'dark';
-saveSettings();
-applyPreviewSettings();
-state.lastRendered = '';
-renderPreview();
+saveSettings(); applyPreviewSettings();
+state.lastRendered = ''; renderPreview();
 showToast(state.settings.theme === 'dark' ? '🌙 Dark mode' : '☀️ Light mode');
 }
 
-// ─────────────────────────────────────
-// Fullscreen pane
-// ─────────────────────────────────────
+// ── Fullscreen ───────────────────────────
 function fullscreenPane(side) {
 const pane = side === 'left' ? paneLeftEl : paneRightEl;
 const isFullscreen = pane.classList.contains('fullscreen');
 if (isFullscreen) {
-pane.classList.remove('fullscreen');
-pane.style.width = '';
-pane.style.flex = '';
+pane.classList.remove('fullscreen'); pane.style.width = ''; pane.style.flex = '';
 dividerEl.style.display = '';
-if (side === 'left') {
-paneLeftEl.style.width = '50%';
-paneLeftEl.style.flex = '';
-paneRightEl.style.display = '';
+if (side === 'left') { paneLeftEl.style.width = '50%'; paneLeftEl.style.flex = ''; paneRightEl.style.display = ''; }
+else { paneRightEl.style.display = ''; }
 } else {
-paneRightEl.style.display = '';
-}
-} else {
-pane.classList.add('fullscreen');
-dividerEl.style.display = 'none';
-if (side === 'left') {
-paneRightEl.style.display = 'none';
-} else {
-paneLeftEl.style.display = 'none';
-}
-}
-// Escape key to exit fullscreen
-const escHandler = function(e) {
-if (e.key === 'Escape') {
-pane.classList.remove('fullscreen');
-pane.style.width = '';
-pane.style.flex = '';
-dividerEl.style.display = '';
-paneLeftEl.style.display = '';
-paneRightEl.style.display = '';
-document.removeEventListener('keydown', escHandler);
-}
-};
-if (!isFullscreen) {
-document.addEventListener('keydown', escHandler);
+pane.classList.add('fullscreen'); dividerEl.style.display = 'none';
+if (side === 'left') paneRightEl.style.display = 'none';
+else paneLeftEl.style.display = 'none';
 }
 }
 
-// ─────────────────────────────────────
-// Drag & drop
-// ─────────────────────────────────────
+// ── Drag & drop ──────────────────────────
 function setupDragDrop() {
-document.addEventListener('dragover', (e) => {
+document.addEventListener('dragover', e => e.preventDefault());
+document.addEventListener('drop', e => {
 e.preventDefault();
-e.stopPropagation();
-});
-document.addEventListener('drop', (e) => {
-e.preventDefault();
-e.stopPropagation();
 const file = e.dataTransfer.files[0];
-if (file && (file.name.endsWith('.md') || file.name.endsWith('.markdown') || file.name
-.endsWith('.txt'))) {
+if (file && (file.name.endsWith('.md') || file.name.endsWith('.markdown') || file.name.endsWith('.txt'))) {
 const reader = new FileReader();
-reader.onload = function(ev) {
-editorEl.value = ev.target.result;
-state.lastRendered = '';
-renderPreview();
-showToast('📂 File dropped: ' + file.name);
-};
+reader.onload = ev => { editorEl.value = ev.target.result; state.lastRendered = ''; renderPreview();
+showToast('📂 File dropped: ' + file.name); };
 reader.readAsText(file);
 }
 });
-// Also allow drop on editor
-editorEl.addEventListener('dragover', (e) => {
-e.preventDefault();
-editorEl.style.boxShadow = 'inset 0 0 0 3px var(--accent)';
-});
-editorEl.addEventListener('dragleave', () => {
-editorEl.style.boxShadow = '';
-});
-editorEl.addEventListener('drop', (e) => {
+editorEl.addEventListener('dragover', e => { e.preventDefault();
+editorEl.style.boxShadow = 'inset 0 0 0 3px var(--accent)'; });
+editorEl.addEventListener('dragleave', () => { editorEl.style.boxShadow = ''; });
+editorEl.addEventListener('drop', e => {
 e.preventDefault();
 editorEl.style.boxShadow = '';
 const file = e.dataTransfer.files[0];
 if (file) {
 const reader = new FileReader();
-reader.onload = function(ev) {
-editorEl.value = ev.target.result;
-state.lastRendered = '';
-renderPreview();
-showToast('📂 File dropped: ' + file.name);
-};
+reader.onload = ev => { editorEl.value = ev.target.result; state.lastRendered = ''; renderPreview();
+showToast('📂 File dropped: ' + file.name); };
 reader.readAsText(file);
 }
 });
 }
 
-// ─────────────────────────────────────
-// Draggable divider
-// ─────────────────────────────────────
+// ── Divider ──────────────────────────────
 function setupDivider() {
-let isDragging = false;
-let startX, startLeftWidth;
-
-dividerEl.addEventListener('mousedown', (e) => {
-isDragging = true;
-startX = e.clientX;
-startLeftWidth = paneLeftEl.getBoundingClientRect().width;
-dividerEl.classList.add('active');
-document.body.style.cursor = 'col-resize';
-document.body.style.userSelect = 'none';
-e.preventDefault();
+let isDragging = false, startX, startLeftWidth;
+dividerEl.addEventListener('mousedown', e => {
+isDragging = true; startX = e.clientX; startLeftWidth = paneLeftEl.getBoundingClientRect().width;
+dividerEl.classList.add('active'); document.body.style.cursor = 'col-resize';
+document.body.style.userSelect = 'none'; e.preventDefault();
 });
-
-document.addEventListener('mousemove', (e) => {
+document.addEventListener('mousemove', e => {
 if (!isDragging) return;
 const containerWidth = document.getElementById('main-container').getBoundingClientRect().width;
-const delta = e.clientX - startX;
-let newWidth = startLeftWidth + delta;
-const minWidth = 220;
-const maxWidth = containerWidth - 220;
-newWidth = Math.max(minWidth, Math.min(maxWidth, newWidth));
-paneLeftEl.style.width = newWidth + 'px';
-paneLeftEl.style.flex = 'none';
+let newWidth = startLeftWidth + (e.clientX - startX);
+newWidth = Math.max(220, Math.min(containerWidth - 220, newWidth));
+paneLeftEl.style.width = newWidth + 'px'; paneLeftEl.style.flex = 'none';
 paneRightEl.style.flex = '1';
 });
-
 document.addEventListener('mouseup', () => {
-if (isDragging) {
-isDragging = false;
-dividerEl.classList.remove('active');
-document.body.style.cursor = '';
-document.body.style.userSelect = '';
-}
+if (isDragging) { isDragging = false; dividerEl.classList.remove('active');
+document.body.style.cursor = ''; document.body.style.userSelect = ''; }
 });
-
-// Touch support
-dividerEl.addEventListener('touchstart', (e) => {
-isDragging = true;
-startX = e.touches[0].clientX;
-startLeftWidth = paneLeftEl.getBoundingClientRect().width;
-dividerEl.classList.add('active');
-e.preventDefault();
+dividerEl.addEventListener('touchstart', e => {
+isDragging = true; startX = e.touches[0].clientX; startLeftWidth = paneLeftEl.getBoundingClientRect().width;
+dividerEl.classList.add('active'); e.preventDefault();
 });
-
-document.addEventListener('touchmove', (e) => {
+document.addEventListener('touchmove', e => {
 if (!isDragging) return;
 const containerWidth = document.getElementById('main-container').getBoundingClientRect().width;
-const delta = e.touches[0].clientX - startX;
-let newWidth = startLeftWidth + delta;
+let newWidth = startLeftWidth + (e.touches[0].clientX - startX);
 newWidth = Math.max(220, Math.min(containerWidth - 220, newWidth));
-paneLeftEl.style.width = newWidth + 'px';
-paneLeftEl.style.flex = 'none';
+paneLeftEl.style.width = newWidth + 'px'; paneLeftEl.style.flex = 'none';
 paneRightEl.style.flex = '1';
 }, { passive: false });
-
-document.addEventListener('touchend', () => {
-if (isDragging) {
-isDragging = false;
-dividerEl.classList.remove('active');
-}
-});
+document.addEventListener('touchend', () => { if (isDragging) { isDragging = false;
+dividerEl.classList.remove('active'); } });
 }
 
-// ─────────────────────────────────────
-// Keyboard shortcuts
-// ─────────────────────────────────────
+// ── Keyboard shortcuts ───────────────────
 function setupKeyboardShortcuts() {
-document.addEventListener('keydown', (e) => {
+document.addEventListener('keydown', e => {
 const ctrl = e.ctrlKey || e.metaKey;
-
-if (ctrl && e.key === 's') {
-e.preventDefault();
-saveMarkdown();
-}
-if (ctrl && e.key === 'o') {
-e.preventDefault();
-openFile();
-}
-if (ctrl && e.key === 'p') {
-e.preventDefault();
-exportPDF();
-}
-if (ctrl && e.key === 'f') {
-e.preventDefault();
-openSearch();
-}
+if (ctrl && e.key === 's') { e.preventDefault();
+saveMarkdown(); }
+if (ctrl && e.key === 'o') { e.preventDefault();
+openFile(); }
+if (ctrl && e.key === 'p') { e.preventDefault();
+exportPDF(); }
+if (ctrl && e.key === 'f') { e.preventDefault();
+openSearch(); }
 if (e.key === 'Escape') {
 closeSearch();
 const fullscreenPane = document.querySelector('.pane.fullscreen');
-if (fullscreenPane) {
-fullscreenPane.classList.remove('fullscreen');
-fullscreenPane.style.width = '';
-fullscreenPane.style.flex = '';
-dividerEl.style.display = '';
-paneLeftEl.style.display = '';
-paneRightEl.style.display = '';
-}
+if (fullscreenPane) { fullscreenPane.classList.remove('fullscreen');
+fullscreenPane.style.width = ''; fullscreenPane.style.flex = ''; dividerEl.style.display = '';
+paneLeftEl.style.display = ''; paneRightEl.style.display = ''; }
 }
 });
 }
 
-// ─────────────────────────────────────
-// Settings modal margin toggle
-// ─────────────────────────────────────
+// ── Settings listeners ───────────────────
 function setupSettingsListeners() {
 document.getElementById('setting-margins').addEventListener('change', function() {
-document.getElementById('custom-margin-group').style.display = this.value === 'custom' ?
-'block' : 'none';
+document.getElementById('custom-margin-group').style.display = this.value === 'custom' ? 'block' : 'none';
 });
-settingsModal.addEventListener('click', function(e) {
-if (e.target === settingsModal) closeSettingsModal();
-});
+settingsModal.addEventListener('click', e => { if (e.target === settingsModal) closeSettingsModal(); });
 }
 
-// ─────────────────────────────────────
-// Editor scroll sync for line numbers
-// ─────────────────────────────────────
-editorEl.addEventListener('scroll', () => {
-lineNumbersEl.scrollTop = editorEl.scrollTop;
-});
+// ── Editor scroll sync ───────────────────
+editorEl.addEventListener('scroll', () => { lineNumbersEl.scrollTop = editorEl.scrollTop; });
 
-// ─────────────────────────────────────
-// Initialize
-// ─────────────────────────────────────
+// ── Initialize ───────────────────────────
 function init() {
-loadSettings();
-applyPreviewSettings();
-updatePrintStyles();
-
-// Load saved document
+loadSettings(); applyPreviewSettings(); updatePrintStyles();
 const savedDoc = loadDocument();
-if (savedDoc) {
-editorEl.value = savedDoc;
-} else {
-// Load demo content
-editorEl.value = `# Welcome to Markdown → PDF Converter
+if (savedDoc) editorEl.value = savedDoc;
+else editorEl.value = `# Welcome to Markdown → PDF Converter
 
 This is a **professional-grade** Markdown to PDF converter built entirely in the browser.
 
@@ -2068,69 +1768,31 @@ graph TD
 ---
 *Start editing to see the live preview update in real-time!*
 `;
-}
-
 state.lastRendered = '';
-renderPreview();
-updateLineNumbers();
-updateStats();
+renderPreview(); updateLineNumbers(); updateStats();
 
-// Setup event listeners
-editorEl.addEventListener('input', () => {
-debouncedRender();
+editorEl.addEventListener('input', () => { debouncedRender();
 debouncedMermaidRender();
 updateLineNumbers();
-updateStats();
-});
-editorEl.addEventListener('scroll', () => {
-lineNumbersEl.scrollTop = editorEl.scrollTop;
-});
+updateStats(); });
+editorEl.addEventListener('scroll', () => { lineNumbersEl.scrollTop = editorEl.scrollTop; });
 fileInput.addEventListener('change', handleFileOpen);
-setupDivider();
-setupDragDrop();
-setupKeyboardShortcuts();
-setupSettingsListeners();
+setupDivider(); setupDragDrop(); setupKeyboardShortcuts(); setupSettingsListeners();
 
-// Periodic auto-save
-setInterval(() => {
-if (editorEl.value !== loadDocument()) {
-saveDocument(editorEl.value);
-}
-}, 3000);
-
+setInterval(() => { if (editorEl.value !== loadDocument()) saveDocument(editorEl.value); }, 3000);
 showToast('✨ Ready — Start editing or drop a .md file');
 }
 
-// ─────────────────────────────────────
-// Expose public API
-// ─────────────────────────────────────
+// ── Public API ───────────────────────────
 window.App = {
-openFile,
-saveMarkdown,
-exportPDF,
-exportHTML,
-exportDOCX,
-copyHTML,
-copyCodeBlock,
-clearAll,
-toggleTheme,
-toggleSettings: openSettingsModal,
-closeSettings: closeSettingsModal,
-applySettings: applySettingsFromModal,
-fullscreenPane,
-openSearch,
-closeSearch,
-doSearch,
-doReplace,
-doReplaceAll,
+openFile, saveMarkdown, exportPDF, exportHTML, exportDOCX, copyHTML, copyCodeBlock, clearAll,
+toggleTheme, toggleSettings: openSettingsModal, closeSettings: closeSettingsModal,
+applySettings: applySettingsFromModal, fullscreenPane, openSearch, closeSearch, doSearch,
+doReplace, doReplaceAll,
 };
 
-// Start the application
-if (document.readyState === 'loading') {
-document.addEventListener('DOMContentLoaded', init);
-} else {
-init();
-}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+else init();
 })();
 </script>
 </body>
