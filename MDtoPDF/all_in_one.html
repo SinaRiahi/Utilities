@@ -1,0 +1,2398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown to PDF — Professional Converter</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js">
+    </script>
+
+    <!-- KaTeX CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+
+    <!-- Highlight.js themes (loaded for dynamic switching) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="hljs-theme-light">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" id="hljs-theme-dark" disabled>
+
+    <style>
+        /* ============================================================
+           CSS VARIABLES — UI Theme (Chrome)
+           ============================================================ */
+        :root {
+            --ui-bg: #f8f9fa;
+            --ui-surface: #ffffff;
+            --ui-surface-alt: #f1f3f5;
+            --ui-border: #e2e5e9;
+            --ui-border-light: #eceef1;
+            --ui-text: #1a1d23;
+            --ui-text-secondary: #5f6672;
+            --ui-text-muted: #8b919d;
+            --ui-accent: #3b6df0;
+            --ui-accent-hover: #2851d9;
+            --ui-accent-subtle: #eef3ff;
+            --ui-danger: #e04a4a;
+            --ui-danger-hover: #c53535;
+            --ui-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+            --ui-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 16px rgba(0, 0, 0, 0.04);
+            --ui-shadow-lg: 0 4px 24px rgba(0, 0, 0, 0.08), 0 8px 40px rgba(0, 0, 0, 0.04);
+            --ui-radius-sm: 6px;
+            --ui-radius: 8px;
+            --ui-radius-lg: 12px;
+            --ui-transition: 150ms ease;
+            --toolbar-height: 52px;
+            --statusbar-height: 32px;
+            --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', monospace;
+            --editor-bg: #fafbfc;
+            --editor-text: #1a1d23;
+            --editor-line: #e8eaed;
+            --preview-bg: #e8ecf1;
+        }
+
+        /* Dark UI Theme */
+        .ui-dark {
+            --ui-bg: #1a1d23;
+            --ui-surface: #21252b;
+            --ui-surface-alt: #282c34;
+            --ui-border: #333842;
+            --ui-border-light: #2c3038;
+            --ui-text: #e1e4e8;
+            --ui-text-secondary: #a0a6b0;
+            --ui-text-muted: #6a7078;
+            --ui-accent: #5b8af7;
+            --ui-accent-hover: #7aa2ff;
+            --ui-accent-subtle: #1c2640;
+            --ui-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+            --ui-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            --ui-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --editor-bg: #1e2128;
+            --editor-text: #e1e4e8;
+            --editor-line: #2c3038;
+            --preview-bg: #16181d;
+        }
+
+        /* ============================================================
+           RESET & BASE
+           ============================================================ */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            height: 100%;
+            overflow: hidden;
+            font-family: var(--font-ui);
+            background: var(--ui-bg);
+            color: var(--ui-text);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            transition: background var(--ui-transition), color var(--ui-transition);
+        }
+
+        /* ============================================================
+           APP SHELL
+           ============================================================ */
+        .app {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+        }
+
+        /* ============================================================
+           TOOLBAR
+           ============================================================ */
+        .toolbar {
+            height: var(--toolbar-height);
+            min-height: var(--toolbar-height);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0 12px;
+            background: var(--ui-surface);
+            border-bottom: 1px solid var(--ui-border);
+            z-index: 100;
+            flex-shrink: 0;
+            transition: background var(--ui-transition), border-color var(--ui-transition);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .toolbar::-webkit-scrollbar {
+            height: 0;
+        }
+
+        .toolbar__group {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            flex-shrink: 0;
+        }
+
+        .toolbar__divider {
+            width: 1px;
+            height: 24px;
+            background: var(--ui-border-light);
+            margin: 0 6px;
+            flex-shrink: 0;
+            transition: background var(--ui-transition);
+        }
+
+        .toolbar__spacer {
+            flex: 1;
+            min-width: 8px;
+        }
+
+        /* Toolbar Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 12px;
+            font-family: var(--font-ui);
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: var(--ui-radius-sm);
+            border: 1px solid transparent;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all var(--ui-transition);
+            background: transparent;
+            color: var(--ui-text-secondary);
+            -webkit-user-select: none;
+            user-select: none;
+            outline: none;
+            position: relative;
+        }
+
+        .btn:hover {
+            background: var(--ui-surface-alt);
+            color: var(--ui-text);
+        }
+        .btn:active {
+            transform: scale(0.97);
+        }
+        .btn:focus-visible {
+            box-shadow: 0 0 0 3px var(--ui-accent-subtle);
+            border-color: var(--ui-accent);
+        }
+
+        .btn--primary {
+            background: var(--ui-accent);
+            color: #fff;
+            border-color: var(--ui-accent);
+            font-weight: 600;
+        }
+        .btn--primary:hover {
+            background: var(--ui-accent-hover);
+            border-color: var(--ui-accent-hover);
+            color: #fff;
+        }
+
+        .btn--icon {
+            padding: 7px 8px;
+            gap: 0;
+            min-width: 34px;
+            justify-content: center;
+        }
+
+        .btn svg {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+
+        .btn__label {
+            display: inline;
+        }
+
+        @media (max-width: 768px) {
+            .btn__label {
+                display: none;
+            }
+            .btn {
+                padding: 7px 9px;
+            }
+            .btn--primary .btn__label {
+                display: inline;
+            }
+            .toolbar {
+                gap: 2px;
+                padding: 0 6px;
+            }
+            .toolbar__divider {
+                margin: 0 2px;
+            }
+        }
+
+        /* Theme selector dropdown */
+        .theme-select {
+            font-family: var(--font-ui);
+            font-size: 13px;
+            font-weight: 500;
+            padding: 7px 28px 7px 10px;
+            border-radius: var(--ui-radius-sm);
+            border: 1px solid var(--ui-border);
+            background: var(--ui-surface);
+            color: var(--ui-text);
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b919d' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            transition: all var(--ui-transition);
+            outline: none;
+        }
+        .theme-select:hover {
+            border-color: var(--ui-accent);
+        }
+        .theme-select:focus-visible {
+            box-shadow: 0 0 0 3px var(--ui-accent-subtle);
+            border-color: var(--ui-accent);
+        }
+
+        /* ============================================================
+           MAIN CONTENT AREA
+           ============================================================ */
+        .main {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* ============================================================
+           PANELS
+           ============================================================ */
+        .panel {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .panel--preview {
+            flex: 1;
+            background: var(--preview-bg);
+            transition: background var(--ui-transition);
+            overflow: auto;
+            display: flex;
+            justify-content: center;
+            padding: 32px 20px 60px;
+        }
+
+        .panel--editor {
+            flex: 1;
+            background: var(--editor-bg);
+            transition: background var(--ui-transition);
+            display: flex;
+            flex-direction: column;
+            min-width: 280px;
+        }
+
+        /* ============================================================
+           RESIZABLE DIVIDER
+           ============================================================ */
+        .divider {
+            width: 6px;
+            cursor: col-resize;
+            background: var(--ui-border-light);
+            flex-shrink: 0;
+            position: relative;
+            z-index: 10;
+            transition: background var(--ui-transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .divider:hover,
+        .divider.dragging {
+            background: var(--ui-accent);
+        }
+        .divider::after {
+            content: '';
+            width: 2px;
+            height: 32px;
+            border-radius: 1px;
+            background: var(--ui-text-muted);
+            transition: background var(--ui-transition);
+        }
+        .divider:hover::after,
+        .divider.dragging::after {
+            background: #fff;
+        }
+
+        /* ============================================================
+           EDITOR
+           ============================================================ */
+        .editor-wrapper {
+            flex: 1;
+            display: flex;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .editor {
+            width: 100%;
+            height: 100%;
+            padding: 20px 24px;
+            border: none;
+            outline: none;
+            resize: none;
+            font-family: var(--font-mono);
+            font-size: 14px;
+            line-height: 1.75;
+            color: var(--editor-text);
+            background: transparent;
+            tab-size: 4;
+            -moz-tab-size: 4;
+            transition: color var(--ui-transition);
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .editor::placeholder {
+            color: var(--ui-text-muted);
+            opacity: 0.6;
+        }
+        .editor::-webkit-scrollbar {
+            width: 8px;
+        }
+        .editor::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .editor::-webkit-scrollbar-thumb {
+            background: var(--ui-border);
+            border-radius: 4px;
+        }
+        .editor::-webkit-scrollbar-thumb:hover {
+            background: var(--ui-text-muted);
+        }
+
+        /* Line numbers gutter (subtle) */
+        .editor-gutter {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 48px;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            line-height: 1.75;
+            color: var(--ui-text-muted);
+            text-align: right;
+            padding-right: 12px;
+            opacity: 0.5;
+            transition: color var(--ui-transition);
+            overflow: hidden;
+        }
+
+        /* ============================================================
+           PREVIEW — Paper
+           ============================================================ */
+        .preview-container {
+            flex-shrink: 0;
+            transition: transform 200ms ease;
+            transform-origin: top center;
+        }
+
+        .paper {
+            width: 800px;
+            min-height: 1050px;
+            padding: 60px 64px;
+            background: #ffffff;
+            box-shadow: var(--ui-shadow-lg);
+            border-radius: 4px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: 15px;
+            line-height: 1.7;
+            color: #1a1d23;
+            transition: all var(--ui-transition);
+            position: relative;
+        }
+
+        /* ============================================================
+           PDF THEME STYLES — Applied to .paper
+           ============================================================ */
+
+        /* Theme: Light Professional (default) */
+        .theme-light-professional .paper {
+            background: #ffffff;
+            color: #1a1d23;
+        }
+        .theme-light-professional .paper h1 {
+            color: #111827;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        .theme-light-professional .paper h2 {
+            color: #1f2937;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        .theme-light-professional .paper h3,
+        .theme-light-professional .paper h4,
+        .theme-light-professional .paper h5,
+        .theme-light-professional .paper h6 {
+            color: #374151;
+        }
+        .theme-light-professional .paper a {
+            color: #3b6df0;
+        }
+        .theme-light-professional .paper blockquote {
+            border-left-color: #3b6df0;
+            background: #f8fafc;
+            color: #4b5563;
+        }
+        .theme-light-professional .paper code {
+            background: #f3f4f6;
+            color: #d9464a;
+        }
+        .theme-light-professional .paper pre {
+            background: #1e293b;
+            border: 1px solid #e2e8f0;
+        }
+        .theme-light-professional .paper pre code {
+            background: transparent;
+            color: #e2e8f0;
+        }
+        .theme-light-professional .paper table th {
+            background: #f8fafc;
+            border-color: #e5e7eb;
+        }
+        .theme-light-professional .paper table td {
+            border-color: #e5e7eb;
+        }
+        .theme-light-professional .paper hr {
+            border-color: #e5e7eb;
+        }
+
+        /* Theme: Dark Modern */
+        .theme-dark-modern .paper {
+            background: #1a1d27;
+            color: #d1d5db;
+        }
+        .theme-dark-modern .paper h1 {
+            color: #f9fafb;
+            border-bottom: 2px solid #374151;
+        }
+        .theme-dark-modern .paper h2 {
+            color: #f3f4f6;
+            border-bottom: 1px solid #2d3340;
+        }
+        .theme-dark-modern .paper h3,
+        .theme-dark-modern .paper h4,
+        .theme-dark-modern .paper h5,
+        .theme-dark-modern .paper h6 {
+            color: #e5e7eb;
+        }
+        .theme-dark-modern .paper a {
+            color: #7ba0ff;
+        }
+        .theme-dark-modern .paper blockquote {
+            border-left-color: #5b8af7;
+            background: #1f2330;
+            color: #9ca3af;
+        }
+        .theme-dark-modern .paper code {
+            background: #2d3340;
+            color: #f59e8b;
+        }
+        .theme-dark-modern .paper pre {
+            background: #0f1119;
+            border: 1px solid #374151;
+        }
+        .theme-dark-modern .paper pre code {
+            background: transparent;
+            color: #d1d5db;
+        }
+        .theme-dark-modern .paper table th {
+            background: #1f2330;
+            border-color: #374151;
+            color: #e5e7eb;
+        }
+        .theme-dark-modern .paper table td {
+            border-color: #374151;
+        }
+        .theme-dark-modern .paper hr {
+            border-color: #374151;
+        }
+
+        /* Theme: GitHub */
+        .theme-github .paper {
+            background: #ffffff;
+            color: #24292f;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        .theme-github .paper h1 {
+            color: #0d1117;
+            border-bottom: 2px solid #d0d7de;
+            padding-bottom: 8px;
+        }
+        .theme-github .paper h2 {
+            color: #0d1117;
+            border-bottom: 1px solid #d8dee4;
+            padding-bottom: 6px;
+        }
+        .theme-github .paper h3,
+        .theme-github .paper h4 {
+            color: #0d1117;
+        }
+        .theme-github .paper a {
+            color: #0969da;
+        }
+        .theme-github .paper blockquote {
+            border-left: 4px solid #d0d7de;
+            background: #f6f8fa;
+            color: #57606a;
+            padding: 12px 16px;
+        }
+        .theme-github .paper code {
+            background: #f6f8fa;
+            color: #cf222e;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        .theme-github .paper pre {
+            background: #f6f8fa;
+            border: 1px solid #d0d7de;
+            border-radius: 6px;
+        }
+        .theme-github .paper pre code {
+            background: transparent;
+            color: #24292f;
+        }
+        .theme-github .paper table th {
+            background: #f6f8fa;
+            border-color: #d0d7de;
+        }
+        .theme-github .paper table td {
+            border-color: #d0d7de;
+        }
+        .theme-github .paper hr {
+            border-color: #d0d7de;
+        }
+
+        /* Theme: Dracula */
+        .theme-dracula .paper {
+            background: #282a36;
+            color: #f8f8f2;
+        }
+        .theme-dracula .paper h1 {
+            color: #ff79c6;
+            border-bottom: 2px solid #44475a;
+        }
+        .theme-dracula .paper h2 {
+            color: #bd93f9;
+            border-bottom: 1px solid #44475a;
+        }
+        .theme-dracula .paper h3 {
+            color: #50fa7b;
+        }
+        .theme-dracula .paper h4 {
+            color: #8be9fd;
+        }
+        .theme-dracula .paper a {
+            color: #8be9fd;
+        }
+        .theme-dracula .paper blockquote {
+            border-left-color: #bd93f9;
+            background: #1e1f2b;
+            color: #bfbfbf;
+        }
+        .theme-dracula .paper code {
+            background: #44475a;
+            color: #ffb86c;
+        }
+        .theme-dracula .paper pre {
+            background: #1e1f2b;
+            border: 1px solid #44475a;
+        }
+        .theme-dracula .paper pre code {
+            background: transparent;
+            color: #f8f8f2;
+        }
+        .theme-dracula .paper table th {
+            background: #1e1f2b;
+            border-color: #44475a;
+            color: #f8f8f2;
+        }
+        .theme-dracula .paper table td {
+            border-color: #44475a;
+        }
+        .theme-dracula .paper hr {
+            border-color: #44475a;
+        }
+
+        /* Theme: Monokai */
+        .theme-monokai .paper {
+            background: #272822;
+            color: #e6e6e6;
+        }
+        .theme-monokai .paper h1 {
+            color: #f92672;
+            border-bottom: 2px solid #49483e;
+        }
+        .theme-monokai .paper h2 {
+            color: #a6e22e;
+            border-bottom: 1px solid #49483e;
+        }
+        .theme-monokai .paper h3 {
+            color: #66d9ef;
+        }
+        .theme-monokai .paper h4 {
+            color: #ae81ff;
+        }
+        .theme-monokai .paper a {
+            color: #66d9ef;
+        }
+        .theme-monokai .paper blockquote {
+            border-left-color: #fd971f;
+            background: #1e1f1a;
+            color: #b3b3b3;
+        }
+        .theme-monokai .paper code {
+            background: #49483e;
+            color: #f8bc6d;
+        }
+        .theme-monokai .paper pre {
+            background: #1e1f1a;
+            border: 1px solid #49483e;
+        }
+        .theme-monokai .paper pre code {
+            background: transparent;
+            color: #e6e6e6;
+        }
+        .theme-monokai .paper table th {
+            background: #1e1f1a;
+            border-color: #49483e;
+            color: #e6e6e6;
+        }
+        .theme-monokai .paper table td {
+            border-color: #49483e;
+        }
+        .theme-monokai .paper hr {
+            border-color: #49483e;
+        }
+
+        /* ============================================================
+           PAPER TYPOGRAPHY (shared across themes)
+           ============================================================ */
+        .paper h1 {
+            font-size: 2em;
+            font-weight: 700;
+            margin: 0 0 16px;
+            padding-bottom: 10px;
+            letter-spacing: -0.02em;
+        }
+        .paper h2 {
+            font-size: 1.5em;
+            font-weight: 600;
+            margin: 32px 0 12px;
+            padding-bottom: 8px;
+            letter-spacing: -0.01em;
+        }
+        .paper h3 {
+            font-size: 1.25em;
+            font-weight: 600;
+            margin: 24px 0 8px;
+        }
+        .paper h4 {
+            font-size: 1.1em;
+            font-weight: 600;
+            margin: 20px 0 6px;
+        }
+        .paper h5,
+        .paper h6 {
+            font-size: 1em;
+            font-weight: 600;
+            margin: 16px 0 4px;
+        }
+        .paper p {
+            margin: 0 0 12px;
+        }
+        .paper a {
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+        .paper ul,
+        .paper ol {
+            margin: 0 0 12px;
+            padding-left: 24px;
+        }
+        .paper li {
+            margin-bottom: 4px;
+        }
+        .paper li>ul,
+        .paper li>ol {
+            margin-top: 4px;
+            margin-bottom: 0;
+        }
+        .paper blockquote {
+            margin: 0 0 16px;
+            padding: 12px 18px;
+            border-left: 4px solid;
+            border-radius: 0 6px 6px 0;
+            font-style: italic;
+        }
+        .paper blockquote p:last-child {
+            margin-bottom: 0;
+        }
+        .paper code {
+            font-family: var(--font-mono);
+            font-size: 0.88em;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 500;
+        }
+        .paper pre {
+            margin: 0 0 16px;
+            padding: 20px 24px;
+            border-radius: 8px;
+            overflow-x: auto;
+            position: relative;
+            font-size: 13.5px;
+            line-height: 1.6;
+        }
+        .paper pre code {
+            font-family: var(--font-mono);
+            font-size: inherit;
+            padding: 0;
+            border-radius: 0;
+            font-weight: 400;
+            background: transparent !important;
+        }
+        .paper table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0 0 16px;
+            font-size: 0.95em;
+        }
+        .paper table th,
+        .paper table td {
+            padding: 10px 14px;
+            border: 1px solid;
+            text-align: left;
+        }
+        .paper table th {
+            font-weight: 600;
+        }
+        .paper hr {
+            border: none;
+            border-top: 1px solid;
+            margin: 28px 0;
+        }
+        .paper img {
+            max-width: 100%;
+            border-radius: 6px;
+            margin: 8px 0;
+        }
+        .paper input[type="checkbox"] {
+            margin-right: 8px;
+            transform: scale(1.1);
+            accent-color: var(--ui-accent);
+        }
+        .paper .task-list-item {
+            list-style: none;
+            margin-left: -20px;
+        }
+
+        /* ============================================================
+           CODE BLOCK ENHANCEMENTS
+           ============================================================ */
+        .code-block-wrapper {
+            position: relative;
+            margin: 0 0 16px;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: box-shadow 200ms ease;
+        }
+        .code-block-wrapper:hover {
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+        }
+        .code-block-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 14px;
+            background: rgba(0, 0, 0, 0.2);
+            font-family: var(--font-ui);
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        .code-block-header .lang-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .code-block-header .lang-badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+            opacity: 0.7;
+        }
+        .code-block-wrapper .copy-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            font-size: 11px;
+            font-family: var(--font-ui);
+            font-weight: 500;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.06);
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            transition: all 150ms ease;
+            white-space: nowrap;
+        }
+        .code-block-wrapper .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+        .code-block-wrapper .copy-btn.copied {
+            background: rgba(80, 200, 120, 0.2);
+            border-color: rgba(80, 200, 120, 0.5);
+            color: #50c878;
+        }
+        .code-block-wrapper pre {
+            margin: 0 !important;
+            border-radius: 0 !important;
+            border: none !important;
+        }
+
+        /* ============================================================
+           STATUS BAR
+           ============================================================ */
+        .statusbar {
+            height: var(--statusbar-height);
+            min-height: var(--statusbar-height);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 0 16px;
+            background: var(--ui-surface);
+            border-top: 1px solid var(--ui-border-light);
+            font-size: 11px;
+            color: var(--ui-text-muted);
+            flex-shrink: 0;
+            transition: all var(--ui-transition);
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        .statusbar__item {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            flex-shrink: 0;
+        }
+        .statusbar__dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #50c878;
+            flex-shrink: 0;
+        }
+        .statusbar__dot--saving {
+            background: #f59e0b;
+            animation: pulse 1s ease infinite;
+        }
+        @keyframes pulse {
+            0%,
+            100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.4;
+            }
+        }
+
+        /* ============================================================
+           ZOOM CONTROLS
+           ============================================================ */
+        .zoom-controls {
+            position: absolute;
+            bottom: 16px;
+            right: 16px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: var(--ui-surface);
+            border: 1px solid var(--ui-border);
+            border-radius: var(--ui-radius);
+            padding: 4px;
+            z-index: 20;
+            box-shadow: var(--ui-shadow-sm);
+            transition: all var(--ui-transition);
+        }
+        .zoom-controls .btn {
+            padding: 5px 8px;
+            font-size: 12px;
+            min-width: auto;
+        }
+        .zoom-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--ui-text-secondary);
+            padding: 0 6px;
+            min-width: 42px;
+            text-align: center;
+            cursor: default;
+            user-select: none;
+        }
+
+        /* ============================================================
+           RESPONSIVE
+           ============================================================ */
+        @media (max-width: 1024px) {
+            .paper {
+                width: 100%;
+                max-width: 700px;
+                padding: 40px 36px;
+            }
+            .panel--preview {
+                padding: 20px 12px 50px;
+            }
+            .editor {
+                padding: 16px 18px;
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main {
+                flex-direction: column;
+            }
+            .divider {
+                width: 100%;
+                height: 6px;
+                cursor: row-resize;
+            }
+            .divider::after {
+                width: 32px;
+                height: 2px;
+            }
+            .panel--preview {
+                min-height: 300px;
+                flex: 1;
+            }
+            .panel--editor {
+                min-height: 250px;
+                flex: 1;
+            }
+            .paper {
+                width: 100%;
+                max-width: 100%;
+                padding: 28px 20px;
+                min-height: auto;
+            }
+            .zoom-controls {
+                bottom: 8px;
+                right: 8px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .toolbar {
+                height: 44px;
+                min-height: 44px;
+                padding: 0 4px;
+                gap: 0;
+            }
+            .btn {
+                padding: 5px 7px;
+                font-size: 11px;
+            }
+            .theme-select {
+                font-size: 11px;
+                padding: 5px 22px 5px 6px;
+                background-position: right 4px center;
+            }
+            .paper {
+                padding: 20px 14px;
+                font-size: 14px;
+            }
+            .statusbar {
+                font-size: 10px;
+                gap: 8px;
+                padding: 0 8px;
+            }
+        }
+
+        /* ============================================================
+           DROP OVERLAY
+           ============================================================ */
+        .drop-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(59, 109, 240, 0.12);
+            border: 3px dashed var(--ui-accent);
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 200ms ease;
+        }
+        .drop-overlay.active {
+            opacity: 1;
+        }
+        .drop-overlay__text {
+            background: var(--ui-surface);
+            padding: 20px 32px;
+            border-radius: var(--ui-radius-lg);
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--ui-accent);
+            box-shadow: var(--ui-shadow-lg);
+        }
+
+        /* ============================================================
+           TOAST
+           ============================================================ */
+        .toast {
+            position: fixed;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #1a1d23;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            font-family: var(--font-ui);
+            z-index: 1000;
+            opacity: 0;
+            transition: all 250ms ease;
+            pointer-events: none;
+            box-shadow: var(--ui-shadow-lg);
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================================
+    APP SHELL
+    ============================================================ -->
+    <div class="app" id="app">
+        <!-- TOOLBAR -->
+        <header class="toolbar" id="toolbar">
+            <div class="toolbar__group">
+                <button class="btn btn--icon" id="btn-upload" title="Upload Markdown (Ctrl+O)" aria-label="Upload Markdown">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    <span class="btn__label">Upload</span>
+                </button>
+                <button class="btn btn--primary" id="btn-export" title="Export PDF (Ctrl+S)" aria-label="Export PDF">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    <span class="btn__label">Export PDF</span>
+                </button>
+            </div>
+            <div class="toolbar__divider"></div>
+            <div class="toolbar__group">
+                <label for="theme-select" class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">PDF Theme</label>
+                <select class="theme-select" id="theme-select" title="PDF Theme">
+                    <option value="light-professional">📄 Light Professional</option>
+                    <option value="dark-modern">🌙 Dark Modern</option>
+                    <option value="github">🐙 GitHub</option>
+                    <option value="dracula">🧛 Dracula</option>
+                    <option value="monokai">💚 Monokai</option>
+                </select>
+            </div>
+            <div class="toolbar__divider"></div>
+            <div class="toolbar__group">
+                <button class="btn" id="btn-sample" title="Load sample content">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="12" y2="17"/></svg>
+                    <span class="btn__label">Sample</span>
+                </button>
+                <button class="btn" id="btn-clear" title="Clear editor">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                    <span class="btn__label">Clear</span>
+                </button>
+            </div>
+            <div class="toolbar__spacer"></div>
+            <div class="toolbar__group">
+                <button class="btn btn--icon" id="btn-ui-theme" title="Toggle UI theme (Ctrl+Shift+L)" aria-label="Toggle dark/light UI">
+                    <svg id="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                    <svg id="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- MAIN CONTENT -->
+        <div class="main" id="main">
+            <!-- Preview Panel -->
+            <div class="panel panel--preview theme-light-professional" id="panel-preview">
+                <div class="preview-container" id="preview-container">
+                    <div class="paper" id="paper">
+                        <p style="color: #8b919d; text-align: center; margin-top: 200px; font-style: italic;">
+                            Start typing or paste Markdown to see the preview…
+                        </p>
+                    </div>
+                </div>
+                <!-- Zoom controls -->
+                <div class="zoom-controls" id="zoom-controls">
+                    <button class="btn btn--icon" id="zoom-out" title="Zoom out" aria-label="Zoom out">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                    </button>
+                    <span class="zoom-label" id="zoom-label">100%</span>
+                    <button class="btn btn--icon" id="zoom-in" title="Zoom in" aria-label="Zoom in">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Resizable Divider -->
+            <div class="divider" id="divider" title="Drag to resize panels"></div>
+
+            <!-- Editor Panel -->
+            <div class="panel panel--editor" id="panel-editor">
+                <div class="editor-wrapper">
+                    <textarea
+                    class="editor"
+                    id="editor"
+                    placeholder="# Start writing Markdown here…
+                        ## Or paste AI responses from ChatGPT, Claude, Gemini, DeepSeek…
+
+                        > Drag & drop a .md file, or use **Ctrl+O** to upload.
+
+                        ---
+                        ### Supported features:
+                        - Headings, **bold**, *italic*
+                        - Code blocks with syntax highlighting
+                        - Tables, blockquotes, task lists
+                        - Math equations: $E = mc^2$
+                        - Mermaid diagrams
+                        - And more…"
+                    ></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- STATUS BAR -->
+        <div class="statusbar" id="statusbar">
+            <span class="statusbar__item">
+                <span class="statusbar__dot" id="status-dot"></span>
+                <span id="status-text">Ready</span>
+            </span>
+            <span class="statusbar__item">Chars: <strong id="char-count">0</strong></span>
+            <span class="statusbar__item">Words: <strong id="word-count">0</strong></span>
+            <span class="statusbar__item">Lines: <strong id="line-count">0</strong></span>
+            <span class="statusbar__item" style="margin-left:auto;">PDF Theme: <strong id="status-theme">Light Professional</strong></span>
+        </div>
+    </div>
+
+    <!-- Drop overlay -->
+    <div class="drop-overlay" id="drop-overlay">
+        <div class="drop-overlay__text">📂 Drop Markdown file here</div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Hidden file input -->
+    <input type="file" id="file-input" accept=".md,.markdown,.txt,text/markdown,text/plain" style="display:none;">
+
+    <script>
+        // ============================================================
+        // js/themes.js — Theme definitions & management
+        // ============================================================
+        const ThemeManager = {
+            // PDF theme configurations
+            pdfThemes: {
+                'light-professional': {
+                    name: 'Light Professional',
+                    hljsTheme: 'github',
+                    isDark: false,
+                },
+                'dark-modern': {
+                    name: 'Dark Modern',
+                    hljsTheme: 'atom-one-dark',
+                    isDark: true,
+                },
+                'github': {
+                    name: 'GitHub',
+                    hljsTheme: 'github',
+                    isDark: false,
+                },
+                'dracula': {
+                    name: 'Dracula',
+                    hljsTheme: 'atom-one-dark',
+                    isDark: true,
+                },
+                'monokai': {
+                    name: 'Monokai',
+                    hljsTheme: 'atom-one-dark',
+                    isDark: true,
+                },
+            },
+
+            currentPdfTheme: 'light-professional',
+            currentUiTheme: 'light', // 'light' | 'dark'
+
+            /**
+             * Apply PDF theme to the preview panel
+             */
+            applyPdfTheme(themeKey) {
+                const panel = document.getElementById('panel-preview');
+                // Remove all theme classes
+                Object.keys(this.pdfThemes).forEach(key => {
+                    panel.classList.remove(`theme-${key}`);
+                });
+                // Add the selected theme class
+                panel.classList.add(`theme-${key}`);
+                this.currentPdfTheme = themeKey;
+
+                // Update status bar
+                const statusTheme = document.getElementById('status-theme');
+                if (statusTheme) {
+                    statusTheme.textContent = this.pdfThemes[themeKey].name;
+                }
+
+                // Update theme selector
+                const select = document.getElementById('theme-select');
+                if (select && select.value !== themeKey) {
+                    select.value = themeKey;
+                }
+
+                // Switch highlight.js theme link
+                this._updateHighlightJsTheme(themeKey);
+
+                // Re-render to update syntax highlighting colors
+                const event = new CustomEvent('theme-changed', { detail: { theme: themeKey } });
+                document.dispatchEvent(event);
+            },
+
+            /**
+             * Toggle UI theme between light and dark
+             */
+            toggleUiTheme() {
+                this.currentUiTheme = this.currentUiTheme === 'light' ? 'dark' : 'light';
+                this._applyUiTheme();
+            },
+
+            _applyUiTheme() {
+                const app = document.getElementById('app');
+                const iconSun = document.getElementById('icon-sun');
+                const iconMoon = document.getElementById('icon-moon');
+
+                if (this.currentUiTheme === 'dark') {
+                    app.classList.add('ui-dark');
+                    if (iconSun) iconSun.style.display = 'none';
+                    if (iconMoon) iconMoon.style.display = 'block';
+                } else {
+                    app.classList.remove('ui-dark');
+                    if (iconSun) iconSun.style.display = 'block';
+                    if (iconMoon) iconMoon.style.display = 'none';
+                }
+                // Save preference
+                localStorage.setItem('md-pdf-ui-theme', this.currentUiTheme);
+            },
+
+            /**
+             * Load UI theme from localStorage
+             */
+            loadUiTheme() {
+                const saved = localStorage.getItem('md-pdf-ui-theme');
+                if (saved === 'dark' || saved === 'light') {
+                    this.currentUiTheme = saved;
+                }
+                // Check system preference if no saved value
+                if (!saved && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)')
+                    .matches) {
+                    this.currentUiTheme = 'dark';
+                }
+                this._applyUiTheme();
+            },
+
+            /**
+             * Switch highlight.js CSS link based on theme brightness
+             */
+            _updateHighlightJsTheme(themeKey) {
+                const theme = this.pdfThemes[themeKey];
+                const lightLink = document.getElementById('hljs-theme-light');
+                const darkLink = document.getElementById('hljs-theme-dark');
+
+                if (theme.isDark) {
+                    if (lightLink) lightLink.disabled = true;
+                    if (darkLink) darkLink.disabled = false;
+                } else {
+                    if (lightLink) lightLink.disabled = false;
+                    if (darkLink) darkLink.disabled = true;
+                }
+            },
+        };
+
+        // ============================================================
+        // js/pdf-generator.js — PDF export functionality
+        // ============================================================
+        const PdfGenerator = {
+            /**
+             * Generate and download PDF from the paper element
+             */
+            async exportPdf() {
+                const paper = document.getElementById('paper');
+                const themeKey = ThemeManager.currentPdfTheme;
+                const themeName = ThemeManager.pdfThemes[themeKey].name;
+
+                // Show toast
+                Toast.show('Generating PDF…');
+
+                // Clone the paper element for PDF generation
+                const clone = paper.cloneNode(true);
+                clone.style.width = '800px';
+                clone.style.minHeight = 'auto';
+                clone.style.boxShadow = 'none';
+                clone.style.borderRadius = '0';
+                clone.style.transform = 'none';
+                clone.style.margin = '0';
+                clone.style.position = 'static';
+
+                // Create a temporary container
+                const container = document.createElement('div');
+                container.style.position = 'absolute';
+                container.style.left = '-9999px';
+                container.style.top = '0';
+                container.style.width = '800px';
+                container.appendChild(clone);
+                document.body.appendChild(container);
+
+                // Ensure all images are loaded
+                const images = clone.querySelectorAll('img');
+                await Promise.all(Array.from(images).map(img => {
+                    if (img.complete) return Promise.resolve();
+                    return new Promise(resolve => {
+                        img.onload = resolve;
+                        img.onerror = resolve;
+                    });
+                }));
+
+                // Small delay to ensure rendering
+                await new Promise(r => setTimeout(r, 100));
+
+                // html2pdf options
+                const opt = {
+                    margin: [0.3, 0.3, 0.3, 0.3],
+                    filename: `document-${Date.now()}.pdf`,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: {
+                        scale: 2,
+                        useCORS: true,
+                        letterRendering: true,
+                        logging: false,
+                        backgroundColor: null,
+                    },
+                    jsPDF: {
+                        unit: 'in',
+                        format: 'letter',
+                        orientation: 'portrait',
+                    },
+                    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+                };
+
+                try {
+                    await html2pdf().set(opt).from(clone).save();
+                    Toast.show('✅ PDF exported successfully!');
+                } catch (err) {
+                    console.error('PDF export error:', err);
+                    Toast.show('❌ Export failed. Please try again.');
+                } finally {
+                    // Clean up
+                    document.body.removeChild(container);
+                }
+            },
+        };
+
+        // ============================================================
+        // Toast utility
+        // ============================================================
+        const Toast = {
+            timer: null,
+            show(message, duration = 2000) {
+                const el = document.getElementById('toast');
+                if (!el) return;
+                clearTimeout(this.timer);
+                el.textContent = message;
+                el.classList.add('show');
+                this.timer = setTimeout(() => {
+                    el.classList.remove('show');
+                }, duration);
+            },
+        };
+
+        // ============================================================
+        // js/app.js — Main application logic
+        // ============================================================
+        const App = {
+            // State
+            zoomLevel: 1.0,
+            isDragging: false,
+            autoSaveTimer: null,
+            autoSaveDebounceMs: 800,
+
+            /**
+             * Initialize the application
+             */
+            init() {
+                // Configure marked.js
+                this._configureMarked();
+
+                // Configure mermaid
+                this._configureMermaid();
+
+                // Load UI theme
+                ThemeManager.loadUiTheme();
+
+                // Load saved draft
+                this._loadDraft();
+
+                // Load saved PDF theme
+                this._loadPdfTheme();
+
+                // Load saved zoom
+                this._loadZoom();
+
+                // Bind events
+                this._bindEvents();
+
+                // Initial render
+                this.renderPreview();
+
+                // Update stats
+                this.updateStats();
+
+                // Apply initial PDF theme
+                ThemeManager.applyPdfTheme(ThemeManager.currentPdfTheme);
+
+                // Set initial status
+                this._setStatus('Ready', 'ready');
+            },
+
+            /**
+             * Configure marked.js with extensions and options
+             */
+            _configureMarked() {
+                if (typeof marked === 'undefined') {
+                    console.warn('marked.js not loaded');
+                    return;
+                }
+
+                // Create a custom renderer
+                const renderer = new marked.Renderer();
+
+                // Override code block rendering to add wrapper with header and copy button
+                const originalCode = renderer.code.bind(renderer);
+                renderer.code = function(code, language, isEscaped) {
+                    const lang = language || 'text';
+                    const rawCode = code.text || code;
+                    const escapedCode = typeof rawCode === 'string' ? rawCode : String(rawCode || '');
+
+                    // Highlight the code
+                    let highlighted;
+                    try {
+                        if (typeof hljs !== 'undefined' && lang && hljs.getLanguage(lang)) {
+                            highlighted = hljs.highlight(escapedCode, { language: lang }).value;
+                        } else if (typeof hljs !== 'undefined') {
+                            highlighted = hljs.highlightAuto(escapedCode).value;
+                        } else {
+                            highlighted = this._escapeHtml(escapedCode);
+                        }
+                    } catch (e) {
+                        highlighted = this._escapeHtml(escapedCode);
+                    }
+
+                    // Build the code block with wrapper
+                    const langDisplay = lang !== 'text' ? lang.toUpperCase() : 'CODE';
+                    return `
+                <div class="code-block-wrapper">
+                  <div class="code-block-header">
+                    <span class="lang-badge">${langDisplay}</span>
+                    <button class="copy-btn" data-code="${this._escapeAttr(escapedCode)}" title="Copy code">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                      Copy
+                    </button>
+                  </div>
+                  <pre><code class="hljs language-${lang}">${highlighted}</code></pre>
+                </div>`;
+                };
+
+                // Override image rendering for better output
+                const originalImage = renderer.image.bind(renderer);
+                renderer.image = function(href, title, text) {
+                    const titleAttr = title ? ` title="${this._escapeAttr(title)}"` : '';
+                    const altAttr = text ? ` alt="${this._escapeAttr(text)}"` : '';
+                    return `<img src="${href}"${altAttr}${titleAttr} loading="lazy" style="max-width:100%;border-radius:6px;">`;
+                };
+
+                // Helper: escape HTML
+                renderer._escapeHtml = function(str) {
+                    return str
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;');
+                };
+
+                // Helper: escape for HTML attribute
+                renderer._escapeAttr = function(str) {
+                    return str
+                        .replace(/&/g, '&amp;')
+                        .replace(/"/g, '&quot;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/\n/g, '&#10;')
+                        .replace(/\r/g, '&#13;');
+                };
+
+                marked.setOptions({
+                    renderer: renderer,
+                    gfm: true,
+                    breaks: true,
+                    pedantic: false,
+                    smartLists: true,
+                    smartypants: true,
+                });
+            },
+
+            /**
+             * Configure Mermaid
+             */
+            _configureMermaid() {
+                if (typeof mermaid !== 'undefined') {
+                    mermaid.initialize({
+                        startOnLoad: false,
+                        theme: 'default',
+                        securityLevel: 'loose',
+                        fontFamily: 'Inter, sans-serif',
+                    });
+                }
+            },
+
+            /**
+             * Render markdown to the preview paper
+             */
+            renderPreview() {
+                const editor = document.getElementById('editor');
+                const paper = document.getElementById('paper');
+                const markdown = editor.value || '';
+
+                if (!markdown.trim()) {
+                    paper.innerHTML =
+                        '<p style="color: #8b919d; text-align: center; margin-top: 200px; font-style: italic;">Start typing or paste Markdown to see the preview…</p>';
+                    return;
+                }
+
+                // Parse markdown
+                let html;
+                try {
+                    html = marked.parse(markdown);
+                } catch (e) {
+                    html = `<p style="color:red;">Error parsing markdown: ${e.message}</p>`;
+                }
+
+                // Set the HTML
+                paper.innerHTML = html;
+
+                // Render KaTeX math
+                this._renderMath(paper);
+
+                // Render Mermaid diagrams
+                this._renderMermaid(paper);
+
+                // Attach copy button listeners (using event delegation via the paper)
+                // This ensures copy buttons work even after re-renders
+                this._attachCopyHandlers(paper);
+            },
+
+            /**
+             * Render KaTeX math expressions in the paper
+             */
+            _renderMath(container) {
+                if (typeof renderMathInElement === 'undefined') return;
+                try {
+                    renderMathInElement(container, {
+                        delimiters: [
+                            { left: '$$', right: '$$', display: true },
+                            { left: '$', right: '$', display: false },
+                            { left: '\\[', right: '\\]', display: true },
+                            { left: '\\(', right: '\\)', display: false },
+                        ],
+                        throwOnError: false,
+                        output: 'html',
+                    });
+                } catch (e) {
+                    console.warn('KaTeX rendering error:', e);
+                }
+            },
+
+            /**
+             * Render Mermaid diagrams in the paper
+             */
+            async _renderMermaid(container) {
+                if (typeof mermaid === 'undefined') return;
+                const mermaidBlocks = container.querySelectorAll('pre code.language-mermaid');
+                if (mermaidBlocks.length === 0) return;
+
+                for (const block of mermaidBlocks) {
+                    const code = block.textContent || '';
+                    const parentPre = block.closest('pre');
+                    if (!parentPre) continue;
+
+                    try {
+                        const uniqueId = 'mermaid-' + Math.random().toString(36).substr(2, 9);
+                        const { svg } = await mermaid.render(uniqueId, code);
+                        const wrapper = document.createElement('div');
+                        wrapper.className = 'mermaid-rendered';
+                        wrapper.innerHTML = svg;
+                        wrapper.style.cssText =
+                            'text-align:center;margin:16px 0;padding:16px;background:rgba(255,255,255,0.03);border-radius:8px;overflow-x:auto;';
+                        // Replace the pre with the rendered SVG
+                        const parentWrapper = parentPre.closest('.code-block-wrapper') || parentPre;
+                        parentWrapper.replaceWith(wrapper);
+                    } catch (e) {
+                        console.warn('Mermaid rendering error:', e);
+                        // Leave the original code block in place
+                    }
+                }
+            },
+
+            /**
+             * Attach copy handlers to code blocks using event delegation
+             */
+            _attachCopyHandlers(container) {
+                // Remove old listener by cloning (simple approach)
+                // Instead, we use a single delegated listener on the paper
+                // The listener is attached once in _bindEvents
+                // This method is kept for clarity but the actual delegation
+                // is handled by the paper's click event
+            },
+
+            /**
+             * Handle copy button clicks via event delegation
+             */
+            _handleCopyClick(e) {
+                const copyBtn = e.target.closest('.copy-btn');
+                if (!copyBtn) return;
+
+                const code = copyBtn.getAttribute('data-code');
+                if (!code) return;
+
+                // Decode HTML entities in the stored code
+                const decoded = code
+                    .replace(/&amp;/g, '&')
+                    .replace(/&lt;/g, '<')
+                    .replace(/&gt;/g, '>')
+                    .replace(/&quot;/g, '"')
+                    .replace(/&#10;/g, '\n')
+                    .replace(/&#13;/g, '\r');
+
+                navigator.clipboard.writeText(decoded).then(() => {
+                    copyBtn.classList.add('copied');
+                    copyBtn.innerHTML = `
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                Copied!`;
+                    setTimeout(() => {
+                        copyBtn.classList.remove('copied');
+                        copyBtn.innerHTML = `
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                  Copy`;
+                    }, 2000);
+                }).catch(() => {
+                    Toast.show('Failed to copy. Please try again.');
+                });
+            },
+
+            /**
+             * Update character, word, and line counts
+             */
+            updateStats() {
+                const editor = document.getElementById('editor');
+                const text = editor.value || '';
+                const charCount = text.length;
+                const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
+                const lineCount = text ? text.split(/\n/).length : 0;
+
+                document.getElementById('char-count').textContent = charCount.toLocaleString();
+                document.getElementById('word-count').textContent = wordCount.toLocaleString();
+                document.getElementById('line-count').textContent = lineCount.toLocaleString();
+            },
+
+            /**
+             * Set status bar message
+             */
+            _setStatus(message, state = 'ready') {
+                const statusText = document.getElementById('status-text');
+                const statusDot = document.getElementById('status-dot');
+                if (statusText) statusText.textContent = message;
+                if (statusDot) {
+                    statusDot.className = 'statusbar__dot';
+                    if (state === 'saving') statusDot.classList.add('statusbar__dot--saving');
+                }
+            },
+
+            /**
+             * Auto-save draft to localStorage
+             */
+            _autoSave() {
+                clearTimeout(this.autoSaveTimer);
+                this.autoSaveTimer = setTimeout(() => {
+                    const editor = document.getElementById('editor');
+                    const content = editor.value || '';
+                    localStorage.setItem('md-pdf-draft', content);
+                    localStorage.setItem('md-pdf-draft-time', Date.now().toString());
+                    this._setStatus('Draft saved', 'ready');
+                    // Briefly show saving state
+                    const dot = document.getElementById('status-dot');
+                    if (dot) {
+                        dot.classList.add('statusbar__dot--saving');
+                        setTimeout(() => {
+                            dot.classList.remove('statusbar__dot--saving');
+                        }, 600);
+                    }
+                }, this.autoSaveDebounceMs);
+                this._setStatus('Unsaved changes…', 'saving');
+            },
+
+            /**
+             * Load saved draft
+             */
+            _loadDraft() {
+                const saved = localStorage.getItem('md-pdf-draft');
+                if (saved) {
+                    const editor = document.getElementById('editor');
+                    editor.value = saved;
+                    const savedTime = localStorage.getItem('md-pdf-draft-time');
+                    if (savedTime) {
+                        const dt = new Date(parseInt(savedTime));
+                        this._setStatus(`Draft restored from ${dt.toLocaleString()}`, 'ready');
+                    }
+                }
+            },
+
+            /**
+             * Load saved PDF theme
+             */
+            _loadPdfTheme() {
+                const saved = localStorage.getItem('md-pdf-theme');
+                if (saved && ThemeManager.pdfThemes[saved]) {
+                    ThemeManager.currentPdfTheme = saved;
+                    const select = document.getElementById('theme-select');
+                    if (select) select.value = saved;
+                }
+            },
+
+            /**
+             * Save PDF theme
+             */
+            _savePdfTheme(themeKey) {
+                localStorage.setItem('md-pdf-theme', themeKey);
+            },
+
+            /**
+             * Load saved zoom level
+             */
+            _loadZoom() {
+                const saved = localStorage.getItem('md-pdf-zoom');
+                if (saved) {
+                    const zoom = parseFloat(saved);
+                    if (zoom >= 0.5 && zoom <= 2.0) {
+                        this.zoomLevel = zoom;
+                    }
+                }
+                this._applyZoom();
+            },
+
+            /**
+             * Save zoom level
+             */
+            _saveZoom() {
+                localStorage.setItem('md-pdf-zoom', this.zoomLevel.toString());
+            },
+
+            /**
+             * Apply zoom to preview container
+             */
+            _applyZoom() {
+                const container = document.getElementById('preview-container');
+                const label = document.getElementById('zoom-label');
+                if (container) {
+                    container.style.transform = `scale(${this.zoomLevel})`;
+                }
+                if (label) {
+                    label.textContent = Math.round(this.zoomLevel * 100) + '%';
+                }
+            },
+
+            /**
+             * Zoom in
+             */
+            zoomIn() {
+                if (this.zoomLevel < 2.0) {
+                    this.zoomLevel = Math.min(2.0, this.zoomLevel + 0.1);
+                    this.zoomLevel = Math.round(this.zoomLevel * 10) / 10;
+                    this._applyZoom();
+                    this._saveZoom();
+                }
+            },
+
+            /**
+             * Zoom out
+             */
+            zoomOut() {
+                if (this.zoomLevel > 0.5) {
+                    this.zoomLevel = Math.max(0.5, this.zoomLevel - 0.1);
+                    this.zoomLevel = Math.round(this.zoomLevel * 10) / 10;
+                    this._applyZoom();
+                    this._saveZoom();
+                }
+            },
+
+            /**
+             * Reset zoom
+             */
+            resetZoom() {
+                this.zoomLevel = 1.0;
+                this._applyZoom();
+                this._saveZoom();
+            },
+
+            /**
+             * Handle file upload
+             */
+            handleFileUpload(file) {
+                if (!file) return;
+                // Check file extension or type
+                const validExtensions = ['.md', '.markdown', '.txt'];
+                const validTypes = ['text/markdown', 'text/plain', 'text/x-markdown', ''];
+                const ext = '.' + file.name.split('.').pop().toLowerCase();
+
+                if (!validExtensions.includes(ext) && !validTypes.includes(file.type) && file.type !== '') {
+                    Toast.show('Please upload a Markdown (.md) or text (.txt) file.');
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const editor = document.getElementById('editor');
+                    editor.value = e.target.result;
+                    this.renderPreview();
+                    this.updateStats();
+                    this._autoSave();
+                    Toast.show(`📄 Loaded: ${file.name}`);
+                };
+                reader.onerror = () => {
+                    Toast.show('Error reading file.');
+                };
+                reader.readAsText(file);
+            },
+
+            /**
+             * Load sample content
+             */
+            loadSample() {
+                const sample = `# 📘 Markdown to PDF — Sample Document
+
+                Welcome to the **Markdown to PDF** converter! This sample demonstrates all supported features.
+
+                ---
+
+                ## ✨ Features Overview
+
+                This tool converts your Markdown into **beautiful, print-ready PDFs**. Perfect for:
+
+                - 📝 Cheat sheets
+                - 📚 Study notes
+                - 📖 Documentation
+                - 🎓 Learning material
+                - 🔧 Technical guides
+
+                ---
+
+                ## 📐 Text Formatting
+
+                You can use **bold**, *italic*, ~~strikethrough~~, and \`inline code\`.
+
+                > **Pro tip:** Paste AI responses from ChatGPT, Claude, Gemini, or DeepSeek and export them as polished PDFs instantly.
+
+                ---
+
+                ## 💻 Code Blocks
+
+                Syntax highlighting for many languages:
+
+                \`\`\`python
+                def fibonacci(n):
+                """Generate Fibonacci sequence up to n terms."""
+                a, b = 0, 1
+                result = []
+                for _ in range(n):
+                result.append(a)
+                a, b = b, a + b
+                return result
+
+                # Print first 10 Fibonacci numbers
+                print(fibonacci(10))
+                # Output: [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]
+                \`\`\`
+
+                \`\`\`javascript
+                // Debounce utility
+                function debounce(fn, delay) {
+                let timeoutId;
+                return function(...args) {
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => fn.apply(this, args), delay);
+                };
+                }
+
+                // Usage
+                const handleSearch = debounce((query) => {
+                console.log(\`Searching for: \${query}\`);
+                }, 300);
+                \`\`\`
+
+                \`\`\`sql
+                SELECT
+                users.name,
+                COUNT(orders.id) AS order_count,
+                SUM(orders.total) AS total_spent
+                FROM users
+                LEFT JOIN orders ON users.id = orders.user_id
+                WHERE orders.created_at >= '2024-01-01'
+                GROUP BY users.id, users.name
+                HAVING COUNT(orders.id) > 5
+                ORDER BY total_spent DESC;
+                \`\`\`
+
+                ---
+
+                ## 📊 Tables
+
+                | Feature | Status | Priority |
+                |---------|--------|----------|
+                | PDF Export | ✅ Complete | High |
+                | Syntax Highlighting | ✅ Complete | High |
+                | Theme Support | ✅ Complete | Medium |
+                | Math Equations | ✅ Complete | Medium |
+                | Mermaid Diagrams | ✅ Complete | Low |
+                | Auto-save | ✅ Complete | High |
+                | Drag & Drop | ✅ Complete | Medium |
+
+                ---
+
+                ## 📋 Task Lists
+
+                - [x] Build the Markdown editor
+                - [x] Implement live preview
+                - [x] Add PDF export with html2pdf.js
+                - [x] Support multiple themes
+                - [ ] Add cloud sync *(coming soon)*
+                - [ ] Mobile app *(planned)*
+
+                ---
+
+                ## 🔢 Math Equations (KaTeX)
+
+                **Inline math:** The quadratic formula is $x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}$.
+
+                **Display math:**
+
+                $$\\int_{-\\infty}^{\\infty} e^{-x^2} \\, dx = \\sqrt{\\pi}$$
+
+                $$\\sum_{n=1}^{\\infty} \\frac{1}{n^2} = \\frac{\\pi^2}{6}$$
+
+                **Matrix:**
+
+                $$\\begin{bmatrix} a & b \\\\ c & d \\end{bmatrix} \\begin{bmatrix} x \\\\ y \\end{bmatrix} = \\begin{bmatrix} ax + by \\\\ cx + dy \\end{bmatrix}$$
+
+                ---
+
+                ## 🔄 Mermaid Diagrams
+
+                \`\`\`mermaid
+                graph TD
+                A[Start] --> B{Is it working?}
+                B -->|Yes| C[Great! 🎉]
+                B -->|No| D[Debug 🔧]
+                D --> B
+                C --> E[Export PDF]
+                E --> F[Print & Share]
+                \`\`\`
+
+                \`\`\`mermaid
+                sequenceDiagram
+                participant User
+                participant Editor
+                participant Preview
+                participant PDF
+
+                User->>Editor: Type Markdown
+                Editor->>Preview: Live Render
+                Preview-->>User: Show Preview
+                User->>PDF: Ctrl+S Export
+                PDF-->>User: Download PDF ✅
+                \`\`\`
+
+                ---
+
+                ## 📝 Nested Lists
+
+                1. **Planning Phase**
+                - Define requirements
+                - Research tools
+                - Create wireframes
+                1. Subtask: Review with team
+                2. Subtask: Get approval
+                2. **Development Phase**
+                - Set up project
+                - Write core logic
+                - Add styling
+                - Test everything
+                3. **Deployment Phase**
+                - Build for production
+                - Deploy to server
+                - Monitor performance
+
+                ---
+
+                ## 🔗 Links & References
+
+                - [Marked.js Documentation](https://marked.js.org/)
+                - [highlight.js](https://highlightjs.org/)
+                - [KaTeX Math Rendering](https://katex.org/)
+                - [Mermaid Diagrams](https://mermaid.js.org/)
+
+                ---
+
+                ## 📄 Blockquotes
+
+                > "The best way to predict the future is to invent it." — Alan Kay
+
+                > **Note:** This is a nested blockquote example.
+                > > Inner quote that provides additional context or emphasis.
+
+                ---
+
+                ## 🎨 Horizontal Rules
+
+                Above the line…
+
+                ---
+
+                …below the line.
+
+                ---
+
+                ### 🎉 You're all set!
+
+                Start writing your own Markdown, or **paste AI responses** to generate beautiful PDFs. Press **Ctrl+S** to export anytime!
+                `;
+
+                const editor = document.getElementById('editor');
+                editor.value = sample;
+                this.renderPreview();
+                this.updateStats();
+                this._autoSave();
+                Toast.show('📋 Sample content loaded!');
+            },
+
+            /**
+             * Clear the editor
+             */
+            clearEditor() {
+                const editor = document.getElementById('editor');
+                if (editor.value.trim() && !confirm('Clear all content? This cannot be undone.')) {
+                    return;
+                }
+                editor.value = '';
+                this.renderPreview();
+                this.updateStats();
+                this._autoSave();
+                Toast.show('Editor cleared.');
+            },
+
+            /**
+             * Bind all event listeners
+             */
+            _bindEvents() {
+                const editor = document.getElementById('editor');
+                const paper = document.getElementById('paper');
+                const divider = document.getElementById('divider');
+                const main = document.getElementById('main');
+                const panelPreview = document.getElementById('panel-preview');
+                const panelEditor = document.getElementById('panel-editor');
+                const fileInput = document.getElementById('file-input');
+                const dropOverlay = document.getElementById('drop-overlay');
+                const app = document.getElementById('app');
+
+                // --- Editor input ---
+                editor.addEventListener('input', () => {
+                    this.renderPreview();
+                    this.updateStats();
+                    this._autoSave();
+                });
+
+                // --- Editor scroll sync (basic) ---
+                // The editor and preview scroll independently as specified
+
+                // --- Keyboard shortcuts ---
+                document.addEventListener('keydown', (e) => {
+                    // Ctrl+S → Export PDF
+                    if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                        e.preventDefault();
+                        PdfGenerator.exportPdf();
+                    }
+                    // Ctrl+O → Upload
+                    if ((e.ctrlKey || e.metaKey) && e.key === 'o') {
+                        e.preventDefault();
+                        fileInput.click();
+                    }
+                    // Ctrl+Shift+L → Toggle UI theme
+                    if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'L') {
+                        e.preventDefault();
+                        ThemeManager.toggleUiTheme();
+                    }
+                });
+
+                // --- Toolbar buttons ---
+                document.getElementById('btn-export').addEventListener('click', () => {
+                    PdfGenerator.exportPdf();
+                });
+                document.getElementById('btn-upload').addEventListener('click', () => {
+                    fileInput.click();
+                });
+                document.getElementById('btn-sample').addEventListener('click', () => {
+                    this.loadSample();
+                });
+                document.getElementById('btn-clear').addEventListener('click', () => {
+                    this.clearEditor();
+                });
+                document.getElementById('btn-ui-theme').addEventListener('click', () => {
+                    ThemeManager.toggleUiTheme();
+                });
+
+                // --- Theme selector ---
+                document.getElementById('theme-select').addEventListener('change', (e) => {
+                    const themeKey = e.target.value;
+                    ThemeManager.applyPdfTheme(themeKey);
+                    this._savePdfTheme(themeKey);
+                    // Re-render to update syntax highlighting
+                    this.renderPreview();
+                });
+
+                // --- Listen for theme changes ---
+                document.addEventListener('theme-changed', () => {
+                    this.renderPreview();
+                });
+
+                // --- File input ---
+                fileInput.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        this.handleFileUpload(file);
+                    }
+                    // Reset so the same file can be re-uploaded
+                    fileInput.value = '';
+                });
+
+                // --- Drag and drop ---
+                let dragCounter = 0;
+                document.addEventListener('dragenter', (e) => {
+                    e.preventDefault();
+                    dragCounter++;
+                    if (dragCounter === 1) {
+                        dropOverlay.classList.add('active');
+                    }
+                });
+                document.addEventListener('dragleave', (e) => {
+                    e.preventDefault();
+                    dragCounter--;
+                    if (dragCounter === 0) {
+                        dropOverlay.classList.remove('active');
+                    }
+                });
+                document.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                });
+                document.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    dragCounter = 0;
+                    dropOverlay.classList.remove('active');
+                    const file = e.dataTransfer.files[0];
+                    if (file) {
+                        this.handleFileUpload(file);
+                    }
+                });
+
+                // --- Copy button delegation on paper ---
+                paper.addEventListener('click', (e) => {
+                    this._handleCopyClick(e);
+                });
+
+                // --- Resizable divider ---
+                let startX, startY, startPreviewWidth, startEditorWidth, startPreviewHeight,
+                startEditorHeight;
+                const isMobile = () => window.innerWidth <= 768;
+
+                const onDividerStart = (e) => {
+                    this.isDragging = true;
+                    divider.classList.add('dragging');
+                    document.body.style.cursor = isMobile() ? 'row-resize' : 'col-resize';
+                    document.body.style.userSelect = 'none';
+
+                    if (isMobile()) {
+                        startY = e.touches ? e.touches[0].clientY : e.clientY;
+                        startPreviewHeight = panelPreview.getBoundingClientRect().height;
+                        startEditorHeight = panelEditor.getBoundingClientRect().height;
+                    } else {
+                        startX = e.touches ? e.touches[0].clientX : e.clientX;
+                        startPreviewWidth = panelPreview.getBoundingClientRect().width;
+                        startEditorWidth = panelEditor.getBoundingClientRect().width;
+                    }
+                };
+
+                const onDividerMove = (e) => {
+                    if (!this.isDragging) return;
+                    e.preventDefault();
+
+                    if (isMobile()) {
+                        const currentY = e.touches ? e.touches[0].clientY : e.clientY;
+                        const deltaY = currentY - startY;
+                        const totalHeight = main.getBoundingClientRect().height - divider.offsetHeight;
+                        const newPreviewHeight = startPreviewHeight + deltaY;
+                        const newEditorHeight = totalHeight - newPreviewHeight;
+                        const previewPercent = Math.max(25, Math.min(75, (newPreviewHeight / totalHeight) *
+                            100));
+                        panelPreview.style.flex = `${previewPercent} 1 0%`;
+                        panelEditor.style.flex = `${100 - previewPercent} 1 0%`;
+                    } else {
+                        const currentX = e.touches ? e.touches[0].clientX : e.clientX;
+                        const deltaX = currentX - startX;
+                        const totalWidth = main.getBoundingClientRect().width - divider.offsetWidth;
+                        const newPreviewWidth = startPreviewWidth + deltaX;
+                        const previewPercent = Math.max(25, Math.min(75, (newPreviewWidth / totalWidth) *
+                        100));
+                        panelPreview.style.flex = `${previewPercent} 1 0%`;
+                        panelEditor.style.flex = `${100 - previewPercent} 1 0%`;
+                    }
+                };
+
+                const onDividerEnd = () => {
+                    this.isDragging = false;
+                    divider.classList.remove('dragging');
+                    document.body.style.cursor = '';
+                    document.body.style.userSelect = '';
+                };
+
+                divider.addEventListener('mousedown', onDividerStart);
+                divider.addEventListener('touchstart', onDividerStart, { passive: false });
+                document.addEventListener('mousemove', onDividerMove);
+                document.addEventListener('touchmove', onDividerMove, { passive: false });
+                document.addEventListener('mouseup', onDividerEnd);
+                document.addEventListener('touchend', onDividerEnd);
+
+                // --- Zoom controls ---
+                document.getElementById('zoom-in').addEventListener('click', () => this.zoomIn());
+                document.getElementById('zoom-out').addEventListener('click', () => this.zoomOut());
+                document.getElementById('zoom-label').addEventListener('click', () => this.resetZoom());
+                // Ctrl+Scroll to zoom
+                panelPreview.addEventListener('wheel', (e) => {
+                    if (e.ctrlKey || e.metaKey) {
+                        e.preventDefault();
+                        if (e.deltaY < 0) {
+                            this.zoomIn();
+                        } else {
+                            this.zoomOut();
+                        }
+                    }
+                }, { passive: false });
+
+                // --- Paste from clipboard (handle large pastes) ---
+                editor.addEventListener('paste', (e) => {
+                    // The paste works natively; we just need to trigger re-render
+                    // after the paste is applied. Using setTimeout ensures the
+                    // value is updated.
+                    setTimeout(() => {
+                        this.renderPreview();
+                        this.updateStats();
+                        this._autoSave();
+                    }, 50);
+                });
+
+                // --- Window resize ---
+                window.addEventListener('resize', () => {
+                    // Reset flex values on mobile/desktop switch
+                    if (window.innerWidth <= 768) {
+                        panelPreview.style.flex = '1 1 0%';
+                        panelEditor.style.flex = '1 1 0%';
+                    } else {
+                        panelPreview.style.flex = '1 1 0%';
+                        panelEditor.style.flex = '1 1 0%';
+                    }
+                });
+
+                // --- Before unload: save draft ---
+                window.addEventListener('beforeunload', () => {
+                    const editor = document.getElementById('editor');
+                    localStorage.setItem('md-pdf-draft', editor.value || '');
+                    localStorage.setItem('md-pdf-draft-time', Date.now().toString());
+                });
+            },
+        };
+
+        // ============================================================
+        // BOOTSTRAP
+        // ============================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            App.init();
+
+            // Log startup info
+            console.log('%c📄 Markdown to PDF Converter %cReady',
+                'font-size:16px;font-weight:700;', 'font-size:12px;color:#50c878;');
+            console.log('%cShortcuts: Ctrl+S → Export | Ctrl+O → Upload | Ctrl+Shift+L → Toggle UI Theme',
+                'font-size:11px;color:#8b919d;');
+        });
+    </script>
+</body>
+</html>
