@@ -1146,135 +1146,171 @@ Or drag & drop a .md file...
             });
 
             // ── KaTeX plugin for markdown-it ────────
+            // Supports: inline $...$, mid-line $$...$$ (rendered as display math),
+            // single-line block $$...$$ and multi-line $$ ... $$ blocks (matrices,
+            // aligned equations, etc). The block rule opts into `alt: ['paragraph', ...]`
+            // so it can interrupt an in-progress paragraph — without this, a $$ block
+            // that isn't preceded by a blank line (very common in AI-generated Markdown)
+            // gets silently swallowed into the previous paragraph and never renders.
             function katexPlugin(md) {
-                md.block.ruler.before('fence', 'katex_block', function(state, startLine, endLine, silent) {
+                function renderKatex(formula, displayMode) {
+                    try {
+                        const html = katex.renderToString(formula, {
+                            displayMode: displayMode,
+                            throwOnError: false,
+                            trust: false,
+                            strict: 'ignore',
+                        });
+                        return displayMode ? '<div class="katex-block">' + html + '</div>' : html;
+                    } catch (e) {
+                        if (displayMode) {
+                            return '<div class="katex-error">[KaTeX Error: ' + md.utils.escapeHtml(e.message) +
+                                ']</div>';
+                        }
+                        return null;
+                    }
+                }
+
+                // ── Block rule: $$ ... $$ at the start of a line ───
+                function katexBlockRule(state, startLine, endLine, silent) {
                     const pos = state.bMarks[startLine] + state.tShift[startLine];
                     const max = state.eMarks[startLine];
                     const lineText = state.src.slice(pos, max);
-                    if (lineText.startsWith('$$') && lineText.length > 2) {
-                        const rest = lineText.slice(2);
-                        const endIdx = rest.indexOf('$$');
-                        if (endIdx !== -1) {
-                            if (!silent) {
-                                const formula = rest.slice(0, endIdx).trim();
-                                try {
-                                    const html = katex.renderToString(formula, { displayMode: true,
-                                        throwOnError: false, trust: false });
-                                    const token = state.push('html_block', '', 0);
-                                    token.content = '<div class="katex-block">' + html + '</div>';
-                                    token.block = true;
-                                } catch (e) {
-                                    const token = state.push('html_block', '', 0);
-                                    token.content =
-                                        '<div class="katex-error">[KaTeX Error: ' + md.utils.escapeHtml(e
-                                            .message) + ']</div>';
-                                    token.block = true;
-                                }
-                            }
-                            state.line = startLine + 1;
-                            return true;
+                    const trimmed = lineText.trim();
+
+                    if (!trimmed.startsWith('$$')) return false;
+
+                    // Case 1: opening and closing $$ on the same line, e.g. "$$E = mc^2$$"
+                    if (trimmed.length > 4 && trimmed.endsWith('$$')) {
+                        if (!silent) {
+                            const formula = trimmed.slice(2, -2).trim();
+                            const token = state.push('html_block', '', 0);
+                            token.content = renderKatex(formula, true);
+                            token.block = true;
                         }
+                        state.line = startLine + 1;
+                        return true;
                     }
-                    if (lineText.trim() === '$$' || (lineText.startsWith('$$') && lineText.length === 2)) {
-                        let nextLine = startLine + 1;
-                        let formulaLines = [];
-                        if (lineText.startsWith('$$') && lineText.length > 2) {
-                            formulaLines.push(lineText.slice(2).trim());
+
+                    // Case 2: opening $$ on its own line (optionally with formula content
+                    // right after it), search forward for the closing $$. This is the
+                    // path matrices and multi-line equations take.
+                    let nextLine = startLine;
+                    let formulaLines = [];
+                    const firstRest = trimmed.slice(2);
+                    if (firstRest.trim()) formulaLines.push(firstRest);
+                    nextLine++;
+
+                    let found = false;
+                    while (nextLine < endLine) {
+                        const np = state.bMarks[nextLine] + state.tShift[nextLine];
+                        const nm = state.eMarks[nextLine];
+                        const nt = state.src.slice(np, nm);
+                        const ntTrim = nt.trim();
+
+                        if (ntTrim === '$$') {
+                            found = true;
+                            break;
                         }
-                        while (nextLine < endLine) {
-                            const np = state.bMarks[nextLine] + state.tShift[nextLine];
-                            const nm = state.eMarks[nextLine];
-                            const nt = state.src.slice(np, nm).trim();
-                            if (nt === '$$') {
-                                if (!silent) {
-                                    const formula = formulaLines.join('\n').trim();
-                                    if (formula) {
-                                        try {
-                                            const html = katex.renderToString(formula, { displayMode: true,
-                                                throwOnError: false, trust: false });
-                                            const token = state.push('html_block', '', 0);
-                                            token.content = '<div class="katex-block">' + html + '</div>';
-                                            token.block = true;
-                                        } catch (e) {
-                                            const token = state.push('html_block', '', 0);
-                                            token.content =
-                                                '<div class="katex-error">[KaTeX Error: ' + md.utils
-                                                .escapeHtml(e.message) + ']</div>';
-                                            token.block = true;
-                                        }
-                                    }
-                                }
-                                state.line = nextLine + 1;
-                                return true;
-                            }
-                            if (nt.startsWith('$$') && nt.endsWith('$$') && nt.length > 4) {
-                                formulaLines.push(nt.slice(2, -2).trim());
-                                if (!silent) {
-                                    const formula = formulaLines.join('\n').trim();
-                                    if (formula) {
-                                        try {
-                                            const html = katex.renderToString(formula, { displayMode: true,
-                                                throwOnError: false, trust: false });
-                                            const token = state.push('html_block', '', 0);
-                                            token.content = '<div class="katex-block">' + html + '</div>';
-                                            token.block = true;
-                                        } catch (e) {
-                                            const token = state.push('html_block', '', 0);
-                                            token.content =
-                                                '<div class="katex-error">[KaTeX Error: ' + md.utils
-                                                .escapeHtml(e.message) + ']</div>';
-                                            token.block = true;
-                                        }
-                                    }
-                                }
-                                state.line = nextLine + 1;
-                                return true;
-                            }
-                            formulaLines.push(state.src.slice(np, nm));
+                        if (ntTrim.endsWith('$$') && ntTrim.length >= 2) {
+                            formulaLines.push(ntTrim.slice(0, -2));
+                            found = true;
                             nextLine++;
+                            break;
                         }
-                        return false;
+                        formulaLines.push(nt);
+                        nextLine++;
                     }
-                    return false;
+
+                    if (!found) return false;
+
+                    if (!silent) {
+                        const formula = formulaLines.join('\n').trim();
+                        const token = state.push('html_block', '', 0);
+                        token.content = formula ? renderKatex(formula, true) : '';
+                        token.block = true;
+                    }
+                    state.line = nextLine + 1;
+                    return true;
+                }
+
+                // `alt` lets this rule interrupt an in-progress paragraph/list/blockquote —
+                // required so $$ blocks work even without a preceding blank line.
+                md.block.ruler.before('fence', 'katex_block', katexBlockRule, {
+                    alt: ['paragraph', 'reference', 'blockquote', 'list'],
                 });
 
+                // ── Inline rule: $$...$$ mid-line (display math) and $...$ (inline math) ──
                 md.inline.ruler.after('escape', 'katex_inline', function(state, silent) {
                     const pos = state.pos;
                     const max = state.posMax;
-                    if (state.src[pos] !== '$' || pos + 1 >= max || state.src[pos + 1] === '$') return false;
-                    let end = pos + 1;
-                    while (end < max && state.src[end] !== '$') {
-                        if (state.src[end] === '\n') return false;
-                        end++;
-                    }
-                    if (end >= max || state.src[end] !== '$') return false;
-                    if (end === pos + 1) return false;
-                    if (!silent) {
-                        const formula = state.src.slice(pos + 1, end).trim();
-                        if (formula) {
-                            try {
-                                const html = katex.renderToString(formula, { displayMode: false,
-                                    throwOnError: false, trust: false });
-                                const token = state.push('html_inline', '', 0);
-                                token.content = html;
-                            } catch (e) {
-                                const token = state.push('text', '', 0);
-                                token.content = '[KaTeX Error]';
+                    if (state.src[pos] !== '$') return false;
+
+                    const isDouble = (pos + 1 < max && state.src[pos + 1] === '$');
+                    const delimLen = isDouble ? 2 : 1;
+                    if (!isDouble && pos > 0 && state.src[pos - 1] === '$') return false;
+
+                    const searchStart = pos + delimLen;
+                    let end = searchStart;
+                    let foundEnd = -1;
+                    while (end < max) {
+                        if (state.src[end] === '$') {
+                            if (isDouble) {
+                                if (end + 1 < max && state.src[end + 1] === '$') {
+                                    foundEnd = end;
+                                    break;
+                                }
+                            } else {
+                                foundEnd = end;
+                                break;
                             }
                         }
+                        if (state.src[end] === '\n') break;
+                        end++;
                     }
-                    state.pos = end + 1;
+                    if (foundEnd === -1) return false;
+                    if (foundEnd === searchStart) return false;
+
+                    const formula = state.src.slice(searchStart, foundEnd);
+
+                    // Single-$ heuristic: require no leading/trailing whitespace so plain
+                    // text like "$5 or $10" is never mistaken for math.
+                    if (!isDouble && (/^\s/.test(formula) || /\s$/.test(formula))) {
+                        return false;
+                    }
+
+                    if (!silent) {
+                        const html = renderKatex(formula.trim(), false);
+                        if (html !== null) {
+                            const token = state.push('html_inline', '', 0);
+                            token.content = html;
+                        } else {
+                            const token = state.push('text', '', 0);
+                            token.content = state.src.slice(pos, foundEnd + delimLen);
+                        }
+                    }
+                    state.pos = foundEnd + delimLen;
                     return true;
                 });
             }
 
             // ── Initialize markdown-it ─────────────
+
             const md = window.markdownit({
                 html: true,
                 linkify: true,
                 typographer: true,
                 breaks: false,
                 highlight: function(str, lang) {
+                    // Mermaid/mmd blocks are diagram source, not a hljs language — hljs has
+                    // no "mermaid" grammar, so highlightAuto() below would misdetect it (e.g.
+                    // as CSS) and drop the "language-mermaid" class, which is what
+                    // renderMermaidDiagrams() relies on to find these blocks. Preserve the
+                    // class untouched and skip syntax highlighting entirely.
+                    if (lang === 'mermaid' || lang === 'mmd') {
+                        return '<pre><code class="language-' + lang + '">' + md.utils.escapeHtml(str) +
+                            '</code></pre>';
+                    }
                     if (lang && hljs.getLanguage(lang)) {
                         try {
                             const highlighted = hljs.highlight(str, { language: lang, ignoreIllegals: true }).value;
@@ -1372,13 +1408,19 @@ Whenever code is included:
 
 # Mathematics
 
-Use inline KaTeX expressions whenever mathematical notation is needed.
+Use KaTeX for all mathematical notation.
 
-Example:
+- Use inline math (single \$...\$) for short expressions within a sentence, e.g. \$x^2 + y^2 = z^2\$.
+- Use block math (\$\$ ... \$\$ on its own lines) for standalone equations, derivations, and anything that benefits from centered display — including matrices, systems of equations, and multi-step derivations.
+- Use proper LaTeX matrix environments (pmatrix, bmatrix, vmatrix, etc.) for matrices — never approximate a matrix with a table or plain text.
 
-$E = mc^2$
+Example (inline): The relationship is \$E = mc^2\$.
 
-Avoid block math ($$...$$) since the target renderer currently does not fully support it.
+Example (block):
+
+\$\$
+\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}
+\$\$
 
 # Tables
 
@@ -1391,14 +1433,20 @@ Whenever comparisons improve readability:
 
 # Diagrams
 
-Do not generate Mermaid diagrams.
+Use Mermaid diagrams whenever a visual would clarify structure, flow, or relationships — for example:
 
-Instead, explain workflows and relationships using:
+- \`flowchart\` / \`graph\` for processes and decision flows
+- \`sequenceDiagram\` for interactions between actors or systems
+- \`classDiagram\` or \`erDiagram\` for data models and relationships
+- \`gantt\` for timelines and schedules
+- \`stateDiagram-v2\` for state machines
 
-- Bullet lists
-- Numbered lists
-- Tables
-- ASCII diagrams when appropriate
+Guidelines:
+
+- Always use a fenced code block with the \`mermaid\` language tag.
+- Keep diagrams focused — split complex systems into multiple smaller diagrams rather than one dense one.
+- Keep node labels short; put detail in surrounding prose instead.
+- Double-check Mermaid syntax is valid (matching brackets, correct arrow syntax) since it will be rendered directly.
 
 # Writing Style
 
@@ -1474,15 +1522,19 @@ Avoid long explanations.
 
 Summarize important rules, conventions, syntax, or algorithms.
 
+Use \`---pagebreak---\` on its own line when needed to keep sections from splitting awkwardly across pages.
+
 ## Formulas
 
-Present important formulas using inline KaTeX.
+Present important formulas using KaTeX — inline (\$...\$) for short references within text, block (\$\$ ... \$\$) for standalone formulas, derivations, or matrices worth calling out on their own line.
 
-Example:
+Example (inline): \$\\sum_{i=1}^{n} x_i = \\frac{n(n+1)}{2}\$
 
-$F = ma$
+Example (block):
 
-Avoid block math ($$...$$) since the target renderer currently does not fully support it.
+\$\$
+\\begin{bmatrix} 1 & 0 \\\\ 0 & 1 \\end{bmatrix}
+\$\$
 
 ## Commands / Syntax
 
@@ -1503,6 +1555,10 @@ Examples:
 - Feature comparisons
 - Command comparisons
 - Algorithm comparisons
+
+## Diagrams
+
+If a process, decision flow, or relationship is faster to grasp visually than in bullet form, use a small Mermaid diagram (\`flowchart\`, \`sequenceDiagram\`, or similar) in a fenced \`mermaid\` code block. Keep it compact — a cheat sheet diagram should be scannable in a few seconds, not a full architecture map.
 
 ## Common Mistakes
 
@@ -1596,13 +1652,23 @@ When appropriate:
 
 ## Mathematics
 
-Render mathematical expressions using inline KaTeX syntax.
+Render mathematical expressions using KaTeX.
 
-Example:
+- Use inline math (\$...\$) for expressions referenced within a sentence.
+- Use block math (\$\$ ... \$\$ on its own lines) for standalone equations, derivations, and matrices — this renders centered and is easier to study from than an inline formula.
+- Use proper LaTeX matrix/array environments for matrices and systems of equations rather than approximating them with tables.
 
-$E = mc^2$
+Example (inline): \$\\sum_{i=1}^{n} x_i = \\frac{n(n+1)}{2}\$
 
-Avoid block math ($$...$$) since the target renderer currently does not fully support it.
+Example (block):
+
+\$\$
+\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}
+\$\$
+
+## Diagrams
+
+Use Mermaid diagrams (fenced \`mermaid\` code blocks) wherever a visual would help retention — process flows, system architecture, class/entity relationships, state machines, or timelines. Favor \`flowchart\`/\`graph\`, \`sequenceDiagram\`, \`classDiagram\`, \`erDiagram\`, \`stateDiagram-v2\`, and \`gantt\` as appropriate to the content. Keep each diagram focused on one concept rather than combining unrelated ideas into a single diagram.
 
 ## Summary
 
@@ -1635,6 +1701,340 @@ Include references only when appropriate.
 - Do not wrap the document inside a Markdown code block.
 
 The final document should read like professionally written university study notes that are ideal for reviewing before an exam and require no additional formatting before exporting.`
+},
+                {
+    id: 'business-report',
+    label: '📊 Business Report',
+    prompt: `You are a senior business analyst and professional report writer.
+
+Create a polished, client-ready business report on the topic or data provided by the user.
+
+The output will be converted directly into a professional PDF, so produce clean, valid GitHub Flavored Markdown only.
+
+# Document Structure
+
+Use exactly one H1 for the report title.
+
+Organize the content using a structure appropriate to the topic. A common structure is:
+
+## Executive Summary
+
+- 3-5 sentences summarizing the purpose, key findings, and recommendation.
+- This section must stand alone — a reader should understand the outcome from this alone.
+
+## Background / Context
+
+- Briefly explain why this report exists and what question it answers.
+
+## Findings / Analysis
+
+Divide into logical subsections using H3 headings where useful.
+
+- Present data using tables wherever it improves clarity.
+- Use Mermaid diagrams (fenced \`mermaid\` code blocks) for processes, timelines (\`gantt\`), or relationships between teams/systems.
+- Use block KaTeX (\$\$ ... \$\$) for any formulas, financial calculations, or statistical notation; use inline KaTeX (\$...\$) for short references within a sentence.
+- Support claims with concrete numbers where available. Do not invent data — if a figure is not provided, describe the trend qualitatively instead of fabricating a number.
+
+## Recommendations
+
+- Use a numbered list ordered by priority.
+- Each recommendation should be actionable and specific.
+
+## Risks / Considerations
+
+- Note any risks, assumptions, or open questions, using a blockquote for critical caveats.
+
+Insert
+
+---pagebreak---
+
+before major sections such as Findings or Recommendations if the report is long. Avoid unnecessary page breaks in short reports.
+
+## Appendix
+
+Include only if there is supporting detail (raw data tables, methodology) that would clutter the main body.
+
+# Formatting Rules
+
+- Produce valid GitHub Flavored Markdown.
+- Use exactly one H1, H2 for major sections, H3 for subsections.
+- Never skip heading levels.
+- Prefer tables over long comparison paragraphs.
+- Use blockquotes only for callouts, risks, or critical notes.
+- Do not include conversational text, AI disclaimers, or meta-commentary.
+- Do not wrap the document inside a Markdown code block.
+
+The tone should be professional, confident, and concise — written for executives and stakeholders who need to make a decision quickly.`
+},
+                {
+    id: 'meeting-notes',
+    label: '📝 Meeting Notes',
+    prompt: `You are an executive assistant skilled at producing clear, actionable meeting notes.
+
+Convert the meeting content, transcript, or bullet points provided by the user into clean, professional meeting notes.
+
+The output will be converted directly into a PDF, so produce clean, valid GitHub Flavored Markdown only.
+
+# Document Structure
+
+Use exactly one H1 for the meeting title (include the topic; do not invent a date if none was given).
+
+## Summary
+
+- 2-4 sentences capturing the purpose and outcome of the meeting.
+
+## Attendees
+
+- Bullet list of attendees if provided. Omit this section entirely if attendee information was not given — do not invent names.
+
+## Discussion Points
+
+Organize by topic using H2 or H3 headings, not strictly chronological order, unless the user's input is already well organized chronologically.
+
+- Summarize each topic in a few concise bullet points.
+- Preserve important details, numbers, and decisions exactly as stated — do not paraphrase specific figures or commitments.
+- Use a table to summarize any options that were compared during the discussion.
+
+## Decisions Made
+
+- Use a numbered or bulleted list.
+- State each decision clearly and unambiguously.
+
+## Action Items
+
+Use a Markdown table with columns: Task | Owner | Due Date
+
+- If an owner or due date was not mentioned, write "TBD" rather than guessing.
+
+## Open Questions / Follow-ups
+
+- List unresolved questions or topics that need follow-up.
+
+# Formatting Rules
+
+- Produce valid GitHub Flavored Markdown.
+- Keep paragraphs short — prefer bullet lists throughout.
+- Use blockquotes only for direct quotes or important verbatim statements.
+- Do not invent information that was not present in the source material (names, dates, numbers, decisions).
+- Do not include conversational text, AI disclaimers, or meta-commentary.
+- Do not wrap the document inside a Markdown code block.
+
+The final notes should be scannable in under two minutes and usable directly as a record of the meeting.`
+},
+                {
+    id: 'technical-proposal',
+    label: '🛠️ Technical Proposal / RFC',
+    prompt: `You are a senior software engineer writing a technical proposal (RFC) for other engineers to review.
+
+Create a clear, rigorous technical proposal on the topic provided by the user.
+
+The output will be converted directly into a professional PDF, so produce clean, valid GitHub Flavored Markdown only.
+
+# Document Structure
+
+Use exactly one H1 for the proposal title.
+
+## Summary
+
+- A short paragraph stating what is being proposed and why, for readers who won't read the full document.
+
+## Motivation / Problem Statement
+
+- Explain the problem being solved and why it matters.
+- Include concrete examples or scenarios where useful.
+
+## Proposed Solution
+
+- Describe the solution clearly, in enough technical depth for an engineer to evaluate it.
+- Use fenced code blocks (with language specified) for any code, configuration, or API examples.
+- Use Mermaid diagrams for architecture, sequence flows, or state transitions — \`flowchart\` or \`graph\` for architecture/data flow, \`sequenceDiagram\` for interactions between services or components, \`classDiagram\`/\`erDiagram\` for data models, \`stateDiagram-v2\` for state machines.
+- Use block KaTeX (\$\$ ... \$\$) for any algorithmic complexity notation, performance formulas, or capacity calculations; inline KaTeX (\$...\$) for short references like \$O(n \\log n)\$.
+
+## Alternatives Considered
+
+- Use a comparison table (Approach | Pros | Cons | Why not chosen) whenever there is more than one alternative.
+
+## Tradeoffs and Risks
+
+- Be honest about downsides, edge cases, and open risks. Use a blockquote for anything that requires explicit reviewer attention.
+
+## Rollout Plan
+
+- Describe how the change would be implemented and deployed, including any migration or backward-compatibility considerations.
+- Use a \`gantt\` Mermaid diagram or numbered list for phased rollouts.
+
+## Open Questions
+
+- List unresolved questions for reviewers.
+
+Insert
+
+---pagebreak---
+
+before major sections if the proposal is long. Avoid unnecessary page breaks otherwise.
+
+# Formatting Rules
+
+- Produce valid GitHub Flavored Markdown.
+- Use exactly one H1, H2 for major sections, H3-H6 only when necessary.
+- Never skip heading levels.
+- Label every code block with its language.
+- Do not include conversational text, AI disclaimers, or meta-commentary.
+- Do not wrap the document inside a Markdown code block.
+
+Write with precision and technical honesty — this document will be reviewed critically by engineers who will act on it.`
+},
+                {
+    id: 'research-summary',
+    label: '🔬 Research / Data Summary',
+    prompt: `You are a research analyst who writes precise, well-sourced summaries of research, data, or literature.
+
+Create a structured research summary on the topic or material provided by the user.
+
+The output will be converted directly into a professional PDF, so produce clean, valid GitHub Flavored Markdown only.
+
+# Document Structure
+
+Use exactly one H1 for the title.
+
+## Abstract
+
+- 3-5 sentences summarizing the question, method or scope, and key conclusion.
+
+## Background
+
+- Context needed to understand why this topic matters and what is already known.
+
+## Methodology / Approach
+
+Include only if relevant to the source material (e.g. summarizing a study or analysis). Describe how the data was gathered or the analysis was performed, at a level useful to a technical reader.
+
+## Findings
+
+- Present quantitative results in tables wherever possible rather than embedding numbers in prose.
+- Use block KaTeX (\$\$ ... \$\$) for statistical formulas, models, and equations; use proper matrix/vector notation when representing datasets, transformations, or systems of equations.
+- Use inline KaTeX (\$...\$) for variables, coefficients, or short expressions referenced in text (e.g. the correlation was \$r = 0.82\$).
+- Use Mermaid diagrams to illustrate processes, data pipelines, or causal relationships between variables where that clarifies more than prose.
+- Clearly distinguish correlation from causation; do not overstate certainty beyond what the source material supports.
+
+## Limitations
+
+- State limitations of the data, method, or scope honestly. Use a blockquote for major caveats a reader must not miss.
+
+## Conclusion
+
+- Directly answer the question posed in the abstract.
+
+## References
+
+Include only if sources were provided or are common knowledge citations; do not fabricate citations, authors, or publication details.
+
+# Formatting Rules
+
+- Produce valid GitHub Flavored Markdown.
+- Use exactly one H1, H2 for major sections.
+- Prefer tables over long lists of numbers in prose.
+- Do not fabricate data, statistics, or sources that were not provided or verifiably known.
+- Do not include conversational text, AI disclaimers, or meta-commentary.
+- Do not wrap the document inside a Markdown code block.
+
+Write with academic rigor and precision, while remaining readable to an informed non-specialist.`
+},
+                {
+    id: 'resume-cv',
+    label: '👤 Resume / CV',
+    prompt: `You are a professional resume writer and career coach.
+
+Create a clean, ATS-friendly, professional resume/CV in Markdown using the information provided by the user.
+
+The output will be converted directly into a PDF, so produce clean, valid GitHub Flavored Markdown only — no images, no multi-column layout tricks, since these are not supported by the renderer.
+
+# Document Structure
+
+Use exactly one H1 for the person's name.
+
+Immediately below it, a single line with contact information (email, phone, location, LinkedIn/portfolio if provided), separated by " | ".
+
+## Summary
+
+- 2-3 sentences positioning the candidate for the type of role implied by the input. Do not invent job titles, years of experience, or skills not mentioned by the user.
+
+## Experience
+
+For each role, use an H3 with the format: **Job Title — Company** (Dates)
+
+- Follow with 2-5 concise bullet points per role.
+- Start each bullet with a strong action verb.
+- Quantify impact wherever numbers were provided by the user (%, $, time saved, scale) — never invent metrics that weren't given.
+- Order roles from most recent to oldest.
+
+## Skills
+
+- Group into short categories if there are many (e.g. "Languages", "Tools", "Frameworks") using bold labels, otherwise a single bullet list or comma-separated line.
+
+## Education
+
+For each entry: **Degree — Institution** (Dates), as an H3 or bold line, with relevant honors/details as a sub-bullet only if provided.
+
+## Additional Sections
+
+Include only if the user provided relevant content: Certifications, Projects, Publications, Languages, Volunteer Work. Omit any section with no content rather than leaving a placeholder.
+
+# Formatting Rules
+
+- Produce valid GitHub Flavored Markdown.
+- Do not use tables for the layout — use headings and bullet lists only, for clean, reliable PDF rendering.
+- Do not use block math or diagrams — they have no place in a resume.
+- Keep bullet points to one line each where possible.
+- Do not fabricate employers, dates, titles, or metrics not provided by the user.
+- Do not include conversational text, AI disclaimers, or meta-commentary.
+- Do not wrap the document inside a Markdown code block.
+
+The result should read as a real, professional resume ready to send to employers — not a generic template with placeholder text.`
+},
+                {
+    id: 'faq-knowledge-base',
+    label: '❓ FAQ / Knowledge Base Article',
+    prompt: `You are a technical writer specializing in clear, user-facing documentation and support content.
+
+Create a well-organized FAQ or knowledge base article on the topic provided by the user.
+
+The output will be converted directly into a professional PDF, so produce clean, valid GitHub Flavored Markdown only.
+
+# Document Structure
+
+Use exactly one H1 for the article title, phrased as the topic (not as a question).
+
+## Overview
+
+- 2-3 sentences on what this article covers and who it is for.
+
+## Questions
+
+Organize related questions under H2 topic groupings if there are more than ~6 questions; otherwise use a flat list of H3 questions.
+
+For each question:
+
+- Use the exact question as the heading (H3), phrased the way a real user would ask it.
+- Answer directly and concisely first, then add supporting detail if needed.
+- Use numbered lists for step-by-step instructions.
+- Use fenced code blocks (with language specified) for any commands, code, or configuration the user needs to enter.
+- Use a Mermaid \`flowchart\` if a decision process ("which option should I choose") is easier to follow visually than in prose.
+- Use blockquotes for important warnings (e.g. destructive actions, irreversible steps) — never bury a warning inside a regular paragraph.
+
+## Still Need Help?
+
+- A short closing section pointing the reader to next steps, only if the user's input implies a support channel; otherwise omit.
+
+# Formatting Rules
+
+- Produce valid GitHub Flavored Markdown.
+- Use exactly one H1, H2 for topic groups (if used), H3 for individual questions.
+- Keep answers scannable — short paragraphs, bullet lists, numbered steps.
+- Do not include conversational text, AI disclaimers, or meta-commentary.
+- Do not wrap the document inside a Markdown code block.
+
+Write in a friendly, direct tone — the reader wants their problem solved as quickly as possible.`
 },
                 // Add more prompts here – just duplicate the object format
             ];
@@ -1725,8 +2125,12 @@ The final document should read like professionally written university study note
                 return false;
             }
 
-            // ── SIMPLE & RELIABLE TOC generation ─────
-            function buildTOCFromDOM(depth) {
+            // ── Assign stable anchor IDs to every heading in the document ──
+            // Runs unconditionally (not just when the TOC panel is enabled) so that
+            // every exported PDF has real, clickable per-heading navigation targets —
+            // this is what lets "jump to a chapter" work in PDF readers, independent of
+            // whether the visible Table of Contents block is turned on.
+            function assignHeadingIds(depth) {
                 const allHeadings = previewEl.querySelectorAll('h1, h2, h3, h4, h5, h6');
                 const headings = [];
                 allHeadings.forEach(h => {
@@ -1735,9 +2139,7 @@ The final document should read like professionally written university study note
                         headings.push(h);
                     }
                 });
-                if (headings.length === 0) return null;
 
-                // Assign unique IDs for anchor links
                 const usedIds = new Set();
                 headings.forEach((h, idx) => {
                     if (!h.id) {
@@ -1757,6 +2159,14 @@ The final document should read like professionally written university study note
                         usedIds.add(h.id);
                     }
                 });
+
+                return headings;
+            }
+
+            // ── SIMPLE & RELIABLE TOC generation ─────
+            function buildTOCFromDOM(depth) {
+                const headings = assignHeadingIds(depth);
+                if (headings.length === 0) return null;
 
                 // Build flat TOC list with indentation based on heading level
                 const tocContainer = document.createElement('div');
@@ -1781,6 +2191,7 @@ The final document should read like professionally written university study note
                 tocContainer.appendChild(ul);
                 return tocContainer;
             }
+
 
             // ── Build cover page element ────────────
             function buildCoverPage() {
@@ -1831,14 +2242,20 @@ The final document should read like professionally written university study note
                     '<div class="pagebreak-marker">— Page Break —</div>');
                 let html = md.render(processedMarkdown);
                 html = DOMPurify.sanitize(html, {
-                    ADD_TAGS: ['div', 'span', 'svg', 'path', 'g', 'defs', 'line', 'marker', 'arrowhead',
-                        'polygon', 'polyline', 'rect', 'circle', 'ellipse', 'text', 'tspan', 'title', 'desc'
-                    ],
-                    ADD_ATTR: ['class', 'id', 'viewBox', 'xmlns', 'd', 'fill', 'stroke', 'stroke-width',
-                        'marker-end', 'marker-start', 'transform', 'style', 'width', 'height', 'x', 'y', 'cx',
-                        'cy', 'r', 'rx', 'ry', 'points', 'dx', 'dy', 'text-anchor', 'dominant-baseline',
-                        'font-size', 'font-family', 'font-weight', 'textLength', 'lengthAdjust', 'aria-hidden',
-                        'role', 'stroke-linecap', 'stroke-linejoin', 'stroke-dasharray', 'opacity'
+                    // USE_PROFILES (rather than a hand-picked tag list) is required here:
+                    // KaTeX's block/matrix output includes MathML (<math>, <mrow>, <mtable>,
+                    // <annotation>, ...) and Mermaid's diagrams use the full SVG tag/attr set
+                    // (markers, clip-paths, gradients, etc). A hand-maintained ADD_TAGS list
+                    // reliably misses some of these and silently strips matrices/diagrams.
+                    USE_PROFILES: { html: true, svg: true, svgFilters: true, mathMl: true },
+                    // Mermaid renders node/edge labels as HTML wrapped in <foreignObject>,
+                    // which DOMPurify blocks by default even with the svg profile enabled
+                    // (it can otherwise be used to smuggle arbitrary HTML into an SVG).
+                    // Safe here because the input is our own rendered Mermaid/KaTeX output,
+                    // not arbitrary user HTML.
+                    ADD_TAGS: ['foreignObject'],
+                    ADD_ATTR: ['xmlns', 'dominant-baseline', 'alignment-baseline', 'marker-end',
+                        'marker-start', 'marker-mid'
                     ],
                 });
 
@@ -1849,6 +2266,11 @@ The final document should read like professionally written university study note
                 if (coverEl) {
                     previewEl.insertBefore(coverEl, previewEl.firstChild);
                 }
+
+                // Assign anchor IDs to all headings unconditionally — this is what makes
+                // headings jumpable/navigable in the exported PDF, independent of whether
+                // the visible Table of Contents block below is enabled.
+                assignHeadingIds(6);
 
                 // Insert TOC after cover page (if enabled)
                 if (state.settings.tocEnabled && state.settings.tocDepth > 0) {
@@ -2399,8 +2821,8 @@ This is a **professional-grade** Markdown to PDF converter built entirely in the
 
 - **Live preview** with synchronized scrolling
 - Syntax highlighting for code blocks (multiple themes!)
-- LaTeX mathematics: $E = mc^2$ (Not yet for block math)
-- Mermaid diagrams (Not yet)
+- LaTeX mathematics, inline and block — including matrices
+- Mermaid diagrams
 - Configurable Table of Contents
 - Optional cover page
 - Export to PDF, HTML, and DOCX
@@ -2410,6 +2832,11 @@ This is a **professional-grade** Markdown to PDF converter built entirely in the
 
 Inline math: $\\sum_{i=1}^{n} x_i = \\frac{n(n+1)}{2}$
 
+Block math and matrices render centered on their own line:
+
+$$
+\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}
+$$
 
 ## Code Example
 
