@@ -955,6 +955,7 @@
         <button onclick="App.toggleSettings()" title="Page & Typography Settings">⚙️ Settings</button>
         <button onclick="App.clearAll()" title="Clear editor">🗑️ Clear</button>
         <button class="prompt-btn" onclick="App.openPromptGenerator()" title="Generate AI prompt for better Markdown">🤖 Prompt</button>
+        <span class="sep"></span>
         <button onclick="App.openGitHub()" title="View project on GitHub">⭐ GitHub</button>
         <button onclick="App.toggleTheme()" title="Toggle Light/Dark Mode" id="theme-btn">🌓 Theme</button>
         <span class="spacer"></span>
@@ -1089,18 +1090,24 @@ Or drag & drop a .md file...
             </div>
         </div>
     </div>
-
     <!-- Prompt Generator Modal -->
     <div class="modal-overlay" id="prompt-modal">
         <div class="modal" style="max-width:680px;">
-            <h3>🤖 AI Prompt</h3>
+            <h3>🤖 AI Prompt Library</h3>
             <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;line-height:1.5;">
-                Different AI models produce different Markdown quality. Copy the prompt below and paste it into
-                <strong>ChatGPT, Claude, DeepSeek, Gemini</strong>, or any other LLM to get consistently
-                well-formatted, document-ready Markdown output.
+                Select a prompt template for your AI assistant. Each prompt is tailored for a specific task.
+                Copy the prompt and paste it into <strong>ChatGPT, Claude, DeepSeek, Gemini</strong>, or any other LLM.
             </p>
+
+            <!-- Dropdown to choose prompt type -->
+            <label for="prompt-select">Prompt Template</label>
+            <select id="prompt-select" style="margin-bottom:12px;">
+                <!-- Options will be populated by JavaScript -->
+            </select>
+
             <label>Generated Prompt <span style="font-weight:400;color:var(--text-muted);">(editable — customize before copying)</span></label>
             <textarea id="prompt-textarea" rows="18"></textarea>
+
             <div class="modal-actions">
                 <button onclick="App.closePromptGenerator()">Close</button>
                 <button class="accent" onclick="App.copyPrompt()">📋 Copy Prompt</button>
@@ -1270,22 +1277,17 @@ Or drag & drop a .md file...
                 highlight: function(str, lang) {
                     if (lang && hljs.getLanguage(lang)) {
                         try {
-                            const highlighted = hljs.highlight(str, { language: lang, ignoreIllegals: true })
-                                .value;
-                            return '<pre class="hljs"><code class="hljs language-' + md.utils.escapeHtml(
-                                lang) + '">' + highlighted +
-                                '</code><button class="copy-code-btn" onclick="App.copyCodeBlock(this)" title="Copy code">📋 Copy</button></pre>';
+                            const highlighted = hljs.highlight(str, { language: lang, ignoreIllegals: true }).value;
+                            return '<pre class="hljs"><code class="hljs language-' + md.utils.escapeHtml(lang) + '">' + highlighted + '</code></pre>';
                         } catch (e) {}
                     }
                     try {
                         const result = hljs.highlightAuto(str);
                         if (result.language && result.relevance > 3) {
-                            return '<pre class="hljs"><code class="hljs">' + result.value +
-                                '</code><button class="copy-code-btn" onclick="App.copyCodeBlock(this)" title="Copy code">📋 Copy</button></pre>';
+                            return '<pre class="hljs"><code class="hljs">' + result.value + '</code></pre>';
                         }
                     } catch (e) {}
-                    return '<pre class="hljs"><code>' + md.utils.escapeHtml(str) +
-                        '</code><button class="copy-code-btn" onclick="App.copyCodeBlock(this)" title="Copy code">📋 Copy</button></pre>';
+                    return '<pre class="hljs"><code>' + md.utils.escapeHtml(str) + '</code></pre>';
                 },
             });
 
@@ -1318,7 +1320,109 @@ Or drag & drop a .md file...
                 isDirty: false,
                 lastRendered: '',
             };
-
+            // ── Prompt Library ──────────────────────────────────
+            const PROMPT_LIBRARY = [
+                {
+                    id: 'default',
+                    label: '📄 General Documentation',
+                    prompt: `You are a technical documentation assistant. When generating content for a Markdown-to-PDF converter, follow these rules strictly:
+                
+            ## Heading Structure
+            - Use # (H1) ONLY for major chapters or document titles — sparingly
+            - Use ## (H2) for major sections within chapters
+            - Use ### (H3) for sub-sections only when truly necessary
+            - NEVER use H4, H5, or H6 unless absolutely required
+            - NEVER skip heading levels (do not go from H1 to H3 directly)
+            - Avoid creating too many small sections — consolidate where possible
+                
+            ## Code Blocks
+            - ALWAYS wrap code in fenced code blocks using \`\`\`
+            - ALWAYS specify the language: \`\`\`python, \`\`\`javascript, \`\`\`bash, etc.
+            - Preserve correct indentation inside code blocks
+            - Use inline \`code\` only for short references like variable names
+                
+            ## Mathematics (KaTeX)
+            - Use $...$ for inline math: $E = mc^2$
+            - Use $$...$$ for block/display math
+            - Ensure all LaTeX is syntactically correct
+                
+            ## Tables
+            - Use proper GitHub Flavored Markdown table formatting
+            - Align columns with spaces for readability
+            - Keep tables reasonably sized
+                
+            ## Diagrams
+            - Use \`\`\`mermaid for flowcharts, sequence diagrams, etc. when appropriate
+            - Keep diagrams simple and readable
+                
+            ## Document Structure
+            - Insert ---pagebreak--- on its own line before every major chapter
+            - Use consistent list formatting
+            - Use blockquotes (>) for callouts and tips
+            - Use horizontal rules (---) sparingly
+            - Avoid malformed Markdown
+                
+            ## General Rules
+            - Output GitHub Flavored Markdown (GFM)
+            - Be consistent with formatting throughout
+            - Generate clean, well-structured, document-quality output
+            - Do not include comments or meta-commentary
+            - Produce ONLY the Markdown content, ready to paste into the converter`
+                },
+                {
+                    id: 'cheat-sheet',
+                    label: '📘 Cheat Sheet',
+                    prompt: `You are an expert at creating concise, high-density cheat sheets.  
+            Generate a Markdown cheat sheet for the topic specified by the user.  
+            Format as a single, scannable document with:
+                
+            - Brief introduction (1–2 sentences)
+            - Bullet‑point lists for key concepts
+            - Code snippets (with language) for common commands
+            - Tables for comparisons (e.g., syntax differences)
+            - Quick reference section with most‑used commands at the top
+                
+            Use headings to separate sections, but keep them minimal.  
+            Output must be ready to copy and paste into the Markdown → PDF converter.`
+                },
+                {
+                    id: 'comprehensive-note',
+                    label: '📓 Comprehensive Note',
+                    prompt: `You are a thorough technical writer. Create a detailed, comprehensive note on the given topic.  
+            Structure it like a textbook chapter:
+                
+            - # Main Title (only once)
+            - ## Introduction (overview and motivation)
+            - ## Core Concepts (break down into subsections ### if needed)
+            - ## Detailed Explanation (with examples, diagrams in mermaid if useful)
+            - ## Summary / Key Takeaways
+            - ## References (if applicable)
+                
+            Use numbered lists for step‑by‑step procedures, and include code blocks for any code.  
+            Make sure the document is self‑contained and well‑organised.  
+            Produce only Markdown output.`
+                },
+                {
+                    id: 'build-from-scratch',
+                    label: '🛠️ Build from Scratch (Tutorial)',
+                    prompt: `You are a mentor guiding a developer to build a project from the ground up.  
+            Generate a step‑by‑step tutorial in Markdown that covers:
+                
+            - # Project Title
+            - ## Prerequisites (tools, knowledge)
+            - ## Project Setup (folder structure, dependencies)
+            - ## Step 1: ... (explain each phase with code)
+            - ## Step 2: ...
+            - ...
+            - ## Final Touches (testing, deployment)
+            - ## Next Steps
+                
+            Each step should include clear explanations and corresponding code blocks (with language).  
+            Use admonitions (blockquotes) for tips, warnings, or best practices.  
+            The tutorial should be practical and immediately actionable.`
+                },
+                // Add more prompts here – just duplicate the object format
+            ];
             function loadSettings() {
                 try {
                     const saved = localStorage.getItem('md2pdf-settings');
@@ -1963,10 +2067,38 @@ return `You are a technical documentation assistant. When generating content for
 }
 
 function openPromptGenerator() {
-document.getElementById('prompt-textarea').value = getDefaultPrompt();
-promptModal.classList.add('active');
-}
+    const select = document.getElementById('prompt-select');
+    const textarea = document.getElementById('prompt-textarea');
 
+    // Populate dropdown if empty
+    if (select.options.length === 0) {
+        PROMPT_LIBRARY.forEach(p => {
+            const opt = document.createElement('option');
+            opt.value = p.id;
+            opt.textContent = p.label;
+            select.appendChild(opt);
+        });
+    }
+
+    // Set first prompt as default
+    const firstPrompt = PROMPT_LIBRARY[0];
+    if (firstPrompt) {
+        select.value = firstPrompt.id;
+        textarea.value = firstPrompt.prompt;
+    }
+
+    // Show modal
+    promptModal.classList.add('active');
+}
+function onPromptSelectChange() {
+    const select = document.getElementById('prompt-select');
+    const textarea = document.getElementById('prompt-textarea');
+    const selectedId = select.value;
+    const promptObj = PROMPT_LIBRARY.find(p => p.id === selectedId);
+    if (promptObj) {
+        textarea.value = promptObj.prompt;
+    }
+}
 function closePromptGenerator() { promptModal.classList.remove('active'); }
 
 function copyPrompt() {
@@ -2072,6 +2204,11 @@ document.getElementById('cover-fields-group').classList.toggle('visible', this.v
 });
 settingsModal.addEventListener('click', e => { if (e.target === settingsModal) closeSettingsModal(); });
 promptModal.addEventListener('click', e => { if (e.target === promptModal) closePromptGenerator(); });
+// Prompt dropdown change
+const promptSelect = document.getElementById('prompt-select');
+if (promptSelect) {
+    promptSelect.addEventListener('change', onPromptSelectChange);
+}
 }
 
 editorEl.addEventListener('scroll', () => { lineNumbersEl.scrollTop = editorEl.scrollTop; });
@@ -2105,10 +2242,6 @@ This is a **professional-grade** Markdown to PDF converter built entirely in the
 
 Inline math: $\\sum_{i=1}^{n} x_i = \\frac{n(n+1)}{2}$
 
-Block math:
-$$
-\\int_{0}^{\\infty} e^{-x^2} dx = \\frac{\\sqrt{\\pi}}{2}
-$$
 
 ## Code Example
 
