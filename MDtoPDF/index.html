@@ -953,9 +953,10 @@
         <button onclick="App.copyHTML()">📋 Copy HTML</button>
         <span class="sep"></span>
         <button onclick="App.toggleSettings()" title="Page & Typography Settings">⚙️ Settings</button>
-        <button onclick="App.toggleTheme()" title="Toggle Light/Dark Mode" id="theme-btn">🌓 Theme</button>
-        <button class="prompt-btn" onclick="App.openPromptGenerator()" title="Generate AI prompt for better Markdown">🤖 Prompt</button>
         <button onclick="App.clearAll()" title="Clear editor">🗑️ Clear</button>
+        <button class="prompt-btn" onclick="App.openPromptGenerator()" title="Generate AI prompt for better Markdown">🤖 Prompt</button>
+        <button onclick="App.openGitHub()" title="View project on GitHub">⭐ GitHub</button>
+        <button onclick="App.toggleTheme()" title="Toggle Light/Dark Mode" id="theme-btn">🌓 Theme</button>
         <span class="spacer"></span>
         <span class="badge" id="word-count-badge">Words: 0</span>
         <span class="badge" id="char-count-badge">Chars: 0</span>
@@ -1835,7 +1836,9 @@ previewEl.innerHTML =
 updateLineNumbers(); updateStats(); saveDocument('');
 showToast('🗑️ Cleared');
 }
-
+function openGitHub() {
+    window.open("https://github.com/SinaRiahi/Utilities", "_blank");
+}
 // ── Search & Replace ─────────────────────
 function openSearch() { searchBarEl.classList.add('active');
 searchInput.focus();
@@ -2184,6 +2187,7 @@ exportDOCX,
 copyHTML,
 copyCodeBlock,
 clearAll,
+openGitHub,
 toggleTheme,
 toggleSettings: openSettingsModal,
 closeSettings: closeSettingsModal,
