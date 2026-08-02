@@ -1,14 +1,951 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0; url=MDtoPDF/">
-    <title>Redirecting...</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Utilities — Developer Tool Suite</title>
+
+    <!-- Google Fonts (Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet" />
+
+    <style>
+        /* ── Design System (mirrors MDtoPDF) ───────────────────── */
+        :root {
+            --bg: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-tertiary: #f1f3f5;
+            --text: #1a1a2e;
+            --text-secondary: #495057;
+            --text-muted: #868e96;
+            --border: #dee2e6;
+            --border-light: #e9ecef;
+            --accent: #4c6ef5;
+            --accent-hover: #3b5de7;
+            --accent-light: #edf2ff;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.10), 0 2px 6px rgba(0, 0, 0, 0.06);
+            --radius: 8px;
+            --radius-sm: 5px;
+            --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            --font-mono: 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+            --transition: 0.18s ease;
+            --toolbar-height: 52px;
+        }
+
+        [data-theme="dark"] {
+            --bg: #1a1b1e;
+            --bg-secondary: #25262b;
+            --bg-tertiary: #2c2e33;
+            --text: #e4e6ea;
+            --text-secondary: #c1c4cd;
+            --text-muted: #9095a0;
+            --border: #3a3c42;
+            --border-light: #2e3035;
+            --accent: #6d8af7;
+            --accent-hover: #8aa3ff;
+            --accent-light: #1e2640;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            height: 100%;
+            font-family: var(--font-sans);
+            background: var(--bg);
+            color: var(--text);
+            transition: background var(--transition), color var(--transition);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-y: auto;
+        }
+
+        /* ── Scrollbar ───────────────────────────────────────────── */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        /* ── Toolbar ─────────────────────────────────────────────── */
+        .toolbar {
+            height: var(--toolbar-height);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0 16px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .toolbar::-webkit-scrollbar {
+            height: 3px;
+        }
+        .toolbar .sep {
+            width: 1px;
+            height: 22px;
+            background: var(--border);
+            margin: 0 6px;
+            flex-shrink: 0;
+        }
+        .toolbar button {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 7px 14px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 12.5px;
+            font-family: var(--font-sans);
+            white-space: nowrap;
+            transition: all var(--transition);
+            flex-shrink: 0;
+            font-weight: 500;
+        }
+        .toolbar button:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--text-muted);
+            color: var(--text);
+        }
+        .toolbar button.accent {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+            font-weight: 600;
+        }
+        .toolbar button.accent:hover {
+            background: var(--accent-hover);
+            border-color: var(--accent-hover);
+        }
+        .toolbar .spacer {
+            flex: 1;
+            min-width: 10px;
+        }
+        .toolbar .badge {
+            font-size: 10.5px;
+            background: var(--bg-tertiary);
+            padding: 3px 10px;
+            border-radius: 20px;
+            color: var(--text-muted);
+            flex-shrink: 0;
+            font-weight: 500;
+        }
+        .toolbar .badge strong {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        /* ── Hero ────────────────────────────────────────────────── */
+        .hero {
+            padding: 48px 32px 32px;
+            max-width: 1100px;
+            margin: 0 auto;
+            width: 100%;
+            flex-shrink: 0;
+        }
+        .hero-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+        .hero-title-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .hero-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .hero-title .repo-badge {
+            font-size: 0.65rem;
+            font-weight: 600;
+            background: var(--accent-light);
+            color: var(--accent);
+            padding: 2px 12px;
+            border-radius: 20px;
+            letter-spacing: 0.02em;
+            border: 1px solid var(--border-light);
+        }
+        .hero-sub {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            margin-top: 2px;
+        }
+        .hero-stats {
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+            padding-top: 4px;
+        }
+        .hero-stats .stat {
+            font-size: 13px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: var(--bg-secondary);
+            padding: 4px 14px;
+            border-radius: 20px;
+            border: 1px solid var(--border-light);
+        }
+        .hero-stats .stat strong {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .hero-search {
+            margin-top: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .hero-search .search-wrap {
+            flex: 1;
+            min-width: 200px;
+            position: relative;
+        }
+        .hero-search .search-wrap input {
+            width: 100%;
+            padding: 10px 16px 10px 40px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 14px;
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font-sans);
+            transition: border var(--transition), box-shadow var(--transition);
+            outline: none;
+        }
+        .hero-search .search-wrap input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-light);
+        }
+        .hero-search .search-wrap .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 16px;
+            pointer-events: none;
+        }
+        .hero-search .search-clear {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px 8px;
+            display: none;
+        }
+        .hero-search .search-clear.visible {
+            display: block;
+        }
+        .hero-search .search-clear:hover {
+            color: var(--text);
+        }
+        .hero-search .search-results {
+            font-size: 13px;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        /* ── Categories & Tools ──────────────────────────────────── */
+        .main-content {
+            flex: 1;
+            padding: 0 32px 48px;
+            max-width: 1100px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .category-section {
+            margin-bottom: 40px;
+        }
+        .category-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+            padding-bottom: 6px;
+            border-bottom: 2px solid var(--border-light);
+        }
+        .category-header h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: -0.01em;
+        }
+        .category-header .cat-count {
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: var(--bg-tertiary);
+            color: var(--text-muted);
+            padding: 1px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--border-light);
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        /* ── Tool Card ───────────────────────────────────────────── */
+        .tool-card {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 14px 20px;
+            background: var(--bg);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius);
+            transition: all var(--transition);
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--text);
+            position: relative;
+        }
+        .tool-card:hover {
+            border-color: var(--accent);
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-1px);
+            background: var(--bg-secondary);
+        }
+        .tool-card .card-icon {
+            font-size: 1.8rem;
+            flex-shrink: 0;
+            width: 44px;
+            text-align: center;
+            line-height: 1;
+        }
+        .tool-card .card-body {
+            flex: 1;
+            min-width: 0;
+        }
+        .tool-card .card-body .card-name {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text);
+            letter-spacing: -0.01em;
+        }
+        .tool-card .card-body .card-desc {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 1px;
+            line-height: 1.4;
+        }
+        .tool-card .card-arrow {
+            flex-shrink: 0;
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            transition: all var(--transition);
+            font-weight: 500;
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-light);
+        }
+        .tool-card:hover .card-arrow {
+            color: var(--accent);
+            border-color: var(--accent);
+            background: var(--accent-light);
+        }
+
+        /* ── Empty category placeholder ──────────────────────────── */
+        .empty-category {
+            padding: 20px 24px;
+            background: var(--bg-secondary);
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            text-align: center;
+            font-weight: 400;
+        }
+        .empty-category span {
+            font-size: 1.2rem;
+            margin-right: 8px;
+        }
+
+        /* ── No results ──────────────────────────────────────────── */
+        .no-results {
+            padding: 48px 20px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+        .no-results strong {
+            color: var(--text);
+        }
+
+        /* ── Toast ────────────────────────────────────────────────── */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a1a2e;
+            color: #fff;
+            padding: 10px 22px;
+            border-radius: 24px;
+            font-size: 13px;
+            font-family: var(--font-sans);
+            z-index: 2000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            box-shadow: var(--shadow-lg);
+        }
+        .toast.show {
+            opacity: 1;
+        }
+        [data-theme="dark"] .toast {
+            background: #2c2e33;
+            color: #e4e6ea;
+        }
+
+        /* ── Responsive ──────────────────────────────────────────── */
+        @media (max-width: 768px) {
+            .hero {
+                padding: 28px 16px 20px;
+            }
+            .hero-title {
+                font-size: 1.6rem;
+                flex-wrap: wrap;
+            }
+            .hero-title .repo-badge {
+                font-size: 0.55rem;
+                padding: 1px 10px;
+            }
+            .hero-sub {
+                font-size: 0.95rem;
+            }
+            .hero-stats .stat {
+                font-size: 11px;
+                padding: 2px 10px;
+            }
+            .hero-search {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+            .hero-search .search-wrap {
+                min-width: 0;
+            }
+            .main-content {
+                padding: 0 16px 32px;
+            }
+            .category-header h2 {
+                font-size: 1.1rem;
+            }
+            .tool-card {
+                padding: 12px 14px;
+                gap: 12px;
+                flex-wrap: wrap;
+            }
+            .tool-card .card-icon {
+                font-size: 1.5rem;
+                width: 36px;
+            }
+            .tool-card .card-body .card-name {
+                font-size: 0.95rem;
+            }
+            .tool-card .card-body .card-desc {
+                font-size: 0.82rem;
+            }
+            .tool-card .card-arrow {
+                font-size: 0.95rem;
+                padding: 2px 10px;
+            }
+            .toolbar {
+                padding: 0 8px;
+                gap: 4px;
+            }
+            .toolbar button {
+                padding: 5px 10px;
+                font-size: 11px;
+                gap: 3px;
+            }
+            .toolbar .badge {
+                font-size: 9px;
+                padding: 2px 8px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 1.3rem;
+            }
+            .hero-top {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .hero-stats {
+                gap: 8px;
+            }
+            .hero-stats .stat {
+                font-size: 10px;
+                padding: 2px 8px;
+            }
+            .tool-card {
+                padding: 10px 12px;
+                gap: 10px;
+            }
+            .tool-card .card-icon {
+                font-size: 1.3rem;
+                width: 30px;
+            }
+        }
+
+        /* ── Print ────────────────────────────────────────────────── */
+        @media print {
+            .toolbar,
+            .hero-search,
+            .toast {
+                display: none !important;
+            }
+            .hero {
+                padding: 20px 0;
+            }
+            .main-content {
+                padding: 0;
+            }
+            .tool-card {
+                border-color: #ccc !important;
+                box-shadow: none !important;
+                transform: none !important;
+                break-inside: avoid;
+            }
+            body {
+                background: #fff !important;
+                color: #000 !important;
+            }
+            [data-theme="dark"] .tool-card {
+                border-color: #ccc !important;
+                background: #fafafa !important;
+            }
+        }
+    </style>
 </head>
-<body>
-    <p>
-        Redirecting...
-        <a href="MDtoPDF/">Click here if you are not redirected.</a>
-    </p>
+<body data-theme="light">
+
+    <!-- ── TOOLBAR ─────────────────────────────────────────────── -->
+     
+    <div class="toolbar" id="toolbar">
+        <button onclick="App.openGitHub()" title="View project on GitHub">⭐ GitHub</button>
+        <span class="sep"></span>
+        <button onclick="App.toggleTheme()" id="theme-btn" title="Toggle Light/Dark Mode">🌓 Theme</button>
+        <!-- <span class="sep"></span> -->
+        <!-- <button onclick="App.openTool('MDtoPDF/')" class="accent" title="Open Markdown → PDF">📝 Open MD→PDF</button> -->
+        <span class="spacer"></span>
+        <span class="badge" id="stats-badge"><strong id="tool-count">0</strong> tools · <strong id="cat-count">0</strong> categories</span>
+    </div>
+
+    <!-- ── HERO ────────────────────────────────────────────────── -->
+    <section class="hero">
+        <div class="hero-top">
+            <div class="hero-title-group">
+                <div class="hero-title">
+                    🧰 Utilities
+                    <span class="repo-badge">GitHub</span>
+                </div>
+                <div class="hero-sub">For those who come after...</div>
+            </div>
+            <div class="hero-stats" id="hero-stats">
+                <span class="stat">📦 <strong id="hero-tool-count">0</strong> tools</span>
+                <span class="stat">📂 <strong id="hero-cat-count">0</strong> categories</span>
+            </div>
+        </div>
+
+        <div class="hero-search">
+            <div class="search-wrap">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="search-input" placeholder="Search tools by name, description, or category…" />
+                <button class="search-clear" id="search-clear" onclick="App.clearSearch()">✕</button>
+            </div>
+            <span class="search-results" id="search-results"></span>
+        </div>
+    </section>
+
+    <!-- ── MAIN CONTENT ────────────────────────────────────────── -->
+    <main class="main-content" id="main-content">
+        <!-- Categories & tools rendered by JavaScript -->
+    </main>
+
+    <!-- ── TOAST ────────────────────────────────────────────────── -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ═══════════════════════════════════════════════════════════════
+        //                  TOOL LIBRARY
+        // ═══════════════════════════════════════════════════════════════
+
+        const TOOLS = [{
+            category: "📄 Document Tools",
+            items: [{
+                icon: "📝",
+                name: "Markdown → PDF",
+                description: "Convert AI responses to professional PDF files.",
+                folder: "MDtoPDF/"
+            }]
+        },
+        //  {
+        //     category: "🗄 Database",
+        //     items: [
+        //         // Add future database tools here
+        //     ]
+        // }, {
+        //     category: "💻 Developer Utilities",
+        //     items: [
+        //         // Add future dev tools here
+        //     ]
+        // }, {
+        //     category: "🌐 Web Development",
+        //     items: [
+        //         // Add future web tools here
+        //     ]
+        // }, {
+        //     category: "🤖 AI Tools",
+        //     items: [
+        //         // Add future AI tools here
+        //     ]
+        // }, {
+        //     category: "🎨 Design",
+        //     items: [
+        //         // Add future design tools here
+        //     ]
+        // }, {
+        //     category: "📊 Data",
+        //     items: [
+        //         // Add future data tools here
+        //     ]
+        // }, {
+        //     category: "🔒 Security",
+        //     items: [
+        //         // Add future security tools here
+        //     ]
+        // }, {
+        //     category: "⚙ Experimental",
+        //     items: [
+        //         // Add future experimental tools here
+        //     ]
+        // }
+    ];
+
+        // ═══════════════════════════════════════════════════════════════
+        //        DO NOT EDIT BELOW THIS LINE
+        // ═══════════════════════════════════════════════════════════════
+
+        (function() {
+            'use strict';
+
+            // ── State ──────────────────────────────────────────────────
+            const state = {
+                theme: localStorage.getItem('utils-theme') || 'light',
+                searchQuery: '',
+            };
+
+            // ── DOM refs ──────────────────────────────────────────────
+            const mainEl = document.getElementById('main-content');
+            const searchInput = document.getElementById('search-input');
+            const searchResults = document.getElementById('search-results');
+            const searchClear = document.getElementById('search-clear');
+            const heroToolCount = document.getElementById('hero-tool-count');
+            const heroCatCount = document.getElementById('hero-cat-count');
+            const toolCountBadge = document.getElementById('tool-count');
+            const catCountBadge = document.getElementById('cat-count');
+            const toastEl = document.getElementById('toast');
+            const themeBtn = document.getElementById('theme-btn');
+
+            let toastTimer = null;
+
+            // ── Helpers ───────────────────────────────────────────────
+            function showToast(msg) {
+                toastEl.textContent = msg;
+                toastEl.classList.add('show');
+                clearTimeout(toastTimer);
+                toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2000);
+            }
+
+            function escapeHTML(str) {
+                const d = document.createElement('div');
+                d.textContent = str;
+                return d.innerHTML;
+            }
+
+            function getTotalTools() {
+                let count = 0;
+                TOOLS.forEach(cat => { count += cat.items.length; });
+                return count;
+            }
+
+            function getNonEmptyCategories() {
+                return TOOLS.filter(cat => cat.items.length > 0);
+            }
+
+            function getAllTools() {
+                const result = [];
+                TOOLS.forEach(cat => {
+                    cat.items.forEach(tool => {
+                        result.push({ ...tool, category: cat.category });
+                    });
+                });
+                return result;
+            }
+
+            // ── Render ──────────────────────────────────────────────────
+            function render() {
+                const query = state.searchQuery.trim().toLowerCase();
+                const filtered = getAllTools().filter(t => {
+                    if (!query) return true;
+                    const haystack = (t.name + ' ' + t.description + ' ' + t.category).toLowerCase();
+                    return haystack.includes(query);
+                });
+
+                // Update stats
+                const total = getTotalTools();
+                const catCount = getNonEmptyCategories().length;
+                heroToolCount.textContent = total;
+                heroCatCount.textContent = catCount;
+                toolCountBadge.textContent = total;
+                catCountBadge.textContent = catCount;
+
+                // Show/hide clear button
+                searchClear.classList.toggle('visible', query.length > 0);
+
+                // Update search results count
+                if (query) {
+                    searchResults.textContent = `🔎 ${filtered.length} tool${filtered.length !== 1 ? 's' : ''} found`;
+                } else {
+                    searchResults.textContent = '';
+                }
+
+                // ── Build category sections ──────────────────────────
+                let html = '';
+
+                if (filtered.length === 0 && query) {
+                    html = `<div class="no-results">
+                <div style="font-size:2.4rem;margin-bottom:12px;">🔍</div>
+                <strong>No tools match</strong> “${escapeHTML(query)}”<br />
+                <span style="font-size:0.9rem;color:var(--text-muted);">Try a different keyword or clear the search.</span>
+              </div>`;
+                    mainEl.innerHTML = html;
+                    return;
+                }
+
+                // If searching, show flat list without categories
+                if (query) {
+                    html = `<div class="category-section">
+                <div class="category-header">
+                  <h2>🔎 Search Results</h2>
+                  <span class="cat-count">${filtered.length}</span>
+                </div>
+                <div class="tools-grid">`;
+                    filtered.forEach(t => {
+                        html += buildToolCard(t, t.category);
+                    });
+                    html += `</div></div>`;
+                    mainEl.innerHTML = html;
+                    return;
+                }
+
+                // Normal: grouped by category
+                TOOLS.forEach(cat => {
+                    if (cat.items.length === 0) {
+                        // Show empty category with placeholder
+                        html += `<div class="category-section">
+                  <div class="category-header">
+                    <h2>${cat.category}</h2>
+                    <span class="cat-count">0</span>
+                  </div>
+                  <div class="empty-category">
+                    <span>📭</span> No tools yet — check back soon!
+                  </div>
+                </div>`;
+                        return;
+                    }
+
+                    html += `<div class="category-section">
+                <div class="category-header">
+                  <h2>${cat.category}</h2>
+                  <span class="cat-count">${cat.items.length}</span>
+                </div>
+                <div class="tools-grid">`;
+                    cat.items.forEach(t => {
+                        html += buildToolCard(t, cat.category);
+                    });
+                    html += `</div></div>`;
+                });
+
+                mainEl.innerHTML = html;
+            }
+
+            function buildToolCard(tool, category) {
+                const folder = tool.folder || '#';
+                const icon = tool.icon || '📄';
+                const name = escapeHTML(tool.name);
+                const desc = escapeHTML(tool.description || '');
+                const label = `Open ${tool.name}`;
+                return `<a class="tool-card" href="${folder}index.html" title="${label}" data-tool="${tool.name}" data-category="${category}">
+              <div class="card-icon">${icon}</div>
+              <div class="card-body">
+                <div class="card-name">${name}</div>
+                <div class="card-desc">${desc}</div>
+              </div>
+              <div class="card-arrow">Open →</div>
+            </a>`;
+            }
+
+            // ── Search ──────────────────────────────────────────────────
+            function doSearch() {
+                state.searchQuery = searchInput.value;
+                render();
+            }
+
+            function clearSearch() {
+                searchInput.value = '';
+                state.searchQuery = '';
+                render();
+                searchInput.focus();
+            }
+
+            // ── Theme ──────────────────────────────────────────────────
+            function setTheme(theme) {
+                state.theme = theme;
+                document.documentElement.setAttribute('data-theme', theme);
+                document.body.setAttribute('data-theme', theme);
+                localStorage.setItem('utils-theme', theme);
+                themeBtn.textContent = theme === 'dark' ? '☀️ Light' : '🌓 Dark';
+            }
+
+            function toggleTheme() {
+                setTheme(state.theme === 'dark' ? 'light' : 'dark');
+                showToast(state.theme === 'dark' ? '🌙 Dark mode' : '☀️ Light mode');
+            }
+
+            // ── Open tool ──────────────────────────────────────────────
+            function openTool(folder) {
+                window.location.href = folder + 'index.html';
+            }
+
+            // ── Open GitHub ────────────────────────────────────────────
+            function openGitHub() {
+                window.open('https://github.com/SinaRiahi/Utilities', '_blank');
+                showToast('⭐ Opening GitHub repository…');
+            }
+
+            // ── Init ──────────────────────────────────────────────────
+            function init() {
+                // Restore theme
+                const saved = localStorage.getItem('utils-theme');
+                if (saved) {
+                    state.theme = saved;
+                }
+                setTheme(state.theme);
+
+                // Search events
+                searchInput.addEventListener('input', doSearch);
+                searchInput.addEventListener('keydown', e => {
+                    if (e.key === 'Escape') {
+                        clearSearch();
+                        searchInput.blur();
+                    }
+                });
+
+                // Click on tool cards (delegated) — handled by native <a> navigation
+                // But we also want to intercept for empty folders or future special handling.
+                // However, we just let <a> do its job.
+
+                // Keyboard shortcut: Ctrl+K or / to focus search
+                document.addEventListener('keydown', e => {
+                    const ctrl = e.ctrlKey || e.metaKey;
+                    if ((ctrl && e.key === 'k') || (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey)) {
+                        const tag = document.activeElement?.tagName;
+                        if (tag !== 'INPUT' && tag !== 'TEXTAREA' && tag !== 'SELECT') {
+                            e.preventDefault();
+                            searchInput.focus();
+                            searchInput.select();
+                        }
+                    }
+                    if (e.key === 'Escape') {
+                        if (document.activeElement === searchInput) {
+                            clearSearch();
+                            searchInput.blur();
+                        }
+                    }
+                });
+
+                // Initial render
+                render();
+
+                // Show welcome toast
+                setTimeout(() => {
+                    showToast(`🧰 ${getTotalTools()} tools ready · Press ⌘K or / to search`);
+                }, 300);
+            }
+
+            // ── Public API ─────────────────────────────────────────────
+            window.App = {
+                toggleTheme,
+                openTool,
+                openGitHub,
+                clearSearch,
+                doSearch,
+            };
+
+            // ── Run ──────────────────────────────────────────────────
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+
+        })();
+    </script>
+
 </body>
 </html>
