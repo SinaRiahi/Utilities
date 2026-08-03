@@ -2,9 +2,9 @@
 
 > **A growing collection of tools built to solve everyday problems.**
 
-<p align="center">
+<!-- <p align="center">
   <img src="screenshots/home.png" alt="Utilities Home" width="900">
-</p>
+</p> -->
 
 Utilities is my personal toolbox.
 
