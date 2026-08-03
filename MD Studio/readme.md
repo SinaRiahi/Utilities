@@ -19,15 +19,16 @@ A modern browser-based Markdown editor with live preview and professional docume
 - 💻 Syntax highlighting
 - 📱 Responsive design
 
-## 🚀 Demo
+## 🚀 Try it!
 
-Open `index.html` in any modern browser.
+Open `[This page](https://sinariahi.github.io/Utilities/)` and select MD Studio.
 
-No installation required.
+No installation required. 
+No connections required afterwards.
 
 ## 📦 Installation
 
-well... some installation is required...
+well... some installation is required... If you want...
 Clone the repository
 
 ```bash
@@ -80,4 +81,4 @@ If you found this project useful, consider giving it a star.
 
 ## 📜 License
 
-None... Pure AI slop...
+None... Pure AI slop... Actually not pure... I basiacally had to learn mermaid and html css js to fix an issue... That was a fun 48 hours...
