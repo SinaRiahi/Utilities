@@ -1143,6 +1143,14 @@ Or drag & drop a .md file...
                 theme: 'default',
                 securityLevel: 'loose',
                 fontFamily: 'var(--font-sans)',
+                // Prevents mermaid from embedding the page's own absolute file:// URL into
+                // SVG marker-end references (arrowheads etc). On file:// origins that
+                // self-referencing URL is blocked by Chrome's stricter file-origin security
+                // ("Unsafe attempt to load URL ... 'file:' URLs are treated as unique
+                // security origins"), which can prevent the whole diagram from painting.
+                // Fragment-only references (#arrowhead) work correctly on every origin.
+                arrowMarkerAbsolute: false,
+                flowchart: { arrowMarkerAbsolute: false },
             });
 
             // ── KaTeX plugin for markdown-it ────────
@@ -1302,14 +1310,16 @@ Or drag & drop a .md file...
                 typographer: true,
                 breaks: false,
                 highlight: function(str, lang) {
-                    // Mermaid/mmd blocks are diagram source, not a hljs language — hljs has
-                    // no "mermaid" grammar, so highlightAuto() below would misdetect it (e.g.
-                    // as CSS) and drop the "language-mermaid" class, which is what
-                    // renderMermaidDiagrams() relies on to find these blocks. Preserve the
-                    // class untouched and skip syntax highlighting entirely.
+                    // Mermaid/mmd blocks are diagram source, not a hljs language. We hand
+                    // these to mermaid.run() (the same API mermaid's own startOnLoad uses)
+                    // rather than calling mermaid.render() ourselves and manually splicing
+                    // the result into the DOM — that hand-rolled path has repeatedly proven
+                    // fragile across environments. mermaid.run() expects the raw diagram text
+                    // as the element's content, not wrapped in <code>, so we emit a plain
+                    // <pre class="mermaid-source"> here and let renderMermaidDiagrams() find
+                    // and convert these via the real mermaid.run() API.
                     if (lang === 'mermaid' || lang === 'mmd') {
-                        return '<pre><code class="language-' + lang + '">' + md.utils.escapeHtml(str) +
-                            '</code></pre>';
+                        return '<pre class="mermaid-source">' + md.utils.escapeHtml(str) + '</pre>';
                     }
                     if (lang && hljs.getLanguage(lang)) {
                         try {
@@ -2296,42 +2306,76 @@ Write in a friendly, direct tone — the reader wants their problem solved as qu
             const debouncedRender = debounce(renderPreview, 250);
 
             // ── Mermaid rendering ──────────────────
+            // Uses mermaid.run() — the same public API mermaid's own startOnLoad feature
+            // calls internally — instead of calling mermaid.render() ourselves and manually
+            // splicing the returned SVG into the DOM. mermaid.run() takes the target elements
+            // directly and mermaid renders in place; this avoids an entire class of problems
+            // from our own hand-rolled placeholder/ID/cleanup logic (an element-ID collision
+            // that deleted our own placeholder, and an unrelated bug in mermaid's internal
+            // marker-URL cleanup that only surfaced on some file:// paths).
+            let mermaidRenderPromise = null;
+
             function renderMermaidDiagrams() {
-                const mermaidBlocks = previewEl.querySelectorAll('pre code.language-mermaid, pre code.language-mmd');
+                const mermaidBlocks = previewEl.querySelectorAll('pre.mermaid-source');
                 if (mermaidBlocks.length === 0) return;
-                mermaidBlocks.forEach(async (codeEl, index) => {
-                    const preEl = codeEl.closest('pre');
-                    if (!preEl || preEl.dataset.mermaidRendered === 'true') return;
-                    const mermaidCode = codeEl.textContent.trim();
-                    if (!mermaidCode) return;
-                    preEl.dataset.mermaidRendered = 'pending';
-                    const uniqueId = 'mermaid-svg-' + Date.now() + '-' + index;
-                    const placeholder = document.createElement('div');
-                    placeholder.className = 'mermaid-placeholder';
-                    placeholder.id = uniqueId;
-                    placeholder.textContent = 'Rendering diagram…';
-                    placeholder.style.cssText =
-                        'padding:20px;text-align:center;background:#f8f9fa;border-radius:8px;border:1px dashed #dee2e6;margin:1em 0;font-family:var(--font-sans);font-size:13px;color:#868e96;';
-                    preEl.parentNode.replaceChild(placeholder, preEl);
-                    try {
-                        const { svg } = await mermaid.render(uniqueId, mermaidCode);
-                        const wrapper = document.createElement('div');
-                        wrapper.className = 'mermaid-rendered';
-                        wrapper.innerHTML = svg;
-                        wrapper.style.cssText =
-                            'text-align:center;margin:1em 0;overflow-x:auto;page-break-inside:avoid;';
-                        const svgEl = wrapper.querySelector('svg');
-                        if (svgEl) { svgEl.style.maxWidth = '100%';
-                            svgEl.style.height = 'auto'; }
-                        placeholder.parentNode.replaceChild(wrapper, placeholder);
-                    } catch (e) {
-                        placeholder.textContent = '⚠️ Mermaid diagram could not be rendered: ' + e.message;
-                        placeholder.style.color = '#e03131';
-                        placeholder.style.borderColor = '#e03131';
-                        placeholder.dataset.mermaidError = 'true';
-                    }
+                if (typeof mermaid === 'undefined') {
+                    // The mermaid.js library itself never loaded (e.g. the CDN script was
+                    // blocked or failed). Show this plainly instead of doing nothing.
+                    mermaidBlocks.forEach(preEl => {
+                        const errorBox = document.createElement('div');
+                        errorBox.className = 'mermaid-placeholder';
+                        errorBox.textContent = '⚠️ Mermaid diagram library failed to load — diagrams cannot be rendered.';
+                        errorBox.style.cssText =
+                            'padding:20px;text-align:center;background:#fff5f5;border-radius:8px;border:1px solid #e03131;margin:1em 0;font-family:var(--font-sans);font-size:13px;color:#e03131;';
+                        preEl.parentNode.replaceChild(errorBox, preEl);
+                    });
+                    return;
+                }
+                const nodesToRender = Array.from(mermaidBlocks).filter(preEl => preEl.dataset.mermaidRendered !==
+                    'true');
+                if (nodesToRender.length === 0) return;
+                nodesToRender.forEach(preEl => {
+                    preEl.dataset.mermaidRendered = 'true';
+                    preEl.className = 'mermaid mermaid-rendered';
+                    preEl.style.cssText = 'text-align:center;margin:1em 0;overflow-x:auto;page-break-inside:avoid;';
+                });
+                mermaidRenderPromise = mermaid.run({ nodes: nodesToRender, suppressErrors: true }).then(() => {
+                    nodesToRender.forEach(preEl => {
+                        const svgEl = preEl.querySelector('svg');
+                        if (svgEl) {
+                            svgEl.style.maxWidth = '100%';
+                            svgEl.style.height = 'auto';
+                        } else if (!preEl.querySelector('.mermaid-error-inline')) {
+                            // mermaid.run() with suppressErrors swallows the error but leaves
+                            // no visible trace of failure — check for that and surface it
+                            // instead of leaving a blank/empty box.
+                            preEl.textContent = '⚠️ Mermaid diagram could not be rendered. Check the diagram syntax.';
+                            preEl.classList.add('mermaid-error-inline');
+                            preEl.style.color = '#e03131';
+                            preEl.style.padding = '20px';
+                            preEl.style.background = '#fff5f5';
+                            preEl.style.border = '1px solid #e03131';
+                            preEl.style.borderRadius = '8px';
+                            preEl.style.fontFamily = 'var(--font-sans)';
+                            preEl.style.fontSize = '13px';
+                        }
+                    });
+                }).catch(e => {
+                    console.error('mermaid.run() failed:', e);
+                    nodesToRender.forEach(preEl => {
+                        if (preEl.querySelector('svg')) return;
+                        preEl.textContent = '⚠️ Mermaid diagram could not be rendered: ' + e.message;
+                        preEl.style.color = '#e03131';
+                        preEl.style.padding = '20px';
+                        preEl.style.background = '#fff5f5';
+                        preEl.style.border = '1px solid #e03131';
+                        preEl.style.borderRadius = '8px';
+                        preEl.style.fontFamily = 'var(--font-sans)';
+                        preEl.style.fontSize = '13px';
+                    });
                 });
             }
+
 
             const debouncedMermaidRender = debounce(renderMermaidDiagrams, 800);
 
@@ -2347,6 +2391,8 @@ Write in a friendly, direct tone — the reader wants their problem solved as qu
                     startOnLoad: false,
                     theme: s.theme === 'dark' ? 'dark' : 'default',
                     securityLevel: 'loose',
+                    arrowMarkerAbsolute: false,
+                    flowchart: { arrowMarkerAbsolute: false },
                 });
                 themeBtn.textContent = s.theme === 'dark' ? '☀️ Light' : '🌓 Dark';
                 updatePrintStyles();
@@ -2443,11 +2489,11 @@ Write in a friendly, direct tone — the reader wants their problem solved as qu
 
             // ── Export functions ────────────────────
             function exportPDF() {
-                const pendingMermaids = previewEl.querySelectorAll('.mermaid-placeholder');
-                if (pendingMermaids.length > 0) {
+                const unrenderedMermaids = previewEl.querySelectorAll('pre.mermaid-source:not([data-mermaid-rendered="true"])');
+                if (unrenderedMermaids.length > 0 || mermaidRenderPromise) {
                     showToast('⏳ Rendering diagrams… Please wait and try again.');
                     renderMermaidDiagrams();
-                    setTimeout(() => window.print(), 1200);
+                    Promise.resolve(mermaidRenderPromise).finally(() => window.print());
                 } else {
                     window.print();
                 }
