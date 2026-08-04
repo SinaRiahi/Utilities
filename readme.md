@@ -147,6 +147,14 @@ It helps others discover the project and motivates me to keep building new utili
 
 ---
 
+# 📜 License
+
+This project is licensed under the MIT License.
+
+See the [LICENSE](LICENSE) file for details.
+
+---
+
 <p align="center">
 
 ## Build. Learn. Improve. Repeat.

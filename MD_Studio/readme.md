@@ -81,4 +81,6 @@ If you found this project useful, consider giving it a star.
 
 ## 📜 License
 
-None... Pure AI slop... Actually not pure... I basiacally had to learn mermaid and html css js to fix an issue... That was a fun 48 hours...
+MD Studio is part of the Utilities project and is licensed under the MIT License.
+
+See the [LICENSE](../LICENSE) file for details.
