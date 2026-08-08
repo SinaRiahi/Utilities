@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ImageForge — Professional Image Converter</title>
+
+    <style>
+        :root {
+            --bg: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-tertiary: #f1f3f5;
+            --text: #1a1a2e;
+            --text-secondary: #495057;
+            --text-muted: #868e96;
+            --border: #dee2e6;
+            --border-light: #e9ecef;
+            --accent: #4c6ef5;
+            --accent-hover: #3b5de7;
+            --accent-light: #edf2ff;
+            --success: #2b8a3e;
+            --success-light: #ebfbee;
+            --warning: #e67700;
+            --warning-light: #fff4e6;
+            --danger: #c92a2a;
+            --danger-light: #fff5f5;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.10), 0 2px 6px rgba(0, 0, 0, 0.06);
+            --radius: 8px;
+            --radius-sm: 5px;
+            --font-mono: 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', monospace;
+            --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            --transition: 0.18s ease;
+        }
+
+        [data-theme="dark"] {
+            --bg: #1a1b1e;
+            --bg-secondary: #25262b;
+            --bg-tertiary: #2c2e33;
+            --text: #e4e6ea;
+            --text-secondary: #c1c4cd;
+            --text-muted: #9095a0;
+            --border: #3a3c42;
+            --border-light: #2e3035;
+            --accent: #6d8af7;
+            --accent-hover: #8aa3ff;
+            --accent-light: #1e2640;
+            --success: #40c057;
+            --success-light: #0d2b13;
+            --warning: #fab005;
+            --warning-light: #3b2e0a;
+            --danger: #ff6b6b;
+            --danger-light: #3b0a0a;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            font-family: var(--font-sans);
+            background: var(--bg);
+            color: var(--text);
+            transition: background var(--transition), color var(--transition);
+        }
+
+        .toolbar {
+            height: 48px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0 12px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            z-index: 100;
+            flex-shrink: 0;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .toolbar::-webkit-scrollbar { height: 3px; }
+        .toolbar .sep {
+            width: 1px;
+            height: 22px;
+            background: var(--border);
+            margin: 0 4px;
+            flex-shrink: 0;
+        }
+        .toolbar button {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 7px 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 12.5px;
+            font-family: var(--font-sans);
+            white-space: nowrap;
+            transition: all var(--transition);
+            flex-shrink: 0;
+            font-weight: 500;
+        }
+        .toolbar button:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--text-muted);
+            color: var(--text);
+        }
+        .toolbar button.accent {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+            font-weight: 600;
+        }
+        .toolbar button.accent:hover {
+            background: var(--accent-hover);
+            border-color: var(--accent-hover);
+        }
+        .toolbar .spacer { flex: 1; min-width: 10px; }
+        .toolbar .badge {
+            font-size: 10.5px;
+            background: var(--bg-tertiary);
+            padding: 3px 8px;
+            border-radius: 20px;
+            color: var(--text-muted);
+            flex-shrink: 0;
+            font-weight: 500;
+        }
+
+        .main-container {
+            display: flex;
+            height: calc(100% - 48px);
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 340px;
+            min-width: 280px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+        .sidebar-section {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .sidebar-section h3 {
+            font-size: 11.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            font-family: var(--font-sans);
+        }
+        .sidebar-section label {
+            display: block;
+            font-size: 12.5px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+        .sidebar-section select,
+        .sidebar-section input[type="number"],
+        .sidebar-section input[type="text"] {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg);
+            color: var(--text);
+            font-size: 13px;
+            font-family: var(--font-sans);
+            margin-bottom: 10px;
+            transition: all var(--transition);
+        }
+        .sidebar-section select:focus,
+        .sidebar-section input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-light);
+        }
+        .sidebar-section input[type="range"] {
+            width: 100%;
+            margin-bottom: 4px;
+            accent-color: var(--accent);
+        }
+        .range-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10.5px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .checkbox-group input[type="checkbox"] {
+            accent-color: var(--accent);
+            width: 16px;
+            height: 16px;
+        }
+        .checkbox-group label {
+            margin-bottom: 0;
+            cursor: pointer;
+        }
+
+        .content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .drop-zone {
+            flex: 1;
+            margin: 16px;
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all var(--transition);
+            background: var(--bg);
+            position: relative;
+            overflow-y: auto;
+        }
+        .drop-zone.drag-over {
+            border-color: var(--accent);
+            background: var(--accent-light);
+        }
+        .drop-zone-icon {
+            font-size: 48px;
+            opacity: 0.5;
+        }
+        .drop-zone-text {
+            font-size: 15px;
+            color: var(--text-muted);
+            text-align: center;
+        }
+        .drop-zone-subtext {
+            font-size: 12px;
+            color: var(--text-muted);
+            opacity: 0.7;
+        }
+
+        .file-list {
+            width: 100%;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            transition: all var(--transition);
+        }
+        .file-item:hover { border-color: var(--border); }
+        .file-item .file-icon { font-size: 20px; }
+        .file-item .file-info { flex: 1; min-width: 0; }
+        .file-item .file-name {
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .file-item .file-meta {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+        .file-item .file-status {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        .status-pending { background: var(--bg-tertiary); color: var(--text-muted); }
+        .status-converting { background: var(--warning-light); color: var(--warning); }
+        .status-done { background: var(--success-light); color: var(--success); }
+        .status-error { background: var(--danger-light); color: var(--danger); }
+
+        .output-area {
+            margin: 0 16px 16px;
+            padding: 12px 16px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius);
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--text-secondary);
+            max-height: 140px;
+            overflow-y: auto;
+            flex-shrink: 0;
+            min-height: 48px;
+            line-height: 1.5;
+        }
+        .output-line { margin: 2px 0; }
+        .output-line.success { color: var(--success); }
+        .output-line.error { color: var(--danger); }
+        .output-line.info { color: var(--text-muted); }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal {
+            background: var(--bg);
+            border-radius: var(--radius);
+            padding: 24px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: var(--shadow-lg);
+        }
+        .modal h2 { margin-bottom: 16px; font-size: 1.2em; }
+        .modal p { font-size: 13px; color: var(--text-secondary); margin-bottom: 12px; }
+        .modal button {
+            padding: 8px 18px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg);
+            cursor: pointer;
+            font-family: var(--font-sans);
+            font-size: 13px;
+            margin-right: 8px;
+            transition: all var(--transition);
+        }
+        .modal button.accent {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+        .hidden { display: none !important; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+        @media (max-width: 768px) {
+            .main-container { flex-direction: column; }
+            .sidebar {
+                width: 100%;
+                min-width: unset;
+                max-height: 40%;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <button onclick="toggleTheme()" title="Toggle dark/light mode">🌓 Theme</button>
+        <span class="sep"></span>
+        <button onclick="addFiles()">📁 Add Files</button>
+        <button onclick="addFolder()">📂 Add Folder</button>
+        <span class="sep"></span>
+        <button class="accent" onclick="convertAll()">⚡ Convert All</button>
+        <button onclick="downloadAll()">💾 Download All</button>
+        <button onclick="clearAll()">🗑 Clear</button>
+        <span class="spacer"></span>
+        <span class="badge" id="fileCount">0 files</span>
+        <span class="badge" id="themeBadge">Light</span>
+    </div>
+
+    <!-- Main -->
+    <div class="main-container">
+        <!-- Sidebar Config -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-section">
+                <h3>🎯 Conversion Target</h3>
+                <label for="targetFormat">Output Format</label>
+                <select id="targetFormat" onchange="onFormatChange()">
+                    <optgroup label="Icons">
+                        <option value="ico" selected>ICO (Windows Icon)</option>
+                        <option value="icns">ICNS (macOS Icon)</option>
+                    </optgroup>
+                    <optgroup label="Raster Images">
+                        <option value="png">PNG</option>
+                        <option value="jpg">JPEG</option>
+                        <option value="webp">WebP</option>
+                        <option value="gif">GIF</option>
+                        <option value="bmp">BMP</option>
+                        <option value="tiff">TIFF</option>
+                    </optgroup>
+                    <optgroup label="Vector / Other">
+                        <option value="svg">SVG (from raster, basic trace)</option>
+                        <option value="pdf">PDF (embed image)</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <div class="sidebar-section" id="icoSizesSection">
+                <h3>📐 ICO Sizes</h3>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="size16" checked>
+                    <label for="size16">16×16</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="size24" checked>
+                    <label for="size24">24×24</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="size32" checked>
+                    <label for="size32">32×32</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="size48" checked>
+                    <label for="size48">48×48</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="size64">
+                    <label for="size64">64×64</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="size128">
+                    <label for="size128">128×128</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="size256">
+                    <label for="size256">256×256</label>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3>⚙️ Quality & Size</h3>
+                <label for="qualitySlider">Quality: <span id="qualityVal">90</span>%</label>
+                <input type="range" id="qualitySlider" min="1" max="100" value="90" oninput="updateQualityLabel()">
+                <div class="range-labels"><span>1% (smallest)</span><span>100% (best)</span></div>
+
+                <label for="maxWidth">Max Width (px, 0 = no limit)</label>
+                <input type="number" id="maxWidth" value="0" min="0" max="10000" step="1">
+
+                <label for="maxHeight">Max Height (px, 0 = no limit)</label>
+                <input type="number" id="maxHeight" value="0" min="0" max="10000" step="1">
+
+                <label for="fileSizeLimit">Max File Size (KB, 0 = no limit)</label>
+                <input type="number" id="fileSizeLimit" value="0" min="0" max="100000" step="1">
+            </div>
+
+            <div class="sidebar-section">
+                <h3>📁 Batch Options</h3>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="includeSubfolders" checked>
+                    <label for="includeSubfolders">Include subfolders</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="preserveStructure">
+                    <label for="preserveStructure">Preserve folder structure on download</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="overwriteExisting" checked>
+                    <label for="overwriteExisting">Overwrite if output exists</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content-area">
+            <div class="drop-zone" id="dropZone" onclick="addFiles()">
+                <div class="drop-zone-icon">🖼️</div>
+                <div class="drop-zone-text">Drop images here or click to browse</div>
+                <div class="drop-zone-subtext">Supports PNG, JPG, WebP, GIF, BMP, TIFF, SVG</div>
+                <div class="file-list" id="fileList"></div>
+            </div>
+            <div class="output-area" id="outputArea">
+                <span class="output-line info">Ready. Add files to begin.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden file inputs -->
+    <input type="file" id="fileInput" multiple accept="image/*,.png,.jpg,.jpeg,.webp,.gif,.bmp,.tiff,.svg" class="hidden" onchange="handleFileSelect(event)">
+    <input type="file" id="folderInput" webkitdirectory directory multiple class="hidden" onchange="handleFileSelect(event)">
+
+    <!-- JSZip + FileSaver from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js">
+    </script>
+
+    <script>
+        // ── State ──────────────────────
+        const files = []; // { name, file, blob?, status: 'pending'|'converting'|'done'|'error', outputBlob?, outputName?, relativePath? }
+        let darkMode = false;
+
+        // ── DOM refs ──────────────────
+        const dropZone = document.getElementById('dropZone');
+        const fileList = document.getElementById('fileList');
+        const outputArea = document.getElementById('outputArea');
+        const fileCountBadge = document.getElementById('fileCount');
+        const themeBadge = document.getElementById('themeBadge');
+        const targetFormat = document.getElementById('targetFormat');
+        const icoSizesSection = document.getElementById('icoSizesSection');
+        const qualitySlider = document.getElementById('qualitySlider');
+        const qualityVal = document.getElementById('qualityVal');
+        const maxWidth = document.getElementById('maxWidth');
+        const maxHeight = document.getElementById('maxHeight');
+        const fileSizeLimit = document.getElementById('fileSizeLimit');
+        const includeSubfolders = document.getElementById('includeSubfolders');
+        const preserveStructure = document.getElementById('preserveStructure');
+        const overwriteExisting = document.getElementById('overwriteExisting');
+
+        // ── Theme ─────────────────────
+        function toggleTheme() {
+            darkMode = !darkMode;
+            document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+            themeBadge.textContent = darkMode ? 'Dark' : 'Light';
+        }
+
+        function updateQualityLabel() {
+            qualityVal.textContent = qualitySlider.value;
+        }
+
+        function onFormatChange() {
+            const fmt = targetFormat.value;
+            icoSizesSection.style.display = (fmt === 'ico') ? 'block' : 'none';
+        }
+
+        // ── File handling ────────────
+        function addFiles() {
+            document.getElementById('fileInput').click();
+        }
+
+        function addFolder() {
+            document.getElementById('folderInput').click();
+        }
+
+        function handleFileSelect(event) {
+            const newFiles = Array.from(event.target.files);
+            const isFolder = event.target.id === 'folderInput';
+
+            for (const f of newFiles) {
+                // Skip non-image files
+                if (!f.type.startsWith('image/') && !f.name.match(/\.(png|jpg|jpeg|webp|gif|bmp|tiff|tif|svg|ico|icns)$/i)) {
+                    continue;
+                }
+                // Build relative path for folder uploads
+                let relPath = '';
+                if (isFolder && f.webkitRelativePath) {
+                    const parts = f.webkitRelativePath.split('/');
+                    parts.pop(); // remove filename
+                    relPath = parts.join('/');
+                }
+                // Avoid duplicates
+                const key = relPath ? `${relPath}/${f.name}` : f.name;
+                if (files.find(x => (x.relativePath ? `${x.relativePath}/${x.name}` : x.name) === key)) {
+                    if (!overwriteExisting.checked) continue;
+                }
+                files.push({
+                    name: f.name,
+                    file: f,
+                    blob: null,
+                    status: 'pending',
+                    outputBlob: null,
+                    outputName: null,
+                    relativePath: relPath || '',
+                });
+            }
+            event.target.value = '';
+            renderFileList();
+        }
+
+        // ── Drag & Drop ──────────────
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('drag-over');
+        });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+            const dt = e.dataTransfer;
+            // Try to get files from the drop
+            if (dt.items) {
+                const entries = [];
+                for (let i = 0; i < dt.items.length; i++) {
+                    const item = dt.items[i];
+                    if (item.kind === 'file') {
+                        const entry = item.webkitGetAsEntry ? item.webkitGetAsEntry() : null;
+                        if (entry) {
+                            entries.push(entry);
+                        } else {
+                            // Fallback: use file directly
+                            const f = item.getAsFile();
+                            if (f) addSingleFile(f, '');
+                        }
+                    }
+                }
+                if (entries.length > 0) {
+                    processEntries(entries, '');
+                }
+            } else if (dt.files) {
+                for (const f of dt.files) {
+                    addSingleFile(f, '');
+                }
+            }
+        });
+
+        async function processEntries(entries, basePath) {
+            for (const entry of entries) {
+                if (entry.isFile) {
+                    const file = await getFileFromEntry(entry);
+                    addSingleFile(file, basePath);
+                } else if (entry.isDirectory) {
+                    if (!includeSubfolders.checked) continue;
+                    const dirReader = entry.createReader();
+                    const subEntries = await readAllEntries(dirReader);
+                    const newBase = basePath ? `${basePath}/${entry.name}` : entry.name;
+                    await processEntries(subEntries, newBase);
+                }
+            }
+        }
+
+        function readAllEntries(dirReader) {
+            return new Promise((resolve) => {
+                const all = [];
+                const readBatch = () => {
+                    dirReader.readEntries((entries) => {
+                        if (entries.length === 0) {
+                            resolve(all);
+                        } else {
+                            all.push(...entries);
+                            readBatch();
+                        }
+                    });
+                };
+                readBatch();
+            });
+        }
+
+        function getFileFromEntry(entry) {
+            return new Promise((resolve) => {
+                entry.file(resolve);
+            });
+        }
+
+        function addSingleFile(file, relativePath) {
+            if (!file.type.startsWith('image/') && !file.name.match(/\.(png|jpg|jpeg|webp|gif|bmp|tiff|tif|svg|ico|icns)$/i)) return;
+            const key = relativePath ? `${relativePath}/${file.name}` : file.name;
+            if (files.find(x => (x.relativePath ? `${x.relativePath}/${x.name}` : x.name) === key)) {
+                if (!overwriteExisting.checked) return;
+                // Remove existing
+                const idx = files.findIndex(x => (x.relativePath ? `${x.relativePath}/${x.name}` : x.name) === key);
+                if (idx >= 0) files.splice(idx, 1);
+            }
+            files.push({
+                name: file.name,
+                file: file,
+                blob: null,
+                status: 'pending',
+                outputBlob: null,
+                outputName: null,
+                relativePath: relativePath || '',
+            });
+            renderFileList();
+        }
+
+        function renderFileList() {
+            fileList.innerHTML = files.map((f, i) => {
+                const statusClass = `status-${f.status}`;
+                const statusText = f.status.charAt(0).toUpperCase() + f.status.slice(1);
+                const sizeText = f.file ? formatBytes(f.file.size) : (f.blob ? formatBytes(f.blob.size) :
+                    '');
+                const pathDisplay = f.relativePath ? `${f.relativePath}/` : '';
+                return `
+                    <div class="file-item">
+                        <span class="file-icon">📄</span>
+                        <div class="file-info">
+                            <div class="file-name" title="${pathDisplay}${f.name}">${pathDisplay}${f.name}</div>
+                            <div class="file-meta">${sizeText} → ${f.outputName || getOutputName(f.name)}</div>
+                        </div>
+                        <span class="file-status ${statusClass}">${statusText}</span>
+                        <button onclick="removeFile(${i})" style="background:none;border:none;cursor:pointer;font-size:16px;padding:2px 6px;color:var(--text-muted);" title="Remove">✕</button>
+                    </div>
+                `;
+            }).join('');
+            fileCountBadge.textContent = `${files.length} file${files.length !== 1 ? 's' : ''}`;
+        }
+
+        function removeFile(index) {
+            files.splice(index, 1);
+            renderFileList();
+        }
+
+        function clearAll() {
+            files.length = 0;
+            renderFileList();
+            outputArea.innerHTML = '<span class="output-line info">Cleared.</span>';
+        }
+
+        function getOutputName(inputName) {
+            const dotIndex = inputName.lastIndexOf('.');
+            const baseName = dotIndex >= 0 ? inputName.substring(0, dotIndex) : inputName;
+            const fmt = targetFormat.value;
+            return `${baseName}.${fmt}`;
+        }
+
+        function formatBytes(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / 1048576).toFixed(2) + ' MB';
+        }
+
+        function log(msg, type = 'info') {
+            const line = document.createElement('span');
+            line.className = `output-line ${type}`;
+            line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            outputArea.appendChild(line);
+            outputArea.scrollTop = outputArea.scrollHeight;
+        }
+
+        // ── Conversion Engine ─────────
+        async function convertAll() {
+            if (files.length === 0) {
+                log('No files to convert.', 'error');
+                return;
+            }
+
+            const fmt = targetFormat.value;
+            const quality = parseInt(qualitySlider.value) / 100;
+            const mw = parseInt(maxWidth.value) || 0;
+            const mh = parseInt(maxHeight.value) || 0;
+            const sizeLimitKB = parseInt(fileSizeLimit.value) || 0;
+            const icoSizes = getIcoSizes();
+
+            log(`Starting conversion of ${files.length} file(s) to ${fmt.toUpperCase()}...`, 'info');
+
+            for (let i = 0; i < files.length; i++) {
+                const f = files[i];
+                f.status = 'converting';
+                renderFileList();
+
+                try {
+                    const img = await loadImage(f.file);
+                    let canvas = imgToCanvas(img, mw, mh);
+
+                    let outputBlob;
+                    if (fmt === 'ico') {
+                        outputBlob = await canvasToIco(canvas, icoSizes);
+                    } else if (fmt === 'icns') {
+                        outputBlob = await canvasToIcns(canvas);
+                    } else if (fmt === 'pdf') {
+                        outputBlob = await canvasToPdf(canvas, quality);
+                    } else if (fmt === 'svg') {
+                        outputBlob = await canvasToSvg(canvas);
+                    } else {
+                        outputBlob = await canvasToRaster(canvas, fmt, quality);
+                    }
+
+                    // Size limit enforcement (try reducing quality for raster formats)
+                    if (sizeLimitKB > 0 && outputBlob.size > sizeLimitKB * 1024) {
+                        if (['png', 'jpg', 'jpeg', 'webp'].includes(fmt)) {
+                            let q = quality;
+                            for (let attempt = 0; attempt < 10 && outputBlob.size > sizeLimitKB * 1024; attempt++) {
+                                q = Math.max(0.05, q - 0.1);
+                                outputBlob = await canvasToRaster(canvas, fmt, q);
+                            }
+                        }
+                        if (outputBlob.size > sizeLimitKB * 1024) {
+                            log(`⚠ ${f.name}: output is ${formatBytes(outputBlob.size)}, exceeds ${sizeLimitKB} KB limit.`, 'error');
+                        }
+                    }
+
+                    f.outputBlob = outputBlob;
+                    f.outputName = getOutputName(f.name);
+                    f.status = 'done';
+                    log(`✓ ${f.name} → ${f.outputName} (${formatBytes(outputBlob.size)})`, 'success');
+                } catch (err) {
+                    f.status = 'error';
+                    log(`✗ ${f.name}: ${err.message}`, 'error');
+                }
+                renderFileList();
+
+                // Small delay to allow UI update
+                await sleep(30);
+            }
+
+            log(`Conversion complete. ${files.filter(f=>f.status==='done').length}/${files.length} succeeded.`, 'info');
+        }
+
+        function loadImage(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => resolve(img);
+                    img.onerror = () => reject(new Error('Failed to load image'));
+                    img.src = e.target.result;
+                };
+                reader.onerror = () => reject(new Error('Failed to read file'));
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function imgToCanvas(img, maxW, maxH) {
+            let w = img.naturalWidth;
+            let h = img.naturalHeight;
+
+            if (maxW > 0 && w > maxW) {
+                h = Math.round(h * (maxW / w));
+                w = maxW;
+            }
+            if (maxH > 0 && h > maxH) {
+                w = Math.round(w * (maxH / h));
+                h = maxH;
+            }
+
+            const canvas = document.createElement('canvas');
+            canvas.width = w;
+            canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+            return canvas;
+        }
+
+        function canvasToRaster(canvas, format, quality) {
+            return new Promise((resolve) => {
+                const mimeMap = {
+                    'png': 'image/png',
+                    'jpg': 'image/jpeg',
+                    'jpeg': 'image/jpeg',
+                    'webp': 'image/webp',
+                    'gif': 'image/gif',
+                    'bmp': 'image/bmp',
+                    'tiff': 'image/tiff',
+                };
+                const mime = mimeMap[format] || 'image/png';
+                canvas.toBlob((blob) => resolve(blob), mime, quality);
+            });
+        }
+
+        function getIcoSizes() {
+            const sizeIds = ['16', '24', '32', '48', '64', '128', '256'];
+            const sizes = [];
+            for (const id of sizeIds) {
+                const cb = document.getElementById('size' + id);
+                if (cb && cb.checked) sizes.push(parseInt(id));
+            }
+            return sizes.length > 0 ? sizes : [16, 24, 32, 48]; // fallback
+        }
+
+        async function canvasToIco(canvas, sizes) {
+            // ICO format: we create multiple BMP (or PNG) entries and pack them into an ICO container.
+            // Modern ICO supports PNG entries. We'll use PNG for better compression.
+            const headerSize = 6;
+            const dirEntrySize = 16;
+            const numImages = sizes.length;
+            const dirSize = headerSize + numImages * dirEntrySize;
+
+            const imageDatas = [];
+            const dirEntries = [];
+            let currentOffset = dirSize;
+
+            for (const size of sizes) {
+                // Create resized version
+                const resized = document.createElement('canvas');
+                resized.width = size;
+                resized.height = size;
+                const ctx = resized.getContext('2d');
+                ctx.drawImage(canvas, 0, 0, size, size);
+
+                const blob = await new Promise(r => resized.toBlob(r, 'image/png'));
+                const arrayBuffer = await blob.arrayBuffer();
+                const bytes = new Uint8Array(arrayBuffer);
+
+                imageDatas.push(bytes);
+
+                // Directory entry
+                const entry = new ArrayBuffer(dirEntrySize);
+                const dv = new DataView(entry);
+                dv.setUint8(0, size >= 256 ? 0 : size); // width (0 means 256)
+                dv.setUint8(1, size >= 256 ? 0 : size); // height (0 means 256)
+                dv.setUint8(2, 0); // palette
+                dv.setUint8(3, 0); // reserved
+                dv.setUint16(4, 1, true); // planes
+                dv.setUint16(6, 32, true); // bpp
+                dv.setUint32(8, bytes.length, true); // size
+                dv.setUint32(12, currentOffset, true); // offset
+                dirEntries.push(new Uint8Array(entry));
+
+                currentOffset += bytes.length;
+            }
+
+            // Assemble ICO
+            const totalSize = currentOffset;
+            const icoBuffer = new ArrayBuffer(totalSize);
+            const icoView = new Uint8Array(icoBuffer);
+
+            // Header
+            icoView[0] = 0; // reserved
+            icoView[1] = 0;
+            icoView[2] = 1; // type: ICO
+            icoView[3] = 0;
+            icoView[4] = numImages & 0xFF;
+            icoView[5] = (numImages >> 8) & 0xFF;
+
+            let pos = headerSize;
+            for (const entry of dirEntries) {
+                icoView.set(entry, pos);
+                pos += entry.length;
+            }
+            for (const data of imageDatas) {
+                icoView.set(data, pos);
+                pos += data.length;
+            }
+
+            return new Blob([icoBuffer], { type: 'image/x-icon' });
+        }
+
+        async function canvasToIcns(canvas) {
+            // ICNS: simplest approach — wrap a single PNG in ICNS container for common sizes
+            const sizes = [16, 32, 48, 128, 256, 512];
+            const iconTypeMap = {
+                16: 'ic04',
+                32: 'ic05',
+                48: 'ic06',
+                128: 'ic07',
+                256: 'ic08',
+                512: 'ic09',
+            };
+
+            const parts = [];
+            for (const size of sizes) {
+                if (size > Math.max(canvas.width, canvas.height)) continue;
+                const resized = document.createElement('canvas');
+                resized.width = size;
+                resized.height = size;
+                const ctx = resized.getContext('2d');
+                ctx.drawImage(canvas, 0, 0, size, size);
+                const blob = await new Promise(r => resized.toBlob(r, 'image/png'));
+                const ab = await blob.arrayBuffer();
+                const bytes = new Uint8Array(ab);
+
+                const typeStr = iconTypeMap[size] || 'ic08';
+                const typeBytes = new TextEncoder().encode(typeStr);
+                const entrySize = 8 + bytes.length;
+                const entry = new ArrayBuffer(entrySize);
+                const dv = new DataView(entry);
+                for (let i = 0; i < 4; i++) dv.setUint8(i, typeBytes[i]);
+                dv.setUint32(4, entrySize, false);
+                const entryArr = new Uint8Array(entry);
+                entryArr.set(bytes, 8);
+                parts.push(entryArr);
+            }
+
+            // Calculate total size
+            let totalSize = 8; // header
+            for (const p of parts) totalSize += p.length;
+            const buffer = new ArrayBuffer(totalSize);
+            const view = new Uint8Array(buffer);
+            const headerType = new TextEncoder().encode('icns');
+            view.set(headerType, 0);
+            const dvHeader = new DataView(buffer);
+            dvHeader.setUint32(4, totalSize, false);
+
+            let offset = 8;
+            for (const p of parts) {
+                view.set(p, offset);
+                offset += p.length;
+            }
+
+            return new Blob([buffer], { type: 'image/icns' });
+        }
+
+        async function canvasToPdf(canvas, quality) {
+            // Embed image as JPEG in a minimal PDF
+            const jpegBlob = await canvasToRaster(canvas, 'jpg', quality);
+            const jpegAb = await jpegBlob.arrayBuffer();
+            const jpegBytes = new Uint8Array(jpegAb);
+
+            const w = canvas.width;
+            const h = canvas.height;
+
+            // Minimal PDF with embedded JPEG
+            const pdfLines = [
+                '%PDF-1.4',
+                `1 0 obj <</Type /Catalog /Pages 2 0 R>> endobj`,
+                `2 0 obj <</Type /Pages /Kids [3 0 R] /Count 1>> endobj`,
+                `3 0 obj <</Type /Page /Parent 2 0 R /MediaBox [0 0 ${w} ${h}] /Contents 4 0 R /Resources <</XObject <</Im0 5 0 R>>>>>> endobj`,
+                `4 0 obj <</Length 44>> stream`,
+                `q ${w} 0 0 ${h} 0 0 cm /Im0 Do Q`,
+                `endstream endobj`,
+                `5 0 obj <</Type /XObject /Subtype /Image /Width ${w} /Height ${h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpegBytes.length}>> stream`,
+            ];
+
+            const header = pdfLines.join('\n') + '\n';
+            const footer = '\nendstream\nendobj\nxref\n0 6\n0000000000 65535 f \n0000000009 00000 n \n0000000058 00000 n \n0000000115 00000 n \n0000000254 00000 n \n0000000347 00000 n \ntrailer <</Size 6 /Root 1 0 R>>\nstartxref\n' +
+                (header.length + jpegBytes.length + 1) + '\n%%EOF';
+
+            const encoder = new TextEncoder();
+            const headerBytes = encoder.encode(header);
+            const footerBytes = encoder.encode(footer);
+            const total = new Uint8Array(headerBytes.length + jpegBytes.length + footerBytes.length);
+            total.set(headerBytes, 0);
+            total.set(jpegBytes, headerBytes.length);
+            total.set(footerBytes, headerBytes.length + jpegBytes.length);
+
+            return new Blob([total], { type: 'application/pdf' });
+        }
+
+        async function canvasToSvg(canvas) {
+            const dataUrl = canvas.toDataURL('image/png');
+            const w = canvas.width;
+            const h = canvas.height;
+            const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">
+  <image href="${dataUrl}" width="${w}" height="${h}"/>
+</svg>`;
+            return new Blob([svg], { type: 'image/svg+xml' });
+        }
+
+        // ── Download ──────────────────
+        async function downloadAll() {
+            const doneFiles = files.filter(f => f.status === 'done' && f.outputBlob);
+            if (doneFiles.length === 0) {
+                log('No converted files to download.', 'error');
+                return;
+            }
+
+            if (doneFiles.length === 1 && !doneFiles[0].relativePath) {
+                // Single file — direct download
+                const f = doneFiles[0];
+                saveAs(f.outputBlob, f.outputName);
+                log(`Downloaded: ${f.outputName}`, 'success');
+                return;
+            }
+
+            // Multiple files or folder structure — use ZIP
+            log(`Packaging ${doneFiles.length} file(s) into ZIP...`, 'info');
+            const zip = new JSZip();
+
+            for (const f of doneFiles) {
+                let zipPath = f.outputName;
+                if (preserveStructure.checked && f.relativePath) {
+                    zipPath = f.relativePath + '/' + f.outputName;
+                }
+                // Handle duplicate names
+                let finalPath = zipPath;
+                let counter = 1;
+                while (zip.file(finalPath)) {
+                    const parts = zipPath.split('.');
+                    const ext = parts.pop();
+                    finalPath = parts.join('.') + `_${counter}.` + ext;
+                    counter++;
+                }
+                const ab = await f.outputBlob.arrayBuffer();
+                zip.file(finalPath, ab);
+            }
+
+            const zipBlob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } });
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-').substring(0, 19);
+            saveAs(zipBlob, `imageforge-export-${timestamp}.zip`);
+            log(`ZIP downloaded with ${doneFiles.length} file(s).`, 'success');
+        }
+
+        function sleep(ms) {
+            return new Promise(r => setTimeout(r, ms));
+        }
+
+        // ── Init ──────────────────────
+        onFormatChange();
+        renderFileList();
+    </script>
+</body>
+</html>
