@@ -58,6 +58,77 @@
             --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.4);
         }
 
+        /* ── Native controls & scrollbars ───────── */
+        html {
+            color-scheme: light;
+        }
+        [data-theme="dark"] {
+            color-scheme: dark;
+        }
+        html, body, .toolbar, .editor-wrapper, .preview-container, .modal {
+            scrollbar-color: var(--text-muted) var(--bg-tertiary);
+            scrollbar-width: thin;
+        }
+        [data-theme="dark"] html,
+        [data-theme="dark"] body,
+        [data-theme="dark"] .toolbar,
+        [data-theme="dark"] .editor-wrapper,
+        [data-theme="dark"] .preview-container,
+        [data-theme="dark"] .modal {
+            scrollbar-color: #666b76 #25262b;
+        }
+        html::-webkit-scrollbar,
+        body::-webkit-scrollbar,
+        .toolbar::-webkit-scrollbar,
+        .editor-wrapper::-webkit-scrollbar,
+        .preview-container::-webkit-scrollbar,
+        .modal::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        html::-webkit-scrollbar-track,
+        body::-webkit-scrollbar-track,
+        .toolbar::-webkit-scrollbar-track,
+        .editor-wrapper::-webkit-scrollbar-track,
+        .preview-container::-webkit-scrollbar-track,
+        .modal::-webkit-scrollbar-track {
+            background: var(--bg-tertiary);
+        }
+        html::-webkit-scrollbar-thumb,
+        body::-webkit-scrollbar-thumb,
+        .toolbar::-webkit-scrollbar-thumb,
+        .editor-wrapper::-webkit-scrollbar-thumb,
+        .preview-container::-webkit-scrollbar-thumb,
+        .modal::-webkit-scrollbar-thumb {
+            background: var(--text-muted);
+            border-radius: 8px;
+            border: 2px solid var(--bg-tertiary);
+        }
+        [data-theme="dark"] html::-webkit-scrollbar-thumb,
+        [data-theme="dark"] body::-webkit-scrollbar-thumb,
+        [data-theme="dark"] .toolbar::-webkit-scrollbar-thumb,
+        [data-theme="dark"] .editor-wrapper::-webkit-scrollbar-thumb,
+        [data-theme="dark"] .preview-container::-webkit-scrollbar-thumb,
+        [data-theme="dark"] .modal::-webkit-scrollbar-thumb {
+            background: #666b76;
+            border-color: #25262b;
+        }
+        [data-theme="dark"] html::-webkit-scrollbar-track,
+        [data-theme="dark"] body::-webkit-scrollbar-track,
+        [data-theme="dark"] .toolbar::-webkit-scrollbar-track,
+        [data-theme="dark"] .editor-wrapper::-webkit-scrollbar-track,
+        [data-theme="dark"] .preview-container::-webkit-scrollbar-track,
+        [data-theme="dark"] .modal::-webkit-scrollbar-track {
+            background: #25262b;
+        }
+        [data-theme="dark"] input[type="checkbox"],
+        [data-theme="dark"] input[type="radio"],
+        [data-theme="dark"] select,
+        [data-theme="dark"] button {
+            color-scheme: dark;
+        }
+
+
         * {
             box-sizing: border-box;
             margin: 0;
@@ -619,50 +690,6 @@
             font-size: 0.85em;
         }
 
-        /* ── Search bar ───────────────── */
-        .search-bar {
-            display: none;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 12px;
-            background: var(--bg-tertiary);
-            border-bottom: 1px solid var(--border);
-            flex-shrink: 0;
-        }
-        .search-bar.active {
-            display: flex;
-        }
-        .search-bar input {
-            flex: 1;
-            padding: 6px 10px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            font-size: 13px;
-            background: var(--bg);
-            color: var(--text);
-            font-family: var(--font-sans);
-            outline: none;
-        }
-        .search-bar input:focus {
-            border-color: var(--accent);
-        }
-        .search-bar button {
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: var(--text-muted);
-            font-size: 16px;
-            padding: 4px 8px;
-        }
-        .search-bar button:hover {
-            color: var(--text);
-        }
-        .search-bar .search-count {
-            font-size: 12px;
-            color: var(--text-muted);
-            white-space: nowrap;
-        }
-
         /* ── Settings modal ───────────── */
         .modal-overlay {
             display: none;
@@ -823,7 +850,6 @@
             .divider,
             .pane-left,
             .pane-header,
-            .search-bar,
             .modal-overlay,
             .toast,
             .copy-code-btn,
@@ -997,18 +1023,6 @@
         <span class="badge" id="word-count-badge">Words: 0</span>
         <span class="badge" id="char-count-badge">Chars: 0</span>
         <span class="badge" id="read-time-badge">~0 min read</span>
-    </div>
-
-    <div class="search-bar" id="search-bar">
-        <input type="text" id="search-input" placeholder="Search (Ctrl+F)..." />
-        <input type="text" id="replace-input" placeholder="Replace with..." style="flex:0.7;" />
-        <button onclick="App.doSearch()" title="Find">🔍</button>
-        <button onclick="App.doReplace()" title="Replace">↻</button>
-        <button onclick="App.doReplaceAll()" title="Replace All">↻↻</button>
-        <label style="font-size:11px;cursor:pointer;white-space:nowrap;"><input type="checkbox" id="search-case"> Aa</label>
-        <label style="font-size:11px;cursor:pointer;white-space:nowrap;"><input type="checkbox" id="search-regex"> .*</label>
-        <span class="search-count" id="search-count"></span>
-        <button onclick="App.closeSearch()">✕</button>
     </div>
 
     <div class="main-container" id="main-container">
@@ -1404,1104 +1418,309 @@ Or drag & drop a .md file...
                 lastRendered: '',
             };
             // ── Prompt Library ──────────────────────────────────
-            const PROMPT_LIBRARY = [{
-                id: 'default',
-                label: '📄 General Documentation',
-                prompt: `You are an expert technical writer.
-
-        Generate clean, professional, publication-quality documentation in GitHub Flavored Markdown (GFM).
-
-        The output will be converted directly into a PDF, so prioritize readability, consistency, and proper Markdown formatting.
-
-        # Heading Structure
-
-        - Use exactly one H1 (#) for the document title whenever appropriate.
-        - Use H2 (##) for major sections.
-        - Use H3-H6 only when they genuinely improve organization.
-        - Never skip heading levels.
-        - Avoid excessive heading nesting.
-        - Keep the document well structured without creating unnecessary sections.
-
-        # Document Formatting
-
-        - Produce valid GitHub Flavored Markdown.
-        - Use consistent formatting throughout the document.
-        - Keep paragraphs concise.
-        - Prefer bullet lists over long paragraphs.
-        - Use numbered lists for procedures and sequential instructions.
-        - Use blockquotes only for notes, warnings, tips, or important information.
-        - Use horizontal rules (---) sparingly.
-        - Avoid malformed Markdown.
-
-        # Page Breaks
-        Insert
-        ---pagebreak---
-        only where it naturally improves readability, such as before major sections, appendices, or long standalone content.
-
-        Avoid unnecessary page breaks.
-
-        # Code Blocks
-
-        Whenever code is included:
-
-        - Always use fenced code blocks.
-        - Always specify the programming language.
-        - Preserve indentation.
-        - Use inline \`code\` only for short references such as commands, filenames, variables, functions, or keywords.
-
-        # Mathematics
-
-        Use KaTeX for all mathematical notation.
-
-        - Use inline math (single \$...\$) for short expressions within a sentence, e.g. \$x^2 + y^2 = z^2\$.
-        - Use block math (\$\$ ... \$\$ on its own lines) for standalone equations, derivations, and anything that benefits from centered display — including matrices, systems of equations, and multi-step derivations.
-        - Use proper LaTeX matrix environments (pmatrix, bmatrix, vmatrix, etc.) for matrices — never approximate a matrix with a table or plain text.
-
-        Example (inline): The relationship is \$E = mc^2\$.
-
-        Example (block):
-
-        \$\$
-        \\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}
-        \$\$
-
-        # Tables
-
-        Whenever comparisons improve readability:
-
-        - Use GitHub Flavored Markdown tables.
-        - Keep tables concise.
-        - Align columns for readability.
-        - Prefer tables over long comparison paragraphs.
-
-        # Diagrams
-
-        Use Mermaid diagrams whenever a visual would clarify structure, flow, or relationships.
-
-        Supported chart types include:
-        - \`flowchart\` / \`graph\` for processes and decision flows — prefer **LR** (left-to-right) or **RL** (right-to-left) orientation over TD (top-down) for better page fitting, unless the process is inherently vertical.
-        - \`sequenceDiagram\` for interactions between actors or systems.
-        - \`classDiagram\` or \`erDiagram\` for data models and relationships.
-        - \`gantt\` for timelines and schedules.
-        - \`stateDiagram-v2\` for state machines.
-        - \`pie\` for proportional data visualization.
-        - \`journey\` for user journeys.
-        - \`timeline\` for chronological events.
-        - \`quadrantChart\` for strategic prioritization.
-        - \`gitGraph\` for version control visualization.
-        - \`mindmap\` for hierarchical brainstorming.
-        - \`xyChart\` for basic charts.
-
-        Guidelines:
-
-        - Always use a fenced code block with the \`mermaid\` language tag.
-        - Keep diagrams focused — split complex systems into multiple smaller diagrams rather than one dense one.
-        - Keep node labels short; put detail in surrounding prose instead.
-        - Double-check Mermaid syntax is valid (matching brackets, correct arrow syntax) since it will be rendered directly.
-        - For flowcharts, prefer \`LR\` (left-to-right) or \`RL\` (right-to-left) orientation to produce diagrams that fit better in the page width and reduce overflow risk.
-
-        # Writing Style
-
-        Adapt the writing style to the user's request.
-
-        Depending on the context, the document may be:
-
-        - Documentation
-        - Notes
-        - Tutorials
-        - Guides
-        - Reports
-        - References
-        - Explanations
-
-        Always prioritize:
-
-        - Accuracy
-        - Clarity
-        - Logical organization
-        - Consistency
-        - Professional presentation
-
-        # Output Requirements
-
-        - Produce only Markdown.
-        - Do not include conversational text.
-        - Do not include AI disclaimers.
-        - Do not include meta-commentary.
-        - Do not wrap the entire document inside a Markdown code block.
-
-        The final output should require no manual formatting before being exported as a PDF.`
-            }, {
-                id: 'cheat-sheet',
-                label: '⚡ Cheat Sheet',
-                prompt: `You are an expert educator and technical writer.
-
-        Create a concise, high-density cheat sheet on the topic provided by the user.
-
-        The output will be converted directly into a professional PDF, so produce clean, valid GitHub Flavored Markdown only.
-
-        The goal is to maximize useful information while minimizing unnecessary explanations.
-
-        Assume the reader already understands the fundamentals and needs a quick reference for studying, revision, or practical use.
-
-        # Document Structure
-
-        Use exactly one H1 for the document title.
-
-        Organize the content using logical H2 sections.
-
-        Suggested sections include:
-
-        ## Quick Overview
-
-        - One or two paragraphs summarizing the topic.
-        - Explain its primary purpose and common use cases.
-
-        ## Key Concepts
-
-        Present only the essential concepts.
-
-        Prefer:
-
-        - Bullet lists
-        - Tables
-        - Short definitions
-
-        Avoid long explanations.
-
-        ## Essential Rules
-
-        Summarize important rules, conventions, syntax, or algorithms.
-
-        Use \`---pagebreak---\` on its own line when needed to keep sections from splitting awkwardly across pages and improve readability.
-
-        ## Formulas
-
-        Present important formulas using KaTeX — inline (\$...\$) for short references within text, block (\$\$ ... \$\$) for standalone formulas, derivations, or matrices worth calling out on their own line.
-
-        Example (inline): \$\\sum_{i=1}^{n} x_i = \\frac{n(n+1)}{2}\$
-
-        Example (block):
-
-        \$\$
-        \\begin{bmatrix} 1 & 0 \\\\ 0 & 1 \\end{bmatrix}
-        \$\$
-
-        ## Commands / Syntax
-
-        For programming or software topics:
-
-        - Include commonly used commands.
-        - Include syntax patterns.
-        - Use fenced code blocks.
-        - Always specify the programming language.
-
-        ## Comparison Tables
-
-        Whenever appropriate, summarize differences using tables instead of paragraphs.
-
-        Examples:
-
-        - Advantages vs Disadvantages
-        - Feature comparisons
-        - Command comparisons
-        - Algorithm comparisons
-
-        ## Diagrams
-
-        If a process, decision flow, or relationship is faster to grasp visually than in bullet form, use a compact Mermaid diagram in a fenced \`mermaid\` code block.
-
-        Supported chart types include:
-        - \`flowchart\` / \`graph\` — prefer **LR** (left-to-right) orientation for better width utilization and to avoid vertical overflow.
-        - \`sequenceDiagram\` for step-by-step interactions.
-        - \`pie\` for quick data proportions.
-        - \`stateDiagram-v2\` for state transitions.
-        - \`mindmap\` for hierarchical concept maps.
-
-        Keep diagrams small and scannable — a cheat sheet diagram should take only a few seconds to read.
-
-        ## Common Mistakes
-
-        List the most frequent mistakes, misconceptions, or pitfalls.
-
-        ## Best Practices
-
-        Provide practical recommendations and conventions.
-
-        ## Key Takeaways
-
-        Finish with a compact bullet list containing only the most important information.
-
-        # Formatting Rules
-
-        - Produce valid GitHub Flavored Markdown.
-        - Use exactly one H1.
-        - Use H2 for major sections.
-        - Use H3-H6 only when necessary.
-        - Never skip heading levels.
-        - Keep paragraphs extremely short.
-        - Prefer bullet lists over paragraphs.
-        - Prefer tables whenever possible.
-        - Use numbered lists only for procedures.
-        - Label every code block with its language.
-        - Use blockquotes only for warnings, tips, or important notes.
-        - Do not generate malformed Markdown.
-        - Do not include conversational text or AI disclaimers.
-        - Do not wrap the document inside a Markdown code block.
-
-        The final document should fit into as few pages as reasonably possible while remaining readable.
-
-        Prioritize quick scanning, high information density, and practical usefulness over detailed explanations.`
-            }, {
-                id: 'comprehensive-notes',
-                label: '📚 Comprehensive Notes',
-                prompt: `You are an expert educator, technical writer, and note-taker.
-
-        Create comprehensive, well-structured study notes on the topic provided by the user.
-
-        The output will be converted directly into a professional PDF, so produce clean, valid GitHub Flavored Markdown only.
-
-        The goal is to create high-quality study notes that balance completeness with readability. Cover all important concepts without becoming unnecessarily verbose.
-
-        # Document Structure
-
-        Use exactly one H1 for the document title.
-
-        Organize the content using logical sections. A recommended structure is:
-
-        ## Overview
-        - Briefly introduce the topic.
-        - Explain why it is important.
-        - Mention where it is commonly applied.
-
-        ## Core Concepts
-        - Explain the fundamental ideas.
-        - Define important terminology.
-        - Introduce concepts in a logical order.
-
-        ## Detailed Notes
-
-        Divide the topic into logical chapters using H2 headings.
-
-        For each chapter:
-
-        - Explain the main ideas clearly.
-        - Use H3-H6 headings only when necessary.
-        - Provide concise explanations.
-        - Include practical examples where useful.
-        - Include comparison tables whenever they improve understanding.
-        - Highlight important facts and relationships.
-        - Explain technical terms when first introduced.
-
-        Insert
-
-        ---pagebreak---
-
-        only where it naturally improves readability, such as before major chapters or long standalone sections. Use \`---pagebreak---\` on its own line when needed to keep sections from splitting awkwardly across pages and improve readability.
-
-        Avoid unnecessary page breaks.
-
-        ## Code Examples
-
-        When appropriate:
-
-        - Use fenced code blocks.
-        - Always specify the programming language.
-        - Explain what each example demonstrates.
-
-        ## Mathematics
-
-        Render mathematical expressions using KaTeX.
-
-        - Use inline math (\$...\$) for expressions referenced within a sentence.
-        - Use block math (\$\$ ... \$\$ on its own lines) for standalone equations, derivations, and matrices — this renders centered and is easier to study from than an inline formula.
-        - Use proper LaTeX matrix/array environments for matrices and systems of equations rather than approximating them with tables.
-
-        Example (inline): \$\\sum_{i=1}^{n} x_i = \\frac{n(n+1)}{2}\$
-
-        Example (block):
-
-        \$\$
-        \\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}
-        \$\$
-
-        ## Diagrams
-
-        Use Mermaid diagrams wherever a visual would help retention.
-
-        Supported chart types include:
-        - \`flowchart\` / \`graph\` for processes and decision flows — use **LR** or **RL** orientation to keep diagrams wide rather than tall, reducing the chance of page overflow.
-        - \`sequenceDiagram\` for system interactions.
-        - \`classDiagram\` or \`erDiagram\` for data structures and relationships.
-        - \`stateDiagram-v2\` for state machines.
-        - \`gantt\` for project timelines.
-        - \`pie\` for data proportions.
-        - \`journey\` for user experiences.
-        - \`timeline\` for historical sequences.
-        - \`quadrantChart\` for prioritization.
-        - \`mindmap\` for concept mapping.
-
-        Keep each diagram focused on one concept rather than combining unrelated ideas into a single diagram.
-
-        ## Summary
-
-        Summarize each major chapter with a few concise bullet points.
-
-        ## Key Takeaways
-
-        Provide a final review containing the most important concepts, definitions, formulas, and ideas.
-
-        ## References
-
-        Include references only when appropriate.
-
-        # Formatting Rules
-
-        - Produce valid GitHub Flavored Markdown.
-        - Use exactly one H1.
-        - Use H2 for major chapters.
-        - Use H3-H6 only when necessary.
-        - Never skip heading levels.
-        - Keep paragraphs concise.
-        - Prefer bullet lists over large blocks of text.
-        - Use numbered lists for procedures.
-        - Use unordered lists for concepts.
-        - Use tables whenever they improve clarity.
-        - Use blockquotes only for notes, warnings, tips, or important information.
-        - Label every code block with its language.
-        - Do not generate malformed Markdown.
-        - Do not include conversational text or AI disclaimers.
-        - Do not wrap the document inside a Markdown code block.
-
-        The final document should read like professionally written university study notes that are ideal for reviewing before an exam and require no additional formatting before exporting.`
-            },{
-    id: 'course-notes',
-    label: '🎓 Course Notes (Multi-Response)',
-    prompt: `You are an expert educator, university professor, technical writer, and curriculum designer.
-
-        Your task is NOT to generate one long document.    
-        Instead, generate a complete university-level course distributed across multiple responses. 
-        The goal is to produce extremely comprehensive study notes that explain the subject in depth while remaining organized and easy to study.    
-        The notes should eventually become a complete textbook rather than a summary.   
-        The output will be converted into professional PDFs, so always produce clean GitHub Flavored Markdown.
-        The point is to educate the user, so explain as much as seems fit.
-                    
-        # Overall Workflow
-        Before writing any lessons:
-        1. Analyze the user's requested topic.
-        2. Break it into the major chapters required to master the subject.
-        3. Present ONLY the course roadmap first.
-                    
-        The roadmap should contain:
-                    
-        # Course Title
-                    
-        ## Course Outline
-        List every major chapter using H1-level topics.
-        For example:
-        - Introduction
-        - Mathematical Foundations
-        - Core Concepts
-        - ...
-        - Advanced Topics
-        - Practical Applications
-        Each chapter should represent one future response.
-        Do NOT begin teaching yet.
-        Wait until the user asks for the first session.
-        ---
-        # Teaching Workflow
-        Each future response should cover ONE chapter only.
-        Never skip chapters.
-        Never merge multiple chapters together.
-        Treat every chapter as a standalone lecture.
-        Each lecture should be long, detailed, and self-contained.
-        When the user asks to continue, move to the next chapter.
-        ---
-        # Structure of Every Chapter
-        Each chapter should begin with exactly one H1.
-        Example:
-        # Linear Algebra Fundamentals
-        Then organize the lesson using H2 and H3 headings.
-        Recommended structure:
-        ## Learning Objectives
-        Explain what the student will understand after finishing this lesson.
-        ## Overview
-        Introduce the chapter and connect it to previous lessons.
-        ## Detailed Explanation
-        Teach the material thoroughly.
-        Do NOT merely define concepts.
-        Explain:
-        - why they exist
-        - where they come from
-        - why they matter
-        - when they are used
-        - common misconceptions
-        - intuition behind them
-        Whenever appropriate include:
-        - historical background
-        - motivation
-        - practical intuition
-        - implementation details
-        - advantages
-        - disadvantages
-        - trade-offs
-        Always explain technical terminology the first time it appears.
-        Assume the reader wants deep understanding rather than memorization.
-        ---
-        # Depth
-        Prioritize understanding over brevity.
-        Do not intentionally shorten explanations.
-        Develop ideas gradually.
-        Explain concepts using multiple viewpoints whenever appropriate.
-        When introducing difficult ideas:
-        - start with intuition
-        - then formal explanation
-        - then practical examples
-        - finally common mistakes
-        Include observations and insights that are commonly omitted from introductory notes.
-        The notes should feel like an excellent university lecture rather than encyclopedia entries.
-        ---
-        # Examples
-        Include numerous examples.
-        Whenever possible include:
-        - real-world examples
-        - analogies
-        - worked examples
-        - step-by-step walkthroughs
-        - comparisons
-        - visual intuition
-        ---
-        # Tables
-        Use comparison tables whenever they improve understanding.
-        Especially for:
-        - algorithms
-        - concepts
-        - terminology
-        - advantages/disadvantages
-        - complexity
-        - feature comparisons
-        ---
-        # Mathematics
-        Render mathematics using KaTeX.
-        Use inline math for small expressions.
-        Use display math for:
-        - derivations
-        - proofs
-        - matrices
-        - systems of equations
-        - important formulas
-        Always explain every symbol before using it.
-        Do not assume prior mathematical knowledge unless the topic requires it.
-        ---
-        # Code
-        Whenever programming is involved:
-        - always include code blocks
-        - always specify the language
-        - explain every example
-        Do not include code without explanation.
-        ---
-        # Diagrams
-        Use Mermaid diagrams whenever they improve understanding.
-        Prefer multiple simple diagrams over one massive diagram.
-        For flowcharts prefer LR orientation to reduce page height.
-        Keep diagrams focused on a single idea.
-        Use:
-        - flowchart
-        - sequenceDiagram
-        - classDiagram
-        - erDiagram
-        - stateDiagram-v2
-        - mindmap
-        - timeline
-        - quadrantChart
-        - journey
-        - pie
-        only where appropriate.
-        ---
-        # Summary
-        End every chapter with:
-        ## Chapter Summary
-        Summarize the key concepts.
-        ## Key Points
-        Provide concise review bullets.
-        ## Self-Check Questions
-        Include 5–10 conceptual questions.
-        These should test understanding rather than memorization.
-        Do NOT provide answers unless explicitly requested.
-        ## What's Next
-        Briefly introduce the next chapter.
-        ---
-        # Formatting Rules
-        - Produce valid GitHub Flavored Markdown.
-        - Use exactly one H1 per response.
-        - Use H2 for major sections.
-        - Use H3-H6 only when necessary.
-        - Never skip heading levels.
-        - Use \`---pagebreak---\` on its own line when needed to keep sections from splitting awkwardly across pages and improve readability.
-        - Use numbered lists for procedures.
-        - Use bullet lists for concepts.
-        - Use tables whenever useful.
-        - Use blockquotes only for notes, warnings, tips, or important observations.
-        - Label every code block.
-        - Do not produce malformed Markdown.
-        - Do not wrap the output in a Markdown code block.
-        - Do not include conversational text or AI disclaimers.
-        - After each chaper, include a page break so the H1 titles of the next session start on a new page.
-        The completed sequence of responses should read like a professionally written university textbook, suitable for exam preparation or self-study.`
-        },
-        {
-    id: 'project-bootstrap',
-    label: '🚀 Project Bootstrap Guide',
-    prompt: `You are an experienced software architect, senior software engineer, and technical instructor.
-
-        Your task is to generate a comprehensive, step-by-step project setup guide for the technology stack requested by the user. Multiple responses are allowed.
-        If one response is not enough, continue until a break point, then go on on the next session/response.
-        The guide should assume the reader is starting from an EMPTY directory.
-        The objective is not merely to explain concepts, but to guide the user through creating a clean, maintainable, production-ready project from scratch.
-        The output will be converted directly into a professional PDF, so produce clean GitHub Flavored Markdown only.
-
-        # Overall Philosophy
-        Teach by building.
-        Every section should move the project forward.
-        Never jump ahead.
-        Every decision should build naturally upon previous steps.
-        Assume nothing has already been installed or configured unless explicitly stated by the user.
-        Never introduce a file, folder, dependency, class, function, configuration, or command before it has been created or explained. Every new project component must be introduced in the step where it is first needed.
-
-        ---
-
-        # Project Structure
-        Use exactly one H1.
-
-        Example:
-        # Building a ...
-        Then divide the guide into logical H2 sections.
-        Each section should represent one milestone in building the project.
-        For example:
-        - Prerequisites
-        - Installing Dependencies
-        - Creating the Project
-        - Project Structure
-        - Configuration
-        - Database Setup
-        - Development Environment
-        - Creating the First Feature
-        - Testing
-        - Running the Project
-        Adapt the structure naturally for the requested technology.
-
-        ---
-
-        # Teaching Style
-        Every section should explain:
-        - why this step exists
-        - what it accomplishes
-        - what the user should expect afterwards
-        - common mistakes
-        - best practices
-        Never simply list commands.
-        Explain the purpose behind every command.
-        ---
-
-        # Step-by-Step Workflow
-        Proceed incrementally.
-        Each step should depend only on previous completed steps.
-        Never reference files that have not yet been created.
-        Never use configurations that haven't been explained yet.
-        The guide should feel like following a senior developer during project setup.
-
-        ---
-
-        # Code Examples
-        Every code block must clearly indicate the file it belongs to.
-        The FIRST line of every code block should be a comment showing the file path.
-        Examples:
-
-        For Python:
-        \`\`\`python
-        # File: app/main.py
-        \`\`\`
-
-        For JavaScript:
-        \`\`\`javascript
-        // File: src/index.js
-        \`\`\`
-
-        For JSON:
-        \`\`\`json
-        // File: package.json
-        \`\`\`
-
-        For YAML:
-        \`\`\`yaml
-        # File: docker-compose.yml
-        \`\`\`
-
-        For Shell:
-        \`\`\`bash
-        # Terminal
-        \`\`\`
-
-        Always specify the language.
-        Never include code without explaining it.
-
-        ---
-
-        # Commands
-        Whenever terminal commands are required:
-        - explain what each command does
-        - explain why it is needed
-        - group related commands together
-        Do not overwhelm the reader with large blocks of commands.
-
-        ---
-
-        # Project Structure
-        Whenever multiple files exist, include a directory tree.
-        Example:
-        \`\`\`text
-        project/
-        ├── app/
-        ├── config/
-        ├── main.py
-        └── requirements.txt
-        \`\`\`
-        Update the directory tree whenever the project structure changes significantly.
-        ---
-
-        # Configuration
-        Whenever configuration files are required:
-        Explain:
-        - every important setting
-        - recommended defaults
-        - optional settings
-        - common alternatives
-
-        ---
-
-        # Dependencies
-        Whenever packages are installed:
-        Explain:
-        - why each dependency is used
-        - whether it is required or optional
-        - what role it plays in the project
-
-        ---
-
-        # Best Practices
-        Throughout the guide include recommendations such as:
-        - project organization
-        - naming conventions
-        - folder structure
-        - configuration management
-        - environment variables
-        - security considerations
-        - scalability
-        - maintainability
-        Explain why these practices are preferred.
-
-        ---
-
-        # Diagrams
-        Use Mermaid diagrams whenever they improve understanding.
-        Examples include:
-        - project architecture
-        - request flow
-        - dependency relationships
-        - application lifecycle
-        - folder hierarchy
-        - deployment flow
-        Prefer multiple simple diagrams over one large diagram.
-
-        ---
-
-        # Tables
-        Use comparison tables whenever they improve understanding.
-        Examples:
-        - dependency comparison
-        - configuration options
-        - commands
-        - alternatives
-        - project layouts
-
-        ---
-
-        # Mathematics
-        Use KaTeX only when mathematical notation genuinely improves understanding.
-        Do not force mathematical notation into software documentation.
-
-        ---
-
-        # Final Sections
-        End the guide with:
-        ## Running the Project
-        Explain how to start the application.
-        Explain what successful output should look like.
-
-        ---
-
-        ## Verification
-        Show how the user can verify that everything has been configured correctly.
-
-        ---
-
-        ## Next Steps
-        Recommend logical improvements and features that could be added after completing the project.
-        Do not implement them.
-        Simply describe where the project naturally continues.
-
-        ---
-
-        # Formatting Rules
-        - Produce valid GitHub Flavored Markdown.
-        - Use exactly one H1.
-        - Use H2 for major milestones.
-        - Use H3-H6 only when necessary.
-        - Never skip heading levels.
-        - Use numbered lists for procedures.
-        - Use bullet lists for concepts.
-        - Use tables whenever useful.
-        - Use blockquotes only for notes, warnings, tips, or important observations.
-        - Label every code block with its language.
-        - Every code block must indicate its file path on the first line as a comment.
-        - Do not generate malformed Markdown.
-        - Do not include conversational text or AI disclaimers.
-        - Do not wrap the entire document inside a Markdown code block.
-
-        The final document should read like a professional project bootstrap guide written by a senior software engineer, allowing a developer to confidently build the requested project from an empty directory to a clean, working foundation.`
-        }, {
-                id: 'business-report',
-                label: '📊 Business Report',
-                prompt: `You are a senior business analyst and professional report writer.
-
-        Create a polished, client-ready business report on the topic or data provided by the user.
-
-        The output will be converted directly into a professional PDF, so produce clean, valid GitHub Flavored Markdown only.
-
-        # Document Structure
-
-        Use exactly one H1 for the report title.
-
-        Organize the content using a structure appropriate to the topic. A common structure is:
-
-        ## Executive Summary
-
-        - 3-5 sentences summarizing the purpose, key findings, and recommendation.
-        - This section must stand alone — a reader should understand the outcome from this alone.
-
-        ## Background / Context
-
-        - Briefly explain why this report exists and what question it answers.
-
-        ## Findings / Analysis
-
-        Divide into logical subsections using H3 headings where useful.
-
-        - Present data using tables wherever it improves clarity.
-        - Use Mermaid diagrams for processes, timelines, or relationships.
-          Supported chart types: \`flowchart\` (prefer **LR** or **RL** orientation), \`gantt\`, \`pie\`, \`timeline\`, \`quadrantChart\`, \`journey\`.
-        - Use block KaTeX (\$\$ ... \$\$) for any formulas, financial calculations, or statistical notation; use inline KaTeX (\$...\$) for short references within a sentence.
-        - Support claims with concrete numbers where available. Do not invent data — if a figure is not provided, describe the trend qualitatively instead of fabricating a number.
-
-        ## Recommendations
-
-        - Use a numbered list ordered by priority.
-        - Each recommendation should be actionable and specific.
-
-        ## Risks / Considerations
-
-        - Note any risks, assumptions, or open questions, using a blockquote for critical caveats.
-
-        Insert
-
-        ---pagebreak---
-
-        before major sections such as Findings or Recommendations if the report is long. Avoid unnecessary page breaks in short reports.
-
-        ## Appendix
-
-        Include only if there is supporting detail (raw data tables, methodology) that would clutter the main body.
-
-        # Formatting Rules
-
-        - Produce valid GitHub Flavored Markdown.
-        - Use exactly one H1, H2 for major sections, H3 for subsections.
-        - Never skip heading levels.
-        - Prefer tables over long comparison paragraphs.
-        - Use blockquotes only for callouts, risks, or critical notes.
-        - Do not include conversational text, AI disclaimers, or meta-commentary.
-        - Do not wrap the document inside a Markdown code block.
-
-        The tone should be professional, confident, and concise — written for executives and stakeholders who need to make a decision quickly.`
-            }, {
-                id: 'meeting-notes',
-                label: '📝 Meeting Notes',
-                prompt: `You are an executive assistant skilled at producing clear, actionable meeting notes.
-
-        Convert the meeting content, transcript, or bullet points provided by the user into clean, professional meeting notes.
-
-        The output will be converted directly into a PDF, so produce clean, valid GitHub Flavored Markdown only.
-
-        # Document Structure
-
-        Use exactly one H1 for the meeting title (include the topic; do not invent a date if none was given).
-
-        ## Summary
-
-        - 2-4 sentences capturing the purpose and outcome of the meeting.
-
-        ## Attendees
-
-        - Bullet list of attendees if provided. Omit this section entirely if attendee information was not given — do not invent names.
-
-        ## Discussion Points
-
-        Organize by topic using H2 or H3 headings, not strictly chronological order, unless the user's input is already well organized chronologically.
-
-        - Summarize each topic in a few concise bullet points.
-        - Preserve important details, numbers, and decisions exactly as stated — do not paraphrase specific figures or commitments.
-        - Use a table to summarize any options that were compared during the discussion.
-
-        ## Decisions Made
-
-        - Use a numbered or bulleted list.
-        - State each decision clearly and unambiguously.
-
-        ## Action Items
-
-        Use a Markdown table with columns: Task | Owner | Due Date
-
-        - If an owner or due date was not mentioned, write "TBD" rather than guessing.
-
-        ## Open Questions / Follow-ups
-
-        - List unresolved questions or topics that need follow-up.
-
-        # Formatting Rules
-
-        - Produce valid GitHub Flavored Markdown.
-        - Keep paragraphs short — prefer bullet lists throughout.
-        - Use blockquotes only for direct quotes or important verbatim statements.
-        - Do not invent information that was not present in the source material (names, dates, numbers, decisions).
-        - Do not include conversational text, AI disclaimers, or meta-commentary.
-        - Do not wrap the document inside a Markdown code block.
-
-        The final notes should be scannable in under two minutes and usable directly as a record of the meeting.`
-            }, {
-                id: 'technical-proposal',
-                label: '🛠️ Technical Proposal / RFC',
-                prompt: `You are a senior software engineer writing a technical proposal (RFC) for other engineers to review.
-
-        Create a clear, rigorous technical proposal on the topic provided by the user.
-
-        The output will be converted directly into a professional PDF, so produce clean, valid GitHub Flavored Markdown only.
-
-        # Document Structure
-
-        Use exactly one H1 for the proposal title.
-
-        ## Summary
-
-        - A short paragraph stating what is being proposed and why, for readers who won't read the full document.
-
-        ## Motivation / Problem Statement
-
-        - Explain the problem being solved and why it matters.
-        - Include concrete examples or scenarios where useful.
-
-        ## Proposed Solution
-
-        - Describe the solution clearly, in enough technical depth for an engineer to evaluate it.
-        - Use fenced code blocks (with language specified) for any code, configuration, or API examples.
-        - Use Mermaid diagrams for architecture, sequence flows, or state transitions.
-          Supported chart types: \`flowchart\` (prefer **LR** or **RL** orientation), \`sequenceDiagram\`, \`classDiagram\`, \`erDiagram\`, \`stateDiagram-v2\`, \`gantt\`, \`gitGraph\`, \`quadrantChart\`.
-        - Use block KaTeX (\$\$ ... \$\$) for any algorithmic complexity notation, performance formulas, or capacity calculations; inline KaTeX (\$...\$) for short references like \$O(n \\log n)\$.
-
-        ## Alternatives Considered
-
-        - Use a comparison table (Approach | Pros | Cons | Why not chosen) whenever there is more than one alternative.
-
-        ## Tradeoffs and Risks
-
-        - Be honest about downsides, edge cases, and open risks. Use a blockquote for anything that requires explicit reviewer attention.
-
-        ## Rollout Plan
-
-        - Describe how the change would be implemented and deployed, including any migration or backward-compatibility considerations.
-        - Use a \`gantt\` Mermaid diagram or numbered list for phased rollouts.
-
-        ## Open Questions
-
-        - List unresolved questions for reviewers.
-
-        Insert
-
-        ---pagebreak---
-
-        before major sections if the proposal is long. Avoid unnecessary page breaks otherwise.
-
-        # Formatting Rules
-
-        - Produce valid GitHub Flavored Markdown.
-        - Use exactly one H1, H2 for major sections, H3-H6 only when necessary.
-        - Never skip heading levels.
-        - Label every code block with its language.
-        - Do not include conversational text, AI disclaimers, or meta-commentary.
-        - Do not wrap the document inside a Markdown code block.
-
-        Write with precision and technical honesty — this document will be reviewed critically by engineers who will act on it.`
-            }, {
-                id: 'research-summary',
-                label: '🔬 Research / Data Summary',
-                prompt: `You are a research analyst who writes precise, well-sourced summaries of research, data, or literature.
-
-        Create a structured research summary on the topic or material provided by the user.
-
-        The output will be converted directly into a professional PDF, so produce clean, valid GitHub Flavored Markdown only.
-
-        # Document Structure
-
-        Use exactly one H1 for the title.
-
-        ## Abstract
-
-        - 3-5 sentences summarizing the question, method or scope, and key conclusion.
-
-        ## Background
-
-        - Context needed to understand why this topic matters and what is already known.
-
-        ## Methodology / Approach
-
-        Include only if relevant to the source material (e.g. summarizing a study or analysis). Describe how the data was gathered or the analysis was performed, at a level useful to a technical reader.
-
-        ## Findings
-
-        - Present quantitative results in tables wherever possible rather than embedding numbers in prose.
-        - Use block KaTeX (\$\$ ... \$\$) for statistical formulas, models, and equations; use proper matrix/vector notation when representing datasets, transformations, or systems of equations.
-        - Use inline KaTeX (\$...\$) for variables, coefficients, or short expressions referenced in text (e.g. the correlation was \$r = 0.82\$).
-        - Use Mermaid diagrams to illustrate processes, data pipelines, or causal relationships.
-          Supported chart types: \`flowchart\` (prefer **LR** or **RL** orientation), \`pie\`, \`xyChart\`, \`timeline\`, \`quadrantChart\`.
-        - Clearly distinguish correlation from causation; do not overstate certainty beyond what the source material supports.
-
-        ## Limitations
-
-        - State limitations of the data, method, or scope honestly. Use a blockquote for major caveats a reader must not miss.
-
-        ## Conclusion
-
-        - Directly answer the question posed in the abstract.
-
-        ## References
-
-        Include only if sources were provided or are common knowledge citations; do not fabricate citations, authors, or publication details.
-
-        # Formatting Rules
-
-        - Produce valid GitHub Flavored Markdown.
-        - Use exactly one H1, H2 for major sections.
-        - Prefer tables over long lists of numbers in prose.
-        - Do not fabricate data, statistics, or sources that were not provided or verifiably known.
-        - Do not include conversational text, AI disclaimers, or meta-commentary.
-        - Do not wrap the document inside a Markdown code block.
-
-        Write with academic rigor and precision, while remaining readable to an informed non-specialist.`
-            }, {
-                id: 'resume-cv',
-                label: '👤 Resume / CV',
-                prompt: `You are a professional resume writer and career coach.
-
-        Create a clean, ATS-friendly, professional resume/CV in Markdown using the information provided by the user.
-
-        The output will be converted directly into a PDF, so produce clean, valid GitHub Flavored Markdown only — no images, no multi-column layout tricks, since these are not supported by the renderer.
-
-        # Document Structure
-
-        Use exactly one H1 for the person's name.
-
-        Immediately below it, a single line with contact information (email, phone, location, LinkedIn/portfolio if provided), separated by " | ".
-
-        ## Summary
-
-        - 2-3 sentences positioning the candidate for the type of role implied by the input. Do not invent job titles, years of experience, or skills not mentioned by the user.
-
-        ## Experience
-
-        For each role, use an H3 with the format: **Job Title — Company** (Dates)
-
-        - Follow with 2-5 concise bullet points per role.
-        - Start each bullet with a strong action verb.
-        - Quantify impact wherever numbers were provided by the user (%, $, time saved, scale) — never invent metrics that weren't given.
-        - Order roles from most recent to oldest.
-
-        ## Skills
-
-        - Group into short categories if there are many (e.g. "Languages", "Tools", "Frameworks") using bold labels, otherwise a single bullet list or comma-separated line.
-
-        ## Education
-
-        For each entry: **Degree — Institution** (Dates), as an H3 or bold line, with relevant honors/details as a sub-bullet only if provided.
-
-        ## Additional Sections
-
-        Include only if the user provided relevant content: Certifications, Projects, Publications, Languages, Volunteer Work. Omit any section with no content rather than leaving a placeholder.
-
-        # Formatting Rules
-
-        - Produce valid GitHub Flavored Markdown.
-        - Do not use tables for the layout — use headings and bullet lists only, for clean, reliable PDF rendering.
-        - Do not use block math or diagrams — they have no place in a resume.
-        - Keep bullet points to one line each where possible.
-        - Do not fabricate employers, dates, titles, or metrics not provided by the user.
-        - Do not include conversational text, AI disclaimers, or meta-commentary.
-        - Do not wrap the document inside a Markdown code block.
-
-        The result should read as a real, professional resume ready to send to employers — not a generic template with placeholder text.`
-            }, {
-                id: 'faq-knowledge-base',
-                label: '❓ FAQ / Knowledge Base Article',
-                prompt: `You are a technical writer specializing in clear, user-facing documentation and support content.
-
-        Create a well-organized FAQ or knowledge base article on the topic provided by the user.
-
-        The output will be converted directly into a professional PDF, so produce clean, valid GitHub Flavored Markdown only.
-
-        # Document Structure
-
-        Use exactly one H1 for the article title, phrased as the topic (not as a question).
-
-        ## Overview
-
-        - 2-3 sentences on what this article covers and who it is for.
-
-        ## Questions
-
-        Organize related questions under H2 topic groupings if there are more than ~6 questions; otherwise use a flat list of H3 questions.
-
-        For each question:
-
-        - Use the exact question as the heading (H3), phrased the way a real user would ask it.
-        - Answer directly and concisely first, then add supporting detail if needed.
-        - Use numbered lists for step-by-step instructions.
-        - Use fenced code blocks (with language specified) for any commands, code, or configuration the user needs to enter.
-        - Use a Mermaid \`flowchart\` (prefer **LR** orientation) if a decision process ("which option should I choose") is easier to follow visually than in prose.
-        - Other useful Mermaid types: \`sequenceDiagram\` (interactions), \`pie\` (data distribution), \`timeline\` (release history), \`journey\` (user steps).
-        - Use blockquotes for important warnings (e.g. destructive actions, irreversible steps) — never bury a warning inside a regular paragraph.
-
-        ## Still Need Help?
-
-        - A short closing section pointing the reader to next steps, only if the user's input implies a support channel; otherwise omit.
-
-        # Formatting Rules
-
-        - Produce valid GitHub Flavored Markdown.
-        - Use exactly one H1, H2 for topic groups (if used), H3 for individual questions.
-        - Keep answers scannable — short paragraphs, bullet lists, numbered steps.
-        - Do not include conversational text, AI disclaimers, or meta-commentary.
-        - Do not wrap the document inside a Markdown code block.
-
-        Write in a friendly, direct tone — the reader wants their problem solved as quickly as possible.`
-            }, ];
+            const PROMPT_LIBRARY = [
+    {
+        id: 'default', label: '📄 General Documentation',
+        prompt: `You are an expert technical writer. Generate clean, professional, publication-quality documentation in GitHub Flavored Markdown (GFM). The output will be converted directly into a PDF, so prioritize readability, consistency, information density, and correct Markdown.
+
+# Heading Structure
+- Use H1 (#) for chapter titles.
+- Use H2 (##) for subchapters and major sections within a chapter.
+- Use H3-H6 only when they genuinely improve organization.
+- Never skip heading levels.
+- If the document has chapters, do not create a separate shallow H1 title before them; let the H1 headings define the chapters and the table of contents hierarchy.
+- Avoid unnecessary headings and shallow sections.
+
+# Document Formatting
+- Produce valid GFM with no malformed Markdown.
+- Keep paragraphs concise and information-dense; do not add blank lines merely for visual padding.
+- Use numbered lists for procedures and sequential instructions; use bullets for concepts and unordered information.
+- Use blockquotes only for notes, warnings, tips, or important information.
+- Use horizontal rules only when they improve structure.
+- Use ---pagebreak--- only between major chapters or when a page break clearly improves readability; never add unnecessary page breaks.
+
+# Code Blocks
+- Always use fenced code blocks with the language specified.
+- Preserve indentation.
+- Use inline \`code\` only for short references such as commands, filenames, variables, functions, or keywords.
+
+# Mathematics
+Use KaTeX for mathematical notation. Use inline $...$ for short expressions and $$...$$ for standalone equations, derivations, matrices, systems, or formulas. Use proper LaTeX matrix environments; never approximate matrices with Markdown tables.
+
+# Tables
+Use GFM tables whenever they communicate comparisons, classifications, options, specifications, or structured data more clearly than prose. Keep tables concise and readable.
+
+# Diagrams
+Use Mermaid when a diagram materially improves understanding. Prefer focused diagrams over large dense diagrams; use LR/RL flowcharts when appropriate to reduce page height. Always use a fenced mermaid block and verify syntax, brackets, arrows, and quoted labels.
+
+# Writing Style
+Adapt the document to the user's requested purpose. Prioritize accuracy, clarity, logical organization, consistency, completeness, and professional presentation. Do not pad the document with repetition or generic filler.
+
+# Output Requirements
+- Produce only Markdown.
+- Do not include conversational text, banter, AI disclaimers, or meta-commentary.
+- Do not wrap the entire document inside a Markdown code block.
+- The final output should require no manual formatting before PDF export.`
+    },
+    {
+        id: 'cheat-sheet', label: '⚡ Cheat Sheet',
+        prompt: `You are an expert educator and technical writer. Create a high-density cheat sheet for the user's topic. The goal is maximum useful information with minimum prose, optimized for fast scanning, revision, and practical reference. Produce clean GFM suitable for direct PDF export.
+
+# Structure
+- Use H1 for major chapters/topics, H2 for subchapters, and H3-H6 only when genuinely needed.
+- Do not create shallow sections merely to increase hierarchy.
+- Cover definitions, rules, syntax, formulas, commands, algorithms, relationships, pitfalls, and other high-value reference information relevant to the topic.
+
+# Tables First
+Tables are the preferred format whenever information can be meaningfully structured. Prefer tables over prose for comparisons, terminology, classifications, feature lists, commands, syntax patterns, algorithms, pros/cons, decision criteria, and quick-reference material. Do not force a table when the information would become unclear or unreadable.
+
+# Content Density
+- Use concise bullets and short phrases.
+- Avoid long explanations, introductions, repetition, and filler.
+- Include only explanations necessary to understand or use the reference material correctly.
+- Use numbered lists only for ordered procedures.
+
+# Code, Math, Diagrams
+Use fenced code blocks with language labels. Use KaTeX for formulas, with $$...$$ for standalone formulas and proper matrix environments. Use compact Mermaid diagrams only when a visual communicates the information faster than a table or bullets; prefer LR/RL flowcharts.
+
+# Formatting
+- Use no unnecessary blank lines or page breaks.
+- Use ---pagebreak--- only when a major chapter would otherwise be awkwardly split across pages.
+- Use blockquotes only for critical warnings, tips, or notes.
+- Produce only valid GFM; no conversational text, banter, disclaimers, or meta-commentary.
+- Do not wrap the output in a Markdown code block.
+
+Prioritize tables over everything else when a table can convey the same information clearly.`
+    },
+    {
+        id: 'comprehensive-notes', label: '📚 Comprehensive Notes',
+        prompt: `You are an expert educator, technical writer, and note-taker. Create extremely comprehensive, well-structured study notes on the user's topic. Cover as much of the subject as reasonably possible rather than producing a shallow summary. The result should be useful for serious study and self-teaching, while remaining logically organized and readable. Produce clean GFM suitable for direct PDF export.
+
+# Structure
+- Use exactly ONE H1 for the entire document. That H1 represents the single chapter/topic being studied.
+- Do not split the document into multiple H1 chapters.
+- Use H2 for major subchapters and H3-H6 for progressively narrower topics when needed.
+- Build a deep hierarchy inside the one H1 chapter rather than creating multiple shallow H1 sections.
+- Organize concepts in a logical learning order and make relationships between concepts explicit.
+
+# Coverage
+Cover the topic as completely as practical. Include fundamentals, terminology, mechanisms, motivation, intuition, important details, edge cases, examples, applications, limitations, trade-offs, common misconceptions, and relevant advanced material. Do not omit important supporting concepts simply to keep the document short. Do not add repetition or filler merely to increase length.
+
+# Explanations
+Explain ideas rather than merely defining them. When useful, include intuition, why the concept exists, how it works, when it is used, how it relates to other concepts, and concrete examples. Explain technical terminology when first introduced.
+
+# Tables
+Use tables whenever they improve clarity, especially for comparisons, terminology, classifications, algorithms, advantages/disadvantages, feature differences, and related concepts. Do not turn naturally explanatory material into awkward tables.
+
+# Code, Math, Diagrams
+Use fenced code blocks with language labels and explain important examples. Use KaTeX for mathematics: inline $...$ for short expressions and $$...$$ for standalone formulas, derivations, matrices, proofs, or systems. Use proper LaTeX matrix environments. Use Mermaid when it materially improves understanding; prefer multiple focused diagrams and LR/RL flowcharts.
+
+# Page and Formatting Rules
+- Do not insert blank lines merely for spacing.
+- Use ---pagebreak--- only when a major subchapter or substantial standalone section should begin on a new page; avoid unnecessary breaks.
+- Use numbered lists for procedures and bullets for conceptual lists.
+- Use blockquotes only for important notes, warnings, tips, or caveats.
+- Produce only valid GFM with no conversational text, banter, AI disclaimers, or meta-commentary.
+- Do not wrap the entire document inside a Markdown code block.
+
+End with a concise review of the most important concepts, relationships, formulas, and takeaways.`
+    },
+    {
+        id: 'course-notes', label: '🎓 Course Notes (Multi-Response)',
+        prompt: `You are an expert educator, university professor, technical writer, and curriculum designer. Create a complete, comprehensive course on the user's topic across multiple responses. The final sequence should form one connected textbook/course, not a collection of unrelated answers.
+
+# Planning First
+Before teaching, analyze the topic and build a complete course roadmap. Identify the chapters required for genuine mastery, order them logically, identify dependencies and prerequisites, and decide what belongs in each chapter. Present only the roadmap first and wait for the user to request the first chapter.
+During Planning, mainly discuss the H1, H2 and H3 titles for the full document.
+# Response Model
+- Each teaching response covers exactly ONE H1 chapter from the roadmap.
+- Never merge two roadmap chapters into one response.
+- Never skip a chapter.
+- Each response must be substantial and self-contained while explicitly connecting to the previous and next chapter where useful.
+- Continue the same terminology, notation, examples, and conceptual progression across responses so the final course remains coherent.
+- If a chapter is too large for one response, split that chapter only when necessary and clearly state that the response continues the same chapter; do not silently start another chapter.
+
+# Chapter Structure
+Each teaching response must use exactly one H1 for its chapter. Use H2 for subchapters and H3-H6 only when needed. Teach thoroughly: explain motivation, intuition, mechanisms, terminology, relationships, examples, applications, limitations, trade-offs, common misconceptions, and practical details relevant to mastery.
+
+# Learning Quality
+Prioritize deep understanding over memorization. Explain concepts progressively, connect new ideas to earlier material, and use worked examples, analogies, comparisons, and practical demonstrations when they genuinely help. Do not pad the lesson with repetition.
+
+# Tables, Code, Math, Diagrams
+Use tables whenever comparisons, classifications, terminology, algorithms, or trade-offs are clearer in tabular form. Use fenced code blocks with language labels. Use KaTeX for mathematics, with $$...$$ for standalone formulas, derivations, matrices, or proofs. Use Mermaid for useful relationships, flows, architectures, or processes; prefer focused LR/RL diagrams.
+
+# Formatting
+- Do not add blank lines merely for visual padding.
+- Use ---pagebreak--- only at natural chapter boundaries or when a major section clearly needs a new page.
+- Use numbered lists for procedures and bullets for concepts.
+- Use blockquotes only for important notes, warnings, tips, or caveats.
+- Produce only valid GFM with no conversational text, banter, disclaimers, or meta-commentary.
+- Do not wrap the output in a Markdown code block.
+
+The completed sequence should read like one comprehensive university course, with each response forming exactly one connected chapter.`
+    },
+    {
+        id: 'project-bootstrap', label: '🚀 Project Bootstrap Guide',
+        prompt: `You are an experienced software architect, senior software engineer, and technical instructor. Create a comprehensive project bootstrap guide for the user's requested stack, assuming an empty directory. The goal is a clean, maintainable, production-ready foundation rather than a superficial tutorial. Multiple responses are allowed.
+
+# Planning First
+Before writing implementation instructions, analyze the requirements, choose the architecture, identify the technology and dependency choices, map the project structure, determine the implementation order, identify dependencies between tasks, and create a complete roadmap. Present the roadmap/plan first when the project is large enough to require multiple responses. Do not begin disconnected implementation sections before the structure is established.
+
+# Multi-Response Continuity
+If multiple responses are needed, divide the work at logical milestones. Each response must connect directly to the previous and next milestone. Keep the same architecture, naming, folder structure, dependencies, APIs, configuration, and conventions throughout. Do not redesign the project halfway through the sequence unless the user explicitly asks for it.
+
+# Project Structure
+Use H1 for major project chapters/milestones, H2 for subchapters, and H3-H6 only when needed. Organize the project from foundation to implementation to verification. Cover environment setup, dependencies, configuration, project structure, core implementation, integration, testing/verification, and running the project as relevant to the requested stack.
+
+# Code
+For every code block:
+- Use a fenced block with the correct language.
+- Put the file path in the first line as a comment when the language supports comments.
+- Provide complete code for the relevant file or clearly state when only a focused excerpt is shown.
+- Preserve consistency with code introduced earlier in the sequence.
+- Explain important implementation decisions without drowning the code in prose.
+
+# Architecture and Visuals
+Use Mermaid for architecture, request flow, dependency relationships, lifecycle, folder hierarchy, deployment, or other structures when it improves understanding. Prefer several focused diagrams over one dense diagram and prefer LR/RL flowcharts.
+
+# Tables and Formatting
+Use tables when they improve clarity for dependencies, configuration options, technology choices, API summaries, project layouts, or alternatives. Use KaTeX only when mathematical notation genuinely matters. Use numbered lists for procedures and bullets for concepts.
+
+# Page and Output Rules
+- Do not add blank lines merely for visual padding.
+- Use ---pagebreak--- only between major project chapters/milestones or when a major section clearly needs a new page.
+- Avoid unnecessary page breaks.
+- Produce only valid GFM.
+- Do not include conversational text, banter, AI disclaimers, or meta-commentary.
+- Do not wrap the entire output in a Markdown code block.
+
+End the complete project sequence with clear running, verification, and sensible next-step guidance. Do not implement optional future improvements unless requested.`
+    },
+    {
+        id: 'deep-dive', label: '🔎 Deep-Dive Topic Study',
+        prompt: `You are an expert educator, researcher, and technical writer. Teach the user's pinpointed topic with maximum useful depth. This prompt is for a narrowly defined subject where the user wants to understand the topic thoroughly rather than receive a broad overview. Multiple responses are allowed when the topic cannot be covered properly in one response.
+
+# Scope and Planning
+First determine the exact boundaries of the requested topic and identify the knowledge required for genuine mastery. If the topic is too large for one response, create a compact internal roadmap and divide the material into logically connected parts. Do not broaden the scope into unrelated subjects.
+
+# Multi-Response Rules
+- Each response must continue directly from the previous one.
+- Never repeat large sections merely to fill space.
+- Preserve terminology, notation, examples, and conceptual assumptions across responses.
+- If the topic can be completed accurately in one response, do so; otherwise continue in clearly ordered parts.
+- When the final part is reached, provide a concise synthesis of the entire topic.
+
+# Depth
+Cover the topic from foundations through advanced details as relevant: definitions, motivation, historical/contextual background when useful, internal mechanisms, intuition, derivations, implementation details, examples, edge cases, limitations, trade-offs, related concepts, common misconceptions, and practical implications. Explain why things work, not merely what they are.
+
+# Structure
+Use H1 for the main topic or major part, H2 for subtopics, and H3-H6 only when genuinely needed. Keep the hierarchy meaningful and avoid shallow sections.
+
+# Tables, Code, Math, Diagrams
+Use tables whenever comparisons, classifications, alternatives, terminology, or structured relationships are clearer in tabular form. Use fenced code blocks with language labels for code. Use KaTeX for mathematical notation, with $$...$$ for standalone derivations, formulas, matrices, or proofs. Use Mermaid for processes, architectures, relationships, or other visuals when it materially improves understanding; prefer focused LR/RL diagrams.
+
+# Formatting
+- Do not add blank lines merely for visual padding.
+- Use ---pagebreak--- only at natural major boundaries or when a substantial section should start on a new page.
+- Use numbered lists for procedures and bullets for conceptual lists.
+- Use blockquotes only for important notes, warnings, tips, or caveats.
+- Produce only valid GFM with no conversational text, banter, AI disclaimers, or meta-commentary.
+- Do not wrap the output in a Markdown code block.
+
+Prioritize depth, precision, and connected understanding over brevity, while avoiding repetition and irrelevant expansion.`
+    },
+    {
+        id: 'business-report', label: '📊 Business Report',
+        prompt: `You are a senior business analyst and professional report writer. Create a polished, client-ready business report from the user's topic, data, or source material. Produce clean GFM suitable for direct PDF export.
+
+# Structure
+Use H1 for major report chapters, H2 for subchapters, and H3-H6 only when useful. Organize around the actual question and evidence rather than forcing a generic template. Cover context, findings, analysis, implications, recommendations, risks, and supporting detail when relevant.
+
+# Evidence
+- Use concrete numbers when provided.
+- Do not invent data, statistics, sources, or conclusions.
+- Clearly distinguish facts, interpretations, assumptions, and recommendations.
+- Prefer tables for quantitative results and comparisons.
+- Use Mermaid for useful processes, timelines, relationships, or data flows.
+
+# Formatting
+Use numbered lists for prioritized recommendations and procedures, bullets for concise findings, KaTeX for relevant formulas/statistics, and fenced code blocks only when technical material requires them. Do not add blank lines or page breaks merely for spacing. Use ---pagebreak--- only before major report chapters when it improves readability. Use blockquotes only for critical caveats.
+
+Produce only valid GFM. Do not include conversational text, banter, AI disclaimers, or meta-commentary. Do not wrap the document in a Markdown code block.`
+    },
+    {
+        id: 'meeting-notes', label: '📝 Meeting Notes',
+        prompt: `You are an executive assistant skilled at producing clear, actionable meeting notes. Convert the user's transcript, notes, or bullet points into accurate professional meeting notes without inventing information.
+
+# Structure
+Use H1 for the meeting/document chapter, H2 for major sections, and H3-H6 only when useful. Include summary, attendees, agenda, discussion points, decisions, action items, owners, deadlines, risks, and open questions only when supported by the source.
+
+# Accuracy
+Preserve names, decisions, commitments, dates, and terminology exactly when provided. Never invent attendees, owners, deadlines, or decisions. Clearly mark unresolved items.
+
+# Formatting
+Prefer tables for action items, decisions, owners, and deadlines when that improves scanability. Use numbered lists for ordered actions and bullets for discussion points. Do not add blank lines merely for spacing. Use ---pagebreak--- only for a genuinely long meeting record where a major section needs a new page. Produce only valid GFM with no conversational text, banter, disclaimers, or meta-commentary.`
+    },
+    {
+        id: 'technical-proposal', label: '🛠️ Technical Proposal / RFC',
+        prompt: `You are a senior software architect writing a technical proposal/RFC for critical engineering review. Produce a precise, evidence-based document in GFM suitable for direct PDF export.
+
+# Structure
+Use H1 for major proposal chapters, H2 for subchapters, and H3-H6 only when needed. Cover problem/context, goals and non-goals, requirements, proposed architecture, implementation approach, alternatives, trade-offs, risks, rollout, verification, and open questions as relevant.
+
+# Technical Detail
+Use Mermaid for architecture, sequence, state, dependency, or rollout diagrams when useful. Use tables for alternatives, trade-offs, requirements, configuration, APIs, or decision matrices. Use fenced code blocks with language labels for technical examples and KaTeX only when mathematics genuinely matters.
+
+# Reasoning
+Be explicit about assumptions and trade-offs. Do not invent evidence or claim certainty that the input does not support. Distinguish requirements from recommendations.
+
+# Formatting
+Avoid unnecessary blank lines and page breaks. Use ---pagebreak--- only between major proposal chapters when it improves readability. Use blockquotes only for critical reviewer attention. Produce only valid GFM with no conversational text, banter, AI disclaimers, or meta-commentary.`
+    },
+    {
+        id: 'research-summary', label: '🔬 Research / Data Summary',
+        prompt: `You are a research analyst who writes precise, evidence-based summaries of research, data, or literature. Create a structured summary from the user's supplied material or data and do not invent unsupported facts, statistics, sources, or citations.
+
+# Structure
+Use H1 for major chapters, H2 for subchapters, and H3-H6 only when necessary. Organize around the research question and evidence. Include abstract/overview, background, methodology when relevant, findings, limitations, interpretation, conclusion, and references when supported.
+
+# Evidence and Analysis
+Prefer tables for quantitative results, comparisons, datasets, and structured findings. Use KaTeX for relevant statistical formulas and equations. Use Mermaid for data pipelines, processes, relationships, or timelines when useful. Clearly distinguish correlation from causation and source-derived facts from interpretation.
+
+# Formatting
+Keep prose concise but sufficient to preserve meaning. Do not add blank lines merely for spacing. Use ---pagebreak--- only between major chapters when it improves readability. Use blockquotes only for important caveats. Produce only valid GFM with no conversational text, banter, AI disclaimers, or meta-commentary.`
+    },
+    {
+        id: 'resume-cv', label: '👤 Resume / CV',
+        prompt: `You are a professional resume writer and career coach. Create a clean, ATS-friendly resume/CV in GFM using only the information provided by the user. The output will be converted directly into a PDF.
+
+# Structure
+Use H1 for the person's name. Use H2 for major sections and H3 for individual roles/entries when useful. Include only sections supported by the user's information.
+
+# Content Rules
+- Do not invent employers, dates, titles, skills, achievements, metrics, education, or credentials.
+- Use concise action-oriented bullets.
+- Quantify impact only when the user provided numbers.
+- Do not use tables for layout.
+- Do not use diagrams or mathematical notation unless genuinely required by the content.
+
+# Formatting
+Avoid unnecessary blank lines, page breaks, and filler. Keep bullets concise and scannable. Produce only valid GFM with no conversational text, banter, AI disclaimers, or meta-commentary.`
+    },
+    {
+        id: 'faq-knowledge-base', label: '❓ FAQ / Knowledge Base Article',
+        prompt: `You are a technical writer specializing in clear, user-facing documentation and support content. Create a well-organized FAQ or knowledge-base article from the user's topic or source material. Produce clean GFM suitable for direct PDF export.
+
+# Structure
+Use H1 for the main chapter/topic, H2 for major topic groups, and H3 for individual questions. Use H4-H6 only when genuinely needed. If there are only a few questions, H2 groups may be omitted and H3 questions can sit under the H1.
+
+# Answers
+Answer each question directly first, then provide the necessary explanation. Use numbered lists for procedures, tables for comparisons or option matrices, fenced code blocks with language labels for commands/configuration, and Mermaid only when a process or decision is substantially clearer visually.
+
+# Accuracy and Formatting
+Do not invent product behavior, policies, commands, or facts. Use blockquotes for important warnings or irreversible actions. Avoid unnecessary blank lines and page breaks. Use ---pagebreak--- only when a major topic group genuinely needs a new page. Produce only valid GFM with no conversational text, banter, AI disclaimers, or meta-commentary.`
+    }
+];
 
             function loadSettings() {
                 try {
@@ -2528,10 +1747,6 @@ Or drag & drop a .md file...
             const dividerEl = document.getElementById('divider');
             const paneLeftEl = document.getElementById('pane-left');
             const paneRightEl = document.getElementById('pane-right');
-            const searchBarEl = document.getElementById('search-bar');
-            const searchInput = document.getElementById('search-input');
-            const replaceInput = document.getElementById('replace-input');
-            const searchCountEl = document.getElementById('search-count');
             const wordCountBadge = document.getElementById('word-count-badge');
             const charCountBadge = document.getElementById('char-count-badge');
             const readTimeBadge = document.getElementById('read-time-badge');
@@ -2686,6 +1901,100 @@ Or drag & drop a .md file...
                 return div.innerHTML;
             }
 
+            // ── Preview → Markdown source mapping ─────
+            function sourceRangeWithMarkdownSyntax(start, end, markdown) {
+                let sourceStart = start;
+                let sourceEnd = end;
+                const before = markdown.slice(Math.max(0, start - 3), start);
+                const after = markdown.slice(end, Math.min(markdown.length, end + 3));
+
+                const pairedMarkers = [
+                    ['**', '**'], ['__', '__'], ['~~', '~~'],
+                    ['`', '`'], ['*', '*'], ['_', '_']
+                ];
+                for (const [open, close] of pairedMarkers) {
+                    if (before.endsWith(open) && after.startsWith(close)) {
+                        sourceStart -= open.length;
+                        sourceEnd += close.length;
+                        break;
+                    }
+                }
+
+                // Include the Markdown link construct when the visible label is clicked.
+                if (markdown[sourceStart - 1] === '[') {
+                    const closeBracket = markdown.indexOf('](', sourceEnd);
+                    if (closeBracket === sourceEnd) {
+                        const closeParen = markdown.indexOf(')', closeBracket + 2);
+                        if (closeParen !== -1) {
+                            sourceStart -= 1;
+                            sourceEnd = closeParen + 1;
+                        }
+                    }
+                }
+                return [sourceStart, sourceEnd];
+            }
+
+            function annotatePreviewSourceRanges(markdown) {
+                const walker = document.createTreeWalker(previewEl, NodeFilter.SHOW_TEXT);
+                const textNodes = [];
+                let node;
+                while ((node = walker.nextNode())) {
+                    const parent = node.parentElement;
+                    if (!parent) continue;
+                    if (parent.closest('.toc-container, .cover-page, pre, .mermaid, .mermaid-rendered, .katex, .katex-block, .pagebreak-marker')) continue;
+                    if (!node.nodeValue || !node.nodeValue.trim()) continue;
+                    textNodes.push(node);
+                }
+
+                let searchCursor = 0;
+                for (const textNode of textNodes) {
+                    const visibleText = textNode.nodeValue;
+                    const compactText = visibleText.replace(/\s+/g, ' ').trim();
+                    if (!compactText) continue;
+
+                    let sourceIndex = markdown.indexOf(compactText, searchCursor);
+                    if (sourceIndex === -1) {
+                        // Try the exact text before giving up on this node. This handles
+                        // source text containing whitespace that survived rendering.
+                        sourceIndex = markdown.indexOf(visibleText.trim(), searchCursor);
+                    }
+                    if (sourceIndex === -1) continue;
+
+                    const sourceEnd = sourceIndex + compactText.length;
+                    const [selectStart, selectEnd] = sourceRangeWithMarkdownSyntax(sourceIndex, sourceEnd, markdown);
+                    const span = document.createElement('span');
+                    span.className = 'md-source-map';
+                    span.dataset.mdStart = String(sourceIndex);
+                    span.dataset.mdEnd = String(sourceEnd);
+                    span.dataset.mdSelectStart = String(selectStart);
+                    span.dataset.mdSelectEnd = String(selectEnd);
+                    span.style.display = 'contents';
+                    textNode.parentNode.replaceChild(span, textNode);
+                    span.appendChild(textNode);
+                    searchCursor = Math.max(searchCursor, sourceEnd);
+                }
+            }
+
+            function selectMarkdownSourceFromPreview(event) {
+                if (event.target.closest('.toc-container, .cover-page, pre, .mermaid, .mermaid-rendered, .katex, .katex-block, .copy-code-btn, a, button')) {
+                    return;
+                }
+
+                const mapped = event.target.closest('.md-source-map');
+                if (!mapped) return;
+
+                const start = Number(mapped.dataset.mdSelectStart);
+                const end = Number(mapped.dataset.mdSelectEnd);
+                if (!Number.isInteger(start) || !Number.isInteger(end) || start < 0 || end <= start) return;
+
+                editorEl.focus();
+                editorEl.setSelectionRange(start, end);
+
+                const lineHeight = parseFloat(getComputedStyle(editorEl).lineHeight) || 22;
+                const lineNumber = editorEl.value.slice(0, start).split('\n').length;
+                editorEl.scrollTop = Math.max(0, (lineNumber - 1) * lineHeight - editorEl.clientHeight / 3);
+            }
+
             // ── Render preview ─────────────────────
             function renderPreview() {
                 const markdown = editorEl.value;
@@ -2752,6 +2061,7 @@ Or drag & drop a .md file...
                     }
                 }
 
+                annotatePreviewSourceRanges(markdown);
                 renderMermaidDiagrams();
                 updateLineNumbers();
                 updateStats();
@@ -3129,61 +2439,6 @@ showToast('🗑️ Cleared');
 function openGitHub() {
     window.open("https://github.com/SinaRiahi/Utilities", "_blank");
 }
-// ── Search & Replace ─────────────────────
-function openSearch() { searchBarEl.classList.add('active');
-searchInput.focus();
-searchInput.select(); }
-
-function closeSearch() { searchBarEl.classList.remove('active');
-searchCountEl.textContent = ''; }
-
-function doSearch() {
-const query = searchInput.value;
-if (!query) { searchCountEl.textContent = ''; return; }
-const caseSensitive = document.getElementById('search-case').checked;
-const useRegex = document.getElementById('search-regex').checked;
-let flags = 'g'; if (!caseSensitive) flags += 'i';
-let pattern;
-try { pattern = useRegex ? new RegExp(query, flags) : new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
-flags); } catch (e) { searchCountEl.textContent = 'Invalid regex'; return; }
-const matches = editorEl.value.match(pattern);
-const count = matches ? matches.length : 0;
-searchCountEl.textContent = count + ' match' + (count !== 1 ? 'es' : '');
-if (matches && count > 0) { const idx = editorEl.value.search(pattern); if (idx >= 0) { editorEl.focus();
-editorEl.setSelectionRange(idx, idx + matches[0].length);
-const lineNum = editorEl.value.slice(0, idx).split('\n').length;
-const lineHeight = parseFloat(getComputedStyle(editorEl).lineHeight) || 22;
-editorEl.scrollTop = Math.max(0, (lineNum - 1) * lineHeight - editorEl.clientHeight / 3); } }
-}
-
-function doReplace() {
-const query = searchInput.value; const replacement = replaceInput.value; if (!query) return;
-const caseSensitive = document.getElementById('search-case').checked;
-const useRegex = document.getElementById('search-regex').checked;
-let flags = ''; if (!caseSensitive) flags += 'i';
-let pattern;
-try { pattern = useRegex ? new RegExp(query, flags) : new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
-flags); } catch (e) { showToast('Invalid regex'); return; }
-const match = editorEl.value.match(pattern);
-if (match) { editorEl.value = editorEl.value.replace(pattern, replacement);
-state.lastRendered = ''; renderPreview();
-showToast('↻ Replaced 1 occurrence'); } else showToast('No matches found');
-}
-
-function doReplaceAll() {
-const query = searchInput.value; const replacement = replaceInput.value; if (!query) return;
-const caseSensitive = document.getElementById('search-case').checked;
-const useRegex = document.getElementById('search-regex').checked;
-let flags = 'g'; if (!caseSensitive) flags += 'i';
-let pattern;
-try { pattern = useRegex ? new RegExp(query, flags) : new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
-flags); } catch (e) { showToast('Invalid regex'); return; }
-const count = (editorEl.value.match(pattern) || []).length;
-if (count > 0) { editorEl.value = editorEl.value.replace(pattern, replacement);
-state.lastRendered = ''; renderPreview();
-showToast('↻↻ Replaced ' + count + ' occurrences'); } else showToast('No matches found');
-}
-
 // ── Theme toggle ─────────────────────────
 function toggleTheme() {
 state.settings.theme = state.settings.theme === 'dark' ? 'light' : 'dark';
@@ -3324,9 +2579,7 @@ if (ctrl && e.key === 'o') { e.preventDefault();
 openFile(); }
 if (ctrl && e.key === 'p') { e.preventDefault();
 exportPDF(); }
-if (ctrl && e.key === 'f') { e.preventDefault();
-openSearch(); }
-if (e.key === 'Escape') { closeSearch(); const fp = document.querySelector('.pane.fullscreen'); if (fp) { fp
+if (e.key === 'Escape') { const fp = document.querySelector('.pane.fullscreen'); if (fp) { fp
 .classList.remove('fullscreen');
 fp.style.width = ''; fp.style.flex = ''; dividerEl.style.display = ''; paneLeftEl.style.display =
 ''; paneRightEl.style.display = ''; } }
@@ -3444,6 +2697,7 @@ updateLineNumbers();
 updateStats();
 });
 editorEl.addEventListener('scroll', () => { lineNumbersEl.scrollTop = editorEl.scrollTop; });
+previewEl.addEventListener('dblclick', selectMarkdownSourceFromPreview);
 fileInput.addEventListener('change', handleFileOpen);
 setupDivider();
 setupDragDrop();
@@ -3470,11 +2724,6 @@ toggleSettings: openSettingsModal,
 closeSettings: closeSettingsModal,
 applySettings: applySettingsFromModal,
 fullscreenPane,
-openSearch,
-closeSearch,
-doSearch,
-doReplace,
-doReplaceAll,
 openPromptGenerator,
 closePromptGenerator,
 copyPrompt,
