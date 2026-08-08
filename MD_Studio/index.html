@@ -1727,6 +1727,11 @@ Do not invent product behavior, policies, commands, or facts. Use blockquotes fo
                     const saved = localStorage.getItem('md2pdf-settings');
                     if (saved) Object.assign(state.settings, JSON.parse(saved));
                 } catch (e) {}
+
+                const sharedTheme = localStorage.getItem('utils-theme');
+                if (sharedTheme === 'light' || sharedTheme === 'dark') {
+                    state.settings.theme = sharedTheme;
+                }
             }
 
             function saveSettings() {
@@ -2442,6 +2447,7 @@ function openGitHub() {
 // ── Theme toggle ─────────────────────────
 function toggleTheme() {
 state.settings.theme = state.settings.theme === 'dark' ? 'light' : 'dark';
+localStorage.setItem('utils-theme', state.settings.theme);
 saveSettings(); applyPreviewSettings();
 state.lastRendered = ''; renderPreview();
 showToast(state.settings.theme === 'dark' ? '🌙 Dark mode' : '☀️ Light mode');
