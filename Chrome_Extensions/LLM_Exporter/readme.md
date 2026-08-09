@@ -4,7 +4,7 @@ A lightweight Chrome extension for extracting messages from AI conversations and
 
 Instead of manually copying AI responses one by one, Universal LLM Exporter lets you open the extension while viewing a conversation, select the messages you want, and copy them all at once.
 
-> **Current version:** `0.1.1`
+> **Current version:** `0.3.1`
 
 ---
 
@@ -22,6 +22,7 @@ Each message can be individually selected or deselected.
 * Refresh the conversation
 * See a short preview of each message
 * AI responses are selected by default
+* Automatically continue the conversation with a message for multi-response documents!
 
 The selected messages are copied as **Markdown**, making them ready to paste directly into a Markdown editor.
 

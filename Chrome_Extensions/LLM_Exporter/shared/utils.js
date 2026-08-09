@@ -179,9 +179,9 @@ function getScrollableContainers() {
  * It returns the original scroll positions so the user's page can be restored.
  */
 async function traverseConversation(loadStep, options = {}) {
-  const maxMs = options.maxMs ?? 12000;
-  const maxSteps = options.maxSteps ?? 80;
-  const pauseMs = options.pauseMs ?? 180;
+  const maxMs = options.maxMs ?? 60000;
+  const maxSteps = options.maxSteps ?? 300;
+  const pauseMs = options.pauseMs ?? 220;
   const containers = getScrollableContainers();
   if (!containers.length) return { traversed: false, reason: "no-scroll-container" };
 

@@ -18,6 +18,28 @@
 
     <div id="status-banner" class="status-banner hidden"></div>
 
+    <section class="auto-panel">
+      <div class="auto-header">
+        <div>
+          <strong>Auto Continue</strong>
+          <span id="auto-state" class="auto-state">OFF</span>
+        </div>
+        <label class="switch">
+          <input id="auto-toggle" type="checkbox" />
+          <span class="switch-track" aria-hidden="true"></span>
+        </label>
+      </div>
+      <div id="auto-config" class="auto-config">
+        <label class="field-label" for="auto-prompt">Message</label>
+        <textarea id="auto-prompt" rows="2" spellcheck="false">Continue</textarea>
+        <div class="auto-row">
+          <label class="field-label" for="auto-count">Automatic messages</label>
+          <input id="auto-count" type="number" min="1" max="50" value="5" />
+        </div>
+        <div id="auto-status" class="auto-status">Waiting for the next generation.</div>
+      </div>
+    </section>
+
     <section class="toolbar">
       <button id="btn-select-all" class="text-button">Select all</button>
       <button id="btn-deselect-all" class="text-button">Deselect all</button>
