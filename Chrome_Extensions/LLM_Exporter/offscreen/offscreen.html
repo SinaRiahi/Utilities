@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>LLM Exporter — Offscreen Renderer</title>
+  </head>
+  <body>
+    <!-- This page is never shown to the user. It exists only because
+         html2canvas, mermaid, KaTeX, and DOM measurement all require a
+         real document, which a background service worker doesn't have.
+         See offscreen.js and README for details. -->
+    <script type="module" src="./offscreen.bundle.js"></script>
+  </body>
+</html>
