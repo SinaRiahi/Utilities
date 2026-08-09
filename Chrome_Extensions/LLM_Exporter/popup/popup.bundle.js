@@ -13,7 +13,7 @@ const el = {
   siteBadge: document.getElementById("site-badge"), statusBanner: document.getElementById("status-banner"),
   messageList: document.getElementById("message-list"), selectionCount: document.getElementById("selection-count"),
   selectAll: document.getElementById("btn-select-all"), deselectAll: document.getElementById("btn-deselect-all"),
-  refresh: document.getElementById("btn-refresh"), copy: document.getElementById("btn-copy"), openMd: document.getElementById("btn-open-md"),
+  scroll: document.getElementById("btn-scroll"), refresh: document.getElementById("btn-refresh"), copy: document.getElementById("btn-copy"), openMd: document.getElementById("btn-open-md"),
   autoToggle: document.getElementById("auto-toggle"), autoState: document.getElementById("auto-state"), autoConfig: document.getElementById("auto-config"),
   autoPrompt: document.getElementById("auto-prompt"), autoCount: document.getElementById("auto-count"), autoStatus: document.getElementById("auto-status"),
 };
@@ -45,7 +45,7 @@ function sendToPage(message) {
 async function extractConversation() {
   if (!activeTab?.id) { showStatus("Couldn't find the active tab.", "error"); return false; }
   clearStatus(); el.refresh.disabled = true; el.copy.disabled = true; el.messageList.innerHTML = '<div class="loading-state">Reading conversation…</div>';
-  const response = await sendToPage({ type: "EXPORTER_EXTRACT_REQUEST" }); el.refresh.disabled = false;
+  const response = await sendToPage({ type: "EXPORTER_EXTRACT_CURRENT_REQUEST" }); el.refresh.disabled = false;
   if (!response.ok) { conversation = null; selected.clear(); el.messageList.innerHTML = ""; updateSelectionUI(); showStatus(response.error || "Couldn't read the conversation.", "error"); return false; }
   conversation = response.conversation;
   selected = new Set(conversation.messages.map((m, i) => m.role === "assistant" ? i : -1).filter(i => i >= 0));
@@ -53,6 +53,36 @@ async function extractConversation() {
   if (response.conversation.traversal?.traversed) showStatus(`Found ${conversation.messages.length} messages after checking the conversation history.`, "success");
   return true;
 }
+async function scrollConversation() {
+  if (!activeTab?.id) return;
+  el.scroll.disabled = true;
+  el.refresh.disabled = true;
+  clearStatus();
+  showStatus("Scrolling through the conversation…", "info");
+
+  const response = await sendToPage({ type: "EXPORTER_TRAVERSE_REQUEST_V2" });
+
+  el.scroll.disabled = false;
+  el.refresh.disabled = false;
+
+  if (!response.ok) {
+    showStatus(response.error || "Couldn't scroll through the conversation.", "error");
+    return;
+  }
+
+  conversation = response.conversation;
+  selected = new Set(
+    conversation.messages
+      .map((m, i) => m.role === "assistant" ? i : -1)
+      .filter(i => i >= 0)
+  );
+  renderMessages();
+  showStatus(
+    `Loaded ${conversation.messages.length} messages from the conversation.`,
+    "success"
+  );
+}
+
 function selectedMarkdown() { return conversation?.messages.filter((_, i) => selected.has(i)).map(m => m.markdown.trim()).filter(Boolean).join("\n\n") || ""; }
 async function copySelected() {
   const markdown = selectedMarkdown(); if (!markdown) { showStatus("Select at least one message.", "error"); return; }
@@ -73,11 +103,11 @@ function renderAutoStatus(status) {
   if (status.enabled) el.autoStatus.textContent = `${status.lastStatus}  •  ${status.remaining} remaining`;
 }
 async function loadAutoStatus() {
-  const response = await sendToPage({ type: "AUTO_CONTINUE_GET_STATUS" }); if (response.ok) renderAutoStatus(response.status);
+  const response = await sendToPage({ type: "AUTO_CONTINUE_V2_GET_STATUS" }); if (response.ok) renderAutoStatus(response.status);
 }
 async function toggleAuto() {
   if (!el.autoToggle.checked) {
-    const response = await sendToPage({ type: "AUTO_CONTINUE_STOP" });
+    const response = await sendToPage({ type: "AUTO_CONTINUE_V2_STOP" });
     if (response.ok) renderAutoStatus(response.status);
     return;
   }
@@ -103,7 +133,7 @@ async function toggleAuto() {
     return;
   }
 
-  const ping = await sendToPage({ type: "AUTO_CONTINUE_PING" });
+  const ping = await sendToPage({ type: "AUTO_CONTINUE_V2_PING" });
   if (!ping.ok) {
     el.autoToggle.checked = false;
     showStatus(
@@ -113,7 +143,7 @@ async function toggleAuto() {
     return;
   }
 
-  const response = await sendToPage({ type: "AUTO_CONTINUE_START", prompt, count });
+  const response = await sendToPage({ type: "AUTO_CONTINUE_V2_START", prompt, count });
   if (response.ok) {
     clearStatus();
     renderAutoStatus(response.status);
@@ -128,19 +158,14 @@ async function detectSiteAndLoad() {
   if (!site) { el.siteBadge.textContent = "Unsupported"; el.siteBadge.className = "site-badge unsupported"; showStatus("Open a conversation on ChatGPT, Claude, DeepSeek, Gemini, or Grok.", "info"); el.refresh.disabled = true; el.autoToggle.disabled = true; return; }
   el.siteBadge.textContent = site; el.siteBadge.className = "site-badge supported";
   await extractConversation();
-  try {
-    await chrome.scripting.executeScript({
-      target: { tabId: activeTab.id },
-      files: ["content/auto-continue.js"],
-    });
-  } catch {}
   await loadAutoStatus();
 }
 function init() {
   el.selectAll.addEventListener("click", () => setAllSelected(true)); el.deselectAll.addEventListener("click", () => setAllSelected(false));
+  el.scroll.addEventListener("click", scrollConversation);
   el.refresh.addEventListener("click", extractConversation); el.copy.addEventListener("click", copySelected); el.openMd.addEventListener("click", openMarkdownStudio);
   el.autoToggle.addEventListener("change", toggleAuto);
-  chrome.runtime.onMessage.addListener(message => { if (message?.type === "AUTO_CONTINUE_STATUS") renderAutoStatus(message.status); });
+  chrome.runtime.onMessage.addListener(message => { if (message?.type === "AUTO_CONTINUE_V2_STATUS") renderAutoStatus(message.status); });
   detectSiteAndLoad();
 }
 init();

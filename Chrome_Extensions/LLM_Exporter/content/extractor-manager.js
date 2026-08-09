@@ -20,7 +20,7 @@ function mergeMessages(target, incoming) {
 
 (function () {
   chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-    if (message?.type !== "EXPORTER_EXTRACT_REQUEST") return false;
+    if (message?.type !== "EXPORTER_EXTRACT_CURRENT_REQUEST" && message?.type !== "EXPORTER_TRAVERSE_REQUEST_V2") return false;
 
     (async () => {
       try {
@@ -46,8 +46,11 @@ function mergeMessages(target, incoming) {
         const messages = [];
         mergeMessages(messages, initial.messages);
 
-        let traversal = { traversed: false };
-        if (typeof ExporterUtils.traverseConversation === "function") {
+        // Do not scroll or traverse automatically. The user can explicitly
+        // request full-history traversal from the popup.
+        let traversal = { traversed: false, reason: "manual-only" };
+        if (message?.type === "EXPORTER_TRAVERSE_REQUEST_V2" &&
+            typeof ExporterUtils.traverseConversation === "function") {
           traversal = await ExporterUtils.traverseConversation(async () => {
             const snapshot = await extractor.extract();
             mergeMessages(messages, snapshot.messages);

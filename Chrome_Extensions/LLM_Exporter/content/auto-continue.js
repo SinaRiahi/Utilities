@@ -1,23 +1,22 @@
-if (!window.__universalLLMAutoContinueLoaded) {
-window.__universalLLMAutoContinueLoaded = true;
 /**
- * Auto Continue
+ * Auto Continue controller.
  *
- * Controlled prompt repeater:
- * - User chooses the follow-up message.
- * - User chooses exactly how many times it may be sent.
- * - A follow-up is sent only after the current generation has finished.
- * - If enabled while the user is composing the initial prompt, it arms itself
- *   and waits for that generation instead of cancelling.
- * - If enabled while the page is idle and an assistant response already exists,
- *   the first follow-up is sent immediately.
+ * The important rule is: never queue/type the next prompt until the previous
+ * assistant response has actually started and then stopped changing.
+ *
+ * This is deliberately independent from conversation traversal/scrolling.
  */
+window.__universalLLMAutoContinueCleanup?.();
+window.__universalLLMAutoContinueCleanup = null;
+window.__universalLLMAutoContinueLoaded = true;
+
 (function () {
   const DEFAULT_MESSAGE = "Continue";
   const DEFAULT_COUNT = 5;
   const MAX_COUNT = 50;
-  const POLL_MS = 300;
-  const FINISH_SETTLE_MS = 900;
+  const POLL_MS = 350;
+  const SETTLE_MS = 1400;
+  const START_TIMEOUT_MS = 20000;
 
   const state = {
     enabled: false,
@@ -26,54 +25,62 @@ window.__universalLLMAutoContinueLoaded = true;
     remaining: 0,
     sent: 0,
     phase: "off",
-    generationSeen: false,
-    armedForNewGeneration: false,
+    armedForInitialGeneration: false,
     internalSend: false,
     timer: null,
-    lastGenerationEndAt: 0,
+    stableSince: 0,
+    lastSignature: "",
+    waitingForSignatureChange: false,
     lastStatus: "Auto Continue is off.",
   };
 
   const adapters = {
     chatgpt: {
       matches: () => /(^|\.)chatgpt\.com$/.test(location.hostname) || /(^|\.)chat\.openai\.com$/.test(location.hostname),
-      stopSelectors: ['button[aria-label*="Stop" i]', 'button[data-testid*="stop" i]'],
       composerSelectors: ['#prompt-textarea', 'textarea[placeholder*="Message" i]', '[contenteditable="true"]'],
       sendSelectors: ['button[data-testid="send-button"]', 'button[aria-label*="Send" i]'],
+      stopSelectors: ['button[aria-label*="Stop" i]', 'button[data-testid*="stop" i]'],
     },
     claude: {
       matches: () => /(^|\.)claude\.ai$/.test(location.hostname),
-      stopSelectors: ['button[aria-label*="Stop" i]', 'button[data-testid*="stop" i]'],
       composerSelectors: ['div[contenteditable="true"]', 'textarea'],
       sendSelectors: ['button[aria-label*="Send" i]', 'button[type="submit"]'],
+      stopSelectors: ['button[aria-label*="Stop" i]', 'button[data-testid*="stop" i]'],
     },
     deepseek: {
       matches: () => /(^|\.)chat\.deepseek\.com$/.test(location.hostname),
-      stopSelectors: [
-        'button[aria-label*="Stop" i]',
-        'button[data-testid*="stop" i]',
-        'button[class*="stop" i]',
-        '[class*="ds-stop"] button',
+      composerSelectors: [
+        'textarea',
+        'textarea[placeholder*="message" i]',
+        '[contenteditable="true"]',
+        '[role="textbox"]',
       ],
-      composerSelectors: ['textarea', '[contenteditable="true"]', '[role="textbox"]'],
       sendSelectors: [
         'button[aria-label*="Send" i]',
+        'button[title*="Send" i]',
         'button[data-testid*="send" i]',
         'button[class*="send" i]',
         'button[type="submit"]',
       ],
+      stopSelectors: [
+        'button[aria-label*="Stop" i]',
+        'button[title*="Stop" i]',
+        'button[data-testid*="stop" i]',
+        'button[class*="stop" i]',
+      ],
     },
     gemini: {
       matches: () => /(^|\.)gemini\.google\.com$/.test(location.hostname),
-      stopSelectors: ['button[aria-label*="Stop" i]', 'button[aria-label*="stop generating" i]'],
       composerSelectors: ['div[contenteditable="true"]', 'textarea', 'rich-textarea [contenteditable="true"]'],
       sendSelectors: ['button[aria-label*="Send" i]', 'button[type="submit"]'],
+      stopSelectors: ['button[aria-label*="Stop" i]', 'button[aria-label*="stop generating" i]'],
     },
     grok: {
-      matches: () => /(^|\.)grok\.com$/.test(location.hostname) || (/(^|\.)x\.com$/.test(location.hostname) && location.pathname.startsWith("/i/grok")),
-      stopSelectors: ['button[aria-label*="Stop" i]', 'button[data-testid*="stop" i]'],
+      matches: () => /(^|\.)grok\.com$/.test(location.hostname) ||
+        (/(^|\.)x\.com$/.test(location.hostname) && location.pathname.startsWith("/i/grok")),
       composerSelectors: ['textarea', '[contenteditable="true"]'],
       sendSelectors: ['button[aria-label*="Send" i]', 'button[type="submit"]'],
+      stopSelectors: ['button[aria-label*="Stop" i]', 'button[data-testid*="stop" i]'],
     },
   };
 
@@ -85,9 +92,10 @@ window.__universalLLMAutoContinueLoaded = true;
 
   function visible(el) {
     if (!el) return false;
-    const r = el.getBoundingClientRect();
-    const s = getComputedStyle(el);
-    return r.width > 0 && r.height > 0 && s.display !== "none" && s.visibility !== "hidden";
+    const rect = el.getBoundingClientRect();
+    const style = getComputedStyle(el);
+    return rect.width > 0 && rect.height > 0 &&
+      style.display !== "none" && style.visibility !== "hidden";
   }
 
   function findFirst(selectors) {
@@ -107,31 +115,42 @@ window.__universalLLMAutoContinueLoaded = true;
   function composerHasText() {
     const composer = findComposer();
     if (!composer) return false;
-    if ("value" in composer) return String(composer.value || "").trim().length > 0;
-    return String(composer.innerText || composer.textContent || "").trim().length > 0;
+    return ("value" in composer)
+      ? String(composer.value || "").trim().length > 0
+      : String(composer.innerText || composer.textContent || "").trim().length > 0;
   }
 
-  function isGenerating() {
+  async function getAssistantSignature() {
+    try {
+      const active = window.ExporterExtractors?.findActive?.();
+      if (!active?.extract) return "";
+
+      const result = await active.extract();
+      const assistants = (result?.messages || [])
+        .filter(m => m?.role === "assistant" && typeof m.markdown === "string" && m.markdown.trim());
+
+      if (!assistants.length) return "";
+
+      // Include both count and the tail of the latest answer. This changes
+      // while streaming and remains stable once the response stops changing.
+      const latest = assistants[assistants.length - 1].markdown.trim();
+      return `${assistants.length}:${latest.length}:${latest.slice(-1200)}`;
+    } catch {
+      return "";
+    }
+  }
+
+  function controlsGenerating() {
     const adapter = getAdapter();
     if (!adapter) return false;
 
     if (findFirst(adapter.stopSelectors)) return true;
 
-    // A disabled send button is a useful fallback while the model is streaming.
     const send = findFirst(adapter.sendSelectors);
     if (send && send.disabled) return true;
 
-    // Some UIs expose a disabled/aria-busy generation state elsewhere.
     const busy = document.querySelector('[aria-busy="true"]');
-    if (busy && visible(busy)) return true;
-
-    return false;
-  }
-
-  function hasAssistantResponse() {
-    return !!document.querySelector(
-      '[data-message-author-role="assistant"], .ds-assistant-message-main-content, .font-claude-message, model-response, [class*="message-bubble"]'
-    );
+    return !!(busy && visible(busy));
   }
 
   function status(phase, message) {
@@ -139,7 +158,7 @@ window.__universalLLMAutoContinueLoaded = true;
     state.lastStatus = message;
     try {
       chrome.runtime.sendMessage({
-        type: "AUTO_CONTINUE_STATUS",
+        type: "AUTO_CONTINUE_V2_STATUS",
         status: snapshot(),
       });
     } catch {}
@@ -157,22 +176,23 @@ window.__universalLLMAutoContinueLoaded = true;
     };
   }
 
-  function stop(reason = "Auto Continue stopped.") {
-    state.enabled = false;
-    state.remaining = 0;
-    state.generationSeen = false;
-    state.armedForNewGeneration = false;
-    if (state.timer) clearTimeout(state.timer);
-    state.timer = null;
-    status("off", reason);
-  }
-
-  function schedule(ms, fn) {
+  function schedule(fn, delay = POLL_MS) {
     if (state.timer) clearTimeout(state.timer);
     state.timer = setTimeout(() => {
       state.timer = null;
       fn();
-    }, ms);
+    }, delay);
+  }
+
+  function stop(reason = "Auto Continue stopped.") {
+    state.enabled = false;
+    state.remaining = 0;
+    state.armedForInitialGeneration = false;
+    state.waitingForSignatureChange = false;
+    state.stableSince = 0;
+    if (state.timer) clearTimeout(state.timer);
+    state.timer = null;
+    status("off", reason);
   }
 
   function fireInput(el) {
@@ -188,165 +208,338 @@ window.__universalLLMAutoContinueLoaded = true;
     el.dispatchEvent(new Event("change", { bubbles: true }));
   }
 
+  async function setComposerText(composer, text) {
+    composer.focus();
+
+    if (composer instanceof HTMLTextAreaElement || composer instanceof HTMLInputElement) {
+      const proto = Object.getPrototypeOf(composer);
+      const setter = Object.getOwnPropertyDescriptor(proto, "value")?.set;
+      if (setter) setter.call(composer, text);
+      else composer.value = text;
+      fireInput(composer);
+      return;
+    }
+
+    // DeepSeek and other React contenteditables: replace the current contents
+    // rather than appending to whatever React thinks is selected. execCommand
+    // produces an input event that these editors generally accept.
+    try {
+      const selection = window.getSelection();
+      const range = document.createRange();
+      range.selectNodeContents(composer);
+      selection?.removeAllRanges();
+      selection?.addRange(range);
+    } catch {}
+
+    let inserted = false;
+    try {
+      inserted = document.execCommand("insertText", false, text);
+    } catch {}
+
+    if (!inserted || !composerHasText()) {
+      composer.textContent = "";
+      const textNode = document.createTextNode(text);
+      composer.appendChild(textNode);
+      fireInput(composer);
+    }
+  }
+
+  async function waitForComposerText(expected, timeout = 2500) {
+    const started = Date.now();
+    while (Date.now() - started < timeout) {
+      const composer = findComposer();
+      const value = composer
+        ? ("value" in composer
+            ? String(composer.value || "")
+            : String(composer.innerText || composer.textContent || ""))
+        : "";
+      if (value.trim() === expected.trim()) return composer;
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    return findComposer();
+  }
+
+  function findDeepSeekSendButton(composer) {
+    const adapter = getAdapter();
+    const direct = findFirst(adapter?.sendSelectors);
+    if (direct && !direct.disabled) return direct;
+
+    // DeepSeek has changed generated class names over time. If the semantic
+    // selectors aren't available, find a button physically belonging to the
+    // composer/footer area rather than clicking an unrelated page button.
+    let parent = composer;
+    for (let depth = 0; parent && depth < 6; depth++, parent = parent.parentElement) {
+      const buttons = Array.from(parent.querySelectorAll("button")).filter(visible);
+      const candidates = buttons.filter(button => {
+        if (button.disabled) return false;
+        const label = `${button.getAttribute("aria-label") || ""} ${button.getAttribute("title") || ""} ${button.textContent || ""}`.toLowerCase();
+        if (/send|submit/.test(label)) return true;
+        // Icon-only button near a composer is a useful DeepSeek fallback.
+        const br = button.getBoundingClientRect();
+        const cr = composer.getBoundingClientRect();
+        return br.top >= cr.top - 140 && br.left >= cr.left - 80 &&
+          br.right <= cr.right + 120 && br.bottom <= cr.bottom + 100;
+      });
+      if (candidates.length) return candidates[candidates.length - 1];
+    }
+
+    return null;
+  }
+
   async function sendPrompt(prompt) {
     const adapter = getAdapter();
-    const composer = findComposer(adapter);
     if (!adapter) throw new Error("No supported AI platform adapter is active.");
+
+    const composer = findComposer(adapter);
     if (!composer) throw new Error("Message composer not found.");
 
     state.internalSend = true;
 
     try {
-      composer.focus();
+      await setComposerText(composer, prompt);
 
-      if (composer instanceof HTMLTextAreaElement || composer instanceof HTMLInputElement) {
-        const proto = Object.getPrototypeOf(composer);
-        const setter = Object.getOwnPropertyDescriptor(proto, "value")?.set;
-        if (setter) setter.call(composer, prompt);
-        else composer.value = prompt;
+      // Give React/DeepSeek time to commit the controlled input before we
+      // attempt submission. This is especially important on the 2nd/3rd
+      // automatic turn, where the composer has just been reused.
+      const acceptedComposer = await waitForComposerText(prompt);
+      if (!acceptedComposer) {
+        throw new Error("The message composer did not accept the automatic message.");
+      }
+
+      let send = findFirst(adapter.sendSelectors);
+
+      if (adapter === adapters.deepseek) {
+        send = findDeepSeekSendButton(acceptedComposer);
+      }
+
+      if (send && !send.disabled) {
+        send.click();
       } else {
-        let inserted = false;
-        try {
-          inserted = document.execCommand("insertText", false, prompt);
-        } catch {}
-        if (!inserted) {
-          composer.textContent = prompt;
+        // Keyboard fallback for platforms whose send button is unavailable.
+        acceptedComposer.focus();
+        const eventOptions = {
+          key: "Enter",
+          code: "Enter",
+          keyCode: 13,
+          which: 13,
+          bubbles: true,
+          cancelable: true,
+        };
+        acceptedComposer.dispatchEvent(new KeyboardEvent("keydown", eventOptions));
+        acceptedComposer.dispatchEvent(new KeyboardEvent("keypress", eventOptions));
+        acceptedComposer.dispatchEvent(new KeyboardEvent("keyup", eventOptions));
+      }
+
+      // Do not immediately continue just because click() returned. Wait until
+      // the UI consumes the draft. If it doesn't, retry the DeepSeek send once.
+      const sentAt = Date.now();
+      let consumed = false;
+      while (Date.now() - sentAt < 3000) {
+        const current = findComposer(adapter);
+        const value = current
+          ? ("value" in current
+              ? String(current.value || "")
+              : String(current.innerText || current.textContent || ""))
+          : "";
+
+        if (!value.trim() || controlsGenerating()) {
+          consumed = true;
+          break;
+        }
+        await new Promise(resolve => setTimeout(resolve, 120));
+      }
+
+      if (!consumed && adapter === adapters.deepseek) {
+        const retryComposer = findComposer(adapter);
+        const retrySend = retryComposer ? findDeepSeekSendButton(retryComposer) : null;
+        if (retrySend && !retrySend.disabled) {
+          retrySend.click();
+          await new Promise(resolve => setTimeout(resolve, 500));
         }
       }
 
-      fireInput(composer);
-      await new Promise(resolve => setTimeout(resolve, 180));
-
-      const send = findFirst(adapter.sendSelectors);
-      if (send && !send.disabled) {
-        send.click();
-        return;
+      if (!consumed && composerHasText() && adapter === adapters.deepseek) {
+        throw new Error("DeepSeek did not accept the automatic message.");
       }
-
-      // Keyboard fallback for platforms whose send button isn't exposed.
-      composer.focus();
-      composer.dispatchEvent(new KeyboardEvent("keydown", {
-        key: "Enter",
-        code: "Enter",
-        keyCode: 13,
-        which: 13,
-        bubbles: true,
-        cancelable: true,
-      }));
-      composer.dispatchEvent(new KeyboardEvent("keyup", {
-        key: "Enter",
-        code: "Enter",
-        keyCode: 13,
-        which: 13,
-        bubbles: true,
-        cancelable: true,
-      }));
     } finally {
-      setTimeout(() => { state.internalSend = false; }, 700);
+      setTimeout(() => { state.internalSend = false; }, 1000);
     }
   }
 
-  async function monitor() {
+  async function waitForInitialGeneration(baselineSignature) {
+    const started = Date.now();
+
+    while (state.enabled && Date.now() - started < START_TIMEOUT_MS) {
+      const signature = await getAssistantSignature();
+
+      if (controlsGenerating() || (signature && signature !== baselineSignature)) {
+        state.lastSignature = signature || baselineSignature;
+        state.armedForInitialGeneration = false;
+        state.stableSince = 0;
+        status("generating", `AI is generating… ${state.sent}/${state.total} sent`);
+        schedule(monitorGeneration);
+        return;
+      }
+
+      status("armed", `Waiting for the AI to start generating… ${state.sent}/${state.total} sent`);
+      await new Promise(resolve => setTimeout(resolve, POLL_MS));
+    }
+
+    if (state.enabled) {
+      stop("Stopped: I couldn't detect the start of the AI response.");
+    }
+  }
+
+  async function monitorGeneration() {
     if (!state.enabled) return;
 
-    const generating = isGenerating();
+    const signature = await getAssistantSignature();
+    const generating = controlsGenerating();
+
+    if (signature && signature !== state.lastSignature) {
+      state.lastSignature = signature;
+      state.stableSince = 0;
+      status("generating", `AI is generating… ${state.sent}/${state.total} sent`);
+    }
 
     if (generating) {
-      state.generationSeen = true;
-      state.armedForNewGeneration = false;
+      state.stableSince = 0;
       status("generating", `AI is generating… ${state.sent}/${state.total} sent`);
-      schedule(POLL_MS, monitor);
+      schedule(monitorGeneration);
       return;
     }
 
-    // If a generation was observed, the transition to idle means it finished.
-    if (state.generationSeen) {
-      if (!state.lastGenerationEndAt) {
-        state.lastGenerationEndAt = Date.now();
-      }
-
-      const elapsed = Date.now() - state.lastGenerationEndAt;
-      if (elapsed < FINISH_SETTLE_MS) {
-        schedule(FINISH_SETTLE_MS - elapsed, monitor);
-        return;
-      }
-
-      state.generationSeen = false;
-      state.lastGenerationEndAt = 0;
-
-      if (state.remaining <= 0) {
-        stop(`Completed ${state.sent} automatic message${state.sent === 1 ? "" : "s"}.`);
-        return;
-      }
-
-      await sendNext();
+    // If the DOM stopped changing but the site doesn't expose a stop button,
+    // require the extracted answer to remain unchanged for SETTLE_MS.
+    if (!state.stableSince) {
+      state.stableSince = Date.now();
+      status("settling", `AI appears finished. Waiting for it to settle…`);
+      schedule(monitorGeneration, SETTLE_MS);
       return;
     }
 
-    // Armed while the user was composing the original request.
-    if (state.armedForNewGeneration) {
-      status("armed", `Waiting for your generation to finish… ${state.sent}/${state.total} sent`);
-      schedule(POLL_MS, monitor);
+    if (Date.now() - state.stableSince < SETTLE_MS) {
+      schedule(monitorGeneration, SETTLE_MS - (Date.now() - state.stableSince));
       return;
     }
 
-    // Nothing is generating. If we already have a response, this is an idle
-    // state and the first configured follow-up can be sent immediately.
-    if (hasAssistantResponse()) {
-      await sendNext();
+    const confirmed = await getAssistantSignature();
+    if (confirmed !== state.lastSignature) {
+      state.lastSignature = confirmed;
+      state.stableSince = 0;
+      schedule(monitorGeneration);
       return;
     }
 
-    status("armed", `Waiting for the first generation… ${state.sent}/${state.total} sent`);
-    schedule(POLL_MS, monitor);
+    state.stableSince = 0;
+
+    if (state.remaining <= 0) {
+      stop(`Completed ${state.sent} automatic message${state.sent === 1 ? "" : "s"}.`);
+      return;
+    }
+
+    await sendNext();
   }
 
   async function sendNext() {
-    if (!state.enabled || state.remaining <= 0) {
-      if (state.enabled) stop(`Completed ${state.sent} automatic message${state.sent === 1 ? "" : "s"}.`);
-      return;
-    }
+    if (!state.enabled || state.remaining <= 0) return;
 
     const prompt = state.message.trim() || DEFAULT_MESSAGE;
-    const current = state.sent + 1;
+    const number = state.sent + 1;
+    const baselineSignature = await getAssistantSignature();
 
-    status("sending", `Sending automatic message ${current}/${state.total}…`);
+    state.waitingForSignatureChange = true;
+    state.lastSignature = baselineSignature;
+    state.stableSince = 0;
+
+    status("sending", `Sending automatic message ${number}/${state.total}…`);
 
     try {
       await sendPrompt(prompt);
       state.sent += 1;
       state.remaining -= 1;
-      state.generationSeen = false;
-      state.armedForNewGeneration = false;
-      status("sent", `Sent ${state.sent}/${state.total}. Waiting for generation…`);
-      schedule(POLL_MS, monitor);
+      status("waiting", `Sent ${state.sent}/${state.total}. Waiting for the new response…`);
+
+      const started = Date.now();
+      while (state.enabled && Date.now() - started < START_TIMEOUT_MS) {
+        const signature = await getAssistantSignature();
+
+        if (controlsGenerating() || (signature && signature !== baselineSignature)) {
+          state.waitingForSignatureChange = false;
+          state.lastSignature = signature || baselineSignature;
+          state.stableSince = 0;
+          status("generating", `AI is generating… ${state.sent}/${state.total} sent`);
+          schedule(monitorGeneration);
+          return;
+        }
+
+        await new Promise(resolve => setTimeout(resolve, POLL_MS));
+      }
+
+      stop(`Stopped: the AI did not start a new response after automatic message ${state.sent}.`);
     } catch (err) {
       stop(`Stopped: ${err?.message || "couldn't send the automatic message."}`);
     }
   }
 
+  async function start(total, prompt) {
+    const adapter = getAdapter();
+    if (!adapter) throw new Error("No supported AI platform adapter is active on this page.");
+
+    state.enabled = true;
+    state.message = prompt || DEFAULT_MESSAGE;
+    state.total = total;
+    state.remaining = total;
+    state.sent = 0;
+    state.stableSince = 0;
+
+    const baselineSignature = await getAssistantSignature();
+
+    // If the AI is already generating, wait for that response to finish.
+    if (controlsGenerating()) {
+      state.lastSignature = baselineSignature;
+      status("generating", `Auto Continue armed. Waiting for the current response… 0/${total} sent`);
+      schedule(monitorGeneration);
+      return;
+    }
+
+    // If the user is preparing the initial prompt, don't touch it. Wait for
+    // the user to send it, then detect the new assistant response.
+    if (composerHasText()) {
+      state.armedForInitialGeneration = true;
+      state.lastSignature = baselineSignature;
+      status("armed", `Auto Continue armed. Send your prompt when ready… 0/${total} sent`);
+      waitForInitialGeneration(baselineSignature);
+      return;
+    }
+
+    // If an assistant response already exists and the page is idle, start the
+    // first automatic follow-up immediately.
+    if (baselineSignature || document.querySelector(".ds-message, [data-message-author-role='assistant']")) {
+      state.lastSignature = baselineSignature;
+      status("ready", `Existing response detected. Starting Auto Continue… 0/${total} sent`);
+      await sendNext();
+      return;
+    }
+
+    state.armedForInitialGeneration = true;
+    state.lastSignature = baselineSignature;
+    status("armed", `Waiting for the first AI response… 0/${total} sent`);
+    waitForInitialGeneration(baselineSignature);
+  }
+
   function userInteraction(event) {
     if (!state.enabled || state.internalSend) return;
-
     const adapter = getAdapter();
-    if (!adapter) return;
-
-    const target = event.target;
-    if (!(target instanceof Element)) return;
+    if (!adapter || !(event.target instanceof Element)) return;
 
     let composer = null;
-    try {
-      composer = target.closest(adapter.composerSelectors.join(","));
-    } catch {}
-
     let send = null;
-    try {
-      send = target.closest(adapter.sendSelectors.join(","));
-    } catch {}
+    try { composer = event.target.closest(adapter.composerSelectors.join(",")); } catch {}
+    try { send = event.target.closest(adapter.sendSelectors.join(",")); } catch {}
 
-    // While waiting for the initial generation, normal typing is allowed.
-    // Only a real user send should cancel the automatic queue.
-    if (state.sent === 0 && state.armedForNewGeneration) {
+    // Typing the initial prompt is allowed. A manual send cancels the queue.
+    if (state.sent === 0 && state.armedForInitialGeneration) {
       if (send) stop("Stopped because you manually sent a message.");
       return;
     }
@@ -356,70 +549,51 @@ window.__universalLLMAutoContinueLoaded = true;
     }
   }
 
-  document.addEventListener("click", userInteraction, true);
-
-  chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-    if (message?.type === "AUTO_CONTINUE_PING") {
+  const onRuntimeMessage = (message, _sender, sendResponse) => {
+    if (message?.type === "AUTO_CONTINUE_V2_PING") {
       sendResponse({ ok: true, site: getAdapter() ? location.hostname : "unsupported" });
       return true;
     }
 
-    if (message?.type === "AUTO_CONTINUE_GET_STATUS") {
+    if (message?.type === "AUTO_CONTINUE_V2_GET_STATUS") {
       sendResponse({ ok: true, status: snapshot() });
       return true;
     }
 
-    if (message?.type === "AUTO_CONTINUE_START") {
-      const adapter = getAdapter();
-      if (!adapter) {
-        sendResponse({ ok: false, error: "No supported AI platform adapter is active on this page." });
-        return true;
-      }
-
+    if (message?.type === "AUTO_CONTINUE_V2_START") {
       const total = Math.min(
         MAX_COUNT,
         Math.max(1, Number.parseInt(message.count, 10) || DEFAULT_COUNT)
       );
       const prompt = String(message.prompt ?? DEFAULT_MESSAGE).trim() || DEFAULT_MESSAGE;
 
-      state.enabled = true;
-      state.message = prompt;
-      state.total = total;
-      state.remaining = total;
-      state.sent = 0;
-      state.generationSeen = isGenerating();
-      state.lastGenerationEndAt = 0;
+      start(total, prompt)
+        .then(() => sendResponse({ ok: true, status: snapshot() }))
+        .catch(err => sendResponse({
+          ok: false,
+          error: err?.message || "Couldn't start Auto Continue on this page.",
+        }));
 
-      // If the user has text in the composer, they are preparing the initial
-      // request. Arm without sending anything.
-      state.armedForNewGeneration = !state.generationSeen && composerHasText();
-
-      status(
-        "armed",
-        state.generationSeen
-          ? `Auto Continue armed. Waiting for generation to finish… 0/${total} sent`
-          : state.armedForNewGeneration
-            ? `Auto Continue armed. Waiting for your request to finish… 0/${total} sent`
-            : hasAssistantResponse()
-              ? `Auto Continue armed. Existing response detected. Starting… 0/${total} sent`
-              : `Auto Continue armed. Waiting for the first generation… 0/${total} sent`
-      );
-
-      if (state.timer) clearTimeout(state.timer);
-      schedule(POLL_MS, monitor);
-
-      sendResponse({ ok: true, status: snapshot() });
       return true;
     }
 
-    if (message?.type === "AUTO_CONTINUE_STOP") {
+    if (message?.type === "AUTO_CONTINUE_V2_STOP") {
       stop("Auto Continue stopped.");
       sendResponse({ ok: true, status: snapshot() });
       return true;
     }
 
     return false;
-  });
-})();
+  };
 
-}
+  chrome.runtime.onMessage.addListener(onRuntimeMessage);
+  document.addEventListener("click", userInteraction, true);
+
+  window.__universalLLMAutoContinueCleanup = () => {
+    state.enabled = false;
+    if (state.timer) clearTimeout(state.timer);
+    state.timer = null;
+    chrome.runtime.onMessage.removeListener(onRuntimeMessage);
+    document.removeEventListener("click", userInteraction, true);
+  };
+})();

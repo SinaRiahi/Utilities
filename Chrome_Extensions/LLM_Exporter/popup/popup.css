@@ -249,3 +249,6 @@ body {
   color: #fff;
   cursor: not-allowed;
 }
+
+#btn-scroll { margin-left: auto; }
+#btn-refresh { margin-left: 0; }

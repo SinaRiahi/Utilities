@@ -22,6 +22,7 @@ Each message can be individually selected or deselected.
 * Refresh the conversation
 * See a short preview of each message
 * AI responses are selected by default
+* Scroll for all messages to load
 * Automatically continue the conversation with a message for multi-response documents!
 
 The selected messages are copied as **Markdown**, making them ready to paste directly into a Markdown editor.
@@ -43,7 +44,7 @@ Select messages
       ↓
 Copy Markdown
       ↓
-Markdown editor
+MD Studio
       ↓
 PDF
 ```
@@ -129,18 +130,6 @@ Select the directory containing:
 manifest.json
 ```
 
-For example:
-
-```text
-extension/
-├── manifest.json
-├── background/
-├── content/
-├── offscreen/
-├── popup/
-├── shared/
-└── assets/
-```
 
 ### 5. Open a supported AI conversation
 
@@ -209,46 +198,6 @@ The exact rendering depends on the source platform and the content it exposes to
 
 ---
 
-## Architecture
-
-Universal LLM Exporter is a Chrome Manifest V3 extension.
-
-```text
-                    ┌─────────────────────┐
-                    │    AI Conversation  │
-                    │ ChatGPT / Claude /  │
-                    │ DeepSeek / Gemini / │
-                    │ Grok                │
-                    └──────────┬──────────┘
-                               │
-                               ▼
-                    ┌─────────────────────┐
-                    │   Content Script    │
-                    │                     │
-                    │ Platform-specific   │
-                    │ message extraction  │
-                    └──────────┬──────────┘
-                               │
-                               ▼
-                    ┌─────────────────────┐
-                    │    Popup UI         │
-                    │                     │
-                    │ Message selection   │
-                    │ Select all / none   │
-                    └───────┬─────┬───────┘
-                            │     │
-                 Markdown   │     │ PDF
-                   copy     │     │ export
-                            ▼     ▼
-                       Clipboard  │
-                                  ▼
-                         ┌────────────────┐
-                         │ PDF Renderer   │
-                         └───────┬────────┘
-                                 │
-                                 ▼
-                              PDF file
-```
 
 ### Main components
 
@@ -289,22 +238,6 @@ Contains extension assets such as the toolbar icon.
 
 ---
 
-## DeepSeek support
-
-DeepSeek requires its own extraction logic because its conversation DOM differs significantly from other supported platforms.
-
-The exporter supports DeepSeek's current message structure using selectors for:
-
-* Individual message containers
-* Assistant message content
-* Markdown content
-* Thinking/reasoning sections
-
-Thinking content is treated separately from the final assistant response so that the exported answer isn't unnecessarily polluted by internal reasoning UI.
-
-Because AI websites frequently change their frontend implementations, platform-specific selectors may need to be updated in future versions.
-
----
 
 ## Privacy
 
