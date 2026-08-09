@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Universal LLM Conversation Exporter",
-  "version": "0.1.1",
-  "description": "Select and copy LLM responses as clean Markdown, or export selected messages to PDF/DOCX.",
+  "version": "0.2.0",
+  "description": "Select messages from AI conversations, copy them as clean Markdown, and open Markdown Studio for editing and PDF export.",
   "icons": {
     "16": "assets/icon16.png",
     "48": "assets/icon48.png",
@@ -17,11 +17,7 @@
     }
   },
   "permissions": [
-    "activeTab",
-    "scripting",
-    "storage",
-    "downloads",
-    "offscreen"
+    "activeTab"
   ],
   "host_permissions": [
     "https://chatgpt.com/*",
@@ -32,10 +28,6 @@
     "https://grok.com/*",
     "https://x.com/i/grok*"
   ],
-  "background": {
-    "service_worker": "background/background.js",
-    "type": "module"
-  },
   "content_scripts": [
     {
       "matches": [

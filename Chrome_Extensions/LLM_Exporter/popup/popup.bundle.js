@@ -26,7 +26,7 @@ const el = {
   deselectAll: document.getElementById("btn-deselect-all"),
   refresh: document.getElementById("btn-refresh"),
   copy: document.getElementById("btn-copy"),
-  pdf: document.getElementById("btn-pdf"),
+  openMd: document.getElementById("btn-open-md"),
 };
 
 let activeTab = null;
@@ -58,7 +58,7 @@ function updateSelectionUI() {
   const total = conversation?.messages?.length || 0;
   el.selectionCount.textContent = `${count} of ${total} selected`;
   el.copy.disabled = count === 0;
-  el.pdf.disabled = count === 0;
+  el.openMd.disabled = false;
 }
 
 function renderMessages() {
@@ -127,7 +127,6 @@ async function extractConversation() {
   clearStatus();
   el.refresh.disabled = true;
   el.copy.disabled = true;
-  el.pdf.disabled = true;
   el.messageList.innerHTML = '<div class="loading-state">Reading conversation…</div>';
 
   const response = await new Promise((resolve) => {
@@ -215,57 +214,10 @@ async function copySelected() {
   }
 }
 
-async function exportSelectedPdf() {
-  const selectedConversation = getSelectedConversation();
-  if (!selectedConversation?.messages.length) {
-    showStatus("Select at least one message.", "error");
-    return;
-  }
-
-  el.pdf.disabled = true;
-  el.copy.disabled = true;
-  el.pdf.textContent = "Generating PDF…";
-  clearStatus();
-
-  try {
-    const response = await chrome.runtime.sendMessage({
-      type: "EXPORT_CONVERSATION_REQUEST",
-      tabId: activeTab.id,
-      format: "pdf",
-      conversation: selectedConversation,
-      settings: {
-        includeUser: true,
-        includeAssistant: true,
-        includeCode: true,
-        includeMath: true,
-        includeMermaid: true,
-        preserveTables: true,
-        coverPage: false,
-        tableOfContents: false,
-        theme: "light",
-        fontFamily: "Georgia, 'Times New Roman', serif",
-        fontSize: 11,
-        lineHeight: 1.6,
-        paperSize: "A4",
-        orientation: "portrait",
-        marginMm: 20,
-      },
-    });
-
-    if (!response?.ok) {
-      showStatus(response?.error || "PDF generation failed.", "error");
-      return;
-    }
-
-    showStatus(`Saved ${response.filename}`, "success");
-  } catch (err) {
-    console.error("[LLM Exporter] PDF export error:", err);
-    showStatus("Something went wrong while generating the PDF.", "error");
-  } finally {
-    el.pdf.disabled = selected.size === 0;
-    el.copy.disabled = selected.size === 0;
-    el.pdf.textContent = "Export selected as PDF";
-  }
+function openMarkdownStudio() {
+  chrome.tabs.create({
+    url: "https://sinariahi.github.io/Utilities/MD_Studio/index.html",
+  });
 }
 
 async function detectSiteAndLoad() {
@@ -302,7 +254,7 @@ function init() {
   el.deselectAll.addEventListener("click", () => setAllSelected(false));
   el.refresh.addEventListener("click", extractConversation);
   el.copy.addEventListener("click", copySelected);
-  el.pdf.addEventListener("click", exportSelectedPdf);
+  el.openMd.addEventListener("click", openMarkdownStudio);
   detectSiteAndLoad();
 }
 

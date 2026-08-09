@@ -1,37 +1,9 @@
 /**
  * shared/utils.js
  *
- * Small, dependency-free helpers shared across content scripts, the popup,
- * and the background service worker. Kept framework-free so it can be
- * imported (or inlined) anywhere without a build step.
+ * Helpers shared by the content scripts.
  */
 
-/**
- * @typedef {Object} ConversationMessage
- * @property {"user"|"assistant"} role
- * @property {string} markdown  - message body, already converted to Markdown
- * @property {string} [name]    - optional display name (e.g. custom GPT name)
- */
-
-/**
- * @typedef {Object} ExtractedConversation
- * @property {string} site        - id of the source site, e.g. "chatgpt"
- * @property {string} title       - conversation title, best-effort
- * @property {string} url         - source URL
- * @property {string} extractedAt - ISO timestamp
- * @property {ConversationMessage[]} messages
- */
-
-/**
- * Turns a rendered DOM subtree back into reasonably-faithful Markdown.
- * This is intentionally conservative: LLM chat UIs already render Markdown
- * to HTML, so extractors mostly need to reverse that transform, not do
- * general-purpose HTML->MD conversion. Handles the common block/inline
- * elements produced by ChatGPT/Claude/Gemini/Grok/DeepSeek renderers.
- *
- * @param {HTMLElement} root
- * @returns {string}
- */
 function domToMarkdown(root) {
   if (!root) return "";
 
@@ -52,30 +24,19 @@ function domToMarkdown(root) {
       const tag = child.tagName.toLowerCase();
       switch (tag) {
         case "strong":
-        case "b":
-          out += `**${inline(child)}**`;
-          break;
+        case "b": out += `**${inline(child)}**`; break;
         case "em":
-        case "i":
-          out += `*${inline(child)}*`;
-          break;
-        case "code":
-          out += `\`${textOf(child)}\``;
-          break;
+        case "i": out += `*${inline(child)}*`; break;
+        case "code": out += `\`${textOf(child)}\``; break;
         case "a": {
           const href = child.getAttribute("href") || "";
           out += `[${inline(child)}](${href})`;
           break;
         }
-        case "br":
-          out += "\n";
-          break;
+        case "br": out += "\n"; break;
         case "del":
-        case "s":
-          out += `~~${inline(child)}~~`;
-          break;
-        default:
-          out += inline(child);
+        case "s": out += `~~${inline(child)}~~`; break;
+        default: out += inline(child);
       }
     });
     return out;
@@ -92,12 +53,7 @@ function domToMarkdown(root) {
       const tag = child.tagName.toLowerCase();
 
       switch (tag) {
-        case "h1":
-        case "h2":
-        case "h3":
-        case "h4":
-        case "h5":
-        case "h6": {
+        case "h1": case "h2": case "h3": case "h4": case "h5": case "h6": {
           const level = parseInt(tag[1], 10);
           lines.push(`${"#".repeat(level)} ${inline(child).trim()}`);
           lines.push("");
@@ -136,10 +92,7 @@ function domToMarkdown(root) {
         case "blockquote": {
           const inner = [];
           child.querySelectorAll("p").forEach((p) => inner.push(inline(p).trim()));
-          inner
-            .join("\n")
-            .split("\n")
-            .forEach((l) => lines.push("> " + l));
+          inner.join("\n").split("\n").forEach((l) => lines.push("> " + l));
           lines.push("");
           break;
         }
@@ -148,9 +101,7 @@ function domToMarkdown(root) {
           rows.forEach((row, idx) => {
             const cells = Array.from(row.querySelectorAll("th,td")).map((c) => inline(c).trim());
             lines.push("| " + cells.join(" | ") + " |");
-            if (idx === 0) {
-              lines.push("| " + cells.map(() => "---").join(" | ") + " |");
-            }
+            if (idx === 0) lines.push("| " + cells.map(() => "---").join(" | ") + " |");
           });
           lines.push("");
           break;
@@ -165,27 +116,15 @@ function domToMarkdown(root) {
           lines.push(`![${alt}](${src})`);
           break;
         }
-        default:
-          block(child, listDepth);
+        default: block(child, listDepth);
       }
     });
   }
 
   block(root);
-
-  return lines
-    .join("\n")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
+  return lines.join("\n").replace(/\n{3,}/g, "\n\n").trim();
 }
 
-/**
- * Waits for a selector to appear in the DOM, useful for SPA sites that
- * render conversation content asynchronously.
- * @param {string} selector
- * @param {number} timeoutMs
- * @returns {Promise<Element|null>}
- */
 function waitForSelector(selector, timeoutMs = 8000) {
   return new Promise((resolve) => {
     const existing = document.querySelector(selector);
@@ -207,24 +146,105 @@ function waitForSelector(selector, timeoutMs = 8000) {
   });
 }
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function getScrollableContainers() {
+  const candidates = [document.scrollingElement, ...document.querySelectorAll("*")];
+  const seen = new Set();
+  const result = [];
+
+  for (const el of candidates) {
+    if (!el || seen.has(el)) continue;
+    seen.add(el);
+    const isDocument = el === document.scrollingElement;
+    const scrollHeight = isDocument ? el.scrollHeight : el.scrollHeight;
+    const clientHeight = isDocument ? window.innerHeight : el.clientHeight;
+    if (scrollHeight - clientHeight < 350) continue;
+
+    const style = isDocument ? null : getComputedStyle(el);
+    const overflowY = style?.overflowY || "auto";
+    if (!isDocument && !["auto", "scroll", "overlay"].includes(overflowY)) continue;
+
+    result.push({ el, distance: scrollHeight - clientHeight });
+  }
+
+  return result.sort((a, b) => b.distance - a.distance).map(({ el }) => el);
+}
+
 /**
- * Best-effort slugify for filenames.
- * @param {string} str
+ * Walks a likely chat scroll container in both directions. This is designed
+ * for SPA chat UIs where older turns are lazy-loaded only after scrolling.
+ * It returns the original scroll positions so the user's page can be restored.
  */
+async function traverseConversation(loadStep, options = {}) {
+  const maxMs = options.maxMs ?? 12000;
+  const maxSteps = options.maxSteps ?? 80;
+  const pauseMs = options.pauseMs ?? 180;
+  const containers = getScrollableContainers();
+  if (!containers.length) return { traversed: false, reason: "no-scroll-container" };
+
+  const container = containers[0];
+  const isDocument = container === document.scrollingElement;
+  const getTop = () => isDocument ? window.scrollY : container.scrollTop;
+  const setTop = (value) => {
+    if (isDocument) window.scrollTo(0, value);
+    else container.scrollTop = value;
+  };
+  const viewport = () => isDocument ? window.innerHeight : container.clientHeight;
+
+  const original = getTop();
+  const started = Date.now();
+  let steps = 0;
+
+  // Start at the oldest visible region so upward lazy-loading has a chance to
+  // reveal the beginning of a long conversation.
+  setTop(0);
+  await sleep(pauseMs);
+  await loadStep();
+
+  let stable = 0;
+  while (steps++ < maxSteps && Date.now() - started < maxMs) {
+    const beforeHeight = container.scrollHeight;
+    const beforeTop = getTop();
+    const next = Math.min(
+      Math.max(0, container.scrollHeight - viewport()),
+      beforeTop + Math.max(200, viewport() * 0.85)
+    );
+    if (next <= beforeTop + 2) {
+      stable++;
+    } else {
+      setTop(next);
+      await sleep(pauseMs);
+      await loadStep();
+    }
+
+    const afterHeight = container.scrollHeight;
+    if (next >= afterHeight - viewport() - 2 && afterHeight === beforeHeight) stable++;
+    if (stable >= 3) break;
+  }
+
+  // Return to where the user was. The extraction has already accumulated any
+  // messages discovered during traversal.
+  setTop(original);
+  return { traversed: true, steps };
+}
+
 function slugify(str, maxLen = 60) {
   return (str || "conversation")
-    .trim()
-    .toLowerCase()
+    .trim().toLowerCase()
     .replace(/[^\w\s-]/g, "")
     .replace(/\s+/g, "-")
     .slice(0, maxLen)
     .replace(/-+$/, "") || "conversation";
 }
 
-// Content scripts load this as a plain global script (no module system),
-// so the only real export path is attaching to `self`. Node-based tests
-// (see test/run-render-test.mjs) don't `require()` this file directly for
-// that reason — they eval it against a mock `self`, which is a closer
-// simulation of the actual Chrome content-script environment than CJS
-// interop would be.
-self.ExporterUtils = { domToMarkdown, waitForSelector, slugify };
+self.ExporterUtils = {
+  domToMarkdown,
+  waitForSelector,
+  sleep,
+  getScrollableContainers,
+  traverseConversation,
+  slugify,
+};
