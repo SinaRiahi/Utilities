@@ -1,0 +1,212 @@
+[
+  {
+    "index": 1,
+    "response_id": "c559e40a-fb41-406a-8a57-32c889fce341",
+    "url": "https://api-zakaria.digikala.com/api/features/sdk-1aauD6mWWgx2Deg2",
+    "method": "GET",
+    "status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "body_file": "api_responses/0001_get_sdk-1aauD6mWWgx2Deg2/body.json",
+    "metadata_file": "api_responses/0001_get_sdk-1aauD6mWWgx2Deg2/meta.json"
+  },
+  {
+    "index": 2,
+    "response_id": "e8ed427d-ac44-4b68-8bf8-2910ba99c246",
+    "url": "https://sentry.digikala.com/api/3/envelope/?sentry_version=7&sentry_key=6ec0a41878123816ca85f3d3bdc0bf45&sentry_client=sentry.javascript.nextjs%2F10.63.0",
+    "method": "POST",
+    "status": 200,
+    "content_type": "application/json",
+    "body_file": "api_responses/0002_post_response/body.json",
+    "metadata_file": "api_responses/0002_post_response/meta.json"
+  },
+  {
+    "index": 3,
+    "response_id": "c688b927-795c-42df-b12f-5135b5962d74",
+    "url": "https://static1.intrack.ir/api/web/download/sdk/v1/intcs.wasm",
+    "method": "GET",
+    "status": 200,
+    "content_type": "application/wasm",
+    "body_file": "api_responses/0003_get_intcs.wasm/body.bin",
+    "metadata_file": "api_responses/0003_get_intcs.wasm/meta.json"
+  },
+  {
+    "index": 4,
+    "response_id": "d126be4c-ad15-4d9b-963d-7f9dd770602b",
+    "url": "https://sentry.digikala.com/api/3/envelope/?sentry_version=7&sentry_key=6ec0a41878123816ca85f3d3bdc0bf45&sentry_client=sentry.javascript.nextjs%2F10.63.0",
+    "method": "POST",
+    "status": 200,
+    "content_type": "application/json",
+    "body_file": "api_responses/0004_post_response/body.json",
+    "metadata_file": "api_responses/0004_post_response/meta.json"
+  },
+  {
+    "index": 5,
+    "response_id": "f514e615-91cc-4c63-b58f-dae8be504c44",
+    "url": "https://sentry.digikala.com/api/3/envelope/?sentry_version=7&sentry_key=6ec0a41878123816ca85f3d3bdc0bf45&sentry_client=sentry.javascript.nextjs%2F10.63.0",
+    "method": "POST",
+    "status": 200,
+    "content_type": "application/json",
+    "body_file": "api_responses/0005_post_response/body.json",
+    "metadata_file": "api_responses/0005_post_response/meta.json"
+  },
+  {
+    "index": 6,
+    "response_id": "7a124012-b8c7-41b3-97b2-1aac39b21e5f",
+    "url": "https://sentry.digikala.com/api/3/envelope/?sentry_version=7&sentry_key=6ec0a41878123816ca85f3d3bdc0bf45&sentry_client=sentry.javascript.nextjs%2F10.63.0",
+    "method": "POST",
+    "status": 200,
+    "content_type": "application/json",
+    "body_file": "api_responses/0006_post_response/body.json",
+    "metadata_file": "api_responses/0006_post_response/meta.json"
+  },
+  {
+    "index": 7,
+    "response_id": "a567b469-1107-4c79-9e24-af2e82d1edf5",
+    "url": "https://api-zakaria.digikala.com/api/features/sdk-1aauD6mWWgx2Deg2",
+    "method": "GET",
+    "status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "body_file": "api_responses/0007_get_sdk-1aauD6mWWgx2Deg2/body.json",
+    "metadata_file": "api_responses/0007_get_sdk-1aauD6mWWgx2Deg2/meta.json"
+  },
+  {
+    "index": 8,
+    "response_id": "dcc3368e-33c1-452a-9880-6dbb901e0d6d",
+    "url": "https://api.digikala.com/v1/dictionaries/?hashes%5B0%5D=&hashes%5B1%5D=&hashes%5B2%5D=&hashes%5B3%5D=&hashes%5B4%5D=&hashes%5B5%5D=&hashes%5B6%5D=&hashes%5B7%5D=&hashes%5B8%5D=&types%5B0%5D=states&types%5B1%5D=cities&types%5B2%5D=user_jobs&types%5B3%5D=mega_menu&types%5B4%5D=universal&types%5B5%5D=category_tree&types%5B6%5D=districts&types%5B7%5D=seo_content&types%5B8%5D=superapp_services",
+    "method": "GET",
+    "status": 200,
+    "content_type": "application/json",
+    "body_file": "api_responses/0008_get_response/body.json",
+    "metadata_file": "api_responses/0008_get_response/meta.json"
+  },
+  {
+    "index": 9,
+    "response_id": "bbafc5d6-e4b0-482a-9d23-bb01a5939b53",
+    "url": "https://tracker.digikala.com/com.snowplowanalytics.snowplow/tp2",
+    "method": "POST",
+    "status": 200,
+    "content_type": "text/plain; charset=UTF-8",
+    "body_file": "api_responses/0009_post_tp2/body.bin",
+    "metadata_file": "api_responses/0009_post_tp2/meta.json"
+  },
+  {
+    "index": 10,
+    "response_id": "e46f0de8-fa4b-49ff-bc13-5d989c7c5fbb",
+    "url": "https://api.digikala.com/v1/user/init/?skip_keys[]=cart",
+    "method": "GET",
+    "status": 200,
+    "content_type": "application/json",
+    "body_file": "api_responses/0010_get_response/body.json",
+    "metadata_file": "api_responses/0010_get_response/meta.json"
+  },
+  {
+    "index": 11,
+    "response_id": "6d264f1c-0525-4374-b4d9-a0ecddfdc0be",
+    "url": "https://api.digikala.com/v1/magnet/related-posts/2847164/",
+    "method": "GET",
+    "status": 200,
+    "content_type": "application/json",
+    "body_file": "api_responses/0011_get_response/body.json",
+    "metadata_file": "api_responses/0011_get_response/meta.json"
+  },
+  {
+    "index": 12,
+    "response_id": "a0fc9e5a-55a5-4232-9d95-3912876369e3",
+    "url": "https://api.digikala.com/v2/product/2847164/",
+    "method": "GET",
+    "status": 200,
+    "content_type": "application/json",
+    "body_file": "api_responses/0012_get_response/body.json",
+    "metadata_file": "api_responses/0012_get_response/meta.json"
+  },
+  {
+    "index": 13,
+    "response_id": "0727bb18-663b-44ad-8aaa-4b60e6e23382",
+    "url": "https://tracker.digikala.com/com.snowplowanalytics.snowplow/tp2",
+    "method": "POST",
+    "status": 200,
+    "content_type": "text/plain; charset=UTF-8",
+    "body_file": "api_responses/0013_post_tp2/body.bin",
+    "metadata_file": "api_responses/0013_post_tp2/meta.json"
+  },
+  {
+    "index": 14,
+    "response_id": "44d473ca-5c0a-4805-a643-7b5de078ffac",
+    "url": "https://api.digikala.com/v1/product/2847164/digipay-credit/",
+    "method": "GET",
+    "status": 200,
+    "content_type": "application/json",
+    "body_file": "api_responses/0014_get_response/body.json",
+    "metadata_file": "api_responses/0014_get_response/meta.json"
+  },
+  {
+    "index": 15,
+    "response_id": "75cbebc4-825f-48fb-a3c0-7dce8ee3b3f8",
+    "url": "https://sync.digiwiseid.com/api/v1/cookies/yektanet?smid=019fec4e-342b-7f98-8e69-157c92f87064&source=IFRAME&user_id=d48291a9-ed63-47ae-480e-cfd6fec7327a",
+    "method": "GET",
+    "status": 200,
+    "content_type": "application/json",
+    "body_file": "api_responses/0015_get_yektanet/body.json",
+    "metadata_file": "api_responses/0015_get_yektanet/meta.json"
+  },
+  {
+    "index": 16,
+    "response_id": "f3828f82-2b5e-44ef-9bf9-7200791ee571",
+    "url": "https://api.digikala.com/v1/product/2847164/seller-vouchers/",
+    "method": "GET",
+    "status": 200,
+    "content_type": "application/json",
+    "body_file": "api_responses/0016_get_response/body.json",
+    "metadata_file": "api_responses/0016_get_response/meta.json"
+  },
+  {
+    "index": 17,
+    "response_id": "162d5c21-fec7-4930-aab8-19baa988b3c2",
+    "url": "https://api.digikala.com/v1/product/2847164/cpc/",
+    "method": "GET",
+    "status": 200,
+    "content_type": "application/json",
+    "body_file": "api_responses/0017_get_response/body.json",
+    "metadata_file": "api_responses/0017_get_response/meta.json"
+  },
+  {
+    "index": 18,
+    "response_id": "3b08f346-0a22-40a1-a579-b765da52ad79",
+    "url": "https://api-zakaria.digikala.com/api/features/sdk-1aauD6mWWgx2Deg2",
+    "method": "GET",
+    "status": 200,
+    "content_type": "application/json; charset=utf-8",
+    "body_file": "api_responses/0018_get_sdk-1aauD6mWWgx2Deg2/body.json",
+    "metadata_file": "api_responses/0018_get_sdk-1aauD6mWWgx2Deg2/meta.json"
+  },
+  {
+    "index": 19,
+    "response_id": "a005b76f-b017-437e-bb15-fc304724da91",
+    "url": "https://tracker.digikala.com/com.snowplowanalytics.snowplow/tp2",
+    "method": "POST",
+    "status": 200,
+    "content_type": "text/plain; charset=UTF-8",
+    "body_file": "api_responses/0019_post_tp2/body.bin",
+    "metadata_file": "api_responses/0019_post_tp2/meta.json"
+  },
+  {
+    "index": 20,
+    "response_id": "e1ba1a07-bde0-4d5e-b573-1bbbde404299",
+    "url": "https://api.digikala.com/cart/v1/carts/mini",
+    "method": "GET",
+    "status": 200,
+    "content_type": "application/json",
+    "body_file": "api_responses/0020_get_mini/body.json",
+    "metadata_file": "api_responses/0020_get_mini/meta.json"
+  },
+  {
+    "index": 21,
+    "response_id": "e1721121-427d-4a79-bb03-11222716159b",
+    "url": "https://api.digikala.com/v1/product/2847164/recommendation/?offset=0",
+    "method": "GET",
+    "status": 200,
+    "content_type": "application/json",
+    "body_file": "api_responses/0021_get_response/body.json",
+    "metadata_file": "api_responses/0021_get_response/meta.json"
+  }
+]

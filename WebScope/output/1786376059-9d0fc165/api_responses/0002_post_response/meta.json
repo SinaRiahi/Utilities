@@ -1,0 +1,31 @@
+{
+  "id": "88831d6a-4c42-44dc-9780-e833f8b6da03",
+  "url": "https://sentry.digikala.com/api/3/envelope/?sentry_version=7&sentry_key=6ec0a41878123816ca85f3d3bdc0bf45&sentry_client=sentry.javascript.nextjs%2F10.63.0",
+  "status": 200,
+  "status_text": "",
+  "content_type": "application/json",
+  "headers": {
+    "access-control-allow-origin": "*",
+    "access-control-expose-headers": "x-sentry-error,x-sentry-rate-limits,retry-after",
+    "alt-svc": "h3=\":443\"; ma=86400",
+    "content-length": "2",
+    "content-type": "application/json",
+    "cross-origin-resource-policy": "cross-origin",
+    "date": "Mon, 10 Aug 2026 15:34:08 GMT",
+    "server": "DigiCDN Edge",
+    "server-timing": "total;dur=0.012",
+    "vary": "origin, access-control-request-method, access-control-request-headers",
+    "x-dk-request-id": "8bcf1b876c871332dffc17cbbe34f40e",
+    "x-dk-server-id": "ir-afb-v05",
+    "x-frame-options": "SAMEORIGIN"
+  },
+  "request_url": "https://sentry.digikala.com/api/3/envelope/?sentry_version=7&sentry_key=6ec0a41878123816ca85f3d3bdc0bf45&sentry_client=sentry.javascript.nextjs%2F10.63.0",
+  "request_method": "POST",
+  "resource_type": "fetch",
+  "api_like": true,
+  "body_captured": true,
+  "body_length": 2,
+  "body_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+  "is_json": true,
+  "body_file": "api_responses/0002_post_response/body.json"
+}

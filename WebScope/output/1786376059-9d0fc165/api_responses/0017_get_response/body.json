@@ -1,0 +1,4244 @@
+{
+  "status": 200,
+  "data": {
+    "zone_top": {
+      "title": "پیشنهاد فروشندگان",
+      "description": "آگهی‌شده",
+      "products": [
+        {
+          "id": 9042004,
+          "title_fa": "دفترچه یادداشت 200 برگ مدل رنگین کمان ",
+          "title_en": "",
+          "url": {
+            "uri": "/product/dkp-9042004/دفترچه-یادداشت-200-برگ-مدل-رنگین-کمان"
+          },
+          "status": "marketable",
+          "has_quick_view": false,
+          "data_layer": {
+            "brand": "متفرقه",
+            "category": "[MA,لوازم التحریر]",
+            "metric6": 1673,
+            "dimension2": 15,
+            "dimension6": 0,
+            "dimension7": "special-offer",
+            "dimension9": 4.5,
+            "dimension11": 0,
+            "dimension20": "marketable",
+            "item_category2": "کتاب، لوازم تحریر و هنر",
+            "item_category3": "لوازم تحریر",
+            "item_category4": "دفتر و کاغذ و مقوا",
+            "item_category5": "دفتر"
+          },
+          "product_type": "product",
+          "test_title_fa": "",
+          "test_title_en": "",
+          "digiplus": {
+            "services": [
+              "۴ ارسال رایگان دیجیکالا",
+              "۲ ارسال سوپرمارکت",
+              "۴ ارسال رایگان ۴۵ دقیقه‌ای",
+              "پشتیبانی اختصاصی",
+              "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+            ],
+            "service_list": [
+              {
+                "title": "۴ ارسال رایگان دیجیکالا"
+              },
+              {
+                "title": "۲ ارسال سوپرمارکت"
+              },
+              {
+                "title": "۴ ارسال رایگان ۴۵ دقیقه‌ای"
+              },
+              {
+                "title": "پشتیبانی اختصاصی"
+              },
+              {
+                "title": "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+              }
+            ],
+            "services_summary": [
+              "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+            ],
+            "is_jet_eligible": true,
+            "cash_back": 0,
+            "is_general_location_jet_eligible": false,
+            "fast_shipping_text": "ارسال سریع دیجی‌کالا"
+          },
+          "cpc": [],
+          "images": {
+            "main": {
+              "url": [
+                "https://dkstatics-public.digikala.com/digikala-products/056267395a2211c4a6cac2464650e3a23c6b6713_1658512953.jpg?x-oss-process=image/resize,m_lfit,h_300,w_300/quality,q_80"
+              ],
+              "webp_url": [
+                "https://dkstatics-public.digikala.com/digikala-products/056267395a2211c4a6cac2464650e3a23c6b6713_1658512953.jpg?x-oss-process=image/resize,m_lfit,h_300,w_300/format,webp/quality,q_80"
+              ]
+            }
+          },
+          "default_variant": {
+            "id": 43287767,
+            "lead_time": 0,
+            "rank": 0,
+            "rate": 90.8,
+            "statistics": {
+              "totally_satisfied": {
+                "rate_count": 98,
+                "rate": 64.05
+              },
+              "satisfied": {
+                "rate_count": 44,
+                "rate": 28.76
+              },
+              "neutral": {
+                "rate_count": 8,
+                "rate": 5.23
+              },
+              "dissatisfied": {
+                "rate_count": 2,
+                "rate": 1.31
+              },
+              "totally_dissatisfied": {
+                "rate_count": 1,
+                "rate": 0.65
+              },
+              "total_count": 153,
+              "total_rate": 90.8
+            },
+            "status": "marketable",
+            "properties": {
+              "is_fast_shipping": false,
+              "is_ship_by_seller": false,
+              "is_multi_warehouse": false,
+              "has_similar_variants": true,
+              "is_rural": false,
+              "in_digikala_warehouse": true,
+              "is_ship_from_user_state": false,
+              "nearby_seller_shipment": false,
+              "support_nearby_shipping_for_user": false,
+              "is_ship_by_seller_restricted": false
+            },
+            "warranty": {
+              "id": 272,
+              "title_fa": "گارانتی اصالت و سلامت فیزیکی کالا",
+              "title_en": "گارانتی اصالت و سلامت فیزیکی کالا"
+            },
+            "themes": [
+              {
+                "value": {
+                  "variant_id": 43287767,
+                  "id": 6,
+                  "title": "سبز",
+                  "code": "#008000",
+                  "hexCode": "#008000",
+                  "hex_code": "#008000",
+                  "nature": "color"
+                },
+                "label": "رنگ",
+                "type": "colored",
+                "is_main": true
+              }
+            ],
+            "color": {
+              "id": 6,
+              "title": "سبز",
+              "hex_code": "#008000"
+            },
+            "seller": {
+              "id": 1082186,
+              "title": "برگزیده یاس",
+              "code": "EX5JE",
+              "url": "https://www.digikala.com/seller/EX5JE/",
+              "rating": {
+                "total_rate": 88,
+                "total_count": 29268,
+                "commitment": 99.9,
+                "no_return": 99.9,
+                "on_time_shipping": 94.6
+              },
+              "properties": {
+                "is_trusted": true,
+                "is_official": false,
+                "is_roosta": false,
+                "is_new": false
+              },
+              "stars": 4.7,
+              "grade": {
+                "label": "عالی",
+                "color": "#00a049"
+              },
+              "registration_date": "3 سال و 5 ماه"
+            },
+            "digiclub": {
+              "point": 19
+            },
+            "price": {
+              "selling_price": 1870000,
+              "rrp_price": 2200000,
+              "order_limit": 10,
+              "is_incredible": false,
+              "is_promotion": true,
+              "is_locked_for_digiplus": false,
+              "bnpl_active": false,
+              "discount_percent": 15,
+              "badge": {
+                "title": "فروش ویژه",
+                "color": "#E6123D"
+              },
+              "is_digiplus_promotion": false,
+              "is_digiplus_early_access": false,
+              "is_application_incredible": false,
+              "is_lightening_deal": false,
+              "is_plus_early_access": false,
+              "min_order_limit": 1
+            },
+            "shipment_methods": {
+              "description": "موجود در انبار دیجی‌کالا",
+              "has_lead_time": true,
+              "icon": "cube-badge-available-product",
+              "icon_color": "#0fabc6",
+              "providers": [
+                {
+                  "has_lead_time": false,
+                  "type": "digikala",
+                  "title": "ارسال دیجی‌کالا",
+                  "description": "این کالا در انبار دیجی‌کالا موجود و آماده پردازش است و توسط پیک دیجی‌کالا در بازه انتخابی ارسال خواهد شد.",
+                  "label": {
+                    "title": "توسط دیجی‌کالا"
+                  },
+                  "price": {
+                    "text": "وابسته به سبد",
+                    "is_free": false
+                  },
+                  "shipping_mode": "digikala",
+                  "delivery_day": "today",
+                  "image": "https://dkstatics-public.digikala.com/digikala-static/85db0f29b9d811de333a7980a0b8fb35f10b5758_1667056305.png",
+                  "svg_image": "https://dkstatics-public.digikala.com/digikala-static/562b91988f1beec9a5f13aee3cf31cfd7a1a25b1_1748679087.svg"
+                },
+                {
+                  "has_lead_time": false,
+                  "type": "jet",
+                  "title": "ارسال سریع دیجی‌کالا (تهران و کرج)",
+                  "description": "اگر سفارش را قبل از ساعت ۶ عصر ثبت کنید، همان روز ارسال می‌شود. در صورت ثبت سفارش بعد از ساعت ۶ عصر، فردا ارسال خواهد شد.",
+                  "label": {
+                    "title": "ارسال سریع دیجی‌کالا"
+                  },
+                  "price": {
+                    "text": "وابسته به سبد",
+                    "is_free": false
+                  },
+                  "shipping_mode": "jet",
+                  "delivery_day": "today",
+                  "image": "https://dkstatics-public.digikala.com/digikala-static/262c38c0e4990522af759e0016a287508bbc84f6_1684761217.png",
+                  "svg_image": "https://dkstatics-public.digikala.com/digikala-static/169e0c18019ceadf022b72c5248fe9a4ed3c68fb_1748679177.svg"
+                }
+              ]
+            },
+            "has_importer_price": false,
+            "manufacture_price_not_exist": false,
+            "has_best_price_in_last_month": false,
+            "digiplus": {
+              "services": [
+                "۴ ارسال رایگان دیجیکالا",
+                "۲ ارسال سوپرمارکت",
+                "۴ ارسال رایگان ۴۵ دقیقه‌ای",
+                "پشتیبانی اختصاصی",
+                "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+              ],
+              "service_list": [
+                {
+                  "title": "۴ ارسال رایگان دیجیکالا"
+                },
+                {
+                  "title": "۲ ارسال سوپرمارکت"
+                },
+                {
+                  "title": "۴ ارسال رایگان ۴۵ دقیقه‌ای"
+                },
+                {
+                  "title": "پشتیبانی اختصاصی"
+                },
+                {
+                  "title": "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+                }
+              ],
+              "services_summary": [
+                "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+              ],
+              "is_jet_eligible": true,
+              "cash_back": 0,
+              "is_general_location_jet_eligible": false,
+              "fast_shipping_text": "ارسال سریع دیجی‌کالا"
+            }
+          },
+          "rating": {
+            "rate": 89.89,
+            "count": 1673
+          },
+          "properties": {
+            "is_fast_shipping": false,
+            "is_ship_by_seller": false,
+            "free_shipping_badge": false,
+            "is_multi_warehouse": false,
+            "is_fake": false,
+            "has_gift": false,
+            "min_price_in_last_month": 1500000,
+            "is_non_inventory": false,
+            "is_jet_eligible": false,
+            "is_medical_supplement": false,
+            "is_ad": true,
+            "ad": {
+              "id": "431e99cd-3e51-4a53-9860-3c3703d77e5e",
+              "provider": "digikala_ads",
+              "campaign_id": 204880,
+              "seller_id": 1082186,
+              "category_id": 6004,
+              "variant_id": 43287767,
+              "position": "",
+              "properties": "P2BJNLyXp3NBIg4u7AcedpYsSxETZTpnlgf29rTzdmkt6Nf1KGLXS5ZpNaA1mPLVRx5SfbtrkIFfRaoTMOYKzhrXa90orQK/uIfKhf4PVQ3fPHVxe965Z9cp4FZ/R32Erbv3GHvzPNOYYBPVcWrrVHbLp6hVmkPvoRr9eOqdqghoQpjcw5tcgullPc45GO+bH9TDueqvRO7ntcBCL1rfnLKgISsftpj1U8uvhOPk/vg="
+            },
+            "ad_url": "/product/dkp-9042004/دفترچه-یادداشت-200-برگ-مدل-رنگین-کمان"
+          },
+          "colors": [
+            {
+              "id": 6,
+              "title": "سبز",
+              "hex_code": "#008000"
+            },
+            {
+              "id": 3,
+              "title": "قرمز",
+              "hex_code": "#FF0000"
+            },
+            {
+              "id": 17,
+              "title": "نارنجی",
+              "hex_code": "#FFA501"
+            },
+            {
+              "id": 2,
+              "title": "سفید",
+              "hex_code": "#FFFFFF"
+            },
+            {
+              "id": 5,
+              "title": "زرد",
+              "hex_code": "#FFFF00"
+            },
+            {
+              "id": 11,
+              "title": "خاکستری",
+              "hex_code": "#9E9E9E"
+            },
+            {
+              "id": 26,
+              "title": "سبز آبی",
+              "hex_code": "#008080"
+            },
+            {
+              "id": 8,
+              "title": "بنفش",
+              "hex_code": "#800080"
+            },
+            {
+              "id": 7,
+              "title": "صورتی",
+              "hex_code": "#ffc0cb"
+            },
+            {
+              "id": 15,
+              "title": "طلایی",
+              "hex_code": "#d4af38"
+            },
+            {
+              "id": 9,
+              "title": "سرمه ای",
+              "hex_code": "#002171"
+            },
+            {
+              "id": 1,
+              "title": "مشکی",
+              "hex_code": "#000000"
+            },
+            {
+              "id": 12,
+              "title": "نقره ای",
+              "hex_code": "#dedede"
+            },
+            {
+              "id": 4,
+              "title": "آبی",
+              "hex_code": "#0000FF"
+            }
+          ]
+        },
+        {
+          "id": 22407225,
+          "title_fa": " دفتر نت موسیقی 16 برگ انتشارات پارت مدل 5 خط",
+          "title_en": "",
+          "url": {
+            "uri": "/product/dkp-22407225/دفتر-نت-موسیقی-16-برگ-انتشارات-پارت-مدل-5-خط"
+          },
+          "status": "marketable",
+          "has_quick_view": false,
+          "data_layer": {
+            "brand": "انتشارات پارت",
+            "category": "[MA,لوازم التحریر]",
+            "metric6": 0,
+            "dimension2": 5,
+            "dimension6": 0,
+            "dimension7": "special-offer",
+            "dimension9": 0,
+            "dimension11": 0,
+            "dimension20": "marketable",
+            "item_category2": "کتاب، لوازم تحریر و هنر",
+            "item_category3": "لوازم تحریر",
+            "item_category4": "دفتر و کاغذ و مقوا",
+            "item_category5": "دفتر"
+          },
+          "product_type": "product",
+          "test_title_fa": "",
+          "test_title_en": "",
+          "digiplus": {
+            "services": [
+              "۴ ارسال رایگان دیجیکالا",
+              "۲ ارسال سوپرمارکت",
+              "۴ ارسال رایگان ۴۵ دقیقه‌ای",
+              "پشتیبانی اختصاصی"
+            ],
+            "service_list": [
+              {
+                "title": "۴ ارسال رایگان دیجیکالا"
+              },
+              {
+                "title": "۲ ارسال سوپرمارکت"
+              },
+              {
+                "title": "۴ ارسال رایگان ۴۵ دقیقه‌ای"
+              },
+              {
+                "title": "پشتیبانی اختصاصی"
+              }
+            ],
+            "services_summary": [
+              "ارسال رایگان"
+            ],
+            "is_jet_eligible": false,
+            "cash_back": 0,
+            "is_general_location_jet_eligible": false
+          },
+          "cpc": [],
+          "images": {
+            "main": {
+              "url": [
+                "https://dkstatics-public.digikala.com/digikala-products/cdb83007dea31f7e12988041dedf8bff56684968_1785615551.jpg?x-oss-process=image/resize,m_lfit,h_300,w_300/quality,q_80"
+              ],
+              "webp_url": [
+                "https://dkstatics-public.digikala.com/digikala-products/cdb83007dea31f7e12988041dedf8bff56684968_1785615551.jpg?x-oss-process=image/resize,m_lfit,h_300,w_300/format,webp/quality,q_80"
+              ]
+            }
+          },
+          "default_variant": {
+            "id": 82332971,
+            "lead_time": 1,
+            "rank": 0,
+            "rate": 0,
+            "status": "marketable",
+            "properties": {
+              "is_fast_shipping": false,
+              "is_ship_by_seller": false,
+              "is_multi_warehouse": false,
+              "has_similar_variants": false,
+              "is_rural": false,
+              "in_digikala_warehouse": false,
+              "is_ship_from_user_state": false,
+              "nearby_seller_shipment": false,
+              "support_nearby_shipping_for_user": false,
+              "is_ship_by_seller_restricted": false
+            },
+            "warranty": {
+              "id": 272,
+              "title_fa": "گارانتی اصالت و سلامت فیزیکی کالا",
+              "title_en": "گارانتی اصالت و سلامت فیزیکی کالا"
+            },
+            "themes": [
+              {
+                "value": {
+                  "variant_id": 82332971,
+                  "id": 5,
+                  "title": "زرد",
+                  "code": "#FFFF00",
+                  "hexCode": "#FFFF00",
+                  "hex_code": "#FFFF00",
+                  "nature": "color"
+                },
+                "label": "رنگ",
+                "type": "colored",
+                "is_main": true
+              }
+            ],
+            "color": {
+              "id": 5,
+              "title": "زرد",
+              "hex_code": "#FFFF00"
+            },
+            "seller": {
+              "id": 1005250,
+              "title": "کتابفروشی پارت",
+              "code": "EJRPP",
+              "url": "https://www.digikala.com/seller/EJRPP/",
+              "rating": {
+                "total_rate": 87,
+                "total_count": 1256,
+                "commitment": 100,
+                "no_return": 100,
+                "on_time_shipping": 99.6
+              },
+              "properties": {
+                "is_trusted": true,
+                "is_official": false,
+                "is_roosta": false,
+                "is_new": false
+              },
+              "stars": 5,
+              "grade": {
+                "label": "عالی",
+                "color": "#00a049"
+              },
+              "registration_date": "3 سال و 11 ماه"
+            },
+            "digiclub": {
+              "point": 29
+            },
+            "price": {
+              "selling_price": 2850000,
+              "rrp_price": 3000000,
+              "order_limit": 10,
+              "is_incredible": false,
+              "is_promotion": true,
+              "is_locked_for_digiplus": false,
+              "bnpl_active": false,
+              "discount_percent": 5,
+              "sold_percentage": 44,
+              "badge": {
+                "title": "فروش ویژه",
+                "color": "#E6123D"
+              },
+              "is_digiplus_promotion": false,
+              "is_digiplus_early_access": false,
+              "is_application_incredible": false,
+              "is_lightening_deal": false,
+              "is_plus_early_access": false,
+              "min_order_limit": 1
+            },
+            "shipment_methods": {
+              "description": "موجود در انبار فروشنده",
+              "has_lead_time": false,
+              "icon": "cube-shop-product",
+              "icon_color": "#424750",
+              "providers": [
+                {
+                  "has_lead_time": true,
+                  "type": "digikala",
+                  "title": "ارسال دیجی‌کالا از 1 روز کاری دیگر",
+                  "description": "این کالا پس از مدت زمان مشخص شده توسط فروشنده در انبار دیجی‌کالا تامین و آماده پردازش می‌گردد و توسط پیک دیجی‌کالا در بازه انتخابی ارسال خواهد شد.",
+                  "label": {
+                    "title": "توسط دیجی‌کالا",
+                    "description": "تامین از 1 روز کاری دیگر"
+                  },
+                  "price": {
+                    "text": "وابسته به سبد",
+                    "is_free": false
+                  },
+                  "shipping_mode": "digikala",
+                  "delivery_day": "tomorrow",
+                  "image": "https://dkstatics-public.digikala.com/digikala-static/a850a0020b1f1d1241c35c8e9ef2b4a93e12a091_1667056289.png",
+                  "svg_image": "https://dkstatics-public.digikala.com/digikala-static/562b91988f1beec9a5f13aee3cf31cfd7a1a25b1_1748679087.svg"
+                }
+              ]
+            },
+            "has_importer_price": false,
+            "manufacture_price_not_exist": false,
+            "has_best_price_in_last_month": false,
+            "digiplus": {
+              "services": [
+                "۴ ارسال رایگان دیجیکالا",
+                "۲ ارسال سوپرمارکت",
+                "۴ ارسال رایگان ۴۵ دقیقه‌ای",
+                "پشتیبانی اختصاصی"
+              ],
+              "service_list": [
+                {
+                  "title": "۴ ارسال رایگان دیجیکالا"
+                },
+                {
+                  "title": "۲ ارسال سوپرمارکت"
+                },
+                {
+                  "title": "۴ ارسال رایگان ۴۵ دقیقه‌ای"
+                },
+                {
+                  "title": "پشتیبانی اختصاصی"
+                }
+              ],
+              "services_summary": [
+                "ارسال رایگان"
+              ],
+              "is_jet_eligible": false,
+              "cash_back": 0,
+              "is_general_location_jet_eligible": false
+            }
+          },
+          "rating": {
+            "rate": 0,
+            "count": 0
+          },
+          "properties": {
+            "is_fast_shipping": false,
+            "is_ship_by_seller": false,
+            "free_shipping_badge": false,
+            "is_multi_warehouse": false,
+            "is_fake": false,
+            "has_gift": false,
+            "min_price_in_last_month": 2850000,
+            "is_non_inventory": false,
+            "is_jet_eligible": false,
+            "is_medical_supplement": false,
+            "is_ad": true,
+            "ad": {
+              "id": "a51ce96a-4422-41c1-bce0-ae04119212a3",
+              "provider": "digikala_ads",
+              "campaign_id": 201012,
+              "seller_id": 1005250,
+              "category_id": 6004,
+              "variant_id": 82332971,
+              "position": "",
+              "properties": "P2BJNLyXp3NBIg4u7AcedpYsSxETZTpnlgf29rTzdmkt6Nf1KGLXS5ZpNaA1mPLVRx5SfbtrkIFfRaoTMOYKzhrXa90orQK/uIfKhf4PVQ1ln37o73FJdlCAMG7Sxbekrbv3GHvzPNOYYBPVcWrrVFWhjgcEUR5DiO9sr8iIC87tNh1kscaxp2LLUOH1JQwwkGiAOh5CZiXJAv45JRIED7k/ngU17/WZX6C3QmwRwoQ="
+            },
+            "ad_url": "/product/dkp-22407225/دفتر-نت-موسیقی-16-برگ-انتشارات-پارت-مدل-5-خط"
+          },
+          "colors": [
+            {
+              "id": 5,
+              "title": "زرد",
+              "hex_code": "#FFFF00"
+            }
+          ]
+        },
+        {
+          "id": 14965854,
+          "title_fa": "دفتر نت موسیقی 32 برگ انتشارات پارت کد 002",
+          "title_en": "",
+          "url": {
+            "uri": "/product/dkp-14965854/دفتر-نت-موسیقی-32-برگ-انتشارات-پارت-کد-002"
+          },
+          "status": "marketable",
+          "has_quick_view": false,
+          "data_layer": {
+            "brand": "انتشارات پارت",
+            "category": "[MA,لوازم التحریر]",
+            "metric6": 5,
+            "dimension2": 10,
+            "dimension6": 0,
+            "dimension7": "special-offer",
+            "dimension9": 4.8,
+            "dimension11": 0,
+            "dimension20": "marketable",
+            "item_category2": "کتاب، لوازم تحریر و هنر",
+            "item_category3": "لوازم تحریر",
+            "item_category4": "دفتر و کاغذ و مقوا",
+            "item_category5": "دفتر"
+          },
+          "product_type": "product",
+          "test_title_fa": "",
+          "test_title_en": "",
+          "digiplus": {
+            "services": [
+              "۴ ارسال رایگان دیجیکالا",
+              "۲ ارسال سوپرمارکت",
+              "۴ ارسال رایگان ۴۵ دقیقه‌ای",
+              "پشتیبانی اختصاصی"
+            ],
+            "service_list": [
+              {
+                "title": "۴ ارسال رایگان دیجیکالا"
+              },
+              {
+                "title": "۲ ارسال سوپرمارکت"
+              },
+              {
+                "title": "۴ ارسال رایگان ۴۵ دقیقه‌ای"
+              },
+              {
+                "title": "پشتیبانی اختصاصی"
+              }
+            ],
+            "services_summary": [
+              "ارسال رایگان"
+            ],
+            "is_jet_eligible": false,
+            "cash_back": 0,
+            "is_general_location_jet_eligible": false
+          },
+          "cpc": [],
+          "images": {
+            "main": {
+              "url": [
+                "https://dkstatics-public.digikala.com/digikala-products/2756eb8613554eba28d3b2dcea3ec2053079f5b9_1712072417.jpg?x-oss-process=image/resize,m_lfit,h_300,w_300/quality,q_80"
+              ],
+              "webp_url": [
+                "https://dkstatics-public.digikala.com/digikala-products/2756eb8613554eba28d3b2dcea3ec2053079f5b9_1712072417.jpg?x-oss-process=image/resize,m_lfit,h_300,w_300/format,webp/quality,q_80"
+              ]
+            }
+          },
+          "default_variant": {
+            "id": 51336795,
+            "lead_time": 1,
+            "rank": 0,
+            "rate": 96,
+            "statistics": {
+              "totally_satisfied": {
+                "rate_count": 4,
+                "rate": 80
+              },
+              "satisfied": {
+                "rate_count": 1,
+                "rate": 20
+              },
+              "neutral": {
+                "rate_count": 0,
+                "rate": 0
+              },
+              "dissatisfied": {
+                "rate_count": 0,
+                "rate": 0
+              },
+              "totally_dissatisfied": {
+                "rate_count": 0,
+                "rate": 0
+              },
+              "total_count": 5,
+              "total_rate": 96
+            },
+            "status": "marketable",
+            "properties": {
+              "is_fast_shipping": false,
+              "is_ship_by_seller": false,
+              "is_multi_warehouse": false,
+              "has_similar_variants": false,
+              "is_rural": false,
+              "in_digikala_warehouse": false,
+              "is_ship_from_user_state": false,
+              "nearby_seller_shipment": false,
+              "support_nearby_shipping_for_user": false,
+              "is_ship_by_seller_restricted": false
+            },
+            "warranty": {
+              "id": 272,
+              "title_fa": "گارانتی اصالت و سلامت فیزیکی کالا",
+              "title_en": "گارانتی اصالت و سلامت فیزیکی کالا"
+            },
+            "themes": [
+              {
+                "value": {
+                  "variant_id": 51336795,
+                  "id": 9,
+                  "title": "سرمه ای",
+                  "code": "#002171",
+                  "hexCode": "#002171",
+                  "hex_code": "#002171",
+                  "nature": "color"
+                },
+                "label": "رنگ",
+                "type": "colored",
+                "is_main": true
+              }
+            ],
+            "color": {
+              "id": 9,
+              "title": "سرمه ای",
+              "hex_code": "#002171"
+            },
+            "seller": {
+              "id": 1005250,
+              "title": "کتابفروشی پارت",
+              "code": "EJRPP",
+              "url": "https://www.digikala.com/seller/EJRPP/",
+              "rating": {
+                "total_rate": 87,
+                "total_count": 1256,
+                "commitment": 100,
+                "no_return": 100,
+                "on_time_shipping": 99.6
+              },
+              "properties": {
+                "is_trusted": true,
+                "is_official": false,
+                "is_roosta": false,
+                "is_new": false
+              },
+              "stars": 5,
+              "grade": {
+                "label": "عالی",
+                "color": "#00a049"
+              },
+              "registration_date": "3 سال و 11 ماه"
+            },
+            "digiclub": {
+              "point": 36
+            },
+            "price": {
+              "selling_price": 3600000,
+              "rrp_price": 4000000,
+              "order_limit": 20,
+              "is_incredible": false,
+              "is_promotion": true,
+              "is_locked_for_digiplus": false,
+              "bnpl_active": false,
+              "discount_percent": 10,
+              "badge": {
+                "title": "فروش ویژه",
+                "color": "#E6123D"
+              },
+              "is_digiplus_promotion": false,
+              "is_digiplus_early_access": false,
+              "is_application_incredible": false,
+              "is_lightening_deal": false,
+              "is_plus_early_access": false,
+              "min_order_limit": 1
+            },
+            "shipment_methods": {
+              "description": "موجود در انبار فروشنده",
+              "has_lead_time": false,
+              "icon": "cube-shop-product",
+              "icon_color": "#424750",
+              "providers": [
+                {
+                  "has_lead_time": true,
+                  "type": "digikala",
+                  "title": "ارسال دیجی‌کالا از 1 روز کاری دیگر",
+                  "description": "این کالا پس از مدت زمان مشخص شده توسط فروشنده در انبار دیجی‌کالا تامین و آماده پردازش می‌گردد و توسط پیک دیجی‌کالا در بازه انتخابی ارسال خواهد شد.",
+                  "label": {
+                    "title": "توسط دیجی‌کالا",
+                    "description": "تامین از 1 روز کاری دیگر"
+                  },
+                  "price": {
+                    "text": "وابسته به سبد",
+                    "is_free": false
+                  },
+                  "shipping_mode": "digikala",
+                  "delivery_day": "tomorrow",
+                  "image": "https://dkstatics-public.digikala.com/digikala-static/a850a0020b1f1d1241c35c8e9ef2b4a93e12a091_1667056289.png",
+                  "svg_image": "https://dkstatics-public.digikala.com/digikala-static/562b91988f1beec9a5f13aee3cf31cfd7a1a25b1_1748679087.svg"
+                }
+              ]
+            },
+            "has_importer_price": false,
+            "manufacture_price_not_exist": false,
+            "has_best_price_in_last_month": false,
+            "digiplus": {
+              "services": [
+                "۴ ارسال رایگان دیجیکالا",
+                "۲ ارسال سوپرمارکت",
+                "۴ ارسال رایگان ۴۵ دقیقه‌ای",
+                "پشتیبانی اختصاصی"
+              ],
+              "service_list": [
+                {
+                  "title": "۴ ارسال رایگان دیجیکالا"
+                },
+                {
+                  "title": "۲ ارسال سوپرمارکت"
+                },
+                {
+                  "title": "۴ ارسال رایگان ۴۵ دقیقه‌ای"
+                },
+                {
+                  "title": "پشتیبانی اختصاصی"
+                }
+              ],
+              "services_summary": [
+                "ارسال رایگان"
+              ],
+              "is_jet_eligible": false,
+              "cash_back": 0,
+              "is_general_location_jet_eligible": false
+            }
+          },
+          "rating": {
+            "rate": 96,
+            "count": 5
+          },
+          "properties": {
+            "is_fast_shipping": false,
+            "is_ship_by_seller": false,
+            "free_shipping_badge": false,
+            "is_multi_warehouse": false,
+            "is_fake": false,
+            "has_gift": false,
+            "min_price_in_last_month": 0,
+            "is_non_inventory": false,
+            "is_jet_eligible": false,
+            "is_medical_supplement": false,
+            "is_ad": true,
+            "ad": {
+              "id": "2546298b-7f70-43c9-9389-135ad4e6f654",
+              "provider": "digikala_ads",
+              "campaign_id": 201012,
+              "seller_id": 1005250,
+              "category_id": 6004,
+              "variant_id": 51336795,
+              "position": "",
+              "properties": "P2BJNLyXp3NBIg4u7AcedpYsSxETZTpnlgf29rTzdmkt6Nf1KGLXS5ZpNaA1mPLVRx5SfbtrkIFfRaoTMOYKzhrXa90orQK/uIfKhf4PVQ1ln37o73FJdlCAMG7Sxbekrbv3GHvzPNOYYBPVcWrrVCYdFn7o1ZD03HuIPvWWbWThUoR3aAgurqajl5uA19fpDidQ9skrTYwtzsMSNRkDFLk/ngU17/WZX6C3QmwRwoQ="
+            },
+            "ad_url": "/product/dkp-14965854/دفتر-نت-موسیقی-32-برگ-انتشارات-پارت-کد-002"
+          },
+          "colors": [
+            {
+              "id": 9,
+              "title": "سرمه ای",
+              "hex_code": "#002171"
+            }
+          ]
+        },
+        {
+          "id": 15526418,
+          "title_fa": "دفتر مشق 300 برگ سادات مدل G-330",
+          "title_en": "",
+          "url": {
+            "uri": "/product/dkp-15526418/دفتر-مشق-300-برگ-سادات-مدل-g-330"
+          },
+          "status": "marketable",
+          "has_quick_view": false,
+          "data_layer": {
+            "brand": "سادات",
+            "category": "[MA,لوازم التحریر]",
+            "metric6": 52,
+            "dimension2": 0,
+            "dimension6": 0,
+            "dimension7": "none",
+            "dimension9": 4.6,
+            "dimension11": 0,
+            "dimension20": "marketable",
+            "item_category2": "کتاب، لوازم تحریر و هنر",
+            "item_category3": "لوازم تحریر",
+            "item_category4": "دفتر و کاغذ و مقوا",
+            "item_category5": "دفتر"
+          },
+          "product_type": "product",
+          "test_title_fa": "",
+          "test_title_en": "",
+          "digiplus": {
+            "services": [
+              "۴ ارسال رایگان دیجیکالا",
+              "۲ ارسال سوپرمارکت",
+              "۴ ارسال رایگان ۴۵ دقیقه‌ای",
+              "پشتیبانی اختصاصی"
+            ],
+            "service_list": [
+              {
+                "title": "۴ ارسال رایگان دیجیکالا"
+              },
+              {
+                "title": "۲ ارسال سوپرمارکت"
+              },
+              {
+                "title": "۴ ارسال رایگان ۴۵ دقیقه‌ای"
+              },
+              {
+                "title": "پشتیبانی اختصاصی"
+              }
+            ],
+            "services_summary": [
+              "ارسال رایگان"
+            ],
+            "is_jet_eligible": false,
+            "cash_back": 0,
+            "is_general_location_jet_eligible": false
+          },
+          "cpc": [],
+          "images": {
+            "main": {
+              "url": [
+                "https://dkstatics-public.digikala.com/digikala-products/58e23fd1fef3f4d895e5b330c95e4a606d203fd2_1740213885.jpg?x-oss-process=image/resize,m_lfit,h_300,w_300/quality,q_80"
+              ],
+              "webp_url": [
+                "https://dkstatics-public.digikala.com/digikala-products/58e23fd1fef3f4d895e5b330c95e4a606d203fd2_1740213885.jpg?x-oss-process=image/resize,m_lfit,h_300,w_300/format,webp/quality,q_80"
+              ]
+            }
+          },
+          "default_variant": {
+            "id": 54095573,
+            "lead_time": 1,
+            "rank": 0,
+            "rate": 100,
+            "statistics": {
+              "totally_satisfied": {
+                "rate_count": 1,
+                "rate": 100
+              },
+              "satisfied": {
+                "rate_count": 0,
+                "rate": 0
+              },
+              "neutral": {
+                "rate_count": 0,
+                "rate": 0
+              },
+              "dissatisfied": {
+                "rate_count": 0,
+                "rate": 0
+              },
+              "totally_dissatisfied": {
+                "rate_count": 0,
+                "rate": 0
+              },
+              "total_count": 1,
+              "total_rate": 100
+            },
+            "status": "marketable",
+            "properties": {
+              "is_fast_shipping": false,
+              "is_ship_by_seller": false,
+              "is_multi_warehouse": false,
+              "has_similar_variants": false,
+              "is_rural": false,
+              "in_digikala_warehouse": false,
+              "is_ship_from_user_state": false,
+              "nearby_seller_shipment": false,
+              "support_nearby_shipping_for_user": false,
+              "is_ship_by_seller_restricted": false
+            },
+            "warranty": {
+              "id": 272,
+              "title_fa": "گارانتی اصالت و سلامت فیزیکی کالا",
+              "title_en": "گارانتی اصالت و سلامت فیزیکی کالا"
+            },
+            "themes": [
+              {
+                "value": {
+                  "variant_id": 54095573,
+                  "id": 3,
+                  "title": "قرمز",
+                  "code": "#FF0000",
+                  "hexCode": "#FF0000",
+                  "hex_code": "#FF0000",
+                  "nature": "color"
+                },
+                "label": "رنگ",
+                "type": "colored",
+                "is_main": true
+              }
+            ],
+            "color": {
+              "id": 3,
+              "title": "قرمز",
+              "hex_code": "#FF0000"
+            },
+            "seller": {
+              "id": 1082186,
+              "title": "برگزیده یاس",
+              "code": "EX5JE",
+              "url": "https://www.digikala.com/seller/EX5JE/",
+              "rating": {
+                "total_rate": 88,
+                "total_count": 29268,
+                "commitment": 99.9,
+                "no_return": 99.9,
+                "on_time_shipping": 94.6
+              },
+              "properties": {
+                "is_trusted": true,
+                "is_official": false,
+                "is_roosta": false,
+                "is_new": false
+              },
+              "stars": 4.7,
+              "grade": {
+                "label": "عالی",
+                "color": "#00a049"
+              },
+              "registration_date": "3 سال و 5 ماه"
+            },
+            "digiclub": {
+              "point": 74
+            },
+            "price": {
+              "selling_price": 7390000,
+              "rrp_price": 7390000,
+              "order_limit": 10,
+              "is_incredible": false,
+              "is_promotion": false,
+              "is_locked_for_digiplus": false,
+              "bnpl_active": false,
+              "discount_percent": 0,
+              "is_plus_early_access": false,
+              "min_order_limit": 1
+            },
+            "shipment_methods": {
+              "description": "موجود در انبار فروشنده",
+              "has_lead_time": false,
+              "icon": "cube-shop-product",
+              "icon_color": "#424750",
+              "providers": [
+                {
+                  "has_lead_time": true,
+                  "type": "digikala",
+                  "title": "ارسال دیجی‌کالا از 1 روز کاری دیگر",
+                  "description": "این کالا پس از مدت زمان مشخص شده توسط فروشنده در انبار دیجی‌کالا تامین و آماده پردازش می‌گردد و توسط پیک دیجی‌کالا در بازه انتخابی ارسال خواهد شد.",
+                  "label": {
+                    "title": "توسط دیجی‌کالا",
+                    "description": "تامین از 1 روز کاری دیگر"
+                  },
+                  "price": {
+                    "text": "وابسته به سبد",
+                    "is_free": false
+                  },
+                  "shipping_mode": "digikala",
+                  "delivery_day": "tomorrow",
+                  "image": "https://dkstatics-public.digikala.com/digikala-static/a850a0020b1f1d1241c35c8e9ef2b4a93e12a091_1667056289.png",
+                  "svg_image": "https://dkstatics-public.digikala.com/digikala-static/562b91988f1beec9a5f13aee3cf31cfd7a1a25b1_1748679087.svg"
+                }
+              ]
+            },
+            "has_importer_price": false,
+            "manufacture_price_not_exist": false,
+            "has_best_price_in_last_month": false,
+            "digiplus": {
+              "services": [
+                "۴ ارسال رایگان دیجیکالا",
+                "۲ ارسال سوپرمارکت",
+                "۴ ارسال رایگان ۴۵ دقیقه‌ای",
+                "پشتیبانی اختصاصی"
+              ],
+              "service_list": [
+                {
+                  "title": "۴ ارسال رایگان دیجیکالا"
+                },
+                {
+                  "title": "۲ ارسال سوپرمارکت"
+                },
+                {
+                  "title": "۴ ارسال رایگان ۴۵ دقیقه‌ای"
+                },
+                {
+                  "title": "پشتیبانی اختصاصی"
+                }
+              ],
+              "services_summary": [
+                "ارسال رایگان"
+              ],
+              "is_jet_eligible": false,
+              "cash_back": 0,
+              "is_general_location_jet_eligible": false
+            }
+          },
+          "rating": {
+            "rate": 90.77,
+            "count": 52
+          },
+          "properties": {
+            "is_fast_shipping": false,
+            "is_ship_by_seller": false,
+            "free_shipping_badge": false,
+            "is_multi_warehouse": false,
+            "is_fake": false,
+            "has_gift": false,
+            "min_price_in_last_month": 0,
+            "is_non_inventory": false,
+            "is_jet_eligible": false,
+            "is_medical_supplement": false,
+            "is_ad": true,
+            "ad": {
+              "id": "0165dea0-1d94-47ac-bcec-63ecb3295b15",
+              "provider": "digikala_ads",
+              "campaign_id": 204880,
+              "seller_id": 1082186,
+              "category_id": 6004,
+              "variant_id": 54095573,
+              "position": "",
+              "properties": "P2BJNLyXp3NBIg4u7AcedpYsSxETZTpnlgf29rTzdmkt6Nf1KGLXS5ZpNaA1mPLVRx5SfbtrkIFfRaoTMOYKzhrXa90orQK/uIfKhf4PVQ3fPHVxe965Z9cp4FZ/R32Erbv3GHvzPNOYYBPVcWrrVInD6c69wtqFImZ2K/TQe8Mpa/XFN9bqNQmNg7lLSFUXNNq0vFR+zxz7qs4EwGDBGrk/ngU17/WZX6C3QmwRwoQ="
+            },
+            "ad_url": "/product/dkp-15526418/دفتر-مشق-300-برگ-سادات-مدل-g-330"
+          },
+          "colors": [
+            {
+              "id": 3,
+              "title": "قرمز",
+              "hex_code": "#FF0000"
+            },
+            {
+              "id": 5,
+              "title": "زرد",
+              "hex_code": "#FFFF00"
+            },
+            {
+              "id": 6,
+              "title": "سبز",
+              "hex_code": "#008000"
+            },
+            {
+              "id": 7,
+              "title": "صورتی",
+              "hex_code": "#ffc0cb"
+            },
+            {
+              "id": 26,
+              "title": "سبز آبی",
+              "hex_code": "#008080"
+            },
+            {
+              "id": 2,
+              "title": "سفید",
+              "hex_code": "#FFFFFF"
+            },
+            {
+              "id": 17,
+              "title": "نارنجی",
+              "hex_code": "#FFA501"
+            },
+            {
+              "id": 11,
+              "title": "خاکستری",
+              "hex_code": "#9E9E9E"
+            },
+            {
+              "id": 8,
+              "title": "بنفش",
+              "hex_code": "#800080"
+            },
+            {
+              "id": 1,
+              "title": "مشکی",
+              "hex_code": "#000000"
+            }
+          ]
+        },
+        {
+          "id": 8630469,
+          "title_fa": "دفترچه یادداشت 300 برگ مدل رنگین کمان ",
+          "title_en": "",
+          "url": {
+            "uri": "/product/dkp-8630469/دفترچه-یادداشت-300-برگ-مدل-رنگین-کمان"
+          },
+          "status": "marketable",
+          "has_quick_view": false,
+          "data_layer": {
+            "brand": "متفرقه",
+            "category": "[MA,لوازم التحریر]",
+            "metric6": 442,
+            "dimension2": 0,
+            "dimension6": 0,
+            "dimension7": "none",
+            "dimension9": 4.6,
+            "dimension11": 0,
+            "dimension20": "marketable",
+            "item_category2": "کتاب، لوازم تحریر و هنر",
+            "item_category3": "لوازم تحریر",
+            "item_category4": "دفتر و کاغذ و مقوا",
+            "item_category5": "دفتر"
+          },
+          "product_type": "product",
+          "test_title_fa": "",
+          "test_title_en": "",
+          "digiplus": {
+            "services": [
+              "۴ ارسال رایگان دیجیکالا",
+              "۲ ارسال سوپرمارکت",
+              "۴ ارسال رایگان ۴۵ دقیقه‌ای",
+              "پشتیبانی اختصاصی"
+            ],
+            "service_list": [
+              {
+                "title": "۴ ارسال رایگان دیجیکالا"
+              },
+              {
+                "title": "۲ ارسال سوپرمارکت"
+              },
+              {
+                "title": "۴ ارسال رایگان ۴۵ دقیقه‌ای"
+              },
+              {
+                "title": "پشتیبانی اختصاصی"
+              }
+            ],
+            "services_summary": [
+              "ارسال رایگان"
+            ],
+            "is_jet_eligible": false,
+            "cash_back": 0,
+            "is_general_location_jet_eligible": false
+          },
+          "cpc": [],
+          "images": {
+            "main": {
+              "url": [
+                "https://dkstatics-public.digikala.com/digikala-products/80ade28778cf2700c05f993cb2d120400e7b928f_1653842188.jpg?x-oss-process=image/resize,m_lfit,h_300,w_300/quality,q_80"
+              ],
+              "webp_url": [
+                "https://dkstatics-public.digikala.com/digikala-products/80ade28778cf2700c05f993cb2d120400e7b928f_1653842188.jpg?x-oss-process=image/resize,m_lfit,h_300,w_300/format,webp/quality,q_80"
+              ]
+            }
+          },
+          "default_variant": {
+            "id": 43291140,
+            "lead_time": 1,
+            "rank": 0,
+            "rate": 96.6,
+            "statistics": {
+              "totally_satisfied": {
+                "rate_count": 19,
+                "rate": 82.61
+              },
+              "satisfied": {
+                "rate_count": 4,
+                "rate": 17.39
+              },
+              "neutral": {
+                "rate_count": 0,
+                "rate": 0
+              },
+              "dissatisfied": {
+                "rate_count": 0,
+                "rate": 0
+              },
+              "totally_dissatisfied": {
+                "rate_count": 0,
+                "rate": 0
+              },
+              "total_count": 23,
+              "total_rate": 96.6
+            },
+            "status": "marketable",
+            "properties": {
+              "is_fast_shipping": false,
+              "is_ship_by_seller": false,
+              "is_multi_warehouse": false,
+              "has_similar_variants": false,
+              "is_rural": false,
+              "in_digikala_warehouse": false,
+              "is_ship_from_user_state": false,
+              "nearby_seller_shipment": false,
+              "support_nearby_shipping_for_user": false,
+              "is_ship_by_seller_restricted": false
+            },
+            "warranty": {
+              "id": 272,
+              "title_fa": "گارانتی اصالت و سلامت فیزیکی کالا",
+              "title_en": "گارانتی اصالت و سلامت فیزیکی کالا"
+            },
+            "themes": [
+              {
+                "value": {
+                  "variant_id": 43291140,
+                  "id": 26,
+                  "title": "سبز آبی",
+                  "code": "#008080",
+                  "hexCode": "#008080",
+                  "hex_code": "#008080",
+                  "nature": "color"
+                },
+                "label": "رنگ",
+                "type": "colored",
+                "is_main": true
+              }
+            ],
+            "color": {
+              "id": 26,
+              "title": "سبز آبی",
+              "hex_code": "#008080"
+            },
+            "seller": {
+              "id": 1082186,
+              "title": "برگزیده یاس",
+              "code": "EX5JE",
+              "url": "https://www.digikala.com/seller/EX5JE/",
+              "rating": {
+                "total_rate": 88,
+                "total_count": 29256,
+                "commitment": 99.9,
+                "no_return": 99.9,
+                "on_time_shipping": 94.3
+              },
+              "properties": {
+                "is_trusted": true,
+                "is_official": false,
+                "is_roosta": false,
+                "is_new": false
+              },
+              "stars": 4.7,
+              "grade": {
+                "label": "عالی",
+                "color": "#00a049"
+              },
+              "registration_date": "3 سال و 5 ماه"
+            },
+            "digiclub": {
+              "point": 40
+            },
+            "price": {
+              "selling_price": 3990000,
+              "rrp_price": 3990000,
+              "order_limit": 10,
+              "is_incredible": false,
+              "is_promotion": false,
+              "is_locked_for_digiplus": false,
+              "bnpl_active": false,
+              "discount_percent": 0,
+              "is_plus_early_access": false,
+              "min_order_limit": 1
+            },
+            "shipment_methods": {
+              "description": "موجود در انبار فروشنده",
+              "has_lead_time": false,
+              "icon": "cube-shop-product",
+              "icon_color": "#424750",
+              "providers": [
+                {
+                  "has_lead_time": true,
+                  "type": "digikala",
+                  "title": "ارسال دیجی‌کالا از 1 روز کاری دیگر",
+                  "description": "این کالا پس از مدت زمان مشخص شده توسط فروشنده در انبار دیجی‌کالا تامین و آماده پردازش می‌گردد و توسط پیک دیجی‌کالا در بازه انتخابی ارسال خواهد شد.",
+                  "label": {
+                    "title": "توسط دیجی‌کالا",
+                    "description": "تامین از 1 روز کاری دیگر"
+                  },
+                  "price": {
+                    "text": "وابسته به سبد",
+                    "is_free": false
+                  },
+                  "shipping_mode": "digikala",
+                  "delivery_day": "tomorrow",
+                  "image": "https://dkstatics-public.digikala.com/digikala-static/a850a0020b1f1d1241c35c8e9ef2b4a93e12a091_1667056289.png",
+                  "svg_image": "https://dkstatics-public.digikala.com/digikala-static/562b91988f1beec9a5f13aee3cf31cfd7a1a25b1_1748679087.svg"
+                }
+              ]
+            },
+            "has_importer_price": false,
+            "manufacture_price_not_exist": false,
+            "has_best_price_in_last_month": false,
+            "digiplus": {
+              "services": [
+                "۴ ارسال رایگان دیجیکالا",
+                "۲ ارسال سوپرمارکت",
+                "۴ ارسال رایگان ۴۵ دقیقه‌ای",
+                "پشتیبانی اختصاصی"
+              ],
+              "service_list": [
+                {
+                  "title": "۴ ارسال رایگان دیجیکالا"
+                },
+                {
+                  "title": "۲ ارسال سوپرمارکت"
+                },
+                {
+                  "title": "۴ ارسال رایگان ۴۵ دقیقه‌ای"
+                },
+                {
+                  "title": "پشتیبانی اختصاصی"
+                }
+              ],
+              "services_summary": [
+                "ارسال رایگان"
+              ],
+              "is_jet_eligible": false,
+              "cash_back": 0,
+              "is_general_location_jet_eligible": false
+            }
+          },
+          "rating": {
+            "rate": 90.41,
+            "count": 442
+          },
+          "properties": {
+            "is_fast_shipping": false,
+            "is_ship_by_seller": false,
+            "free_shipping_badge": false,
+            "is_multi_warehouse": false,
+            "is_fake": false,
+            "has_gift": false,
+            "min_price_in_last_month": 3391500,
+            "is_non_inventory": false,
+            "is_jet_eligible": false,
+            "is_medical_supplement": false,
+            "is_ad": true,
+            "ad": {
+              "id": "49f2ea9f-f71f-4fdb-b6ec-bb11d0af1261",
+              "provider": "digikala_ads",
+              "campaign_id": 204880,
+              "seller_id": 1082186,
+              "category_id": 6004,
+              "variant_id": 43291137,
+              "position": "",
+              "properties": "P2BJNLyXp3NBIg4u7AcedpYsSxETZTpnlgf29rTzdmkt6Nf1KGLXS5ZpNaA1mPLVRx5SfbtrkIFfRaoTMOYKzhrXa90orQK/uIfKhf4PVQ3fPHVxe965Z9cp4FZ/R32Erbv3GHvzPNOYYBPVcWrrVJZy06DItIP5oEGuhzNk8Ga9ge2hZN8taFzkwsOMrATLsRbtKPR9BCDvzfzpoEmmeLKgISsftpj1U8uvhOPk/vg="
+            },
+            "ad_url": "/product/dkp-8630469/دفترچه-یادداشت-300-برگ-مدل-رنگین-کمان"
+          },
+          "colors": [
+            {
+              "id": 26,
+              "title": "سبز آبی",
+              "hex_code": "#008080"
+            },
+            {
+              "id": 4,
+              "title": "آبی",
+              "hex_code": "#0000FF"
+            },
+            {
+              "id": 5,
+              "title": "زرد",
+              "hex_code": "#FFFF00"
+            },
+            {
+              "id": 11,
+              "title": "خاکستری",
+              "hex_code": "#9E9E9E"
+            },
+            {
+              "id": 1,
+              "title": "مشکی",
+              "hex_code": "#000000"
+            },
+            {
+              "id": 6,
+              "title": "سبز",
+              "hex_code": "#008000"
+            },
+            {
+              "id": 9,
+              "title": "سرمه ای",
+              "hex_code": "#002171"
+            },
+            {
+              "id": 2,
+              "title": "سفید",
+              "hex_code": "#FFFFFF"
+            },
+            {
+              "id": 7,
+              "title": "صورتی",
+              "hex_code": "#ffc0cb"
+            },
+            {
+              "id": 17,
+              "title": "نارنجی",
+              "hex_code": "#FFA501"
+            },
+            {
+              "id": 8,
+              "title": "بنفش",
+              "hex_code": "#800080"
+            },
+            {
+              "id": 44,
+              "title": "سبز روشن",
+              "hex_code": "#57C257"
+            },
+            {
+              "id": 3,
+              "title": "قرمز",
+              "hex_code": "#FF0000"
+            }
+          ]
+        },
+        {
+          "id": 11499885,
+          "title_fa": "دفترچه یادداشت 300 برگ سادات مدل B-300 ",
+          "title_en": "",
+          "url": {
+            "uri": "/product/dkp-11499885/دفترچه-یادداشت-300-برگ-سادات-مدل-b-300"
+          },
+          "status": "marketable",
+          "has_quick_view": false,
+          "data_layer": {
+            "brand": "سادات",
+            "category": "[MA,لوازم التحریر]",
+            "metric6": 104,
+            "dimension2": 0,
+            "dimension6": 0,
+            "dimension7": "none",
+            "dimension9": 4.6,
+            "dimension11": 0,
+            "dimension20": "marketable",
+            "item_category2": "کتاب، لوازم تحریر و هنر",
+            "item_category3": "لوازم تحریر",
+            "item_category4": "دفتر و کاغذ و مقوا",
+            "item_category5": "دفتر"
+          },
+          "product_type": "product",
+          "test_title_fa": "",
+          "test_title_en": "",
+          "digiplus": {
+            "services": [
+              "۴ ارسال رایگان دیجیکالا",
+              "۲ ارسال سوپرمارکت",
+              "۴ ارسال رایگان ۴۵ دقیقه‌ای",
+              "پشتیبانی اختصاصی"
+            ],
+            "service_list": [
+              {
+                "title": "۴ ارسال رایگان دیجیکالا"
+              },
+              {
+                "title": "۲ ارسال سوپرمارکت"
+              },
+              {
+                "title": "۴ ارسال رایگان ۴۵ دقیقه‌ای"
+              },
+              {
+                "title": "پشتیبانی اختصاصی"
+              }
+            ],
+            "services_summary": [
+              "ارسال رایگان"
+            ],
+            "is_jet_eligible": false,
+            "cash_back": 0,
+            "is_general_location_jet_eligible": false
+          },
+          "cpc": [],
+          "images": {
+            "main": {
+              "url": [
+                "https://dkstatics-public.digikala.com/digikala-products/5b8c66b88c5efa145a52ba1943b5aaa7c74e479a_1740159850.jpg?x-oss-process=image/resize,m_lfit,h_300,w_300/quality,q_80"
+              ],
+              "webp_url": [
+                "https://dkstatics-public.digikala.com/digikala-products/5b8c66b88c5efa145a52ba1943b5aaa7c74e479a_1740159850.jpg?x-oss-process=image/resize,m_lfit,h_300,w_300/format,webp/quality,q_80"
+              ]
+            }
+          },
+          "default_variant": {
+            "id": 47599199,
+            "lead_time": 1,
+            "rank": 0,
+            "rate": 100,
+            "statistics": {
+              "totally_satisfied": {
+                "rate_count": 5,
+                "rate": 100
+              },
+              "satisfied": {
+                "rate_count": 0,
+                "rate": 0
+              },
+              "neutral": {
+                "rate_count": 0,
+                "rate": 0
+              },
+              "dissatisfied": {
+                "rate_count": 0,
+                "rate": 0
+              },
+              "totally_dissatisfied": {
+                "rate_count": 0,
+                "rate": 0
+              },
+              "total_count": 5,
+              "total_rate": 100
+            },
+            "status": "marketable",
+            "properties": {
+              "is_fast_shipping": false,
+              "is_ship_by_seller": false,
+              "is_multi_warehouse": false,
+              "has_similar_variants": false,
+              "is_rural": false,
+              "in_digikala_warehouse": false,
+              "is_ship_from_user_state": false,
+              "nearby_seller_shipment": false,
+              "support_nearby_shipping_for_user": false,
+              "is_ship_by_seller_restricted": false
+            },
+            "warranty": {
+              "id": 272,
+              "title_fa": "گارانتی اصالت و سلامت فیزیکی کالا",
+              "title_en": "گارانتی اصالت و سلامت فیزیکی کالا"
+            },
+            "themes": [
+              {
+                "value": {
+                  "variant_id": 47599199,
+                  "id": 3,
+                  "title": "قرمز",
+                  "code": "#FF0000",
+                  "hexCode": "#FF0000",
+                  "hex_code": "#FF0000",
+                  "nature": "color"
+                },
+                "label": "رنگ",
+                "type": "colored",
+                "is_main": true
+              }
+            ],
+            "color": {
+              "id": 3,
+              "title": "قرمز",
+              "hex_code": "#FF0000"
+            },
+            "seller": {
+              "id": 1082186,
+              "title": "برگزیده یاس",
+              "code": "EX5JE",
+              "url": "https://www.digikala.com/seller/EX5JE/",
+              "rating": {
+                "total_rate": 88,
+                "total_count": 29266,
+                "commitment": 99.9,
+                "no_return": 99.9,
+                "on_time_shipping": 94.6
+              },
+              "properties": {
+                "is_trusted": true,
+                "is_official": false,
+                "is_roosta": false,
+                "is_new": false
+              },
+              "stars": 4.7,
+              "grade": {
+                "label": "عالی",
+                "color": "#00a049"
+              },
+              "registration_date": "3 سال و 5 ماه"
+            },
+            "digiclub": {
+              "point": 40
+            },
+            "price": {
+              "selling_price": 3990000,
+              "rrp_price": 3990000,
+              "order_limit": 10,
+              "is_incredible": false,
+              "is_promotion": false,
+              "is_locked_for_digiplus": false,
+              "bnpl_active": false,
+              "discount_percent": 0,
+              "is_plus_early_access": false,
+              "min_order_limit": 1
+            },
+            "shipment_methods": {
+              "description": "موجود در انبار فروشنده",
+              "has_lead_time": false,
+              "icon": "cube-shop-product",
+              "icon_color": "#424750",
+              "providers": [
+                {
+                  "has_lead_time": true,
+                  "type": "digikala",
+                  "title": "ارسال دیجی‌کالا از 1 روز کاری دیگر",
+                  "description": "این کالا پس از مدت زمان مشخص شده توسط فروشنده در انبار دیجی‌کالا تامین و آماده پردازش می‌گردد و توسط پیک دیجی‌کالا در بازه انتخابی ارسال خواهد شد.",
+                  "label": {
+                    "title": "توسط دیجی‌کالا",
+                    "description": "تامین از 1 روز کاری دیگر"
+                  },
+                  "price": {
+                    "text": "وابسته به سبد",
+                    "is_free": false
+                  },
+                  "shipping_mode": "digikala",
+                  "delivery_day": "tomorrow",
+                  "image": "https://dkstatics-public.digikala.com/digikala-static/a850a0020b1f1d1241c35c8e9ef2b4a93e12a091_1667056289.png",
+                  "svg_image": "https://dkstatics-public.digikala.com/digikala-static/562b91988f1beec9a5f13aee3cf31cfd7a1a25b1_1748679087.svg"
+                }
+              ]
+            },
+            "has_importer_price": false,
+            "manufacture_price_not_exist": false,
+            "has_best_price_in_last_month": false,
+            "digiplus": {
+              "services": [
+                "۴ ارسال رایگان دیجیکالا",
+                "۲ ارسال سوپرمارکت",
+                "۴ ارسال رایگان ۴۵ دقیقه‌ای",
+                "پشتیبانی اختصاصی"
+              ],
+              "service_list": [
+                {
+                  "title": "۴ ارسال رایگان دیجیکالا"
+                },
+                {
+                  "title": "۲ ارسال سوپرمارکت"
+                },
+                {
+                  "title": "۴ ارسال رایگان ۴۵ دقیقه‌ای"
+                },
+                {
+                  "title": "پشتیبانی اختصاصی"
+                }
+              ],
+              "services_summary": [
+                "ارسال رایگان"
+              ],
+              "is_jet_eligible": false,
+              "cash_back": 0,
+              "is_general_location_jet_eligible": false
+            }
+          },
+          "rating": {
+            "rate": 90.19,
+            "count": 104
+          },
+          "properties": {
+            "is_fast_shipping": false,
+            "is_ship_by_seller": false,
+            "free_shipping_badge": false,
+            "is_multi_warehouse": false,
+            "is_fake": false,
+            "has_gift": false,
+            "min_price_in_last_month": 0,
+            "is_non_inventory": false,
+            "is_jet_eligible": false,
+            "is_medical_supplement": false,
+            "is_ad": true,
+            "ad": {
+              "id": "0e6ae850-0025-4e83-a5a5-46c7e16180a2",
+              "provider": "digikala_ads",
+              "campaign_id": 204880,
+              "seller_id": 1082186,
+              "category_id": 6004,
+              "variant_id": 47599199,
+              "position": "",
+              "properties": "P2BJNLyXp3NBIg4u7AcedpYsSxETZTpnlgf29rTzdmkt6Nf1KGLXS5ZpNaA1mPLVRx5SfbtrkIFfRaoTMOYKzhrXa90orQK/uIfKhf4PVQ3fPHVxe965Z9cp4FZ/R32Erbv3GHvzPNOYYBPVcWrrVPvTYe85mihkvJATlOT6uyIhfFMlnYfsyrShCHg16TT0RyBMI719/05G8npDhEWiUrk/ngU17/WZX6C3QmwRwoQ="
+            },
+            "ad_url": "/product/dkp-11499885/دفترچه-یادداشت-300-برگ-سادات-مدل-b-300"
+          },
+          "colors": [
+            {
+              "id": 3,
+              "title": "قرمز",
+              "hex_code": "#FF0000"
+            },
+            {
+              "id": 5,
+              "title": "زرد",
+              "hex_code": "#FFFF00"
+            },
+            {
+              "id": 17,
+              "title": "نارنجی",
+              "hex_code": "#FFA501"
+            },
+            {
+              "id": 2,
+              "title": "سفید",
+              "hex_code": "#FFFFFF"
+            },
+            {
+              "id": 4,
+              "title": "آبی",
+              "hex_code": "#0000FF"
+            },
+            {
+              "id": 6,
+              "title": "سبز",
+              "hex_code": "#008000"
+            },
+            {
+              "id": 1,
+              "title": "مشکی",
+              "hex_code": "#000000"
+            },
+            {
+              "id": 7,
+              "title": "صورتی",
+              "hex_code": "#ffc0cb"
+            },
+            {
+              "id": 11,
+              "title": "خاکستری",
+              "hex_code": "#9E9E9E"
+            },
+            {
+              "id": 9,
+              "title": "سرمه ای",
+              "hex_code": "#002171"
+            },
+            {
+              "id": 26,
+              "title": "سبز آبی",
+              "hex_code": "#008080"
+            },
+            {
+              "id": 8,
+              "title": "بنفش",
+              "hex_code": "#800080"
+            }
+          ]
+        },
+        {
+          "id": 18337093,
+          "title_fa": "دفتر مشق 200 برگ سادات کد R-120",
+          "title_en": "",
+          "url": {
+            "uri": "/product/dkp-18337093/دفتر-مشق-200-برگ-سادات-کد-r-120"
+          },
+          "status": "marketable",
+          "has_quick_view": false,
+          "data_layer": {
+            "brand": "سادات",
+            "category": "[MA,لوازم التحریر]",
+            "metric6": 15,
+            "dimension2": 0,
+            "dimension6": 0,
+            "dimension7": "none",
+            "dimension9": 4.8,
+            "dimension11": 0,
+            "dimension20": "marketable",
+            "item_category2": "کتاب، لوازم تحریر و هنر",
+            "item_category3": "لوازم تحریر",
+            "item_category4": "دفتر و کاغذ و مقوا",
+            "item_category5": "دفتر"
+          },
+          "product_type": "product",
+          "test_title_fa": "",
+          "test_title_en": "",
+          "digiplus": {
+            "services": [
+              "۴ ارسال رایگان دیجیکالا",
+              "۲ ارسال سوپرمارکت",
+              "۴ ارسال رایگان ۴۵ دقیقه‌ای",
+              "پشتیبانی اختصاصی",
+              "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+            ],
+            "service_list": [
+              {
+                "title": "۴ ارسال رایگان دیجیکالا"
+              },
+              {
+                "title": "۲ ارسال سوپرمارکت"
+              },
+              {
+                "title": "۴ ارسال رایگان ۴۵ دقیقه‌ای"
+              },
+              {
+                "title": "پشتیبانی اختصاصی"
+              },
+              {
+                "title": "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+              }
+            ],
+            "services_summary": [
+              "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+            ],
+            "is_jet_eligible": true,
+            "cash_back": 0,
+            "is_general_location_jet_eligible": false,
+            "fast_shipping_text": "ارسال سریع دیجی‌کالا"
+          },
+          "cpc": [],
+          "images": {
+            "main": {
+              "url": [
+                "https://dkstatics-public.digikala.com/digikala-products/adea6a972d7eef619c9fa9358c614f920d16d99d_1739639213.jpg?x-oss-process=image/resize,m_lfit,h_300,w_300/quality,q_80"
+              ],
+              "webp_url": [
+                "https://dkstatics-public.digikala.com/digikala-products/adea6a972d7eef619c9fa9358c614f920d16d99d_1739639213.jpg?x-oss-process=image/resize,m_lfit,h_300,w_300/format,webp/quality,q_80"
+              ]
+            }
+          },
+          "default_variant": {
+            "id": 65780428,
+            "lead_time": 0,
+            "rank": 0,
+            "rate": 0,
+            "status": "marketable",
+            "properties": {
+              "is_fast_shipping": false,
+              "is_ship_by_seller": false,
+              "is_multi_warehouse": false,
+              "has_similar_variants": false,
+              "is_rural": false,
+              "in_digikala_warehouse": true,
+              "is_ship_from_user_state": false,
+              "nearby_seller_shipment": false,
+              "support_nearby_shipping_for_user": false,
+              "is_ship_by_seller_restricted": false
+            },
+            "warranty": {
+              "id": 272,
+              "title_fa": "گارانتی اصالت و سلامت فیزیکی کالا",
+              "title_en": "گارانتی اصالت و سلامت فیزیکی کالا"
+            },
+            "themes": [
+              {
+                "value": {
+                  "variant_id": 65780428,
+                  "id": 26,
+                  "title": "سبز آبی",
+                  "code": "#008080",
+                  "hexCode": "#008080",
+                  "hex_code": "#008080",
+                  "nature": "color"
+                },
+                "label": "رنگ",
+                "type": "colored",
+                "is_main": true
+              }
+            ],
+            "color": {
+              "id": 26,
+              "title": "سبز آبی",
+              "hex_code": "#008080"
+            },
+            "seller": {
+              "id": 1082186,
+              "title": "برگزیده یاس",
+              "code": "EX5JE",
+              "url": "https://www.digikala.com/seller/EX5JE/",
+              "rating": {
+                "total_rate": 88,
+                "total_count": 29248,
+                "commitment": 99.9,
+                "no_return": 99.9,
+                "on_time_shipping": 94.3
+              },
+              "properties": {
+                "is_trusted": true,
+                "is_official": false,
+                "is_roosta": false,
+                "is_new": false
+              },
+              "stars": 4.7,
+              "grade": {
+                "label": "عالی",
+                "color": "#00a049"
+              },
+              "registration_date": "3 سال و 5 ماه"
+            },
+            "digiclub": {
+              "point": 74
+            },
+            "price": {
+              "selling_price": 7390000,
+              "rrp_price": 7390000,
+              "order_limit": 10,
+              "is_incredible": false,
+              "is_promotion": false,
+              "is_locked_for_digiplus": false,
+              "bnpl_active": false,
+              "discount_percent": 0,
+              "is_plus_early_access": false,
+              "min_order_limit": 1
+            },
+            "shipment_methods": {
+              "description": "موجود در انبار دیجی‌کالا",
+              "has_lead_time": true,
+              "icon": "cube-badge-available-product",
+              "icon_color": "#0fabc6",
+              "providers": [
+                {
+                  "has_lead_time": false,
+                  "type": "digikala",
+                  "title": "ارسال دیجی‌کالا",
+                  "description": "این کالا در انبار دیجی‌کالا موجود و آماده پردازش است و توسط پیک دیجی‌کالا در بازه انتخابی ارسال خواهد شد.",
+                  "label": {
+                    "title": "توسط دیجی‌کالا"
+                  },
+                  "price": {
+                    "text": "وابسته به سبد",
+                    "is_free": false
+                  },
+                  "shipping_mode": "digikala",
+                  "delivery_day": "today",
+                  "image": "https://dkstatics-public.digikala.com/digikala-static/85db0f29b9d811de333a7980a0b8fb35f10b5758_1667056305.png",
+                  "svg_image": "https://dkstatics-public.digikala.com/digikala-static/562b91988f1beec9a5f13aee3cf31cfd7a1a25b1_1748679087.svg"
+                },
+                {
+                  "has_lead_time": false,
+                  "type": "jet",
+                  "title": "ارسال سریع دیجی‌کالا (تهران و کرج)",
+                  "description": "اگر سفارش را قبل از ساعت ۶ عصر ثبت کنید، همان روز ارسال می‌شود. در صورت ثبت سفارش بعد از ساعت ۶ عصر، فردا ارسال خواهد شد.",
+                  "label": {
+                    "title": "ارسال سریع دیجی‌کالا"
+                  },
+                  "price": {
+                    "text": "وابسته به سبد",
+                    "is_free": false
+                  },
+                  "shipping_mode": "jet",
+                  "delivery_day": "today",
+                  "image": "https://dkstatics-public.digikala.com/digikala-static/262c38c0e4990522af759e0016a287508bbc84f6_1684761217.png",
+                  "svg_image": "https://dkstatics-public.digikala.com/digikala-static/169e0c18019ceadf022b72c5248fe9a4ed3c68fb_1748679177.svg"
+                }
+              ]
+            },
+            "has_importer_price": false,
+            "manufacture_price_not_exist": false,
+            "has_best_price_in_last_month": false,
+            "digiplus": {
+              "services": [
+                "۴ ارسال رایگان دیجیکالا",
+                "۲ ارسال سوپرمارکت",
+                "۴ ارسال رایگان ۴۵ دقیقه‌ای",
+                "پشتیبانی اختصاصی",
+                "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+              ],
+              "service_list": [
+                {
+                  "title": "۴ ارسال رایگان دیجیکالا"
+                },
+                {
+                  "title": "۲ ارسال سوپرمارکت"
+                },
+                {
+                  "title": "۴ ارسال رایگان ۴۵ دقیقه‌ای"
+                },
+                {
+                  "title": "پشتیبانی اختصاصی"
+                },
+                {
+                  "title": "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+                }
+              ],
+              "services_summary": [
+                "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+              ],
+              "is_jet_eligible": true,
+              "cash_back": 0,
+              "is_general_location_jet_eligible": false,
+              "fast_shipping_text": "ارسال سریع دیجی‌کالا"
+            }
+          },
+          "rating": {
+            "rate": 94.67,
+            "count": 15
+          },
+          "properties": {
+            "is_fast_shipping": false,
+            "is_ship_by_seller": false,
+            "free_shipping_badge": false,
+            "is_multi_warehouse": false,
+            "is_fake": false,
+            "has_gift": false,
+            "min_price_in_last_month": 0,
+            "is_non_inventory": false,
+            "is_jet_eligible": false,
+            "is_medical_supplement": false,
+            "is_ad": true,
+            "ad": {
+              "id": "7c2445a7-9bfa-414f-9336-630f41bd290e",
+              "provider": "digikala_ads",
+              "campaign_id": 204880,
+              "seller_id": 1082186,
+              "category_id": 6004,
+              "variant_id": 65780428,
+              "position": "",
+              "properties": "P2BJNLyXp3NBIg4u7AcedpYsSxETZTpnlgf29rTzdmkt6Nf1KGLXS5ZpNaA1mPLVRx5SfbtrkIFfRaoTMOYKzhrXa90orQK/uIfKhf4PVQ3fPHVxe965Z9cp4FZ/R32Erbv3GHvzPNOYYBPVcWrrVFbUa9bBDT5GxuaU2u0C4JYPjqyrDd1APruM69IlftF69e8eOYlynTHoqlIRfBO6mLk/ngU17/WZX6C3QmwRwoQ="
+            },
+            "ad_url": "/product/dkp-18337093/دفتر-مشق-200-برگ-سادات-کد-r-120"
+          },
+          "colors": [
+            {
+              "id": 26,
+              "title": "سبز آبی",
+              "hex_code": "#008080"
+            },
+            {
+              "id": 1,
+              "title": "مشکی",
+              "hex_code": "#000000"
+            },
+            {
+              "id": 3,
+              "title": "قرمز",
+              "hex_code": "#FF0000"
+            },
+            {
+              "id": 5,
+              "title": "زرد",
+              "hex_code": "#FFFF00"
+            },
+            {
+              "id": 6,
+              "title": "سبز",
+              "hex_code": "#008000"
+            },
+            {
+              "id": 7,
+              "title": "صورتی",
+              "hex_code": "#ffc0cb"
+            },
+            {
+              "id": 8,
+              "title": "بنفش",
+              "hex_code": "#800080"
+            },
+            {
+              "id": 11,
+              "title": "خاکستری",
+              "hex_code": "#9E9E9E"
+            },
+            {
+              "id": 17,
+              "title": "نارنجی",
+              "hex_code": "#FFA501"
+            },
+            {
+              "id": 2,
+              "title": "سفید",
+              "hex_code": "#FFFFFF"
+            },
+            {
+              "id": 9,
+              "title": "سرمه ای",
+              "hex_code": "#002171"
+            }
+          ]
+        },
+        {
+          "id": 18847257,
+          "title_fa": "دفتر یادداشت 100 برگ مدل کیمدی رونالدو امضا 2025",
+          "title_en": "",
+          "url": {
+            "uri": "/product/dkp-18847257/دفتر-یادداشت-100-برگ-مدل-کیمدی-رونالدو-امضا-2025"
+          },
+          "status": "marketable",
+          "has_quick_view": false,
+          "data_layer": {
+            "brand": "متفرقه",
+            "category": "[MA,لوازم التحریر]",
+            "metric6": 67,
+            "dimension2": 0,
+            "dimension6": 0,
+            "dimension7": "none",
+            "dimension9": 4.7,
+            "dimension11": 0,
+            "dimension20": "marketable",
+            "item_category2": "کتاب، لوازم تحریر و هنر",
+            "item_category3": "لوازم تحریر",
+            "item_category4": "دفتر و کاغذ و مقوا",
+            "item_category5": "دفتر"
+          },
+          "product_type": "product",
+          "test_title_fa": "",
+          "test_title_en": "",
+          "digiplus": {
+            "services": [
+              "۴ ارسال رایگان دیجیکالا",
+              "۲ ارسال سوپرمارکت",
+              "۴ ارسال رایگان ۴۵ دقیقه‌ای",
+              "پشتیبانی اختصاصی",
+              "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+            ],
+            "service_list": [
+              {
+                "title": "۴ ارسال رایگان دیجیکالا"
+              },
+              {
+                "title": "۲ ارسال سوپرمارکت"
+              },
+              {
+                "title": "۴ ارسال رایگان ۴۵ دقیقه‌ای"
+              },
+              {
+                "title": "پشتیبانی اختصاصی"
+              },
+              {
+                "title": "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+              }
+            ],
+            "services_summary": [
+              "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+            ],
+            "is_jet_eligible": true,
+            "cash_back": 0,
+            "is_general_location_jet_eligible": false,
+            "fast_shipping_text": "ارسال سریع دیجی‌کالا"
+          },
+          "cpc": [],
+          "images": {
+            "main": {
+              "url": [
+                "https://dkstatics-public.digikala.com/digikala-products/03215d3c8a3c8f0719116641192e13b046ae74ac_1744118721.jpg?x-oss-process=image/resize,m_lfit,h_300,w_300/quality,q_80"
+              ],
+              "webp_url": [
+                "https://dkstatics-public.digikala.com/digikala-products/03215d3c8a3c8f0719116641192e13b046ae74ac_1744118721.jpg?x-oss-process=image/resize,m_lfit,h_300,w_300/format,webp/quality,q_80"
+              ]
+            }
+          },
+          "default_variant": {
+            "id": 65670874,
+            "lead_time": 0,
+            "rank": 0,
+            "rate": 91.6,
+            "statistics": {
+              "totally_satisfied": {
+                "rate_count": 49,
+                "rate": 73.13
+              },
+              "satisfied": {
+                "rate_count": 10,
+                "rate": 14.93
+              },
+              "neutral": {
+                "rate_count": 6,
+                "rate": 8.96
+              },
+              "dissatisfied": {
+                "rate_count": 2,
+                "rate": 2.99
+              },
+              "totally_dissatisfied": {
+                "rate_count": 0,
+                "rate": 0
+              },
+              "total_count": 67,
+              "total_rate": 91.6
+            },
+            "status": "marketable",
+            "properties": {
+              "is_fast_shipping": false,
+              "is_ship_by_seller": false,
+              "is_multi_warehouse": false,
+              "has_similar_variants": false,
+              "is_rural": false,
+              "in_digikala_warehouse": true,
+              "is_ship_from_user_state": false,
+              "nearby_seller_shipment": false,
+              "support_nearby_shipping_for_user": false,
+              "is_ship_by_seller_restricted": false
+            },
+            "warranty": {
+              "id": 272,
+              "title_fa": "گارانتی اصالت و سلامت فیزیکی کالا",
+              "title_en": "گارانتی اصالت و سلامت فیزیکی کالا"
+            },
+            "themes": [
+              {
+                "value": {
+                  "variant_id": 65670874,
+                  "id": 32,
+                  "title": "چند رنگ",
+                  "code": "#C71585",
+                  "hexCode": "#C71585",
+                  "hex_code": "#C71585",
+                  "nature": "color"
+                },
+                "label": "رنگ",
+                "type": "colored",
+                "is_main": true
+              }
+            ],
+            "color": {
+              "id": 32,
+              "title": "چند رنگ",
+              "hex_code": "#C71585"
+            },
+            "seller": {
+              "id": 1082186,
+              "title": "برگزیده یاس",
+              "code": "EX5JE",
+              "url": "https://www.digikala.com/seller/EX5JE/",
+              "rating": {
+                "total_rate": 88,
+                "total_count": 29268,
+                "commitment": 99.9,
+                "no_return": 99.9,
+                "on_time_shipping": 94.6
+              },
+              "properties": {
+                "is_trusted": true,
+                "is_official": false,
+                "is_roosta": false,
+                "is_new": false
+              },
+              "stars": 4.7,
+              "grade": {
+                "label": "عالی",
+                "color": "#00a049"
+              },
+              "registration_date": "3 سال و 5 ماه"
+            },
+            "digiclub": {
+              "point": 20
+            },
+            "price": {
+              "selling_price": 1943500,
+              "rrp_price": 2990000,
+              "order_limit": 10,
+              "is_incredible": false,
+              "is_promotion": true,
+              "is_locked_for_digiplus": false,
+              "bnpl_active": false,
+              "discount_percent": 35,
+              "badge": {
+                "title": "فروش ویژه",
+                "color": "#E6123D"
+              },
+              "is_digiplus_promotion": false,
+              "is_digiplus_early_access": false,
+              "is_application_incredible": false,
+              "is_lightening_deal": false,
+              "is_plus_early_access": false,
+              "min_order_limit": 1
+            },
+            "shipment_methods": {
+              "description": "موجود در انبار دیجی‌کالا",
+              "has_lead_time": true,
+              "icon": "cube-badge-available-product",
+              "icon_color": "#0fabc6",
+              "providers": [
+                {
+                  "has_lead_time": false,
+                  "type": "digikala",
+                  "title": "ارسال دیجی‌کالا",
+                  "description": "این کالا در انبار دیجی‌کالا موجود و آماده پردازش است و توسط پیک دیجی‌کالا در بازه انتخابی ارسال خواهد شد.",
+                  "label": {
+                    "title": "توسط دیجی‌کالا"
+                  },
+                  "price": {
+                    "text": "وابسته به سبد",
+                    "is_free": false
+                  },
+                  "shipping_mode": "digikala",
+                  "delivery_day": "today",
+                  "image": "https://dkstatics-public.digikala.com/digikala-static/85db0f29b9d811de333a7980a0b8fb35f10b5758_1667056305.png",
+                  "svg_image": "https://dkstatics-public.digikala.com/digikala-static/562b91988f1beec9a5f13aee3cf31cfd7a1a25b1_1748679087.svg"
+                },
+                {
+                  "has_lead_time": false,
+                  "type": "jet",
+                  "title": "ارسال سریع دیجی‌کالا (تهران و کرج)",
+                  "description": "اگر سفارش را قبل از ساعت ۶ عصر ثبت کنید، همان روز ارسال می‌شود. در صورت ثبت سفارش بعد از ساعت ۶ عصر، فردا ارسال خواهد شد.",
+                  "label": {
+                    "title": "ارسال سریع دیجی‌کالا"
+                  },
+                  "price": {
+                    "text": "وابسته به سبد",
+                    "is_free": false
+                  },
+                  "shipping_mode": "jet",
+                  "delivery_day": "today",
+                  "image": "https://dkstatics-public.digikala.com/digikala-static/262c38c0e4990522af759e0016a287508bbc84f6_1684761217.png",
+                  "svg_image": "https://dkstatics-public.digikala.com/digikala-static/169e0c18019ceadf022b72c5248fe9a4ed3c68fb_1748679177.svg"
+                }
+              ]
+            },
+            "has_importer_price": false,
+            "manufacture_price_not_exist": false,
+            "has_best_price_in_last_month": false,
+            "digiplus": {
+              "services": [
+                "۴ ارسال رایگان دیجیکالا",
+                "۲ ارسال سوپرمارکت",
+                "۴ ارسال رایگان ۴۵ دقیقه‌ای",
+                "پشتیبانی اختصاصی",
+                "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+              ],
+              "service_list": [
+                {
+                  "title": "۴ ارسال رایگان دیجیکالا"
+                },
+                {
+                  "title": "۲ ارسال سوپرمارکت"
+                },
+                {
+                  "title": "۴ ارسال رایگان ۴۵ دقیقه‌ای"
+                },
+                {
+                  "title": "پشتیبانی اختصاصی"
+                },
+                {
+                  "title": "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+                }
+              ],
+              "services_summary": [
+                "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+              ],
+              "is_jet_eligible": true,
+              "cash_back": 0,
+              "is_general_location_jet_eligible": false,
+              "fast_shipping_text": "ارسال سریع دیجی‌کالا"
+            }
+          },
+          "rating": {
+            "rate": 92.24,
+            "count": 67
+          },
+          "properties": {
+            "is_fast_shipping": false,
+            "is_ship_by_seller": false,
+            "free_shipping_badge": false,
+            "is_multi_warehouse": false,
+            "is_fake": false,
+            "has_gift": false,
+            "min_price_in_last_month": 0,
+            "is_non_inventory": false,
+            "is_jet_eligible": false,
+            "is_medical_supplement": false,
+            "is_ad": true,
+            "ad": {
+              "id": "b3b1a3be-e673-4f0e-b97e-1f02742916c3",
+              "provider": "digikala_ads",
+              "campaign_id": 204880,
+              "seller_id": 1082186,
+              "category_id": 6004,
+              "variant_id": 65670874,
+              "position": "",
+              "properties": "P2BJNLyXp3NBIg4u7AcedpYsSxETZTpnlgf29rTzdmkt6Nf1KGLXS5ZpNaA1mPLVRx5SfbtrkIFfRaoTMOYKzhrXa90orQK/uIfKhf4PVQ3fPHVxe965Z9cp4FZ/R32Erbv3GHvzPNOYYBPVcWrrVDQTT9fZOIPc0sXb89P4Li9ReBoHAm//dN0x953FGBbeUpqD353Yc2Mphyn7Ux7A1bk/ngU17/WZX6C3QmwRwoQ="
+            },
+            "ad_url": "/product/dkp-18847257/دفتر-یادداشت-100-برگ-مدل-کیمدی-رونالدو-امضا-2025"
+          },
+          "colors": [
+            {
+              "id": 32,
+              "title": "چند رنگ",
+              "hex_code": "#C71585"
+            }
+          ]
+        },
+        {
+          "id": 18848100,
+          "title_fa": "دفتر یادداشت 100 برگ مدل کیمدی لیونل مسی امضا کد 1",
+          "title_en": "",
+          "url": {
+            "uri": "/product/dkp-18848100/دفتر-یادداشت-100-برگ-مدل-کیمدی-لیونل-مسی-امضا-کد-1"
+          },
+          "status": "marketable",
+          "has_quick_view": false,
+          "data_layer": {
+            "brand": "متفرقه",
+            "category": "[MA,لوازم التحریر]",
+            "metric6": 24,
+            "dimension2": 0,
+            "dimension6": 0,
+            "dimension7": "none",
+            "dimension9": 4.9,
+            "dimension11": 0,
+            "dimension20": "marketable",
+            "item_category2": "کتاب، لوازم تحریر و هنر",
+            "item_category3": "لوازم تحریر",
+            "item_category4": "دفتر و کاغذ و مقوا",
+            "item_category5": "دفتر"
+          },
+          "product_type": "product",
+          "test_title_fa": "",
+          "test_title_en": "",
+          "digiplus": {
+            "services": [
+              "۴ ارسال رایگان دیجیکالا",
+              "۲ ارسال سوپرمارکت",
+              "۴ ارسال رایگان ۴۵ دقیقه‌ای",
+              "پشتیبانی اختصاصی",
+              "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+            ],
+            "service_list": [
+              {
+                "title": "۴ ارسال رایگان دیجیکالا"
+              },
+              {
+                "title": "۲ ارسال سوپرمارکت"
+              },
+              {
+                "title": "۴ ارسال رایگان ۴۵ دقیقه‌ای"
+              },
+              {
+                "title": "پشتیبانی اختصاصی"
+              },
+              {
+                "title": "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+              }
+            ],
+            "services_summary": [
+              "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+            ],
+            "is_jet_eligible": true,
+            "cash_back": 0,
+            "is_general_location_jet_eligible": false,
+            "fast_shipping_text": "ارسال سریع دیجی‌کالا"
+          },
+          "cpc": [],
+          "images": {
+            "main": {
+              "url": [
+                "https://dkstatics-public.digikala.com/digikala-products/9f119bb94b33664c0395c0a86bb1506d76cab6c3_1744122371.jpg?x-oss-process=image/resize,m_lfit,h_300,w_300/quality,q_80"
+              ],
+              "webp_url": [
+                "https://dkstatics-public.digikala.com/digikala-products/9f119bb94b33664c0395c0a86bb1506d76cab6c3_1744122371.jpg?x-oss-process=image/resize,m_lfit,h_300,w_300/format,webp/quality,q_80"
+              ]
+            }
+          },
+          "default_variant": {
+            "id": 65670915,
+            "lead_time": 1,
+            "rank": 0,
+            "rate": 98.4,
+            "statistics": {
+              "totally_satisfied": {
+                "rate_count": 22,
+                "rate": 91.67
+              },
+              "satisfied": {
+                "rate_count": 2,
+                "rate": 8.33
+              },
+              "neutral": {
+                "rate_count": 0,
+                "rate": 0
+              },
+              "dissatisfied": {
+                "rate_count": 0,
+                "rate": 0
+              },
+              "totally_dissatisfied": {
+                "rate_count": 0,
+                "rate": 0
+              },
+              "total_count": 24,
+              "total_rate": 98.4
+            },
+            "status": "marketable",
+            "properties": {
+              "is_fast_shipping": false,
+              "is_ship_by_seller": false,
+              "is_multi_warehouse": false,
+              "has_similar_variants": false,
+              "is_rural": false,
+              "in_digikala_warehouse": false,
+              "is_ship_from_user_state": false,
+              "nearby_seller_shipment": false,
+              "support_nearby_shipping_for_user": false,
+              "is_ship_by_seller_restricted": false
+            },
+            "warranty": {
+              "id": 272,
+              "title_fa": "گارانتی اصالت و سلامت فیزیکی کالا",
+              "title_en": "گارانتی اصالت و سلامت فیزیکی کالا"
+            },
+            "themes": [
+              {
+                "value": {
+                  "variant_id": 65670915,
+                  "id": 32,
+                  "title": "چند رنگ",
+                  "code": "#C71585",
+                  "hexCode": "#C71585",
+                  "hex_code": "#C71585",
+                  "nature": "color"
+                },
+                "label": "رنگ",
+                "type": "colored",
+                "is_main": true
+              }
+            ],
+            "color": {
+              "id": 32,
+              "title": "چند رنگ",
+              "hex_code": "#C71585"
+            },
+            "seller": {
+              "id": 1082186,
+              "title": "برگزیده یاس",
+              "code": "EX5JE",
+              "url": "https://www.digikala.com/seller/EX5JE/",
+              "rating": {
+                "total_rate": 88,
+                "total_count": 29268,
+                "commitment": 99.9,
+                "no_return": 99.9,
+                "on_time_shipping": 94.6
+              },
+              "properties": {
+                "is_trusted": true,
+                "is_official": false,
+                "is_roosta": false,
+                "is_new": false
+              },
+              "stars": 4.7,
+              "grade": {
+                "label": "عالی",
+                "color": "#00a049"
+              },
+              "registration_date": "3 سال و 5 ماه"
+            },
+            "digiclub": {
+              "point": 18
+            },
+            "price": {
+              "selling_price": 1791000,
+              "rrp_price": 1990000,
+              "order_limit": 18,
+              "is_incredible": false,
+              "is_promotion": true,
+              "is_locked_for_digiplus": false,
+              "bnpl_active": false,
+              "discount_percent": 10,
+              "badge": {
+                "title": "فروش ویژه",
+                "color": "#E6123D"
+              },
+              "is_digiplus_promotion": false,
+              "is_digiplus_early_access": false,
+              "is_application_incredible": false,
+              "is_lightening_deal": false,
+              "is_plus_early_access": false,
+              "min_order_limit": 1
+            },
+            "shipment_methods": {
+              "description": "موجود در انبار فروشنده",
+              "has_lead_time": false,
+              "icon": "cube-shop-product",
+              "icon_color": "#424750",
+              "providers": [
+                {
+                  "has_lead_time": true,
+                  "type": "digikala",
+                  "title": "ارسال دیجی‌کالا از 1 روز کاری دیگر",
+                  "description": "این کالا پس از مدت زمان مشخص شده توسط فروشنده در انبار دیجی‌کالا تامین و آماده پردازش می‌گردد و توسط پیک دیجی‌کالا در بازه انتخابی ارسال خواهد شد.",
+                  "label": {
+                    "title": "توسط دیجی‌کالا",
+                    "description": "تامین از 1 روز کاری دیگر"
+                  },
+                  "price": {
+                    "text": "وابسته به سبد",
+                    "is_free": false
+                  },
+                  "shipping_mode": "digikala",
+                  "delivery_day": "tomorrow",
+                  "image": "https://dkstatics-public.digikala.com/digikala-static/a850a0020b1f1d1241c35c8e9ef2b4a93e12a091_1667056289.png",
+                  "svg_image": "https://dkstatics-public.digikala.com/digikala-static/562b91988f1beec9a5f13aee3cf31cfd7a1a25b1_1748679087.svg"
+                }
+              ]
+            },
+            "has_importer_price": false,
+            "manufacture_price_not_exist": false,
+            "has_best_price_in_last_month": false,
+            "digiplus": {
+              "services": [
+                "۴ ارسال رایگان دیجیکالا",
+                "۲ ارسال سوپرمارکت",
+                "۴ ارسال رایگان ۴۵ دقیقه‌ای",
+                "پشتیبانی اختصاصی"
+              ],
+              "service_list": [
+                {
+                  "title": "۴ ارسال رایگان دیجیکالا"
+                },
+                {
+                  "title": "۲ ارسال سوپرمارکت"
+                },
+                {
+                  "title": "۴ ارسال رایگان ۴۵ دقیقه‌ای"
+                },
+                {
+                  "title": "پشتیبانی اختصاصی"
+                }
+              ],
+              "services_summary": [
+                "ارسال رایگان"
+              ],
+              "is_jet_eligible": false,
+              "cash_back": 0,
+              "is_general_location_jet_eligible": false
+            }
+          },
+          "rating": {
+            "rate": 97.5,
+            "count": 24
+          },
+          "properties": {
+            "is_fast_shipping": false,
+            "is_ship_by_seller": false,
+            "free_shipping_badge": false,
+            "is_multi_warehouse": false,
+            "is_fake": false,
+            "has_gift": false,
+            "min_price_in_last_month": 0,
+            "is_non_inventory": false,
+            "is_jet_eligible": false,
+            "is_medical_supplement": false,
+            "is_ad": true,
+            "ad": {
+              "id": "2f6464cf-86b3-4a53-8059-30993b0640bc",
+              "provider": "digikala_ads",
+              "campaign_id": 204880,
+              "seller_id": 1082186,
+              "category_id": 6004,
+              "variant_id": 65670915,
+              "position": "",
+              "properties": "P2BJNLyXp3NBIg4u7AcedpYsSxETZTpnlgf29rTzdmkt6Nf1KGLXS5ZpNaA1mPLVRx5SfbtrkIFfRaoTMOYKzhrXa90orQK/uIfKhf4PVQ3fPHVxe965Z9cp4FZ/R32Erbv3GHvzPNOYYBPVcWrrVMeGrXExqj0eJve/AH/CE/7uQy8Agi528XtR6JBHdtkbVBkTxBAewoPUdoghSjdVKrk/ngU17/WZX6C3QmwRwoQ="
+            },
+            "ad_url": "/product/dkp-18848100/دفتر-یادداشت-100-برگ-مدل-کیمدی-لیونل-مسی-امضا-کد-1"
+          },
+          "colors": [
+            {
+              "id": 32,
+              "title": "چند رنگ",
+              "hex_code": "#C71585"
+            }
+          ]
+        },
+        {
+          "id": 19396591,
+          "title_fa": "دفتر مشق ۵۰ برگ دایان طرح کرومی بسته ۴ عددی",
+          "title_en": "",
+          "url": {
+            "uri": "/product/dkp-19396591/دفتر-مشق-۵۰-برگ-دایان-طرح-کرومی-بسته-۴-عددی"
+          },
+          "status": "marketable",
+          "has_quick_view": false,
+          "data_layer": {
+            "brand": "دایان",
+            "category": "[MA,لوازم التحریر]",
+            "metric6": 152,
+            "dimension2": 10,
+            "dimension6": 0,
+            "dimension7": "special-offer",
+            "dimension9": 4.7,
+            "dimension11": 0,
+            "dimension20": "marketable",
+            "item_category2": "کتاب، لوازم تحریر و هنر",
+            "item_category3": "لوازم تحریر",
+            "item_category4": "دفتر و کاغذ و مقوا",
+            "item_category5": "دفتر"
+          },
+          "product_type": "product",
+          "test_title_fa": "",
+          "test_title_en": "",
+          "digiplus": {
+            "services": [
+              "۴ ارسال رایگان دیجیکالا",
+              "۲ ارسال سوپرمارکت",
+              "۴ ارسال رایگان ۴۵ دقیقه‌ای",
+              "پشتیبانی اختصاصی",
+              "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+            ],
+            "service_list": [
+              {
+                "title": "۴ ارسال رایگان دیجیکالا"
+              },
+              {
+                "title": "۲ ارسال سوپرمارکت"
+              },
+              {
+                "title": "۴ ارسال رایگان ۴۵ دقیقه‌ای"
+              },
+              {
+                "title": "پشتیبانی اختصاصی"
+              },
+              {
+                "title": "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+              }
+            ],
+            "services_summary": [
+              "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+            ],
+            "is_jet_eligible": true,
+            "cash_back": 0,
+            "is_general_location_jet_eligible": false,
+            "fast_shipping_text": "ارسال سریع دیجی‌کالا"
+          },
+          "cpc": [],
+          "images": {
+            "main": {
+              "url": [
+                "https://dkstatics-public.digikala.com/digikala-products/1a50cd916369a91d94ff9035ed74dde9508eff4d_1748802648.jpg?x-oss-process=image/resize,m_lfit,h_300,w_300/quality,q_80"
+              ],
+              "webp_url": [
+                "https://dkstatics-public.digikala.com/digikala-products/1a50cd916369a91d94ff9035ed74dde9508eff4d_1748802648.jpg?x-oss-process=image/resize,m_lfit,h_300,w_300/format,webp/quality,q_80"
+              ]
+            }
+          },
+          "default_variant": {
+            "id": 68435285,
+            "lead_time": 0,
+            "rank": 0,
+            "rate": 94.8,
+            "statistics": {
+              "totally_satisfied": {
+                "rate_count": 114,
+                "rate": 77.03
+              },
+              "satisfied": {
+                "rate_count": 29,
+                "rate": 19.59
+              },
+              "neutral": {
+                "rate_count": 5,
+                "rate": 3.38
+              },
+              "dissatisfied": {
+                "rate_count": 0,
+                "rate": 0
+              },
+              "totally_dissatisfied": {
+                "rate_count": 0,
+                "rate": 0
+              },
+              "total_count": 148,
+              "total_rate": 94.8
+            },
+            "status": "marketable",
+            "properties": {
+              "is_fast_shipping": false,
+              "is_ship_by_seller": false,
+              "is_multi_warehouse": false,
+              "has_similar_variants": false,
+              "is_rural": false,
+              "in_digikala_warehouse": true,
+              "is_ship_from_user_state": false,
+              "nearby_seller_shipment": false,
+              "support_nearby_shipping_for_user": false,
+              "is_ship_by_seller_restricted": false
+            },
+            "warranty": {
+              "id": 272,
+              "title_fa": "گارانتی اصالت و سلامت فیزیکی کالا",
+              "title_en": "گارانتی اصالت و سلامت فیزیکی کالا"
+            },
+            "themes": [
+              {
+                "value": {
+                  "variant_id": 68435285,
+                  "id": 32,
+                  "title": "چند رنگ",
+                  "code": "#C71585",
+                  "hexCode": "#C71585",
+                  "hex_code": "#C71585",
+                  "nature": "color"
+                },
+                "label": "رنگ",
+                "type": "colored",
+                "is_main": true
+              }
+            ],
+            "color": {
+              "id": 32,
+              "title": "چند رنگ",
+              "hex_code": "#C71585"
+            },
+            "seller": {
+              "id": 43123,
+              "title": " دایان",
+              "code": "6YNJZ",
+              "url": "https://www.digikala.com/seller/6YNJZ/",
+              "rating": {
+                "total_rate": 91,
+                "total_count": 13112,
+                "commitment": 100,
+                "no_return": 99.8,
+                "on_time_shipping": 99.2
+              },
+              "properties": {
+                "is_trusted": false,
+                "is_official": true,
+                "is_roosta": false,
+                "is_new": false
+              },
+              "stars": 5,
+              "grade": {
+                "label": "عالی",
+                "color": "#00a049"
+              },
+              "registration_date": "8 سال و 3 ماه"
+            },
+            "digiclub": {
+              "point": 72
+            },
+            "price": {
+              "selling_price": 7200000,
+              "rrp_price": 8000000,
+              "order_limit": 10,
+              "is_incredible": false,
+              "is_promotion": true,
+              "is_locked_for_digiplus": false,
+              "bnpl_active": false,
+              "discount_percent": 10,
+              "badge": {
+                "title": "فروش ویژه",
+                "color": "#E6123D"
+              },
+              "is_digiplus_promotion": false,
+              "is_digiplus_early_access": false,
+              "is_application_incredible": false,
+              "is_lightening_deal": false,
+              "is_plus_early_access": false,
+              "min_order_limit": 1
+            },
+            "shipment_methods": {
+              "description": "موجود در انبار دیجی‌کالا",
+              "has_lead_time": true,
+              "icon": "cube-badge-available-product",
+              "icon_color": "#0fabc6",
+              "providers": [
+                {
+                  "has_lead_time": false,
+                  "type": "digikala",
+                  "title": "ارسال دیجی‌کالا",
+                  "description": "این کالا در انبار دیجی‌کالا موجود و آماده پردازش است و توسط پیک دیجی‌کالا در بازه انتخابی ارسال خواهد شد.",
+                  "label": {
+                    "title": "توسط دیجی‌کالا"
+                  },
+                  "price": {
+                    "text": "وابسته به سبد",
+                    "is_free": false
+                  },
+                  "shipping_mode": "digikala",
+                  "delivery_day": "today",
+                  "image": "https://dkstatics-public.digikala.com/digikala-static/85db0f29b9d811de333a7980a0b8fb35f10b5758_1667056305.png",
+                  "svg_image": "https://dkstatics-public.digikala.com/digikala-static/562b91988f1beec9a5f13aee3cf31cfd7a1a25b1_1748679087.svg"
+                },
+                {
+                  "has_lead_time": false,
+                  "type": "jet",
+                  "title": "ارسال سریع دیجی‌کالا (تهران و کرج)",
+                  "description": "اگر سفارش را قبل از ساعت ۶ عصر ثبت کنید، همان روز ارسال می‌شود. در صورت ثبت سفارش بعد از ساعت ۶ عصر، فردا ارسال خواهد شد.",
+                  "label": {
+                    "title": "ارسال سریع دیجی‌کالا"
+                  },
+                  "price": {
+                    "text": "وابسته به سبد",
+                    "is_free": false
+                  },
+                  "shipping_mode": "jet",
+                  "delivery_day": "today",
+                  "image": "https://dkstatics-public.digikala.com/digikala-static/262c38c0e4990522af759e0016a287508bbc84f6_1684761217.png",
+                  "svg_image": "https://dkstatics-public.digikala.com/digikala-static/169e0c18019ceadf022b72c5248fe9a4ed3c68fb_1748679177.svg"
+                }
+              ]
+            },
+            "has_importer_price": false,
+            "manufacture_price_not_exist": false,
+            "has_best_price_in_last_month": false,
+            "digiplus": {
+              "services": [
+                "۴ ارسال رایگان دیجیکالا",
+                "۲ ارسال سوپرمارکت",
+                "۴ ارسال رایگان ۴۵ دقیقه‌ای",
+                "پشتیبانی اختصاصی",
+                "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+              ],
+              "service_list": [
+                {
+                  "title": "۴ ارسال رایگان دیجیکالا"
+                },
+                {
+                  "title": "۲ ارسال سوپرمارکت"
+                },
+                {
+                  "title": "۴ ارسال رایگان ۴۵ دقیقه‌ای"
+                },
+                {
+                  "title": "پشتیبانی اختصاصی"
+                },
+                {
+                  "title": "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+                }
+              ],
+              "services_summary": [
+                "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+              ],
+              "is_jet_eligible": true,
+              "cash_back": 0,
+              "is_general_location_jet_eligible": false,
+              "fast_shipping_text": "ارسال سریع دیجی‌کالا"
+            }
+          },
+          "rating": {
+            "rate": 93.42,
+            "count": 152
+          },
+          "properties": {
+            "is_fast_shipping": false,
+            "is_ship_by_seller": false,
+            "free_shipping_badge": false,
+            "is_multi_warehouse": false,
+            "is_fake": false,
+            "has_gift": false,
+            "min_price_in_last_month": 7200000,
+            "is_non_inventory": false,
+            "is_jet_eligible": false,
+            "is_medical_supplement": false,
+            "is_ad": true,
+            "ad": {
+              "id": "238764e6-211f-41a5-a4d3-6ae01f41c22b",
+              "provider": "digikala_ads",
+              "campaign_id": 204604,
+              "seller_id": 43123,
+              "category_id": 6004,
+              "variant_id": 68435285,
+              "position": "",
+              "properties": "P2BJNLyXp3NBIg4u7AcedpYsSxETZTpnlgf29rTzdmkt6Nf1KGLXS5ZpNaA1mPLVRx5SfbtrkIFfRaoTMOYKzhrXa90orQK/uIfKhf4PVQ1jHhefKoihhuGSnRxrDXnGrbv3GHvzPNOYYBPVcWrrVJZ6JE7cqu/KmXxJa3zQeATOCxczR5O20UJvJjt9ILP50/0lPYoMsZjQbYYg5+EBVrk/ngU17/WZX6C3QmwRwoQ="
+            },
+            "ad_url": "/product/dkp-19396591/دفتر-مشق-۵۰-برگ-دایان-طرح-کرومی-بسته-۴-عددی"
+          },
+          "colors": [
+            {
+              "id": 32,
+              "title": "چند رنگ",
+              "hex_code": "#C71585"
+            }
+          ]
+        },
+        {
+          "id": 19633007,
+          "title_fa": "دفتر مشق ۸۰ برگ دایان طرح فیفا کد ۵۳۶۴۲ بسته ۴ عددی",
+          "title_en": "",
+          "url": {
+            "uri": "/product/dkp-19633007/دفتر-مشق-۸۰-برگ-دایان-طرح-فیفا-کد-۵۳۶۴۲-بسته-۴-عددی"
+          },
+          "status": "marketable",
+          "has_quick_view": false,
+          "data_layer": {
+            "brand": "دایان",
+            "category": "[MA,لوازم التحریر]",
+            "metric6": 167,
+            "dimension2": 0,
+            "dimension6": 0,
+            "dimension7": "none",
+            "dimension9": 4.8,
+            "dimension11": 0,
+            "dimension20": "marketable",
+            "item_category2": "کتاب، لوازم تحریر و هنر",
+            "item_category3": "لوازم تحریر",
+            "item_category4": "دفتر و کاغذ و مقوا",
+            "item_category5": "دفتر"
+          },
+          "product_type": "product",
+          "test_title_fa": "",
+          "test_title_en": "",
+          "digiplus": {
+            "services": [
+              "۴ ارسال رایگان دیجیکالا",
+              "۲ ارسال سوپرمارکت",
+              "۴ ارسال رایگان ۴۵ دقیقه‌ای",
+              "پشتیبانی اختصاصی",
+              "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+            ],
+            "service_list": [
+              {
+                "title": "۴ ارسال رایگان دیجیکالا"
+              },
+              {
+                "title": "۲ ارسال سوپرمارکت"
+              },
+              {
+                "title": "۴ ارسال رایگان ۴۵ دقیقه‌ای"
+              },
+              {
+                "title": "پشتیبانی اختصاصی"
+              },
+              {
+                "title": "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+              }
+            ],
+            "services_summary": [
+              "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+            ],
+            "is_jet_eligible": true,
+            "cash_back": 0,
+            "is_general_location_jet_eligible": false,
+            "fast_shipping_text": "ارسال سریع دیجی‌کالا"
+          },
+          "cpc": [],
+          "images": {
+            "main": {
+              "url": [
+                "https://dkstatics-public.digikala.com/digikala-products/bc50c1426556576f0f96da82825869831d9cf9e2_1750803702.jpg?x-oss-process=image/resize,m_lfit,h_300,w_300/quality,q_80"
+              ],
+              "webp_url": [
+                "https://dkstatics-public.digikala.com/digikala-products/bc50c1426556576f0f96da82825869831d9cf9e2_1750803702.jpg?x-oss-process=image/resize,m_lfit,h_300,w_300/format,webp/quality,q_80"
+              ]
+            }
+          },
+          "default_variant": {
+            "id": 69025385,
+            "lead_time": 0,
+            "rank": 0,
+            "rate": 95.8,
+            "statistics": {
+              "totally_satisfied": {
+                "rate_count": 139,
+                "rate": 83.23
+              },
+              "satisfied": {
+                "rate_count": 21,
+                "rate": 12.57
+              },
+              "neutral": {
+                "rate_count": 7,
+                "rate": 4.19
+              },
+              "dissatisfied": {
+                "rate_count": 0,
+                "rate": 0
+              },
+              "totally_dissatisfied": {
+                "rate_count": 0,
+                "rate": 0
+              },
+              "total_count": 167,
+              "total_rate": 95.8
+            },
+            "status": "marketable",
+            "properties": {
+              "is_fast_shipping": false,
+              "is_ship_by_seller": false,
+              "is_multi_warehouse": false,
+              "has_similar_variants": false,
+              "is_rural": false,
+              "in_digikala_warehouse": true,
+              "is_ship_from_user_state": false,
+              "nearby_seller_shipment": false,
+              "support_nearby_shipping_for_user": false,
+              "is_ship_by_seller_restricted": false
+            },
+            "warranty": {
+              "id": 272,
+              "title_fa": "گارانتی اصالت و سلامت فیزیکی کالا",
+              "title_en": "گارانتی اصالت و سلامت فیزیکی کالا"
+            },
+            "themes": [
+              {
+                "value": {
+                  "variant_id": 69025385,
+                  "id": 32,
+                  "title": "چند رنگ",
+                  "code": "#C71585",
+                  "hexCode": "#C71585",
+                  "hex_code": "#C71585",
+                  "nature": "color"
+                },
+                "label": "رنگ",
+                "type": "colored",
+                "is_main": true
+              }
+            ],
+            "color": {
+              "id": 32,
+              "title": "چند رنگ",
+              "hex_code": "#C71585"
+            },
+            "seller": {
+              "id": 43123,
+              "title": " دایان",
+              "code": "6YNJZ",
+              "url": "https://www.digikala.com/seller/6YNJZ/",
+              "rating": {
+                "total_rate": 91,
+                "total_count": 13109,
+                "commitment": 100,
+                "no_return": 99.8,
+                "on_time_shipping": 99.2
+              },
+              "properties": {
+                "is_trusted": false,
+                "is_official": true,
+                "is_roosta": false,
+                "is_new": false
+              },
+              "stars": 5,
+              "grade": {
+                "label": "عالی",
+                "color": "#00a049"
+              },
+              "registration_date": "8 سال و 3 ماه"
+            },
+            "digiclub": {
+              "point": 100
+            },
+            "price": {
+              "selling_price": 10000000,
+              "rrp_price": 10000000,
+              "order_limit": 30,
+              "is_incredible": false,
+              "is_promotion": false,
+              "is_locked_for_digiplus": false,
+              "bnpl_active": false,
+              "discount_percent": 0,
+              "is_plus_early_access": false,
+              "min_order_limit": 1
+            },
+            "shipment_methods": {
+              "description": "موجود در انبار دیجی‌کالا",
+              "has_lead_time": true,
+              "icon": "cube-badge-available-product",
+              "icon_color": "#0fabc6",
+              "providers": [
+                {
+                  "has_lead_time": false,
+                  "type": "digikala",
+                  "title": "ارسال دیجی‌کالا",
+                  "description": "این کالا در انبار دیجی‌کالا موجود و آماده پردازش است و توسط پیک دیجی‌کالا در بازه انتخابی ارسال خواهد شد.",
+                  "label": {
+                    "title": "توسط دیجی‌کالا"
+                  },
+                  "price": {
+                    "text": "وابسته به سبد",
+                    "is_free": false
+                  },
+                  "shipping_mode": "digikala",
+                  "delivery_day": "today",
+                  "image": "https://dkstatics-public.digikala.com/digikala-static/85db0f29b9d811de333a7980a0b8fb35f10b5758_1667056305.png",
+                  "svg_image": "https://dkstatics-public.digikala.com/digikala-static/562b91988f1beec9a5f13aee3cf31cfd7a1a25b1_1748679087.svg"
+                },
+                {
+                  "has_lead_time": false,
+                  "type": "jet",
+                  "title": "ارسال سریع دیجی‌کالا (تهران و کرج)",
+                  "description": "اگر سفارش را قبل از ساعت ۶ عصر ثبت کنید، همان روز ارسال می‌شود. در صورت ثبت سفارش بعد از ساعت ۶ عصر، فردا ارسال خواهد شد.",
+                  "label": {
+                    "title": "ارسال سریع دیجی‌کالا"
+                  },
+                  "price": {
+                    "text": "وابسته به سبد",
+                    "is_free": false
+                  },
+                  "shipping_mode": "jet",
+                  "delivery_day": "today",
+                  "image": "https://dkstatics-public.digikala.com/digikala-static/262c38c0e4990522af759e0016a287508bbc84f6_1684761217.png",
+                  "svg_image": "https://dkstatics-public.digikala.com/digikala-static/169e0c18019ceadf022b72c5248fe9a4ed3c68fb_1748679177.svg"
+                }
+              ]
+            },
+            "has_importer_price": false,
+            "manufacture_price_not_exist": false,
+            "has_best_price_in_last_month": false,
+            "digiplus": {
+              "services": [
+                "۴ ارسال رایگان دیجیکالا",
+                "۲ ارسال سوپرمارکت",
+                "۴ ارسال رایگان ۴۵ دقیقه‌ای",
+                "پشتیبانی اختصاصی",
+                "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+              ],
+              "service_list": [
+                {
+                  "title": "۴ ارسال رایگان دیجیکالا"
+                },
+                {
+                  "title": "۲ ارسال سوپرمارکت"
+                },
+                {
+                  "title": "۴ ارسال رایگان ۴۵ دقیقه‌ای"
+                },
+                {
+                  "title": "پشتیبانی اختصاصی"
+                },
+                {
+                  "title": "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+                }
+              ],
+              "services_summary": [
+                "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+              ],
+              "is_jet_eligible": true,
+              "cash_back": 0,
+              "is_general_location_jet_eligible": false,
+              "fast_shipping_text": "ارسال سریع دیجی‌کالا"
+            }
+          },
+          "rating": {
+            "rate": 94.49,
+            "count": 167
+          },
+          "properties": {
+            "is_fast_shipping": false,
+            "is_ship_by_seller": false,
+            "free_shipping_badge": false,
+            "is_multi_warehouse": false,
+            "is_fake": false,
+            "has_gift": false,
+            "min_price_in_last_month": 9000000,
+            "is_non_inventory": false,
+            "is_jet_eligible": false,
+            "is_medical_supplement": false,
+            "is_ad": true,
+            "ad": {
+              "id": "55ca6e3b-07a1-4540-99f4-3cdaa95e681c",
+              "provider": "digikala_ads",
+              "campaign_id": 204605,
+              "seller_id": 43123,
+              "category_id": 6004,
+              "variant_id": 69025385,
+              "position": "",
+              "properties": "P2BJNLyXp3NBIg4u7AcedpYsSxETZTpnlgf29rTzdmkt6Nf1KGLXS5ZpNaA1mPLVRx5SfbtrkIFfRaoTMOYKzhrXa90orQK/uIfKhf4PVQ1jHhefKoihhuGSnRxrDXnGrbv3GHvzPNOYYBPVcWrrVO98ihzD2pz6ilie9Bgqn8E5Dh9rW5HKln9IN7GsSt95TPdPsBqcE+phsqdmdLkRXrk/ngU17/WZX6C3QmwRwoQ="
+            },
+            "ad_url": "/product/dkp-19633007/دفتر-مشق-۸۰-برگ-دایان-طرح-فیفا-کد-۵۳۶۴۲-بسته-۴-عددی"
+          },
+          "colors": [
+            {
+              "id": 32,
+              "title": "چند رنگ",
+              "hex_code": "#C71585"
+            }
+          ]
+        },
+        {
+          "id": 4344214,
+          "title_fa": "دفتر برنامه ریزی همیشه مدل Weekly Planner",
+          "title_en": "",
+          "url": {
+            "uri": "/product/dkp-4344214/دفتر-برنامه-ریزی-همیشه-مدل-weekly-planner"
+          },
+          "status": "marketable",
+          "has_quick_view": false,
+          "data_layer": {
+            "brand": "متفرقه",
+            "category": "[MA,لوازم التحریر]",
+            "metric6": 889,
+            "dimension2": 8,
+            "dimension6": 0,
+            "dimension7": "special-offer",
+            "dimension9": 4.5,
+            "dimension11": 0,
+            "dimension20": "marketable",
+            "item_category2": "کتاب، لوازم تحریر و هنر",
+            "item_category3": "لوازم تحریر",
+            "item_category4": "دفتر و کاغذ و مقوا",
+            "item_category5": "دفتر"
+          },
+          "product_type": "product",
+          "test_title_fa": "",
+          "test_title_en": "",
+          "digiplus": {
+            "services": [
+              "۴ ارسال رایگان دیجیکالا",
+              "۲ ارسال سوپرمارکت",
+              "۴ ارسال رایگان ۴۵ دقیقه‌ای",
+              "پشتیبانی اختصاصی",
+              "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+            ],
+            "service_list": [
+              {
+                "title": "۴ ارسال رایگان دیجیکالا"
+              },
+              {
+                "title": "۲ ارسال سوپرمارکت"
+              },
+              {
+                "title": "۴ ارسال رایگان ۴۵ دقیقه‌ای"
+              },
+              {
+                "title": "پشتیبانی اختصاصی"
+              },
+              {
+                "title": "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+              }
+            ],
+            "services_summary": [
+              "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+            ],
+            "is_jet_eligible": true,
+            "cash_back": 0,
+            "is_general_location_jet_eligible": false,
+            "fast_shipping_text": "ارسال سریع دیجی‌کالا"
+          },
+          "cpc": [],
+          "images": {
+            "main": {
+              "url": [
+                "https://dkstatics-public.digikala.com/digikala-products/dd531b8ce48eb8b3914fd2ed9d6071e407138d9e_1611924054.jpg?x-oss-process=image/resize,m_lfit,h_300,w_300/quality,q_80"
+              ],
+              "webp_url": [
+                "https://dkstatics-public.digikala.com/digikala-products/dd531b8ce48eb8b3914fd2ed9d6071e407138d9e_1611924054.jpg?x-oss-process=image/resize,m_lfit,h_300,w_300/format,webp/quality,q_80"
+              ]
+            }
+          },
+          "default_variant": {
+            "id": 54500510,
+            "lead_time": 0,
+            "rank": 0,
+            "rate": 92.2,
+            "statistics": {
+              "totally_satisfied": {
+                "rate_count": 21,
+                "rate": 75
+              },
+              "satisfied": {
+                "rate_count": 4,
+                "rate": 14.29
+              },
+              "neutral": {
+                "rate_count": 2,
+                "rate": 7.14
+              },
+              "dissatisfied": {
+                "rate_count": 1,
+                "rate": 3.57
+              },
+              "totally_dissatisfied": {
+                "rate_count": 0,
+                "rate": 0
+              },
+              "total_count": 28,
+              "total_rate": 92.2
+            },
+            "status": "marketable",
+            "properties": {
+              "is_fast_shipping": false,
+              "is_ship_by_seller": false,
+              "is_multi_warehouse": false,
+              "has_similar_variants": false,
+              "is_rural": false,
+              "in_digikala_warehouse": true,
+              "is_ship_from_user_state": false,
+              "nearby_seller_shipment": false,
+              "support_nearby_shipping_for_user": false,
+              "is_ship_by_seller_restricted": false
+            },
+            "warranty": {
+              "id": 272,
+              "title_fa": "گارانتی اصالت و سلامت فیزیکی کالا",
+              "title_en": "گارانتی اصالت و سلامت فیزیکی کالا"
+            },
+            "themes": [
+              {
+                "value": {
+                  "variant_id": 54500510,
+                  "id": 3,
+                  "title": "قرمز",
+                  "code": "#FF0000",
+                  "hexCode": "#FF0000",
+                  "hex_code": "#FF0000",
+                  "nature": "color"
+                },
+                "label": "رنگ",
+                "type": "colored",
+                "is_main": true
+              }
+            ],
+            "color": {
+              "id": 3,
+              "title": "قرمز",
+              "hex_code": "#FF0000"
+            },
+            "seller": {
+              "id": 328401,
+              "title": "فروشگاه همیشه",
+              "code": "C7GEE",
+              "url": "https://www.digikala.com/seller/C7GEE/",
+              "rating": {
+                "total_rate": 88,
+                "total_count": 1882,
+                "commitment": 100,
+                "no_return": 100,
+                "on_time_shipping": 100
+              },
+              "properties": {
+                "is_trusted": false,
+                "is_official": false,
+                "is_roosta": false,
+                "is_new": false
+              },
+              "stars": 5,
+              "grade": {
+                "label": "عالی",
+                "color": "#00a049"
+              },
+              "registration_date": "6 سال و 4 ماه"
+            },
+            "digiclub": {
+              "point": 65
+            },
+            "price": {
+              "selling_price": 6450000,
+              "rrp_price": 7000000,
+              "order_limit": 20,
+              "is_incredible": false,
+              "is_promotion": true,
+              "is_locked_for_digiplus": false,
+              "bnpl_active": false,
+              "discount_percent": 8,
+              "badge": {
+                "title": "فروش ویژه",
+                "color": "#E6123D"
+              },
+              "is_digiplus_promotion": false,
+              "is_digiplus_early_access": false,
+              "is_application_incredible": false,
+              "is_lightening_deal": false,
+              "is_plus_early_access": false,
+              "min_order_limit": 1
+            },
+            "shipment_methods": {
+              "description": "موجود در انبار دیجی‌کالا",
+              "has_lead_time": true,
+              "icon": "cube-badge-available-product",
+              "icon_color": "#0fabc6",
+              "providers": [
+                {
+                  "has_lead_time": false,
+                  "type": "digikala",
+                  "title": "ارسال دیجی‌کالا",
+                  "description": "این کالا در انبار دیجی‌کالا موجود و آماده پردازش است و توسط پیک دیجی‌کالا در بازه انتخابی ارسال خواهد شد.",
+                  "label": {
+                    "title": "توسط دیجی‌کالا"
+                  },
+                  "price": {
+                    "text": "وابسته به سبد",
+                    "is_free": false
+                  },
+                  "shipping_mode": "digikala",
+                  "delivery_day": "today",
+                  "image": "https://dkstatics-public.digikala.com/digikala-static/85db0f29b9d811de333a7980a0b8fb35f10b5758_1667056305.png",
+                  "svg_image": "https://dkstatics-public.digikala.com/digikala-static/562b91988f1beec9a5f13aee3cf31cfd7a1a25b1_1748679087.svg"
+                },
+                {
+                  "has_lead_time": false,
+                  "type": "jet",
+                  "title": "ارسال سریع دیجی‌کالا (تهران و کرج)",
+                  "description": "اگر سفارش را قبل از ساعت ۶ عصر ثبت کنید، همان روز ارسال می‌شود. در صورت ثبت سفارش بعد از ساعت ۶ عصر، فردا ارسال خواهد شد.",
+                  "label": {
+                    "title": "ارسال سریع دیجی‌کالا"
+                  },
+                  "price": {
+                    "text": "وابسته به سبد",
+                    "is_free": false
+                  },
+                  "shipping_mode": "jet",
+                  "delivery_day": "today",
+                  "image": "https://dkstatics-public.digikala.com/digikala-static/262c38c0e4990522af759e0016a287508bbc84f6_1684761217.png",
+                  "svg_image": "https://dkstatics-public.digikala.com/digikala-static/169e0c18019ceadf022b72c5248fe9a4ed3c68fb_1748679177.svg"
+                }
+              ]
+            },
+            "has_importer_price": false,
+            "manufacture_price_not_exist": false,
+            "has_best_price_in_last_month": false,
+            "digiplus": {
+              "services": [
+                "۴ ارسال رایگان دیجیکالا",
+                "۲ ارسال سوپرمارکت",
+                "۴ ارسال رایگان ۴۵ دقیقه‌ای",
+                "پشتیبانی اختصاصی",
+                "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+              ],
+              "service_list": [
+                {
+                  "title": "۴ ارسال رایگان دیجیکالا"
+                },
+                {
+                  "title": "۲ ارسال سوپرمارکت"
+                },
+                {
+                  "title": "۴ ارسال رایگان ۴۵ دقیقه‌ای"
+                },
+                {
+                  "title": "پشتیبانی اختصاصی"
+                },
+                {
+                  "title": "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+                }
+              ],
+              "services_summary": [
+                "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+              ],
+              "is_jet_eligible": true,
+              "cash_back": 0,
+              "is_general_location_jet_eligible": false,
+              "fast_shipping_text": "ارسال سریع دیجی‌کالا"
+            }
+          },
+          "rating": {
+            "rate": 88.66,
+            "count": 889
+          },
+          "properties": {
+            "is_fast_shipping": false,
+            "is_ship_by_seller": false,
+            "free_shipping_badge": false,
+            "is_multi_warehouse": false,
+            "is_fake": false,
+            "has_gift": false,
+            "min_price_in_last_month": 5500000,
+            "is_non_inventory": false,
+            "is_jet_eligible": false,
+            "is_medical_supplement": false,
+            "is_ad": true,
+            "ad": {
+              "id": "7edbfbcd-bbbb-49b1-ae90-5cef235f5988",
+              "provider": "digikala_ads",
+              "campaign_id": 205910,
+              "seller_id": 328401,
+              "category_id": 6004,
+              "variant_id": 54500510,
+              "position": "",
+              "properties": "P2BJNLyXp3NBIg4u7AcedpYsSxETZTpnlgf29rTzdmkt6Nf1KGLXS5ZpNaA1mPLVRx5SfbtrkIFfRaoTMOYKzhrXa90orQK/uIfKhf4PVQ1jHhefKoihhuGSnRxrDXnGrbv3GHvzPNOYYBPVcWrrVMJZhydJk5VJuAS7X4Dj3JZoQpjcw5tcgullPc45GO+bOrawoT7Zw0Xf1twGdPVhw7KgISsftpj1U8uvhOPk/vg="
+            },
+            "ad_url": "/product/dkp-4344214/دفتر-برنامه-ریزی-همیشه-مدل-weekly-planner"
+          },
+          "colors": [
+            {
+              "id": 3,
+              "title": "قرمز",
+              "hex_code": "#FF0000"
+            },
+            {
+              "id": 18,
+              "title": "آبی فیروزه ای",
+              "hex_code": "#40E0D0"
+            },
+            {
+              "id": 7,
+              "title": "صورتی",
+              "hex_code": "#ffc0cb"
+            },
+            {
+              "id": 8,
+              "title": "بنفش",
+              "hex_code": "#800080"
+            },
+            {
+              "id": 4,
+              "title": "آبی",
+              "hex_code": "#0000FF"
+            }
+          ]
+        },
+        {
+          "id": 22376504,
+          "title_fa": "دفتر کلاسوری ۱۲۰ برگ دایان مدل ۲۶ حلقه لاولی کد 240",
+          "title_en": "",
+          "url": {
+            "uri": "/product/dkp-22376504/دفتر-کلاسوری-۱۲۰-برگ-دایان-مدل-۲۶-حلقه-لاولی-کد-240"
+          },
+          "status": "marketable",
+          "has_quick_view": false,
+          "data_layer": {
+            "brand": "دایان",
+            "category": "[MA,لوازم التحریر]",
+            "metric6": 0,
+            "dimension2": 0,
+            "dimension6": 0,
+            "dimension7": "none",
+            "dimension9": 0,
+            "dimension11": 0,
+            "dimension20": "marketable",
+            "item_category2": "کتاب، لوازم تحریر و هنر",
+            "item_category3": "لوازم تحریر",
+            "item_category4": "دفتر و کاغذ و مقوا",
+            "item_category5": "دفتر"
+          },
+          "product_type": "product",
+          "test_title_fa": "",
+          "test_title_en": "",
+          "digiplus": {
+            "services": [
+              "۴ ارسال رایگان دیجیکالا",
+              "۲ ارسال سوپرمارکت",
+              "۴ ارسال رایگان ۴۵ دقیقه‌ای",
+              "پشتیبانی اختصاصی",
+              "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+            ],
+            "service_list": [
+              {
+                "title": "۴ ارسال رایگان دیجیکالا"
+              },
+              {
+                "title": "۲ ارسال سوپرمارکت"
+              },
+              {
+                "title": "۴ ارسال رایگان ۴۵ دقیقه‌ای"
+              },
+              {
+                "title": "پشتیبانی اختصاصی"
+              },
+              {
+                "title": "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+              }
+            ],
+            "services_summary": [
+              "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+            ],
+            "is_jet_eligible": true,
+            "cash_back": 0,
+            "is_general_location_jet_eligible": false,
+            "fast_shipping_text": "ارسال سریع دیجی‌کالا"
+          },
+          "cpc": [],
+          "images": {
+            "main": {
+              "url": [
+                "https://dkstatics-public.digikala.com/digikala-products/ebd0eae96177b248c052f420c0c484a9b293abd9_1785275548.jpg?x-oss-process=image/resize,m_lfit,h_300,w_300/quality,q_80"
+              ],
+              "webp_url": [
+                "https://dkstatics-public.digikala.com/digikala-products/ebd0eae96177b248c052f420c0c484a9b293abd9_1785275548.jpg?x-oss-process=image/resize,m_lfit,h_300,w_300/format,webp/quality,q_80"
+              ]
+            }
+          },
+          "default_variant": {
+            "id": 82367064,
+            "lead_time": 0,
+            "rank": 0,
+            "rate": 0,
+            "status": "marketable",
+            "properties": {
+              "is_fast_shipping": false,
+              "is_ship_by_seller": false,
+              "is_multi_warehouse": false,
+              "has_similar_variants": false,
+              "is_rural": false,
+              "in_digikala_warehouse": true,
+              "is_ship_from_user_state": false,
+              "nearby_seller_shipment": false,
+              "support_nearby_shipping_for_user": false,
+              "is_ship_by_seller_restricted": false
+            },
+            "warranty": {
+              "id": 272,
+              "title_fa": "گارانتی اصالت و سلامت فیزیکی کالا",
+              "title_en": "گارانتی اصالت و سلامت فیزیکی کالا"
+            },
+            "themes": [
+              {
+                "value": {
+                  "variant_id": 82367064,
+                  "id": 155,
+                  "title": "آبی کم‌رنگ",
+                  "code": "#AFEEEE",
+                  "hexCode": "#AFEEEE",
+                  "hex_code": "#AFEEEE",
+                  "nature": "color"
+                },
+                "label": "رنگ",
+                "type": "colored",
+                "is_main": true
+              }
+            ],
+            "color": {
+              "id": 155,
+              "title": "آبی کم‌رنگ",
+              "hex_code": "#AFEEEE"
+            },
+            "seller": {
+              "id": 43123,
+              "title": " دایان",
+              "code": "6YNJZ",
+              "url": "https://www.digikala.com/seller/6YNJZ/",
+              "rating": {
+                "total_rate": 91,
+                "total_count": 13105,
+                "commitment": 100,
+                "no_return": 99.9,
+                "on_time_shipping": 99.2
+              },
+              "properties": {
+                "is_trusted": false,
+                "is_official": true,
+                "is_roosta": false,
+                "is_new": false
+              },
+              "stars": 5,
+              "grade": {
+                "label": "عالی",
+                "color": "#00a049"
+              },
+              "registration_date": "8 سال و 3 ماه"
+            },
+            "digiclub": {
+              "point": 59
+            },
+            "price": {
+              "selling_price": 5900000,
+              "rrp_price": 5900000,
+              "order_limit": 30,
+              "is_incredible": false,
+              "is_promotion": false,
+              "is_locked_for_digiplus": false,
+              "bnpl_active": false,
+              "discount_percent": 0,
+              "is_plus_early_access": false,
+              "min_order_limit": 1
+            },
+            "shipment_methods": {
+              "description": "موجود در انبار دیجی‌کالا",
+              "has_lead_time": true,
+              "icon": "cube-badge-available-product",
+              "icon_color": "#0fabc6",
+              "providers": [
+                {
+                  "has_lead_time": false,
+                  "type": "digikala",
+                  "title": "ارسال دیجی‌کالا",
+                  "description": "این کالا در انبار دیجی‌کالا موجود و آماده پردازش است و توسط پیک دیجی‌کالا در بازه انتخابی ارسال خواهد شد.",
+                  "label": {
+                    "title": "توسط دیجی‌کالا"
+                  },
+                  "price": {
+                    "text": "وابسته به سبد",
+                    "is_free": false
+                  },
+                  "shipping_mode": "digikala",
+                  "delivery_day": "today",
+                  "image": "https://dkstatics-public.digikala.com/digikala-static/85db0f29b9d811de333a7980a0b8fb35f10b5758_1667056305.png",
+                  "svg_image": "https://dkstatics-public.digikala.com/digikala-static/562b91988f1beec9a5f13aee3cf31cfd7a1a25b1_1748679087.svg"
+                },
+                {
+                  "has_lead_time": false,
+                  "type": "jet",
+                  "title": "ارسال سریع دیجی‌کالا (تهران و کرج)",
+                  "description": "اگر سفارش را قبل از ساعت ۶ عصر ثبت کنید، همان روز ارسال می‌شود. در صورت ثبت سفارش بعد از ساعت ۶ عصر، فردا ارسال خواهد شد.",
+                  "label": {
+                    "title": "ارسال سریع دیجی‌کالا"
+                  },
+                  "price": {
+                    "text": "وابسته به سبد",
+                    "is_free": false
+                  },
+                  "shipping_mode": "jet",
+                  "delivery_day": "today",
+                  "image": "https://dkstatics-public.digikala.com/digikala-static/262c38c0e4990522af759e0016a287508bbc84f6_1684761217.png",
+                  "svg_image": "https://dkstatics-public.digikala.com/digikala-static/169e0c18019ceadf022b72c5248fe9a4ed3c68fb_1748679177.svg"
+                }
+              ]
+            },
+            "has_importer_price": false,
+            "manufacture_price_not_exist": false,
+            "has_best_price_in_last_month": false,
+            "digiplus": {
+              "services": [
+                "۴ ارسال رایگان دیجیکالا",
+                "۲ ارسال سوپرمارکت",
+                "۴ ارسال رایگان ۴۵ دقیقه‌ای",
+                "پشتیبانی اختصاصی",
+                "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+              ],
+              "service_list": [
+                {
+                  "title": "۴ ارسال رایگان دیجیکالا"
+                },
+                {
+                  "title": "۲ ارسال سوپرمارکت"
+                },
+                {
+                  "title": "۴ ارسال رایگان ۴۵ دقیقه‌ای"
+                },
+                {
+                  "title": "پشتیبانی اختصاصی"
+                },
+                {
+                  "title": "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+                }
+              ],
+              "services_summary": [
+                "ارسال سریع و رایگان دیجی‌کالا (فقط تهران و کرج)"
+              ],
+              "is_jet_eligible": true,
+              "cash_back": 0,
+              "is_general_location_jet_eligible": false,
+              "fast_shipping_text": "ارسال سریع دیجی‌کالا"
+            }
+          },
+          "rating": {
+            "rate": 0,
+            "count": 0
+          },
+          "properties": {
+            "is_fast_shipping": false,
+            "is_ship_by_seller": false,
+            "free_shipping_badge": false,
+            "is_multi_warehouse": false,
+            "is_fake": false,
+            "has_gift": false,
+            "min_price_in_last_month": 0,
+            "is_non_inventory": false,
+            "is_jet_eligible": false,
+            "is_medical_supplement": false,
+            "is_ad": true,
+            "ad": {
+              "id": "a74b3603-76a7-4f24-9369-9fdf980b589f",
+              "provider": "digikala_ads",
+              "campaign_id": 202077,
+              "seller_id": 43123,
+              "category_id": 6004,
+              "variant_id": 82367064,
+              "position": "",
+              "properties": "P2BJNLyXp3NBIg4u7AcedpYsSxETZTpnlgf29rTzdmkt6Nf1KGLXS5ZpNaA1mPLVRx5SfbtrkIFfRaoTMOYKzhrXa90orQK/uIfKhf4PVQ1jHhefKoihhuGSnRxrDXnGrbv3GHvzPNOYYBPVcWrrVKaKL1Zdz8oV3hXW5rk1sM2UB1ivd57hg1554mHbDGh/FuBDnEM3rvex9NTiFTRM17k/ngU17/WZX6C3QmwRwoQ="
+            },
+            "ad_url": "/product/dkp-22376504/دفتر-کلاسوری-۱۲۰-برگ-دایان-مدل-۲۶-حلقه-لاولی-کد-240"
+          },
+          "colors": [
+            {
+              "id": 155,
+              "title": "آبی کم‌رنگ",
+              "hex_code": "#AFEEEE"
+            },
+            {
+              "id": 24,
+              "title": "یاسی",
+              "hex_code": "#cfa2ff"
+            },
+            {
+              "id": 53,
+              "title": "زرد کم‌رنگ",
+              "hex_code": "#f6f0bb"
+            },
+            {
+              "id": 7,
+              "title": "صورتی",
+              "hex_code": "#ffc0cb"
+            },
+            {
+              "id": 44,
+              "title": "سبز روشن",
+              "hex_code": "#57C257"
+            },
+            {
+              "id": 11,
+              "title": "خاکستری",
+              "hex_code": "#9E9E9E"
+            },
+            {
+              "id": 39,
+              "title": "طوسی",
+              "hex_code": "#e0e0e0"
+            }
+          ]
+        },
+        {
+          "id": 22467019,
+          "title_fa": "دفتر یادداشت 90 برگ همین مدل DEEPER",
+          "title_en": "",
+          "url": {
+            "uri": "/product/dkp-22467019/دفتر-یادداشت-90-برگ-همین-مدل-deeper"
+          },
+          "status": "marketable",
+          "has_quick_view": false,
+          "data_layer": {
+            "brand": "متفرقه",
+            "category": "[MA,لوازم التحریر]",
+            "metric6": 0,
+            "dimension2": 16,
+            "dimension6": 0,
+            "dimension7": "special-offer",
+            "dimension9": 0,
+            "dimension11": 0,
+            "dimension20": "marketable",
+            "item_category2": "کتاب، لوازم تحریر و هنر",
+            "item_category3": "لوازم تحریر",
+            "item_category4": "دفتر و کاغذ و مقوا",
+            "item_category5": "دفتر"
+          },
+          "product_type": "product",
+          "test_title_fa": "",
+          "test_title_en": "",
+          "digiplus": {
+            "services": [
+              "۴ ارسال رایگان دیجیکالا",
+              "۲ ارسال سوپرمارکت",
+              "۴ ارسال رایگان ۴۵ دقیقه‌ای",
+              "پشتیبانی اختصاصی"
+            ],
+            "service_list": [
+              {
+                "title": "۴ ارسال رایگان دیجیکالا"
+              },
+              {
+                "title": "۲ ارسال سوپرمارکت"
+              },
+              {
+                "title": "۴ ارسال رایگان ۴۵ دقیقه‌ای"
+              },
+              {
+                "title": "پشتیبانی اختصاصی"
+              }
+            ],
+            "services_summary": [
+              "ارسال رایگان"
+            ],
+            "is_jet_eligible": false,
+            "cash_back": 0,
+            "is_general_location_jet_eligible": false
+          },
+          "cpc": [],
+          "images": {
+            "main": {
+              "url": [
+                "https://dkstatics-public.digikala.com/digikala-products/661db79aa03fab622775956604f067c5cf4d0383_1786271286.jpg?x-oss-process=image/resize,m_lfit,h_300,w_300/quality,q_80"
+              ],
+              "webp_url": [
+                "https://dkstatics-public.digikala.com/digikala-products/661db79aa03fab622775956604f067c5cf4d0383_1786271286.jpg?x-oss-process=image/resize,m_lfit,h_300,w_300/format,webp/quality,q_80"
+              ]
+            }
+          },
+          "default_variant": {
+            "id": 82538536,
+            "lead_time": 1,
+            "rank": 0,
+            "rate": 0,
+            "status": "marketable",
+            "properties": {
+              "is_fast_shipping": false,
+              "is_ship_by_seller": false,
+              "is_multi_warehouse": false,
+              "has_similar_variants": false,
+              "is_rural": false,
+              "in_digikala_warehouse": false,
+              "is_ship_from_user_state": false,
+              "nearby_seller_shipment": false,
+              "support_nearby_shipping_for_user": false,
+              "is_ship_by_seller_restricted": false
+            },
+            "warranty": {
+              "id": 272,
+              "title_fa": "گارانتی اصالت و سلامت فیزیکی کالا",
+              "title_en": "گارانتی اصالت و سلامت فیزیکی کالا"
+            },
+            "themes": [
+              {
+                "value": {
+                  "variant_id": 82538536,
+                  "id": 9,
+                  "title": "سرمه ای",
+                  "code": "#002171",
+                  "hexCode": "#002171",
+                  "hex_code": "#002171",
+                  "nature": "color"
+                },
+                "label": "رنگ",
+                "type": "colored",
+                "is_main": true
+              }
+            ],
+            "color": {
+              "id": 9,
+              "title": "سرمه ای",
+              "hex_code": "#002171"
+            },
+            "seller": {
+              "id": 328401,
+              "title": "فروشگاه همیشه",
+              "code": "C7GEE",
+              "url": "https://www.digikala.com/seller/C7GEE/",
+              "rating": {
+                "total_rate": 88,
+                "total_count": 1882,
+                "commitment": 100,
+                "no_return": 100,
+                "on_time_shipping": 100
+              },
+              "properties": {
+                "is_trusted": false,
+                "is_official": false,
+                "is_roosta": false,
+                "is_new": false
+              },
+              "stars": 5,
+              "grade": {
+                "label": "عالی",
+                "color": "#00a049"
+              },
+              "registration_date": "6 سال و 4 ماه"
+            },
+            "digiclub": {
+              "point": 63
+            },
+            "price": {
+              "selling_price": 6300000,
+              "rrp_price": 7500000,
+              "order_limit": 10,
+              "is_incredible": false,
+              "is_promotion": true,
+              "is_locked_for_digiplus": false,
+              "bnpl_active": false,
+              "discount_percent": 16,
+              "badge": {
+                "title": "فروش ویژه",
+                "color": "#E6123D"
+              },
+              "is_digiplus_promotion": false,
+              "is_digiplus_early_access": false,
+              "is_application_incredible": false,
+              "is_lightening_deal": false,
+              "is_plus_early_access": false,
+              "min_order_limit": 1
+            },
+            "shipment_methods": {
+              "description": "موجود در انبار فروشنده",
+              "has_lead_time": false,
+              "icon": "cube-shop-product",
+              "icon_color": "#424750",
+              "providers": [
+                {
+                  "has_lead_time": true,
+                  "type": "digikala",
+                  "title": "ارسال دیجی‌کالا از 1 روز کاری دیگر",
+                  "description": "این کالا پس از مدت زمان مشخص شده توسط فروشنده در انبار دیجی‌کالا تامین و آماده پردازش می‌گردد و توسط پیک دیجی‌کالا در بازه انتخابی ارسال خواهد شد.",
+                  "label": {
+                    "title": "توسط دیجی‌کالا",
+                    "description": "تامین از 1 روز کاری دیگر"
+                  },
+                  "price": {
+                    "text": "وابسته به سبد",
+                    "is_free": false
+                  },
+                  "shipping_mode": "digikala",
+                  "delivery_day": "tomorrow",
+                  "image": "https://dkstatics-public.digikala.com/digikala-static/a850a0020b1f1d1241c35c8e9ef2b4a93e12a091_1667056289.png",
+                  "svg_image": "https://dkstatics-public.digikala.com/digikala-static/562b91988f1beec9a5f13aee3cf31cfd7a1a25b1_1748679087.svg"
+                }
+              ]
+            },
+            "has_importer_price": false,
+            "manufacture_price_not_exist": false,
+            "has_best_price_in_last_month": false,
+            "digiplus": {
+              "services": [
+                "۴ ارسال رایگان دیجیکالا",
+                "۲ ارسال سوپرمارکت",
+                "۴ ارسال رایگان ۴۵ دقیقه‌ای",
+                "پشتیبانی اختصاصی"
+              ],
+              "service_list": [
+                {
+                  "title": "۴ ارسال رایگان دیجیکالا"
+                },
+                {
+                  "title": "۲ ارسال سوپرمارکت"
+                },
+                {
+                  "title": "۴ ارسال رایگان ۴۵ دقیقه‌ای"
+                },
+                {
+                  "title": "پشتیبانی اختصاصی"
+                }
+              ],
+              "services_summary": [
+                "ارسال رایگان"
+              ],
+              "is_jet_eligible": false,
+              "cash_back": 0,
+              "is_general_location_jet_eligible": false
+            }
+          },
+          "rating": {
+            "rate": 0,
+            "count": 0
+          },
+          "properties": {
+            "is_fast_shipping": false,
+            "is_ship_by_seller": false,
+            "free_shipping_badge": false,
+            "is_multi_warehouse": false,
+            "is_fake": false,
+            "has_gift": false,
+            "min_price_in_last_month": 0,
+            "is_non_inventory": false,
+            "is_jet_eligible": false,
+            "is_medical_supplement": false,
+            "is_ad": true,
+            "ad": {
+              "id": "37a39b54-b7ec-46e0-836c-9c1771de7f32",
+              "provider": "digikala_ads",
+              "campaign_id": 205872,
+              "seller_id": 328401,
+              "category_id": 6004,
+              "variant_id": 82538536,
+              "position": "",
+              "properties": "P2BJNLyXp3NBIg4u7AcedpYsSxETZTpnlgf29rTzdmkt6Nf1KGLXS5ZpNaA1mPLVRx5SfbtrkIFfRaoTMOYKzhrXa90orQK/uIfKhf4PVQ1jHhefKoihhuGSnRxrDXnGrbv3GHvzPNOYYBPVcWrrVJpyB07uYw4ZCoiNGgFyWJ4cPKJdg0rz33be08XW1HogYSkMNAtTXuQ3aTSKdohYFLk/ngU17/WZX6C3QmwRwoQ="
+            },
+            "ad_url": "/product/dkp-22467019/دفتر-یادداشت-90-برگ-همین-مدل-deeper"
+          },
+          "colors": [
+            {
+              "id": 9,
+              "title": "سرمه ای",
+              "hex_code": "#002171"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

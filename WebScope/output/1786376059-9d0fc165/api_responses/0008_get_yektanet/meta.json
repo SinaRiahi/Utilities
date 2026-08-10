@@ -1,0 +1,27 @@
+{
+  "id": "5a2a8524-9b56-46a1-9514-e7c6882f979b",
+  "url": "https://sync.digiwiseid.com/api/v1/cookies/yektanet?smid=019fec4f-4a6c-7407-b736-830284e6fde3&source=IFRAME&user_id=6841d7cd-af20-46d3-690d-67e6fc461778",
+  "status": 200,
+  "status_text": "",
+  "content_type": "application/json",
+  "headers": {
+    "access-control-allow-headers": "Content-Type, Dwid-Origin, Authorization",
+    "access-control-allow-methods": "GET, POST, OPTIONS",
+    "access-control-allow-origin": "*",
+    "access-control-max-age": "86400",
+    "content-length": "0",
+    "content-type": "application/json",
+    "date": "Mon, 10 Aug 2026 15:34:09 GMT",
+    "set-cookie": "<redacted>"
+  },
+  "request_url": "https://sync.digiwiseid.com/api/v1/cookies/yektanet?smid=019fec4f-4a6c-7407-b736-830284e6fde3&source=IFRAME&user_id=6841d7cd-af20-46d3-690d-67e6fc461778",
+  "request_method": "GET",
+  "resource_type": "image",
+  "api_like": true,
+  "body_captured": true,
+  "body_length": 0,
+  "body_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "is_json": true,
+  "json_parse_error": true,
+  "body_file": "api_responses/0008_get_yektanet/body.json"
+}

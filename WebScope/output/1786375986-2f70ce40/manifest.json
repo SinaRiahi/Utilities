@@ -1,0 +1,24 @@
+{
+  "format": "WebScope Agent Evidence Bundle",
+  "format_version": "1.0",
+  "webscope_version": "0.2.0",
+  "target": {
+    "input_url": "https://www.digikala.com/product/dkp-2847164/",
+    "final_url": "https://www.digikala.com/product/dkp-2847164/",
+    "title": "قیمت و خرید دفتر نقاشی مجنتا طرح اژدها کد 226",
+    "same_page_navigation": true
+  },
+  "contents": {
+    "variables": "variables/*.json",
+    "api_responses": "api_responses/*/meta.json + body.*",
+    "network": "network/*.json",
+    "page": "page/*",
+    "agent_guidance": "agent_instructions.md"
+  },
+  "counts": {
+    "variables": 1,
+    "api_responses": 21,
+    "requests": 302,
+    "responses": 302
+  }
+}

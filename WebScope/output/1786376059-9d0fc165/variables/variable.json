@@ -1,0 +1,73 @@
+{
+  "name": "فروشنده",
+  "supplied_value": "فوتو گالری",
+  "matches": [
+    {
+      "source": "html",
+      "matched_form": "فوتو گالری",
+      "offset": 202167,
+      "context": "al-000 relative  lg:min-w-80\"><div class=\"flex justify-between items-center w-full text-h5\">فروشگاه فوتو گالری</div><p class=\"text-body-2 text-neutral-500\">عضو از ۶ سال و ۵ ماه</p><div class=\"text-center my-2\">"
+    },
+    {
+      "source": "html",
+      "matched_form": "فوتو گالری",
+      "offset": 203414,
+      "context": "iv><div class=\"flex items-center mb-2 lg:mb-1\"><span><p class=\"text-neutral-700 ml-2 text-subtitle\">فوتو گالری</p></span></div><div class=\"w-full flex items-center content-center text-body-2\"><div class=\"pr-2 f"
+    },
+    {
+      "source": "html",
+      "matched_form": "فوتو گالری",
+      "offset": 325027,
+      "context": "\"><use xlink:href=\"#seller\"></use></svg></div></div></div><div class=\"text-neutral-700 text-body-2\">فوتو گالری </div></div><div class=\"flex mb-2\"><div class=\"ml-2 flex items-center justify-center\"><div class=\"f"
+    },
+    {
+      "source": "visible_text",
+      "matched_form": "فوتو گالری",
+      "offset": 705,
+      "context": "لا نباید باز شده باشد). ارسال رایگان سفارش‌ها برای اعضای پلاس پشتیبانی اختصاصی خرید اشتراک فروشنده  فوتو گالری  عملکرد  عالی  ۱۵۰,۰۰۰ افزودن به سبد خرید  گارانتی اصالت و سلامت فیزیکی کالا  روش و هزینه ارسال  تو"
+    },
+    {
+      "source": "visible_text",
+      "matched_form": "فوتو گالری",
+      "offset": 3826,
+      "context": "ر یادداشت 90 برگ همین مدل DEEPER   ۱۶٪ ۶۳۰,۰۰۰ ۷۵۰,۰۰۰  دفتر نقاشی مجنتا طرح اژدها کد 226  چند رنگ  فوتو گالری گارانتی اصالت و سلامت فیزیکی کالا موجود در انبار فروشنده ۱۵۰,۰۰۰ افزودن به سبد خرید بازگشت به بالا "
+    }
+  ],
+  "json_path_matches": [
+    {
+      "source": "api_response",
+      "endpoint": "https://api.digikala.com/v2/product/2847164/",
+      "response_id": "d8fde06c-36f7-4ec3-b4c8-01d5bdaca205",
+      "path": "$.data.product.default_variant.seller.title",
+      "value": "فوتو گالری"
+    },
+    {
+      "source": "api_response",
+      "endpoint": "https://api.digikala.com/v2/product/2847164/",
+      "response_id": "d8fde06c-36f7-4ec3-b4c8-01d5bdaca205",
+      "path": "$.data.product.variants[0].seller.title",
+      "value": "فوتو گالری"
+    },
+    {
+      "source": "api_response",
+      "endpoint": "https://api.digikala.com/v2/product/2847164/",
+      "response_id": "d8fde06c-36f7-4ec3-b4c8-01d5bdaca205",
+      "path": "$.data.product.second_default_variant.seller.title",
+      "value": "فوتو گالری"
+    },
+    {
+      "source": "api_response",
+      "endpoint": "https://api.digikala.com/v1/product/2847164/recommendation/?offset=0",
+      "response_id": "cd26a403-d58f-429f-bfb2-572e6e067367",
+      "path": "$.data.data.products[6].default_variant.seller.title",
+      "value": "فوتو گالری"
+    },
+    {
+      "source": "api_response",
+      "endpoint": "https://api.digikala.com/v1/product/2847164/recommendation/?offset=0",
+      "response_id": "cd26a403-d58f-429f-bfb2-572e6e067367",
+      "path": "$.data.data.products[6].second_default_variant.seller.title",
+      "value": "فوتو گالری"
+    }
+  ]
+}
