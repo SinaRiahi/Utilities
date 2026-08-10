@@ -122,3 +122,17 @@ The scan runs as a background job and the UI polls its progress, so long evidenc
 ## Evidence organization
 
 The root `report.json` is intentionally compact. Large page/network evidence is stored in dedicated files, and each API response has its own metadata/body files. API responses are also classified as `primary_data`, `secondary_data`, `page_resource`, or `auxiliary` with a confidence score to help AI agents prioritize useful sources without deleting raw evidence.
+
+
+## Error handling
+
+WebScope treats individual evidence failures as recoverable whenever possible.
+For example, if a variable cannot be matched against one source, the remaining
+sources are still analyzed.
+
+Every evidence bundle contains `errors.md`. It lists all recoverable errors and
+warnings encountered during the scan. A non-empty `errors.md` does not
+necessarily mean the scan failed; the rest of the bundle should still be used.
+
+Fatal errors that prevent the target page from being investigated may still
+mark the scan as failed.

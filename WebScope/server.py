@@ -84,6 +84,91 @@ def parse_json_safe(text: str) -> Any | None:
         return None
 
 
+def find_text_matches(text: str, variable: Variable, source: str, limit: int = 20) -> list[dict[str, Any]]:
+    """Find occurrences of a known variable in text without making the scan fail.
+
+    Matching is intentionally conservative. We look for the supplied value and
+    a few common textual representations, then return small context snippets.
+    """
+    if not text or limit <= 0:
+        return []
+
+    wanted = [str(form).strip() for form in normalized_forms(variable.value) if str(form).strip()]
+    if not wanted:
+        return []
+
+    haystack = text.lower()
+    results: list[dict[str, Any]] = []
+    seen: set[tuple[int, str]] = set()
+
+    for form in sorted(set(wanted), key=len, reverse=True):
+        needle = form.lower()
+        start = 0
+        while len(results) < limit:
+            index = haystack.find(needle, start)
+            if index < 0:
+                break
+
+            key = (index, needle)
+            if key not in seen:
+                seen.add(key)
+                context_start = max(0, index - 120)
+                context_end = min(len(text), index + len(form) + 120)
+                results.append({
+                    "source": source,
+                    "value": form,
+                    "position": index,
+                    "context": text[context_start:context_end],
+                })
+            start = index + max(1, len(needle))
+
+    results.sort(key=lambda item: item["position"])
+    return results[:limit]
+
+
+def normalized_forms(value: Any) -> list[str]:
+    """Return useful textual representations for known-variable matching."""
+    forms: list[str] = []
+
+    if value is None:
+        return []
+
+    if isinstance(value, bool):
+        forms.extend([str(value), "true" if value else "false"])
+    elif isinstance(value, (int, float)):
+        forms.append(str(value))
+        if isinstance(value, float) and value.is_integer():
+            forms.append(str(int(value)))
+    else:
+        forms.append(str(value))
+
+    # Common price/number representations. These are intentionally additive:
+    # the original supplied value is always retained.
+    raw = str(value).strip()
+    if raw:
+        try:
+            number = float(raw.replace(",", ""))
+            if number.is_integer():
+                integer = str(int(number))
+                forms.extend([integer, f"{int(number):,}"])
+        except ValueError:
+            pass
+
+    return list(dict.fromkeys(forms))
+
+
+def record_error(errors: list[dict[str, Any]], stage: str, exc: Exception, *, source: str | None = None) -> None:
+    """Record a recoverable error instead of aborting the whole investigation."""
+    entry = {
+        "stage": stage,
+        "type": type(exc).__name__,
+        "message": str(exc),
+    }
+    if source:
+        entry["source"] = source
+    errors.append(entry)
+
+
 def _value_forms(value: Any) -> set[str]:
     return {x.lower() for x in normalized_forms(value)}
 
@@ -166,6 +251,7 @@ def classify_response(url: str, target_url: str, resource_type: str, content_typ
 
 async def scan_target(req: ScanRequest) -> dict[str, Any]:
     target = valid_http_url(req.url)
+    errors: list[dict[str, Any]] = []
     requests: list[dict[str, Any]] = []
     responses: list[dict[str, Any]] = []
     response_capture_tasks: list[asyncio.Task] = []
@@ -328,21 +414,52 @@ async def scan_target(req: ScanRequest) -> dict[str, Any]:
 
     variables_report = []
     for var in req.variables:
-        matches = []
-        matches += find_text_matches(html, var, "html", 20)
-        matches += find_text_matches(text, var, "visible_text", 20)
+        matches: list[dict[str, Any]] = []
+        json_hits: list[dict[str, Any]] = []
+
+        try:
+            matches += find_text_matches(html, var, "html", 20)
+        except Exception as exc:
+            record_error(errors, "variable_text_matching", exc, source=f"html:{var.name}")
+
+        try:
+            matches += find_text_matches(text, var, "visible_text", 20)
+        except Exception as exc:
+            record_error(errors, "variable_text_matching", exc, source=f"visible_text:{var.name}")
+
         for i, script in enumerate(scripts):
-            if script.get("text"):
+            if not script.get("text"):
+                continue
+            try:
                 matches += find_text_matches(script["text"], var, f"inline_script[{i}]", 10)
-        json_hits = []
+            except Exception as exc:
+                record_error(errors, "variable_text_matching", exc, source=f"inline_script[{i}]:{var.name}")
+
         for response in api_responses:
-            body_bytes = response_bodies.get(response["id"], b"")
+            response_id = response["id"]
+            body_bytes = response_bodies.get(response_id, b"")
             body = body_bytes.decode("utf-8", errors="replace")
-            json_hits.extend([
-                {"source": "api_response", "endpoint": response["url"], "response_id": response["id"], **hit}
-                for hit in inspect_json_variable(body, var)
-            ])
-            matches += find_text_matches(body, var, f"api_response:{response['id']}", 20)
+
+            try:
+                json_hits.extend([
+                    {
+                        "source": "api_response",
+                        "endpoint": response["url"],
+                        "response_id": response_id,
+                        **hit,
+                    }
+                    for hit in inspect_json_variable(body, var)
+                ])
+            except Exception as exc:
+                record_error(errors, "variable_json_matching", exc, source=f"{response_id}:{var.name}")
+
+            try:
+                matches += find_text_matches(
+                    body, var, f"api_response:{response_id}", 20
+                )
+            except Exception as exc:
+                record_error(errors, "variable_text_matching", exc, source=f"api_response:{response_id}:{var.name}")
+
         strongest = None
         if json_hits:
             response_rank = {r["id"]: r for r in api_responses}
@@ -360,6 +477,7 @@ async def scan_target(req: ScanRequest) -> dict[str, Any]:
                 "json_path": ranked[0].get("path"),
                 "value": ranked[0].get("value"),
             }
+
         variables_report.append({
             "name": var.name,
             "supplied_value": var.value,
@@ -398,6 +516,7 @@ async def scan_target(req: ScanRequest) -> dict[str, Any]:
             "api_responses": api_responses,
         },
         "variables": variables_report,
+        "errors": errors,
         "_body_bytes": response_bodies,
         "scraper_hints": {
             "mode": "informer",
@@ -431,17 +550,41 @@ def build_artifact(report: dict[str, Any], artifact_dir: Path) -> dict[str, Any]
             "network": "network/*.json",
             "page": "page/*",
             "agent_guidance": "agent_instructions.md",
+            "errors": "errors.md",
         },
         "counts": {
             "variables": len(report["variables"]),
             "api_responses": len(report["network"]["api_responses"]),
             "requests": len(report["network"]["requests"]),
             "responses": len(report["network"]["responses"]),
+            "recoverable_errors": len(report.get("errors", [])),
         },
     })
 
     write_json(artifact_dir / "scan_summary.json", report["scan"])
     write_json(artifact_dir / "target.json", report["target"])
+
+    errors = report.get("errors", [])
+    error_lines = [
+        "# WebScope Errors and Warnings",
+        "",
+        "WebScope continues the investigation when an individual evidence step fails.",
+        "The entries below describe recoverable problems encountered during this scan.",
+        "",
+    ]
+    if not errors:
+        error_lines.append("No recoverable errors were recorded.")
+    else:
+        error_lines.append(f"Total recoverable errors: {len(errors)}")
+        error_lines.append("")
+        for index, error in enumerate(errors, 1):
+            error_lines.append(f"## {index}. {error.get('stage', 'unknown')}")
+            if error.get("source"):
+                error_lines.append(f"- **Source:** `{error['source']}`")
+            error_lines.append(f"- **Type:** `{error.get('type', 'Error')}`")
+            error_lines.append(f"- **Message:** {error.get('message', '')}")
+            error_lines.append("")
+    (artifact_dir / "errors.md").write_text("\n".join(error_lines), encoding="utf-8")
     write_json(artifact_dir / "network" / "requests.json", report["network"]["requests"])
     write_json(artifact_dir / "network" / "responses.json", report["network"]["responses"])
     write_json(artifact_dir / "network" / "api_endpoints.json", report["network"]["api_endpoints"])
@@ -460,6 +603,11 @@ def build_artifact(report: dict[str, Any], artifact_dir: Path) -> dict[str, Any]
         name = safe_filename(var["name"], "variable")
         write_json(variable_dir / f"{name}.json", var)
     write_json(variable_dir / "index.json", {
+        "errors": {
+            "count": len(report.get("errors", [])),
+            "file": "errors.md",
+            "recoverable": True,
+        },
         "variables": [
             {"name": v["name"], "supplied_value": v["supplied_value"], "file": f"{safe_filename(v['name'], 'variable')}.json"}
             for v in report["variables"]
@@ -636,6 +784,11 @@ async def run_job(job_id: str, req: ScanRequest):
                     len(v.get("matches", [])) + len(v.get("json_path_matches", []))
                     for v in report["variables"]
                 ),
+                "recoverable_errors": len(report.get("errors", [])),
+            },
+            "errors": {
+                "count": len(report.get("errors", [])),
+                "file": "errors.md",
             },
             "variables": [
                 {
