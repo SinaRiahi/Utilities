@@ -1,9 +1,0 @@
-{
-  "variables": [
-    {
-      "name": "price",
-      "supplied_value": "100",
-      "file": "price.json"
-    }
-  ]
-}
