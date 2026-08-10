@@ -108,3 +108,17 @@ The launcher creates/uses `.venv`, installs Python dependencies, detects an inst
 Chrome/Edge browser, and starts WebScope. It does **not** run `playwright install chromium`.
 
 The UI is served from `templates/index.html`.
+
+
+## Scan configuration
+
+The UI exposes two scan controls:
+
+- **Observation time**: how long WebScope keeps observing network activity after the page settles (1–30 seconds).
+- **Maximum API responses**: maximum number of API-like response bodies included in the evidence bundle (1–500).
+
+The scan runs as a background job and the UI polls its progress, so long evidence collection/packaging does not leave the page looking frozen.
+
+## Evidence organization
+
+The root `report.json` is intentionally compact. Large page/network evidence is stored in dedicated files, and each API response has its own metadata/body files. API responses are also classified as `primary_data`, `secondary_data`, `page_resource`, or `auxiliary` with a confidence score to help AI agents prioritize useful sources without deleting raw evidence.

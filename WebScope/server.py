@@ -5,6 +5,7 @@ import json
 import os
 import re
 import shutil
+import tempfile
 import time
 import uuid
 import zipfile
@@ -12,14 +13,13 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
-from fastapi import FastAPI, HTTPException
+from fastapi import BackgroundTasks, FastAPI, HTTPException
+from starlette.background import BackgroundTask
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 from playwright.async_api import async_playwright, TimeoutError as PlaywrightTimeoutError
 
 ROOT = Path(__file__).resolve().parent
-OUTPUT = ROOT / "output"
-OUTPUT.mkdir(exist_ok=True)
 
 app = FastAPI(title="WebScope", version="0.2.0")
 
@@ -33,6 +33,10 @@ class ScanRequest(BaseModel):
     url: str = Field(min_length=1)
     variables: list[Variable] = Field(default_factory=list)
     observe_ms: int = Field(default=5000, ge=1000, le=30000)
+    max_items: int = Field(default=50, ge=1, le=500)
+
+
+JOBS: dict[str, dict[str, Any]] = {}
 
 
 SENSITIVE_HEADERS = {
@@ -80,72 +84,44 @@ def parse_json_safe(text: str) -> Any | None:
         return None
 
 
-def flatten_values(obj: Any, path: str = "$") -> list[dict[str, Any]]:
-    out: list[dict[str, Any]] = []
-    if isinstance(obj, dict):
-        for k, v in obj.items():
-            p = f"{path}.{k}"
-            out.append({"path": p, "value": v})
-            out.extend(flatten_values(v, p))
-    elif isinstance(obj, list):
-        for i, v in enumerate(obj):
-            p = f"{path}[{i}]"
-            out.append({"path": p, "value": v})
-            out.extend(flatten_values(v, p))
-    return out
+def _value_forms(value: Any) -> set[str]:
+    return {x.lower() for x in normalized_forms(value)}
 
 
-def normalized_forms(value: Any) -> list[str]:
-    raw = str(value)
-    forms = {raw, raw.strip()}
-    if isinstance(value, (int, float)):
-        forms.update({f"{value:g}", f"{value:,.2f}", f"{value:,.0f}"})
-    if isinstance(value, str):
-        stripped = value.strip()
-        forms.add(stripped.replace(",", ""))
-        if re.fullmatch(r"\d+(?:\.\d+)?", stripped):
-            forms.add(f"${stripped}")
-            forms.add(f"{stripped} USD")
-            try:
-                forms.add(f"${float(stripped):,.2f}")
-            except ValueError:
-                pass
-    return [x for x in forms if x]
-
-
-def find_text_matches(text: str, variable: Variable, source: str, limit: int = 20) -> list[dict[str, Any]]:
-    matches: list[dict[str, Any]] = []
-    for needle in normalized_forms(variable.value):
-        start = 0
-        while len(matches) < limit:
-            idx = text.find(needle, start)
-            if idx < 0:
-                break
-            lo = max(0, idx - 100)
-            hi = min(len(text), idx + len(needle) + 100)
-            matches.append({
-                "source": source,
-                "matched_form": needle,
-                "offset": idx,
-                "context": text[lo:hi].replace("\n", " "),
-            })
-            start = idx + max(1, len(needle))
-    return matches
-
-
-def inspect_json_variable(body: str, variable: Variable) -> list[dict[str, Any]]:
+def inspect_json_variable(body: str, variable: Variable, max_nodes: int = 100_000) -> list[dict[str, Any]]:
+    """Find matching JSON values without materializing a full flattened tree."""
     data = parse_json_safe(body)
     if data is None:
         return []
-    wanted = {str(v).lower() for v in normalized_forms(variable.value)}
-    hits = []
-    for item in flatten_values(data):
-        val = item["value"]
-        candidates = {str(val).lower()}
-        candidates.update(x.lower() for x in normalized_forms(val))
-        if candidates & wanted:
-            hits.append({"path": item["path"], "value": val})
-    return hits[:50]
+
+    wanted = _value_forms(variable.value)
+    hits: list[dict[str, Any]] = []
+    visited = 0
+
+    def walk(value: Any, path: str) -> None:
+        nonlocal visited
+        if visited >= max_nodes or len(hits) >= 100:
+            return
+        visited += 1
+
+        candidates = {str(value).lower()}
+        candidates.update(_value_forms(value))
+        if not isinstance(value, (dict, list)) and candidates & wanted:
+            hits.append({"path": path, "value": value})
+
+        if isinstance(value, dict):
+            for key, child in value.items():
+                walk(child, f"{path}.{key}")
+                if visited >= max_nodes or len(hits) >= 100:
+                    break
+        elif isinstance(value, list):
+            for index, child in enumerate(value):
+                walk(child, f"{path}[{index}]")
+                if visited >= max_nodes or len(hits) >= 100:
+                    break
+
+    walk(data, "$")
+    return hits
 
 
 def safe_filename(value: str, fallback: str = "item") -> str:
@@ -165,6 +141,27 @@ def unique_filename(directory: Path, stem: str, suffix: str) -> Path:
 def write_json(path: Path, data: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def classify_response(url: str, target_url: str, resource_type: str, content_type: str, body: bytes) -> tuple[str, float, str]:
+    host = (urlparse(url).hostname or "").lower()
+    target_host = (urlparse(target_url).hostname or "").lower()
+    text = url.lower()
+    telemetry_tokens = (
+        "google-analytics", "googletagmanager", "doubleclick", "sentry",
+        "snowplow", "segment", "hotjar", "clarity.ms", "yektanet",
+        "digikala.digital", "analytics", "telemetry", "collect", "/track",
+        "/events", "/beacon", "fingerprint", "adservice", "advertising"
+    )
+    if any(token in text for token in telemetry_tokens):
+        return "auxiliary", 0.95, "Analytics, telemetry, advertising, or tracking-looking endpoint."
+    if host == target_host:
+        if resource_type in {"xhr", "fetch"} or "json" in content_type.lower() or "graphql" in content_type.lower():
+            return "primary_data", 0.92, "Same-origin API-like response from the target site."
+        return "page_resource", 0.60, "Resource belongs to the target site's origin."
+    if resource_type in {"xhr", "fetch"} and ("json" in content_type.lower() or "graphql" in content_type.lower()):
+        return "secondary_data", 0.70, "Cross-origin structured-data response observed by the target page."
+    return "auxiliary", 0.45, "Observed network resource; relevance is uncertain."
 
 
 async def scan_target(req: ScanRequest) -> dict[str, Any]:
@@ -228,7 +225,11 @@ async def scan_target(req: ScanRequest) -> dict[str, Any]:
                 "api_like": response.request.resource_type in {"xhr", "fetch"} or jsonish(ct),
             }
             responses.append(entry)
-            response_capture_tasks.append(asyncio.create_task(capture_response(response, rid, entry)))
+            # Only capture bodies that can plausibly contain application data.
+            # Static assets (images, fonts, CSS, WASM, etc.) still remain in the
+            # response metadata but do not consume the API-response budget or memory.
+            if entry["api_like"]:
+                response_capture_tasks.append(asyncio.create_task(capture_response(response, rid, entry)))
 
         page.on("request", on_request)
         page.on("response", on_response)
@@ -281,16 +282,35 @@ async def scan_target(req: ScanRequest) -> dict[str, Any]:
         if rid in response_bodies:
             body = response_bodies[rid]
             response["is_json"] = jsonish(response.get("content_type", ""), body)
-            if response["is_json"]:
-                try:
-                    response["json"] = json.loads(body.decode("utf-8"))
-                except Exception:
-                    response["json_parse_error"] = True
 
     api_responses = [
         r for r in responses
         if r.get("body_captured") and (r.get("api_like") or r.get("is_json"))
     ]
+
+    # Keep evidence bounded. Prefer structured application data from the target
+    # origin over telemetry/auxiliary responses when the budget is reached.
+    if len(api_responses) > req.max_items:
+        target_host = (urlparse(target).hostname or "").lower()
+        def response_priority(r: dict[str, Any]) -> tuple[int, int, int]:
+            host = (urlparse(r["url"]).hostname or "").lower()
+            ct = (r.get("content_type") or "").lower()
+            resource = r.get("resource_type") or ""
+            return (
+                0 if host == target_host else 1,
+                0 if resource in {"xhr", "fetch"} and ("json" in ct or "graphql" in ct) else 1,
+                0 if "json" in ct or "graphql" in ct else 1,
+            )
+        api_responses = sorted(api_responses, key=response_priority)[:req.max_items]
+
+    for response in api_responses:
+        classification, confidence, reason = classify_response(
+            response["url"], target, response.get("resource_type", ""),
+            response.get("content_type", ""), response_bodies.get(response["id"], b"")
+        )
+        response["classification"] = classification
+        response["classification_confidence"] = confidence
+        response["classification_reason"] = reason
 
     api_endpoints = []
     seen = set()
@@ -323,11 +343,29 @@ async def scan_target(req: ScanRequest) -> dict[str, Any]:
                 for hit in inspect_json_variable(body, var)
             ])
             matches += find_text_matches(body, var, f"api_response:{response['id']}", 20)
+        strongest = None
+        if json_hits:
+            response_rank = {r["id"]: r for r in api_responses}
+            ranked = sorted(
+                json_hits,
+                key=lambda h: (
+                    0 if response_rank.get(h.get("response_id"), {}).get("classification") == "primary_data" else 1,
+                    0 if response_rank.get(h.get("response_id"), {}).get("classification") == "secondary_data" else 1,
+                    len(h.get("path", "")),
+                ),
+            )
+            strongest = {
+                "endpoint": ranked[0].get("endpoint"),
+                "response_id": ranked[0].get("response_id"),
+                "json_path": ranked[0].get("path"),
+                "value": ranked[0].get("value"),
+            }
         variables_report.append({
             "name": var.name,
             "supplied_value": var.value,
             "matches": matches[:100],
             "json_path_matches": json_hits[:100],
+            "strongest_source": strongest,
         })
 
     return {
@@ -336,6 +374,7 @@ async def scan_target(req: ScanRequest) -> dict[str, Any]:
             "started_at_epoch": started,
             "duration_seconds": round(time.time() - started, 3),
             "observation_ms": req.observe_ms,
+            "max_items": req.max_items,
         },
         "target": {
             "input_url": target,
@@ -455,16 +494,49 @@ def build_artifact(report: dict[str, Any], artifact_dir: Path) -> dict[str, Any]
             "method": response["request_method"],
             "status": response["status"],
             "content_type": response.get("content_type", ""),
+            "classification": response.get("classification", "unknown"),
+            "classification_confidence": response.get("classification_confidence"),
             "body_file": meta["body_file"],
             "metadata_file": f"api_responses/{folder.name}/meta.json",
         })
     write_json(api_dir / "index.json", api_index)
 
-    report_for_agent = json.loads(json.dumps(report, ensure_ascii=False))
-    # Do not duplicate huge bodies in the root report.
-    for item in report_for_agent["network"]["api_responses"]:
-        item.pop("json", None)
-    report_for_agent["network"].pop("api_responses", None)
+    report_for_agent = {
+        "webscope_version": report["webscope_version"],
+        "scan": report["scan"],
+        "target": report["target"],
+        "page": {
+            "files": {
+                "rendered_html": "page/rendered.html",
+                "visible_text": "page/visible_text.txt",
+                "scripts": "page/scripts.json",
+                "links": "page/links.json",
+                "forms": "page/forms.json",
+                "json_ld": "page/json_ld.json",
+                "embedded_json": "page/embedded_json.json"
+            }
+        },
+        "network": {
+            "files": {
+                "requests": "network/requests.json",
+                "responses": "network/responses.json",
+                "api_endpoints": "network/api_endpoints.json",
+                "api_responses_index": "api_responses/index.json"
+            }
+        },
+        "variables": [
+            {
+                "name": v["name"],
+                "supplied_value": v["supplied_value"],
+                "match_count": len(v.get("matches", [])),
+                "json_path_match_count": len(v.get("json_path_matches", [])),
+                "strongest_source": v.get("strongest_source"),
+                "file": f"variables/{safe_filename(v['name'], 'variable')}.json",
+            }
+            for v in report["variables"]
+        ],
+        "scraper_hints": report["scraper_hints"],
+    }
     write_json(artifact_dir / "report.json", report_for_agent)
 
     instructions = f"""# WebScope Agent Evidence Bundle\n\nThis bundle is evidence collected from one supplied URL. WebScope is an informer, not a scraper.\n\n## Recommended agent workflow\n1. Read `manifest.json` and `report.json`.\n2. Read `variables/index.json`, then open the individual variable files that matter.\n3. Read `network/api_endpoints.json` to find likely data sources.\n4. Read `api_responses/index.json`, then inspect individual `meta.json` and `body.json`/`body.bin` files.\n5. Prefer an observed API response that contains the requested data over brittle DOM selectors.\n6. Use request method, URL, query string, request body and response shape from the evidence when implementing the scraper.\n7. Treat every response as separate evidence; do not assume two endpoints are interchangeable.\n8. If a response body is missing, use its metadata and look for another observed response.\n9. Never assume a discovered URL was crawled: only the supplied page was loaded.\n\n## Bundle counts\n- Variables: {len(report['variables'])}\n- API responses with bodies: {len(report['network']['api_responses'])}\n- Requests: {len(report['network']['requests'])}\n- Responses: {len(report['network']['responses'])}\n\n## Important\nSensitive authentication/cookie headers are redacted. This bundle describes what the page exposed during observation; it does not contain credentials.\n"""
@@ -485,29 +557,139 @@ async def index():
     return FileResponse(index_file, media_type="text/html")
 
 
+def cleanup_file(path: Path, job_id: str | None = None) -> None:
+    """Delete the temporary evidence ZIP/directory and release its job entry."""
+    try:
+        path.unlink(missing_ok=True)
+    except Exception:
+        pass
+    try:
+        parent = path.parent
+        if parent.name.startswith("webscope-"):
+            shutil.rmtree(parent, ignore_errors=True)
+    except Exception:
+        pass
+    if job_id:
+        JOBS.pop(job_id, None)
+
+
+def cleanup_dir(path: Path) -> None:
+    try:
+        shutil.rmtree(path, ignore_errors=True)
+    except Exception:
+        pass
+
+
+def make_temp_artifact_root() -> Path:
+    """Create a temporary location outside the project repository."""
+    return Path(tempfile.mkdtemp(prefix="webscope-"))
+
+
+async def run_job(job_id: str, req: ScanRequest):
+    job = JOBS[job_id]
+    temp_root: Path | None = None
+    try:
+        job["stage"] = "loading"
+        job["message"] = "Loading the target page and executing JavaScript…"
+        report = await scan_target(req)
+
+        job["stage"] = "organizing"
+        job["message"] = "Organizing evidence and matching known variables…"
+
+        temp_root = make_temp_artifact_root()
+        artifact_dir = temp_root / "bundle"
+        build_artifact(report, artifact_dir)
+
+        job["stage"] = "packaging"
+        job["message"] = "Packaging the evidence bundle…"
+
+        zip_path = temp_root / f"webscope-evidence-{int(time.time())}-{uuid.uuid4().hex[:8]}.zip"
+        with zipfile.ZipFile(
+            zip_path,
+            "w",
+            compression=zipfile.ZIP_DEFLATED,
+            compresslevel=6,
+        ) as zf:
+            for file in artifact_dir.rglob("*"):
+                if file.is_file():
+                    zf.write(file, file.relative_to(artifact_dir))
+
+        # Do not keep the unpacked evidence. The ZIP is the only artifact
+        # retained, and it lives outside the project directory.
+        cleanup_dir(artifact_dir)
+
+        # Keep the in-memory job result deliberately tiny. In particular,
+        # never send hundreds of network events / response metadata to the UI.
+        summary = {
+            "webscope_version": report["webscope_version"],
+            "scan": report["scan"],
+            "target": report["target"],
+            "counts": {
+                "requests": len(report["network"]["requests"]),
+                "responses": len(report["network"]["responses"]),
+                "api_endpoints": len(report["network"]["api_endpoints"]),
+                "api_responses": len(report["network"]["api_responses"]),
+                "json_responses": sum(
+                    1 for r in report["network"]["api_responses"] if r.get("is_json")
+                ),
+                "variable_evidence": sum(
+                    len(v.get("matches", [])) + len(v.get("json_path_matches", []))
+                    for v in report["variables"]
+                ),
+            },
+            "variables": [
+                {
+                    "name": v["name"],
+                    "supplied_value": v["supplied_value"],
+                    "match_count": len(v.get("matches", [])),
+                    "json_path_match_count": len(v.get("json_path_matches", [])),
+                    "strongest_source": v.get("strongest_source"),
+                }
+                for v in report["variables"]
+            ],
+        }
+
+        # Release the large in-memory report as soon as the ZIP has been built.
+        del report
+
+        job.update({
+            "stage": "complete",
+            "message": "Investigation complete. Your evidence ZIP is ready.",
+            "summary": summary,
+            "download_url": f"/api/download/{zip_path.name}",
+            "_zip_path": str(zip_path),
+        })
+
+    except HTTPException as exc:
+        if temp_root:
+            cleanup_dir(temp_root)
+        job.update({"stage": "error", "message": str(exc.detail)})
+    except Exception as exc:
+        if temp_root:
+            cleanup_dir(temp_root)
+        job.update({"stage": "error", "message": str(exc)})
+
+
 @app.post("/api/scan")
-async def scan(req: ScanRequest):
-    report = await scan_target(req)
-    artifact_id = f"{int(time.time())}-{uuid.uuid4().hex[:8]}"
-    artifact_dir = OUTPUT / artifact_id
-    build_artifact(report, artifact_dir)
 
-    zip_path = OUTPUT / f"webscope-evidence-{artifact_id}.zip"
-    with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=6) as zf:
-        for file in artifact_dir.rglob("*"):
-            if file.is_file():
-                zf.write(file, file.relative_to(artifact_dir))
-
-    # The UI receives a compact report only. Large response bodies remain in the ZIP.
-    ui_report = json.loads(json.dumps(report, ensure_ascii=False))
-    ui_report.pop("page", None)
-    ui_report["network"].pop("api_responses", None)
-    return {
-        "artifact_id": artifact_id,
-        "zip_filename": zip_path.name,
-        "report": ui_report,
-        "download_url": f"/api/download/{zip_path.name}",
+async def scan(req: ScanRequest, background_tasks: BackgroundTasks):
+    valid_http_url(req.url)
+    job_id = uuid.uuid4().hex
+    JOBS[job_id] = {
+        "stage": "queued",
+        "message": "Starting investigation…",
+        "progress": 0,
     }
+    background_tasks.add_task(run_job, job_id, req)
+    return {"job_id": job_id}
+
+
+@app.get("/api/scan/{job_id}")
+async def scan_status(job_id: str):
+    job = JOBS.get(job_id)
+    if not job:
+        raise HTTPException(404, "Scan job not found")
+    return job
 
 
 @app.get("/api/download/{filename}")
@@ -515,7 +697,23 @@ async def download(filename: str):
     safe = Path(filename).name
     if not safe.startswith("webscope-evidence-") or not safe.endswith(".zip"):
         raise HTTPException(404, "Artifact not found")
-    path = OUTPUT / safe
-    if not path.exists():
+
+    # Jobs keep their temporary ZIP path in memory only. No output directory
+    # is created inside the project.
+    path = None
+    job_id = None
+    for candidate_id, job in JOBS.items():
+        if Path(job.get("_zip_path", "")).name == safe:
+            path = Path(job["_zip_path"])
+            job_id = candidate_id
+            break
+
+    if not path or not path.exists():
         raise HTTPException(404, "Artifact not found")
-    return FileResponse(path, media_type="application/zip", filename=safe)
+
+    return FileResponse(
+        path,
+        media_type="application/zip",
+        filename=safe,
+        background=BackgroundTask(cleanup_file, path, job_id),
+    )
