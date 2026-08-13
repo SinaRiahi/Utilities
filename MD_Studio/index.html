@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MD Studio</title>
+    <title>Markdown → PDF — Professional Document Converter</title>
 
     <!-- KaTeX CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
@@ -388,6 +388,75 @@
             line-height: var(--line-height);
             scroll-behavior: smooth;
         }
+
+        /* ── Bidirectional document support ─────────────────────
+           The document direction is assigned automatically from the Markdown
+           content. Keep normal prose direction-aware while technical blocks
+           remain LTR where that is the natural reading direction. */
+        .preview-container {
+            direction: ltr;
+            text-align: start;
+            unicode-bidi: plaintext;
+        }
+        .preview-container[dir="rtl"] {
+            direction: rtl;
+            text-align: right;
+        }
+        .preview-container[dir="rtl"] pre,
+        .preview-container[dir="rtl"] code {
+            direction: ltr;
+            text-align: left;
+            unicode-bidi: isolate;
+        }
+        .preview-container[dir="rtl"] .mermaid-rendered,
+        .preview-container[dir="rtl"] .mermaid,
+        .preview-container[dir="rtl"] .katex,
+        .preview-container[dir="rtl"] .katex-block {
+            unicode-bidi: isolate;
+        }
+        .preview-container[dir="rtl"] .copy-code-btn {
+            right: auto;
+            left: 8px;
+        }
+        .preview-container[dir="rtl"] blockquote {
+            border-left: 0;
+            border-right: 4px solid var(--accent);
+            border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+        }
+        .preview-container[dir="rtl"] .md-note {
+            border-left: 0;
+            border-right: 5px solid #adb5bd;
+            border-radius: 7px 0 0 7px;
+        }
+        .preview-container[dir="rtl"] .md-note-definition { border-right-color: #2563eb; }
+        .preview-container[dir="rtl"] .md-note-important { border-right-color: #7c3aed; }
+        .preview-container[dir="rtl"] .md-note-example { border-right-color: #16a34a; }
+        .preview-container[dir="rtl"] .md-note-tip { border-right-color: #ea580c; }
+        .preview-container[dir="rtl"] .md-note-warning { border-right-color: #dc2626; }
+        .preview-container[dir="rtl"] .md-note-note { border-right-color: #0891b2; }
+        .preview-container[dir="rtl"] .md-note-exam { border-right-color: #db2777; }
+        .preview-container[dir="rtl"] .md-note-reminder { border-right-color: #ca8a04; }
+        .preview-container[dir="rtl"] .md-note-secondary { border-right-color: #6b7280; }
+        .preview-container[dir="rtl"] ul,
+        .preview-container[dir="rtl"] ol {
+            padding-left: 0;
+            padding-right: 1.8em;
+        }
+        .preview-container[dir="rtl"] .task-list-item {
+            margin-left: 0;
+            margin-right: -1.4em;
+        }
+        .preview-container[dir="rtl"] .task-list-item input {
+            margin-right: 0;
+            margin-left: 0.5em;
+        }
+        .preview-container[dir="rtl"] .toc-container ul {
+            padding-left: 0;
+        }
+        .preview-container[dir="rtl"] .toc-container ul ul {
+            padding-left: 0;
+            padding-right: 1.2em;
+        }
         [data-theme="dark"] .preview-container {
             background: #1e1f23;
             color: #e4e6ea;
@@ -594,7 +663,7 @@
         .preview-container table td {
             border: 1px solid #dee2e6;
             padding: 8px 12px;
-            text-align: left;
+            text-align: start;
             vertical-align: top;
         }
         .preview-container table th {
@@ -1224,7 +1293,7 @@ Or drag & drop a .md file...
             </select>
             <label>TOC Depth (which heading levels to include)</label>
             <select id="setting-toc-depth">
-                <option value="1">H1 only</option><option value="2">H1 + H2</option><option value="3" selected>H1 - H3</option><option value="4">H1 - H4</option><option value="5">H1 – H5</option><option value="6">H1 – H6 (all)</option>
+                <option value="1">H1 only</option><option value="2">H1 + H2</option><option value="3" selected>H1 + H2 + H3</option><option value="4">H1 + H2 + H3 + H4</option><option value="5">H1–H5</option><option value="6">H1–H6 (all)</option>
             </select>
             <h4>📔 Cover Page</h4>
             <label>Enable Cover Page</label>
@@ -1580,6 +1649,8 @@ Or drag & drop a .md file...
                     coverDate: '',
                     headerText: '',
                     theme: 'light',
+                    documentDirection: 'ltr',
+                    documentLanguage: 'en',
                 },
                 isDirty: false,
                 lastRendered: '',
@@ -2742,7 +2813,7 @@ When using Mermaid, prefer focused diagrams and use LR/RL for long processes, pi
                 headings.forEach(h => {
                     const level = parseInt(h.tagName[1]);
                     const li = document.createElement('li');
-                    li.style.paddingLeft = (level - 1) * 1.2 + 'em';
+                    li.style.paddingInlineStart = (level - 1) * 1.2 + 'em';
                     const a = document.createElement('a');
                     a.href = '#' + h.id;
                     a.textContent = h.textContent.trim();
@@ -2891,6 +2962,40 @@ When using Mermaid, prefer focused diagrams and use LR/RL for long processes, pi
                 editorEl.scrollTop = Math.max(0, (lineNumber - 1) * lineHeight - editorEl.clientHeight / 3);
             }
 
+            // ── Document language / direction detection ─────────────
+            // Detects the dominant writing system without changing any UI or
+            // prompt content. This lets Persian/Arabic documents render RTL
+            // automatically while mixed technical documents keep code/math LTR.
+            function detectDocumentLanguageAndDirection(markdown) {
+                const rtlChars = markdown.match(/[\u0590-\u05FF\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB1D-\uFDFF\uFE70-\uFEFF]/g) || [];
+                const ltrChars = markdown.match(/[A-Za-z\u00C0-\u02AF\u0370-\u052F\u1E00-\u1EFF]/g) || [];
+                const rtlCount = rtlChars.length;
+                const ltrCount = ltrChars.length;
+
+                let direction = 'ltr';
+                if (rtlCount > 0 && (ltrCount === 0 || rtlCount >= Math.max(3, ltrCount * 0.35))) {
+                    direction = 'rtl';
+                }
+
+                // Persian has letters that do not normally occur in Arabic.
+                // Prefer fa when those characters are present; otherwise use ar
+                // for Arabic-script RTL documents.
+                const isPersian = /[\u067E\u0686\u0698\u06AF\u06A9\u06CC\u06C0\u06C1]/.test(markdown);
+                const language = direction === 'rtl' ? (isPersian ? 'fa' : 'ar') : 'en';
+                return { direction, language };
+            }
+
+            function applyDocumentDirection(markdown) {
+                const detected = detectDocumentLanguageAndDirection(markdown);
+                state.settings.documentDirection = detected.direction;
+                state.settings.documentLanguage = detected.language;
+
+                previewEl.setAttribute('dir', detected.direction);
+                previewEl.setAttribute('lang', detected.language);
+                editorEl.setAttribute('dir', detected.direction);
+                editorEl.setAttribute('lang', detected.language);
+            }
+
             // ── Render preview ─────────────────────
             function renderPreview() {
                 const markdown = editorEl.value;
@@ -2899,6 +3004,7 @@ When using Mermaid, prefer focused diagrams and use LR/RL for long processes, pi
                     return;
                 }
                 state.lastRendered = markdown;
+                applyDocumentDirection(markdown);
 
                 if (!markdown.trim()) {
                     previewEl.innerHTML =
@@ -3291,6 +3397,37 @@ When using Mermaid, prefer focused diagrams and use LR/RL for long processes, pi
             line-height: ${s.lineHeight} !important;
             background: #fff !important;
             color: #000 !important;
+            direction: ${s.documentDirection === 'rtl' ? 'rtl' : 'ltr'} !important;
+            text-align: ${s.documentDirection === 'rtl' ? 'right' : 'left'} !important;
+          }
+          .preview-container[dir="rtl"] pre,
+          .preview-container[dir="rtl"] code {
+            direction: ltr !important;
+            text-align: left !important;
+            unicode-bidi: isolate !important;
+          }
+          .preview-container[dir="rtl"] blockquote {
+            border-left: 0 !important;
+            border-right: 4px solid var(--accent) !important;
+            border-radius: ${'var(--radius-sm)'} 0 0 ${'var(--radius-sm)'} !important;
+          }
+          .preview-container[dir="rtl"] .md-note {
+            border-left: 0 !important;
+            border-right: 5px solid #adb5bd !important;
+            border-radius: 7px 0 0 7px !important;
+          }
+          .preview-container[dir="rtl"] .md-note-definition { border-right-color: #2563eb !important; }
+          .preview-container[dir="rtl"] .md-note-important { border-right-color: #7c3aed !important; }
+          .preview-container[dir="rtl"] .md-note-example { border-right-color: #16a34a !important; }
+          .preview-container[dir="rtl"] .md-note-tip { border-right-color: #ea580c !important; }
+          .preview-container[dir="rtl"] .md-note-warning { border-right-color: #dc2626 !important; }
+          .preview-container[dir="rtl"] .md-note-note { border-right-color: #0891b2 !important; }
+          .preview-container[dir="rtl"] .md-note-exam { border-right-color: #db2777 !important; }
+          .preview-container[dir="rtl"] .md-note-reminder { border-right-color: #ca8a04 !important; }
+          .preview-container[dir="rtl"] .md-note-secondary { border-right-color: #6b7280 !important; }
+          .preview-container[dir="rtl"] .copy-code-btn {
+            right: auto !important;
+            left: 8px !important;
           }
           .preview-container .mermaid-rendered,
           .preview-container .mermaid {
@@ -3388,14 +3525,17 @@ When using Mermaid, prefer focused diagrams and use LR/RL for long processes, pi
 
             function exportHTML() {
                 const htmlContent = previewEl.innerHTML;
+                const documentDir = state.settings.documentDirection === 'rtl' ? 'rtl' : 'ltr';
+                const documentLang = state.settings.documentLanguage || (documentDir === 'rtl' ? 'ar' : 'en');
                 const fullHTML = `<!DOCTYPE html>
-        <html lang="en">
+        <html lang="${documentLang}" dir="${documentDir}">
         <head><meta charset="UTF-8"><title>Exported Document</title>
         <style>
-        body { font-family: ${state.settings.fontFamily}; font-size: ${state.settings.fontSize}pt; line-height: ${state.settings.lineHeight}; max-width: 800px; margin: 40px auto; padding: 0 20px; color: #1a1a2e; }
+        body { font-family: ${state.settings.fontFamily}; font-size: ${state.settings.fontSize}pt; line-height: ${state.settings.lineHeight}; max-width: 800px; margin: 40px auto; padding: 0 20px; color: #1a1a2e; direction: ${documentDir}; text-align: ${documentDir === 'rtl' ? 'right' : 'left'}; }
+        pre, code { direction: ltr; text-align: left; unicode-bidi: isolate; }
         pre { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 16px; overflow-x: auto; }
         code { font-family: 'SF Mono','Consolas','Monaco',monospace; font-size: 0.88em; }
-        table { border-collapse: collapse; width: 100%; } table th, table td { border: 1px solid #dee2e6; padding: 8px 12px; } table th { background: #f1f3f5; }
+        table { border-collapse: collapse; width: 100%; } table th, table td { border: 1px solid #dee2e6; padding: 8px 12px; text-align: start; } table th { background: #f1f3f5; }
         a { color: #4c6ef5; } .toc-container { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 16px 20px; margin: 1em 0; page-break-after:always; }
         .cover-page { text-align:center; padding:60px 20px; border-bottom:3px double #ccc; margin-bottom:2em; page-break-after:always; }
         .document-header { display:block; width:100%; box-sizing:border-box; margin:0 0 1.4em 0; padding:0 0 7px 0; border-bottom:1px solid #dee2e6; color:#495057; font-family:Arial,sans-serif; font-size:.82em; font-weight:600; letter-spacing:.02em; }
@@ -3403,6 +3543,17 @@ When using Mermaid, prefer focused diagrams and use LR/RL for long processes, pi
         .pagebreak-marker { page-break-after:always; border-top:2px dashed #dee2e6; margin:2em 0; text-align:center; color:#adb5bd; }
         h1, h2, h3, h4 { page-break-after:avoid; }
         .md-note { margin:1em 0; padding:.8em 1em; border-left:5px solid #adb5bd; background:#f8f9fa; border-radius:0 7px 7px 0; break-inside:avoid; page-break-inside:avoid; color:#1a1a2e; }
+        body[dir="rtl"] .md-note { border-left:0; border-right:5px solid #adb5bd; border-radius:7px 0 0 7px; }
+        body[dir="rtl"] blockquote { border-left:0; border-right:4px solid #4c6ef5; border-radius:5px 0 0 5px; padding:8px 16px; }
+        body[dir="rtl"] .md-note-definition { border-right-color:#2563eb; }
+        body[dir="rtl"] .md-note-important { border-right-color:#7c3aed; }
+        body[dir="rtl"] .md-note-example { border-right-color:#16a34a; }
+        body[dir="rtl"] .md-note-tip { border-right-color:#ea580c; }
+        body[dir="rtl"] .md-note-warning { border-right-color:#dc2626; }
+        body[dir="rtl"] .md-note-note { border-right-color:#0891b2; }
+        body[dir="rtl"] .md-note-exam { border-right-color:#db2777; }
+        body[dir="rtl"] .md-note-reminder { border-right-color:#ca8a04; }
+        body[dir="rtl"] .md-note-secondary { border-right-color:#6b7280; }
         .md-note-definition { border-left-color:#2563eb; background:#eff6ff; }
         .md-note-important { border-left-color:#7c3aed; background:#f5f3ff; }
         .md-note-example { border-left-color:#16a34a; background:#f0fdf4; }
@@ -3414,7 +3565,7 @@ When using Mermaid, prefer focused diagrams and use LR/RL for long processes, pi
         .md-note-secondary { border-left-color:#6b7280; background:#f8fafc; }
         .mermaid-rendered, .mermaid { max-width:100%; overflow:hidden; text-align:center; page-break-inside:avoid; }
         .mermaid-rendered svg, .mermaid svg { max-width:100% !important; height:auto !important; }
-</style></head><body>${htmlContent}</body></html>`;
+</style></head><body dir="${documentDir}" lang="${documentLang}">${htmlContent}</body></html>`;
 const blob = new Blob([fullHTML], { type: 'text/html;charset=utf-8' });
 const url = URL.createObjectURL(blob);
 const a = document.createElement('a'); a.href = url; a.download = 'document.html'; a.click();
@@ -3423,14 +3574,28 @@ URL.revokeObjectURL(url); showToast('✅ HTML exported');
 
 function exportDOCX() {
 const htmlContent = previewEl.innerHTML;
+const documentDir = state.settings.documentDirection === 'rtl' ? 'rtl' : 'ltr';
+const documentLang = state.settings.documentLanguage || (documentDir === 'rtl' ? 'ar' : 'en');
 const docHTML = `<!DOCTYPE html>
-<html><head><meta charset="UTF-8"><style>
-body { font-family: ${state.settings.fontFamily}; font-size: ${state.settings.fontSize}pt; line-height: ${state.settings.lineHeight}; }
+<html lang="${documentLang}" dir="${documentDir}"><head><meta charset="UTF-8"><style>
+body { font-family: ${state.settings.fontFamily}; font-size: ${state.settings.fontSize}pt; line-height: ${state.settings.lineHeight}; direction: ${documentDir}; text-align: ${documentDir === 'rtl' ? 'right' : 'left'}; }
+pre, code { direction: ltr; text-align: left; unicode-bidi: isolate; }
 pre { background: #f8f9fa; border: 1px solid #e9ecef; padding: 12px; } table { border-collapse: collapse; width: 100%; }
-table th, table td { border: 1px solid #000; padding: 6px 10px; } .toc-container { background: #f8f9fa; border: 1px solid #e9ecef; padding: 12px 16px; page-break-after:always; }
+table th, table td { border: 1px solid #000; padding: 6px 10px; text-align: start; } .toc-container { background: #f8f9fa; border: 1px solid #e9ecef; padding: 12px 16px; page-break-after:always; }
 .cover-page { text-align:center; padding:60px 20px; border-bottom:3px double #ccc; margin-bottom:2em; page-break-after:always; }
 .pagebreak-marker { page-break-after:always; } h1, h2, h3, h4 { page-break-after:avoid; }
 .md-note { margin:1em 0; padding:.8em 1em; border-left:5px solid #adb5bd; background:#f8f9fa; border-radius:0 7px 7px 0; break-inside:avoid; page-break-inside:avoid; color:#1a1a2e; }
+body[dir="rtl"] .md-note { border-left:0; border-right:5px solid #adb5bd; border-radius:7px 0 0 7px; }
+body[dir="rtl"] blockquote { border-left:0; border-right:4px solid #4c6ef5; border-radius:5px 0 0 5px; padding:8px 16px; }
+body[dir="rtl"] .md-note-definition { border-right-color:#2563eb; }
+body[dir="rtl"] .md-note-important { border-right-color:#7c3aed; }
+body[dir="rtl"] .md-note-example { border-right-color:#16a34a; }
+body[dir="rtl"] .md-note-tip { border-right-color:#ea580c; }
+body[dir="rtl"] .md-note-warning { border-right-color:#dc2626; }
+body[dir="rtl"] .md-note-note { border-right-color:#0891b2; }
+body[dir="rtl"] .md-note-exam { border-right-color:#db2777; }
+body[dir="rtl"] .md-note-reminder { border-right-color:#ca8a04; }
+body[dir="rtl"] .md-note-secondary { border-right-color:#6b7280; }
 .md-note-definition { border-left-color:#2563eb; background:#eff6ff; }
 .md-note-important { border-left-color:#7c3aed; background:#f5f3ff; }
 .md-note-example { border-left-color:#16a34a; background:#f0fdf4; }
@@ -3442,7 +3607,7 @@ table th, table td { border: 1px solid #000; padding: 6px 10px; } .toc-container
 .md-note-secondary { border-left-color:#6b7280; background:#f8fafc; }
 .mermaid-rendered, .mermaid { max-width:100%; overflow:hidden; text-align:center; page-break-inside:avoid; }
 .mermaid-rendered svg, .mermaid svg { max-width:100% !important; height:auto !important; }
-</style></head><body>${htmlContent}</body></html>`;
+</style></head><body dir="${documentDir}" lang="${documentLang}">${htmlContent}</body></html>`;
 const blob = new Blob([docHTML], { type: 'application/msword;charset=utf-8' });
 const url = URL.createObjectURL(blob);
 const a = document.createElement('a'); a.href = url; a.download = 'document.doc'; a.click();
