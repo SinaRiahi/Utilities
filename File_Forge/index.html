@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FileForge — File Name Manager</title>
+<style>
+:root{
+    --bg:#fff;--bg-secondary:#f8f9fa;--bg-tertiary:#f1f3f5;
+    --text:#1a1a2e;--text-secondary:#495057;--text-muted:#868e96;
+    --border:#dee2e6;--border-light:#e9ecef;--accent:#4c6ef5;--accent-hover:#3b5de7;
+    --accent-light:#edf2ff;--success:#2b8a3e;--success-light:#ebfbee;
+    --warning:#e67700;--warning-light:#fff4e6;--danger:#c92a2a;--danger-light:#fff5f5;
+    --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.06);
+    --shadow-lg:0 4px 16px rgba(0,0,0,.10),0 2px 6px rgba(0,0,0,.06);
+    --radius:8px;--radius-sm:5px;--font-mono:'SF Mono','Cascadia Code','JetBrains Mono','Fira Code','Consolas',monospace;
+    --font-sans:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;--transition:.18s ease;
+}
+[data-theme="dark"]{
+    --bg:#1a1b1e;--bg-secondary:#25262b;--bg-tertiary:#2c2e33;
+    --text:#e4e6ea;--text-secondary:#c1c4cd;--text-muted:#9095a0;
+    --border:#3a3c42;--border-light:#2e3035;--accent:#6d8af7;--accent-hover:#8aa3ff;
+    --accent-light:#1e2640;--success:#40c057;--success-light:#0d2b13;
+    --warning:#fab005;--warning-light:#3b2e0a;--danger:#ff6b6b;--danger-light:#3b0a0a;
+    --shadow:0 1px 3px rgba(0,0,0,.3);--shadow-lg:0 4px 16px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;font-family:var(--font-sans);background:var(--bg);color:var(--text)}
+html{color-scheme:light}[data-theme="dark"]{color-scheme:dark}
+button,input,select{font:inherit}
+button{color:var(--text);background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 12px;cursor:pointer;transition:all var(--transition)}
+button:hover{border-color:var(--accent);background:var(--accent-light)}
+button.accent{background:var(--accent);color:#fff;border-color:var(--accent)}
+button.accent:hover{background:var(--accent-hover)}
+button.danger:hover{border-color:var(--danger);color:var(--danger);background:var(--danger-light)}
+button:disabled{opacity:.5;cursor:not-allowed}
+.toolbar{height:52px;display:flex;align-items:center;gap:6px;padding:0 12px;background:var(--bg-secondary);border-bottom:1px solid var(--border);z-index:10;flex-shrink:0;overflow-x:auto}
+.toolbar .sep{width:1px;height:22px;background:var(--border);margin:0 3px}.spacer{flex:1}
+.badge{font-size:12px;padding:4px 9px;border:1px solid var(--border);border-radius:999px;background:var(--bg);white-space:nowrap}
+.main-container{height:calc(100% - 52px);display:flex;min-height:0}
+.sidebar{width:310px;min-width:270px;background:var(--bg-secondary);border-right:1px solid var(--border);overflow-y:auto;padding:14px}
+.sidebar-section{padding-bottom:16px;margin-bottom:16px;border-bottom:1px solid var(--border)}
+.sidebar-section:last-child{border-bottom:0}.sidebar-section h3{font-size:13px;margin-bottom:11px;color:var(--text)}
+label{display:block;font-size:12px;color:var(--text-secondary);margin:8px 0 5px}
+select,input[type="text"]{width:100%;padding:8px 9px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);color:var(--text);outline:none}
+select:focus,input:focus{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-light)}
+.checkbox-group{display:flex;align-items:center;gap:8px;margin:8px 0}
+.checkbox-group input{accent-color:var(--accent)}
+.checkbox-group label{margin:0;font-size:12px;color:var(--text-secondary);cursor:pointer}
+.option-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.option-card{border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px;background:var(--bg)}
+.option-card strong{font-size:12px;display:block;margin-bottom:4px}.option-card small{font-size:11px;color:var(--text-muted)}
+.content-area{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px;padding:16px;overflow:hidden}
+.drop-zone{flex:1;min-height:0;border:2px dashed var(--border);border-radius:var(--radius);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:28px 20px;overflow:hidden;background:var(--bg);transition:all var(--transition)}
+.drop-zone.drag-over{border-color:var(--accent);background:var(--accent-light)}
+.drop-zone-icon{font-size:42px;margin-bottom:8px}.drop-zone-text{font-size:16px;font-weight:600}.drop-zone-subtext{font-size:12px;color:var(--text-muted);margin-top:5px;text-align:center}
+.file-list{width:100%;max-width:1100px;overflow:auto;margin-top:18px;padding-right:3px}
+.file-item{display:grid;grid-template-columns:38px minmax(0,1fr) auto auto;gap:10px;align-items:center;border:1px solid var(--border);background:var(--bg-secondary);border-radius:var(--radius-sm);padding:8px 10px;margin-bottom:7px}
+.file-icon{font-size:24px;text-align:center}.file-info{min-width:0}.file-name{font-family:var(--font-mono);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.file-meta{font-size:11px;color:var(--text-muted);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.file-meta .new{color:var(--success)}
+.status{font-size:11px;white-space:nowrap}.status-pending{color:var(--text-muted)}.status-done{color:var(--success)}.status-error{color:var(--danger)}
+.file-actions{display:flex;gap:4px}.file-actions button{padding:4px 7px;font-size:12px}
+.batch-progress{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-muted)}
+.batch-progress-track{height:7px;background:var(--bg-tertiary);border-radius:99px;overflow:hidden;flex:1}.batch-progress-fill{height:100%;width:0;background:var(--accent);transition:width .15s ease}
+.output-area{height:92px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg-secondary);padding:10px;overflow:auto;font-family:var(--font-mono);font-size:11px}
+.output-line{display:block;margin:2px 0}.output-line.success{color:var(--success)}.output-line.error{color:var(--danger)}.output-line.info{color:var(--text-secondary)}
+.help{font-size:11px;color:var(--text-muted);line-height:1.45;margin-top:7px}
+.hidden{display:none!important}
+::-webkit-scrollbar{width:7px;height:7px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+@media(max-width:768px){html,body{overflow:auto}.toolbar{flex-wrap:wrap;height:auto;min-height:52px}.main-container{height:auto;min-height:calc(100vh - 52px);flex-direction:column}.sidebar{width:100%;min-width:0;max-height:none;border-right:0;border-bottom:1px solid var(--border)}.content-area{min-height:600px}.drop-zone{min-height:360px}.file-item{grid-template-columns:32px minmax(0,1fr);}.file-item>.status,.file-item>.file-actions{grid-column:2}.spacer{display:none}}
+</style>
+</head>
+<body>
+<div class="toolbar">
+    <button onclick="toggleTheme()" title="Toggle dark/light mode">🌓 Theme</button>
+    <span class="sep"></span>
+    <button onclick="addFiles()">📁 Add Files</button>
+    <button onclick="addFolder()">📂 Add Folder</button>
+    <span class="sep"></span>
+    <button class="accent" onclick="applyChanges()">⚡ Apply Changes</button>
+    <button onclick="downloadAll()">💾 Download All</button>
+    <button onclick="clearAll()">🗑 Clear</button>
+    <span class="spacer"></span>
+    <span class="badge" id="fileCount">0 files</span>
+    <span class="badge" id="themeBadge">Light</span>
+</div>
+
+<div class="main-container">
+    <div class="sidebar">
+        <div class="sidebar-section">
+            <h3>🔤 Case Conversion</h3>
+            <div class="option-grid">
+                <div class="option-card">
+                    <strong>Lowercase</strong>
+                    <small>Convert selected parts to lowercase.</small>
+                </div>
+                <div class="option-card">
+                    <strong>Uppercase</strong>
+                    <small>Convert selected parts to uppercase.</small>
+                </div>
+            </div>
+            <label>Apply casing to</label>
+            <div class="checkbox-group">
+                <input type="checkbox" id="nameCase" checked onchange="refreshPreview()">
+                <label for="nameCase">File name</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="extensionCase" checked onchange="refreshPreview()">
+                <label for="extensionCase">File extension</label>
+            </div>
+            <label for="caseMode">Case mode</label>
+            <select id="caseMode" onchange="refreshPreview()">
+                <option value="lower">lowercase</option>
+                <option value="upper">UPPERCASE</option>
+            </select>
+            <div class="help">Check either or both boxes. With both enabled, the complete filename becomes lowercase or uppercase while the file's contents remain unchanged.</div>
+        </div>
+
+        <div class="sidebar-section">
+            <h3>✏️ Rename Rules</h3>
+            <label for="prefix">Add prefix</label>
+            <input type="text" id="prefix" placeholder="e.g. project_">
+            <label for="suffix">Add suffix</label>
+            <input type="text" id="suffix" placeholder="e.g. _final">
+            <label for="findText">Find text</label>
+            <input type="text" id="findText" placeholder="Text to replace">
+            <label for="replaceText">Replace with</label>
+            <input type="text" id="replaceText" placeholder="Replacement">
+            <div class="checkbox-group">
+                <input type="checkbox" id="trimWhitespace" checked>
+                <label for="trimWhitespace">Trim surrounding whitespace</label>
+            </div>
+            <div class="help">These rules are applied to the base filename, not the extension.</div>
+        </div>
+
+        <div class="sidebar-section">
+            <h3>📁 Batch Options</h3>
+            <div class="checkbox-group">
+                <input type="checkbox" id="includeSubfolders" checked>
+                <label for="includeSubfolders">Include subfolders</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="preserveStructure" checked>
+                <label for="preserveStructure">Preserve folder structure on download</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="avoidCollisions" checked>
+                <label for="avoidCollisions">Avoid duplicate output names</label>
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+            <h3>🛡️ File Operations</h3>
+            <div class="checkbox-group">
+                <input type="checkbox" id="directRename" checked>
+                <label for="directRename">Try direct rename when supported</label>
+            </div>
+            <div class="help">Direct renaming requires a browser that exposes the File System Access API and a folder opened through its folder picker. Otherwise FileForge creates renamed copies for download.</div>
+        </div>
+    </div>
+
+    <div class="content-area">
+        <div class="drop-zone" id="dropZone">
+            <div class="drop-zone-icon">📄</div>
+            <div class="drop-zone-text">Drop files here or click to browse</div>
+            <button type="button" onclick="addFiles()" style="margin-top:12px">📁 Open File Explorer</button>
+            <div class="drop-zone-subtext">All file types are accepted. FileForge never changes file contents.</div>
+            <div class="file-list" id="fileList"></div>
+        </div>
+        <div class="batch-progress">
+            <span id="batchProgressText">0 / 0</span>
+            <div class="batch-progress-track"><div class="batch-progress-fill" id="batchProgressFill"></div></div>
+        </div>
+        <div class="output-area" id="outputArea"><span class="output-line info">Ready. Add files to begin.</span></div>
+    </div>
+</div>
+
+<input type="file" id="fileInput" multiple class="hidden" onchange="handleFileSelect(event)">
+<input type="file" id="folderInput" webkitdirectory directory multiple class="hidden" onchange="handleFileSelect(event)">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+<script>
+const files = [];
+let darkMode = localStorage.getItem('utils-theme') === 'dark';
+const $ = id => document.getElementById(id);
+const dropZone = $('dropZone'), fileList = $('fileList'), outputArea = $('outputArea');
+const fileCountBadge = $('fileCount'), themeBadge = $('themeBadge');
+const progressText = $('batchProgressText'), progressFill = $('batchProgressFill');
+
+function applyTheme(){
+    document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+    themeBadge.textContent = darkMode ? 'Dark' : 'Light';
+}
+function toggleTheme(){
+    darkMode = !darkMode;
+    localStorage.setItem('utils-theme', darkMode ? 'dark' : 'light');
+    applyTheme();
+}
+function addFiles(){ $('fileInput').click(); }
+function addFolder(){ $('folderInput').click(); }
+
+function getNameParts(name){
+    const lastDot = name.lastIndexOf('.');
+    if(lastDot <= 0) return {base:name, ext:''};
+    return {base:name.slice(0,lastDot), ext:name.slice(lastDot)};
+}
+function transformBase(base){
+    const trim = $('trimWhitespace').checked;
+    let out = trim ? base.trim() : base;
+    const find = $('findText').value;
+    if(find) out = out.split(find).join($('replaceText').value);
+    out = $('prefix').value + out + $('suffix').value;
+    return $('caseMode').value === 'upper' && $('nameCase').checked ? out.toUpperCase()
+         : $('caseMode').value === 'lower' && $('nameCase').checked ? out.toLowerCase() : out;
+}
+function transformExtension(ext){
+    if(!ext || !$('extensionCase').checked) return ext;
+    return $('caseMode').value === 'upper' ? ext.toUpperCase() : ext.toLowerCase();
+}
+function getOutputName(name){
+    const {base,ext} = getNameParts(name);
+    return transformBase(base) + transformExtension(ext);
+}
+function escapeHTML(s){
+    const d=document.createElement('div'); d.textContent=s; return d.innerHTML;
+}
+function keyFor(f){ return (f.relativePath ? f.relativePath + '/' : '') + f.name; }
+
+function addFile(file, relativePath=''){
+    const key = relativePath ? relativePath + '/' + file.name : file.name;
+    if(files.some(f => keyFor(f) === key)) return;
+    files.push({name:file.name,file,status:'pending',outputName:null,relativePath:relativePath || '',outputBlob:null,error:null,directHandle:null});
+}
+
+function handleFileSelect(event){
+    const isFolder = event.target.id === 'folderInput';
+    for(const f of Array.from(event.target.files)){
+        let rel = '';
+        if(isFolder && f.webkitRelativePath){
+            const parts = f.webkitRelativePath.split('/');
+            parts.pop();
+            rel = parts.join('/');
+        }
+        addFile(f, rel);
+    }
+    event.target.value = '';
+    renderFileList();
+}
+
+dropZone.addEventListener('click', e => {
+    if(e.target.closest('button') || e.target.closest('.file-item')) return;
+    addFiles();
+});
+dropZone.addEventListener('dragover', e => {e.preventDefault();dropZone.classList.add('drag-over')});
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', async e => {
+    e.preventDefault(); dropZone.classList.remove('drag-over');
+    if(e.dataTransfer.items){
+        const entries=[];
+        for(const item of e.dataTransfer.items){
+            if(item.kind !== 'file') continue;
+            const entry=item.webkitGetAsEntry ? item.webkitGetAsEntry() : null;
+            if(entry) entries.push(entry); else {const f=item.getAsFile(); if(f) addFile(f,'');}
+        }
+        for(const entry of entries) await processEntry(entry,'');
+    }else{
+        for(const f of e.dataTransfer.files) addFile(f,'');
+    }
+    renderFileList();
+});
+async function processEntry(entry, basePath){
+    if(entry.isFile){
+        const f=await new Promise(r=>entry.file(r));
+        addFile(f,basePath);
+    }else if(entry.isDirectory && $('includeSubfolders').checked){
+        const reader=entry.createReader();
+        const entries=await readAllEntries(reader);
+        const next=basePath ? basePath+'/'+entry.name : entry.name;
+        for(const child of entries) await processEntry(child,next);
+    }
+}
+function readAllEntries(reader){
+    return new Promise(resolve=>{
+        const all=[];
+        const read=()=>reader.readEntries(batch=>{
+            if(!batch.length) return resolve(all);
+            all.push(...batch); read();
+        });
+        read();
+    });
+}
+
+function refreshPreview(){
+    files.forEach(f => { f.outputName=getOutputName(f.name); if(f.status!=='done') f.status='pending'; });
+    renderFileList();
+}
+['caseMode','nameCase','extensionCase','prefix','suffix','findText','replaceText','trimWhitespace'].forEach(id=>{
+    $(id).addEventListener('input', refreshPreview);
+    $(id).addEventListener('change', refreshPreview);
+});
+
+function renderFileList(){
+    fileCountBadge.textContent = files.length + (files.length===1?' file':' files');
+    progressText.textContent = `0 / ${files.length}`;
+    progressFill.style.width='0%';
+    if(!files.length){
+        fileList.innerHTML=''; return;
+    }
+    fileList.innerHTML=files.map((f,i)=>{
+        const out=f.outputName || getOutputName(f.name);
+        const status=f.status==='done'?'Done':f.status==='error'?'Error':'Ready';
+        const statusClass=f.status==='done'?'status-done':f.status==='error'?'status-error':'status-pending';
+        const path=f.relativePath ? f.relativePath+'/' : '';
+        return `<div class="file-item">
+            <span class="file-icon">📄</span>
+            <div class="file-info">
+                <div class="file-name" title="${escapeHTML(path+f.name)}">${escapeHTML(path+f.name)}</div>
+                <div class="file-meta">→ <span class="new">${escapeHTML(out)}</span>${f.error ? ' · '+escapeHTML(f.error) : ''}</div>
+            </div>
+            <span class="status ${statusClass}">${status}</span>
+            <div class="file-actions">
+                <button onclick="downloadOne(${i})" title="Download this file">💾</button>
+                <button class="danger" onclick="removeFile(${i})" title="Remove from canvas">✕</button>
+            </div>
+        </div>`;
+    }).join('');
+}
+function removeFile(i){ files.splice(i,1); renderFileList(); }
+function clearAll(){
+    if(files.length && !confirm('Clear all files from FileForge?')) return;
+    files.length=0; renderFileList(); log('Cleared file queue.','info');
+}
+function log(msg,type='info'){
+    const line=document.createElement('span'); line.className='output-line '+type; line.textContent=msg;
+    outputArea.appendChild(line); outputArea.scrollTop=outputArea.scrollHeight;
+}
+function uniqueOutputName(desired, used){
+    if(!used.has(desired)){used.add(desired);return desired}
+    const {base,ext}=getNameParts(desired);
+    let n=1, candidate;
+    do{candidate=base+'_'+n+ext;n++}while(used.has(candidate));
+    used.add(candidate); return candidate;
+}
+function makeRenamedBlob(file){
+    return file.slice(0,file.size,file.type || 'application/octet-stream');
+}
+async function applyChanges(){
+    if(!files.length){log('No files to process.','error');return}
+    const used=new Set(), total=files.length; let done=0;
+    progressText.textContent=`0 / ${total}`; progressFill.style.width='0%';
+    for(const f of files){
+        try{
+            f.outputName = $('avoidCollisions').checked ? uniqueOutputName(getOutputName(f.name), used) : getOutputName(f.name);
+            f.outputBlob = makeRenamedBlob(f.file);
+            f.status='done'; f.error=null;
+            log(`✓ ${f.name} → ${f.outputName}`,'success');
+        }catch(err){
+            f.status='error'; f.error=err.message; log(`✗ ${f.name}: ${err.message}`,'error');
+        }
+        done++; progressText.textContent=`${done} / ${total}`; progressFill.style.width=(done/total*100)+'%'; renderFileList();
+        await new Promise(r=>setTimeout(r,15));
+    }
+    log(`Ready: ${files.filter(f=>f.status==='done').length}/${total} file(s) processed.`,'info');
+}
+function downloadBlob(blob,name){
+    if(window.saveAs) saveAs(blob,name);
+    else{
+        const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; a.click();
+        setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+    }
+}
+function downloadOne(i){
+    const f=files[i];
+    if(!f.outputBlob) {
+        f.outputName=getOutputName(f.name); f.outputBlob=makeRenamedBlob(f.file); f.status='done'; renderFileList();
+    }
+    downloadBlob(f.outputBlob,f.outputName);
+    log(`Downloaded: ${f.outputName}`,'success');
+}
+async function downloadAll(){
+    const ready=files.filter(f=>f.outputBlob && f.status==='done');
+    if(!ready.length){log('Apply changes before downloading.','error');return}
+    if(ready.length===1 && !ready[0].relativePath){downloadOne(files.indexOf(ready[0]));return}
+    if(!window.JSZip){log('ZIP library unavailable. Download files individually.','error');return}
+    const zip=new JSZip();
+    const used=new Set();
+    for(const f of ready){
+        let path=f.outputName;
+        if($('preserveStructure').checked && f.relativePath) path=f.relativePath+'/'+f.outputName;
+        let finalPath=path, n=1;
+        while(used.has(finalPath)){const parts=path.split('/');const leaf=parts.pop();const p=getNameParts(leaf);parts.push(p.base+'_'+n+p.ext);finalPath=parts.join('/');n++}
+        used.add(finalPath);
+        zip.file(finalPath,await f.outputBlob.arrayBuffer());
+    }
+    log(`Packaging ${ready.length} file(s) into ZIP...`,'info');
+    const blob=await zip.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:6}});
+    downloadBlob(blob,`fileforge-export-${new Date().toISOString().replace(/[:.]/g,'-').slice(0,19)}.zip`);
+    log(`ZIP downloaded with ${ready.length} file(s).`,'success');
+}
+
+/* Future-ready direct folder API:
+   Chromium exposes File System Access APIs in secure contexts. This build keeps
+   the normal File/FileList workflow universally compatible and uses downloads as
+   the reliable fallback. The UI option is intentionally present so a future
+   handle-based folder workflow can be added without redesigning the interface.
+*/
+
+applyTheme();
+renderFileList();
+</script>
+</body>
+</html>
