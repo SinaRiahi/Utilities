@@ -936,6 +936,7 @@
                         <span class="file-status ${statusClass}">${statusText}</span>
                         <div class="file-actions">
                             ${f.status === 'done' ? `<button type="button" class="mini-btn" onclick="previewFile(${i}); event.stopPropagation()">👁 Preview</button>` : ''}
+                            <button type="button" class="mini-btn" onclick="downloadSingle(${i}); event.stopPropagation()" title="Download">💾</button>
                             <button type="button" class="mini-btn" onclick="removeFile(${i}); event.stopPropagation()" title="Remove">✕</button>
                         </div>
                     </div>
@@ -977,6 +978,15 @@
             previewOverlay.classList.add('hidden');
             previewOverlay.dataset.originalUrl = '';
             previewOverlay.dataset.outputUrl = '';
+        }
+
+        function downloadSingle(index) {
+            const f = files[index];
+            if (!f || !f.outputBlob) {
+                log('Convert this file before downloading.', 'error');
+                return;
+            }
+            saveAs(f.outputBlob, f.outputName);
         }
 
         function removeFile(index) {
