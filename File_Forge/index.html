@@ -1,412 +1,1454 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FileForge — File Name Manager</title>
-<style>
-:root{
-    --bg:#fff;--bg-secondary:#f8f9fa;--bg-tertiary:#f1f3f5;
-    --text:#1a1a2e;--text-secondary:#495057;--text-muted:#868e96;
-    --border:#dee2e6;--border-light:#e9ecef;--accent:#4c6ef5;--accent-hover:#3b5de7;
-    --accent-light:#edf2ff;--success:#2b8a3e;--success-light:#ebfbee;
-    --warning:#e67700;--warning-light:#fff4e6;--danger:#c92a2a;--danger-light:#fff5f5;
-    --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.06);
-    --shadow-lg:0 4px 16px rgba(0,0,0,.10),0 2px 6px rgba(0,0,0,.06);
-    --radius:8px;--radius-sm:5px;--font-mono:'SF Mono','Cascadia Code','JetBrains Mono','Fira Code','Consolas',monospace;
-    --font-sans:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;--transition:.18s ease;
-}
-[data-theme="dark"]{
-    --bg:#1a1b1e;--bg-secondary:#25262b;--bg-tertiary:#2c2e33;
-    --text:#e4e6ea;--text-secondary:#c1c4cd;--text-muted:#9095a0;
-    --border:#3a3c42;--border-light:#2e3035;--accent:#6d8af7;--accent-hover:#8aa3ff;
-    --accent-light:#1e2640;--success:#40c057;--success-light:#0d2b13;
-    --warning:#fab005;--warning-light:#3b2e0a;--danger:#ff6b6b;--danger-light:#3b0a0a;
-    --shadow:0 1px 3px rgba(0,0,0,.3);--shadow-lg:0 4px 16px rgba(0,0,0,.4);
-}
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;overflow:hidden;font-family:var(--font-sans);background:var(--bg);color:var(--text)}
-html{color-scheme:light}[data-theme="dark"]{color-scheme:dark}
-button,input,select{font:inherit}
-button{color:var(--text);background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 12px;cursor:pointer;transition:all var(--transition)}
-button:hover{border-color:var(--accent);background:var(--accent-light)}
-button.accent{background:var(--accent);color:#fff;border-color:var(--accent)}
-button.accent:hover{background:var(--accent-hover)}
-button.danger:hover{border-color:var(--danger);color:var(--danger);background:var(--danger-light)}
-button:disabled{opacity:.5;cursor:not-allowed}
-.toolbar{height:52px;display:flex;align-items:center;gap:6px;padding:0 12px;background:var(--bg-secondary);border-bottom:1px solid var(--border);z-index:10;flex-shrink:0;overflow-x:auto}
-.toolbar .sep{width:1px;height:22px;background:var(--border);margin:0 3px}.spacer{flex:1}
-.badge{font-size:12px;padding:4px 9px;border:1px solid var(--border);border-radius:999px;background:var(--bg);white-space:nowrap}
-.main-container{height:calc(100% - 52px);display:flex;min-height:0}
-.sidebar{width:310px;min-width:270px;background:var(--bg-secondary);border-right:1px solid var(--border);overflow-y:auto;padding:14px}
-.sidebar-section{padding-bottom:16px;margin-bottom:16px;border-bottom:1px solid var(--border)}
-.sidebar-section:last-child{border-bottom:0}.sidebar-section h3{font-size:13px;margin-bottom:11px;color:var(--text)}
-label{display:block;font-size:12px;color:var(--text-secondary);margin:8px 0 5px}
-select,input[type="text"]{width:100%;padding:8px 9px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);color:var(--text);outline:none}
-select:focus,input:focus{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-light)}
-.checkbox-group{display:flex;align-items:center;gap:8px;margin:8px 0}
-.checkbox-group input{accent-color:var(--accent)}
-.checkbox-group label{margin:0;font-size:12px;color:var(--text-secondary);cursor:pointer}
-.option-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-.option-card{border:1px solid var(--border);border-radius:var(--radius-sm);padding:9px;background:var(--bg)}
-.option-card strong{font-size:12px;display:block;margin-bottom:4px}.option-card small{font-size:11px;color:var(--text-muted)}
-.content-area{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px;padding:16px;overflow:hidden}
-.drop-zone{flex:1;min-height:0;border:2px dashed var(--border);border-radius:var(--radius);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:28px 20px;overflow:hidden;background:var(--bg);transition:all var(--transition)}
-.drop-zone.drag-over{border-color:var(--accent);background:var(--accent-light)}
-.drop-zone-icon{font-size:42px;margin-bottom:8px}.drop-zone-text{font-size:16px;font-weight:600}.drop-zone-subtext{font-size:12px;color:var(--text-muted);margin-top:5px;text-align:center}
-.file-list{width:100%;max-width:1100px;overflow:auto;margin-top:18px;padding-right:3px}
-.file-item{display:grid;grid-template-columns:38px minmax(0,1fr) auto auto;gap:10px;align-items:center;border:1px solid var(--border);background:var(--bg-secondary);border-radius:var(--radius-sm);padding:8px 10px;margin-bottom:7px}
-.file-icon{font-size:24px;text-align:center}.file-info{min-width:0}.file-name{font-family:var(--font-mono);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.file-meta{font-size:11px;color:var(--text-muted);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.file-meta .new{color:var(--success)}
-.status{font-size:11px;white-space:nowrap}.status-pending{color:var(--text-muted)}.status-done{color:var(--success)}.status-error{color:var(--danger)}
-.file-actions{display:flex;gap:4px}.file-actions button{padding:4px 7px;font-size:12px}
-.batch-progress{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--text-muted)}
-.batch-progress-track{height:7px;background:var(--bg-tertiary);border-radius:99px;overflow:hidden;flex:1}.batch-progress-fill{height:100%;width:0;background:var(--accent);transition:width .15s ease}
-.output-area{height:92px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg-secondary);padding:10px;overflow:auto;font-family:var(--font-mono);font-size:11px}
-.output-line{display:block;margin:2px 0}.output-line.success{color:var(--success)}.output-line.error{color:var(--danger)}.output-line.info{color:var(--text-secondary)}
-.help{font-size:11px;color:var(--text-muted);line-height:1.45;margin-top:7px}
-.hidden{display:none!important}
-::-webkit-scrollbar{width:7px;height:7px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
-@media(max-width:768px){html,body{overflow:auto}.toolbar{flex-wrap:wrap;height:auto;min-height:52px}.main-container{height:auto;min-height:calc(100vh - 52px);flex-direction:column}.sidebar{width:100%;min-width:0;max-height:none;border-right:0;border-bottom:1px solid var(--border)}.content-area{min-height:600px}.drop-zone{min-height:360px}.file-item{grid-template-columns:32px minmax(0,1fr);}.file-item>.status,.file-item>.file-actions{grid-column:2}.spacer{display:none}}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FileForge — File Name Manager</title>
+
+    <style>
+        :root {
+            --bg: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-tertiary: #f1f3f5;
+            --text: #1a1a2e;
+            --text-secondary: #495057;
+            --text-muted: #868e96;
+            --border: #dee2e6;
+            --border-light: #e9ecef;
+            --accent: #4c6ef5;
+            --accent-hover: #3b5de7;
+            --accent-light: #edf2ff;
+            --success: #2b8a3e;
+            --success-light: #ebfbee;
+            --warning: #e67700;
+            --warning-light: #fff4e6;
+            --danger: #c92a2a;
+            --danger-light: #fff5f5;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.10), 0 2px 6px rgba(0, 0, 0, 0.06);
+            --radius: 8px;
+            --radius-sm: 5px;
+            --font-mono: 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', monospace;
+            --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            --transition: 0.18s ease;
+        }
+
+        [data-theme="dark"] {
+            --bg: #1a1b1e;
+            --bg-secondary: #25262b;
+            --bg-tertiary: #2c2e33;
+            --text: #e4e6ea;
+            --text-secondary: #c1c4cd;
+            --text-muted: #9095a0;
+            --border: #3a3c42;
+            --border-light: #2e3035;
+            --accent: #6d8af7;
+            --accent-hover: #8aa3ff;
+            --accent-light: #1e2640;
+            --success: #40c057;
+            --success-light: #0d2b13;
+            --warning: #fab005;
+            --warning-light: #3b2e0a;
+            --danger: #ff6b6b;
+            --danger-light: #3b0a0a;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            color-scheme: light;
+        }
+
+        [data-theme="dark"] {
+            color-scheme: dark;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            font-family: var(--font-sans);
+            background: var(--bg);
+            color: var(--text);
+            transition: background var(--transition), color var(--transition);
+        }
+
+        .toolbar {
+            height: 48px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0 12px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            z-index: 100;
+            flex-shrink: 0;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .toolbar .sep {
+            width: 1px;
+            height: 22px;
+            background: var(--border);
+            margin: 0 4px;
+            flex-shrink: 0;
+        }
+        .toolbar button {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 7px 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 12.5px;
+            font-family: var(--font-sans);
+            white-space: nowrap;
+            transition: all var(--transition);
+            flex-shrink: 0;
+            font-weight: 500;
+        }
+        .toolbar button:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--text-muted);
+            color: var(--text);
+        }
+        .toolbar button.accent {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+            font-weight: 600;
+        }
+        .toolbar button.accent:hover {
+            background: var(--accent-hover);
+            border-color: var(--accent-hover);
+        }
+        .toolbar .spacer { flex: 1; min-width: 10px; }
+        .toolbar .badge {
+            font-size: 10.5px;
+            background: var(--bg-tertiary);
+            padding: 3px 8px;
+            border-radius: 20px;
+            color: var(--text-muted);
+            flex-shrink: 0;
+            font-weight: 500;
+        }
+
+        .main-container {
+            display: flex;
+            height: calc(100% - 48px);
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 340px;
+            min-width: 280px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+        .sidebar-section {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .sidebar-section h3 {
+            font-size: 11.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            font-family: var(--font-sans);
+        }
+        .sidebar-section label {
+            display: block;
+            font-size: 12.5px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+        .sidebar-section select,
+        .sidebar-section input[type="number"],
+        .sidebar-section input[type="text"] {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg);
+            color: var(--text);
+            font-size: 13px;
+            font-family: var(--font-sans);
+            margin-bottom: 10px;
+            transition: all var(--transition);
+        }
+        .sidebar-section select:focus,
+        .sidebar-section input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-light);
+        }
+        .sidebar-section input[type="range"] {
+            width: 100%;
+            margin-bottom: 4px;
+            accent-color: var(--accent);
+        }
+        .range-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10.5px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .checkbox-group input[type="checkbox"] {
+            accent-color: var(--accent);
+            width: 16px;
+            height: 16px;
+        }
+        .checkbox-group label {
+            margin-bottom: 0;
+            cursor: pointer;
+        }
+
+        .content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .drop-zone {
+            flex: 1;
+            margin: 16px;
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all var(--transition);
+            background: var(--bg);
+            position: relative;
+            overflow-y: auto;
+        }
+        .drop-zone.drag-over {
+            border-color: var(--accent);
+            background: var(--accent-light);
+        }
+        .drop-zone-icon {
+            font-size: 48px;
+            opacity: 0.5;
+        }
+        .drop-zone-text {
+            font-size: 15px;
+            color: var(--text-muted);
+            text-align: center;
+        }
+        .drop-zone-subtext {
+            font-size: 12px;
+            color: var(--text-muted);
+            opacity: 0.7;
+        }
+        .browse-btn {
+            padding: 6px 10px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 11.5px;
+            font-family: var(--font-sans);
+            transition: all var(--transition);
+        }
+        .browse-btn:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--accent);
+            color: var(--text);
+        }
+
+        .file-list {
+            width: 100%;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            transition: all var(--transition);
+        }
+        .file-item:hover { border-color: var(--border); }
+        .file-item .file-icon { font-size: 20px; }
+        .file-item .file-info { flex: 1; min-width: 0; }
+        .file-item .file-name {
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .file-item .file-meta {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+        .file-item .file-status {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        .status-pending { background: var(--bg-tertiary); color: var(--text-muted); }
+        .status-converting { background: var(--warning-light); color: var(--warning); }
+        .status-done { background: var(--success-light); color: var(--success); }
+        .status-error { background: var(--danger-light); color: var(--danger); }
+
+        .output-area {
+            margin: 0 16px 16px;
+            padding: 12px 16px;
+            background: var(--bg-tertiary);
+            border-radius: var(--radius);
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--text-secondary);
+            max-height: 140px;
+            overflow-y: auto;
+            flex-shrink: 0;
+            min-height: 48px;
+            line-height: 1.5;
+        }
+        .output-line { margin: 2px 0; }
+        .output-line.success { color: var(--success); }
+        .output-line.error { color: var(--danger); }
+        .output-line.info { color: var(--text-muted); }
+        .transform-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+        .transform-grid label { margin-bottom:4px; }
+        .transform-grid input, .transform-grid select { margin-bottom:0 !important; }
+        .file-thumb { width:42px; height:42px; object-fit:cover; border-radius:5px; border:1px solid var(--border); background:var(--bg-tertiary); flex-shrink:0; }
+        .file-actions { display:flex; align-items:center; gap:4px; flex-shrink:0; }
+        .mini-btn { border:1px solid var(--border); background:var(--bg); color:var(--text-secondary); border-radius:var(--radius-sm); cursor:pointer; padding:4px 7px; font-size:11px; }
+        .mini-btn:hover { background:var(--bg-tertiary); color:var(--text); }
+        .progress-wrap { height:4px; background:var(--bg-tertiary); border-radius:4px; margin-top:6px; overflow:hidden; }
+        .progress-bar { height:100%; width:0; background:var(--accent); transition:width .2s ease; }
+        .batch-progress { margin:0 16px 8px; font-size:11px; color:var(--text-muted); display:flex; align-items:center; gap:8px; }
+        .batch-progress-track { flex:1; height:5px; background:var(--bg-tertiary); border-radius:5px; overflow:hidden; }
+        .batch-progress-fill { height:100%; width:0; background:var(--accent); transition:width .2s ease; }
+        .preview-overlay { position:fixed; inset:0; background:rgba(0,0,0,.65); z-index:300; display:flex; align-items:center; justify-content:center; padding:24px; }
+        .preview-modal { width:min(1100px,96vw); max-height:92vh; overflow:auto; background:var(--bg); color:var(--text); border-radius:12px; box-shadow:var(--shadow-lg); padding:18px; }
+        .preview-header { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; }
+        .preview-header h2 { font-size:16px; }
+        .preview-close { border:1px solid var(--border); background:var(--bg); color:var(--text); border-radius:var(--radius-sm); padding:6px 10px; cursor:pointer; }
+        .preview-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+        .preview-card { border:1px solid var(--border); border-radius:8px; overflow:hidden; background:var(--bg-secondary); }
+        .preview-card h3 { padding:9px 12px; font-size:12px; border-bottom:1px solid var(--border); }
+        .preview-card .preview-image-wrap { min-height:280px; display:flex; align-items:center; justify-content:center; padding:14px; background:repeating-conic-gradient(var(--bg-tertiary) 0% 25%, var(--bg) 0% 50%) 50% / 20px 20px; }
+        .preview-card img { max-width:100%; max-height:55vh; object-fit:contain; }
+        .preview-meta { padding:9px 12px; font-size:11px; color:var(--text-muted); }
+        .empty-state { color:var(--text-muted); font-size:12px; padding:18px; text-align:center; }
+        @media (max-width: 900px) { .preview-grid { grid-template-columns:1fr; } }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal {
+            background: var(--bg);
+            border-radius: var(--radius);
+            padding: 24px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: var(--shadow-lg);
+        }
+        .modal h2 { margin-bottom: 16px; font-size: 1.2em; }
+        .modal p { font-size: 13px; color: var(--text-secondary); margin-bottom: 12px; }
+        .modal button {
+            padding: 8px 18px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg);
+            cursor: pointer;
+            font-family: var(--font-sans);
+            font-size: 13px;
+            margin-right: 8px;
+            transition: all var(--transition);
+        }
+        .modal button.accent {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+        .hidden { display: none !important; }
+
+        /* Scrollbar */
+
+        @media (max-width: 768px) {
+            .main-container { flex-direction: column; }
+            .sidebar {
+                width: 100%;
+                min-width: unset;
+                max-height: 40%;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+        }
+    </style>
 </head>
 <body>
-<div class="toolbar">
-    <button onclick="toggleTheme()" title="Toggle dark/light mode">🌓 Theme</button>
-    <span class="sep"></span>
-    <button onclick="addFiles()">📁 Add Files</button>
-    <button onclick="addFolder()">📂 Add Folder</button>
-    <span class="sep"></span>
-    <button class="accent" onclick="applyChanges()">⚡ Apply Changes</button>
-    <button onclick="downloadAll()">💾 Download All</button>
-    <button onclick="clearAll()">🗑 Clear</button>
-    <span class="spacer"></span>
-    <span class="badge" id="fileCount">0 files</span>
-    <span class="badge" id="themeBadge">Light</span>
-</div>
 
-<div class="main-container">
-    <div class="sidebar">
-        <div class="sidebar-section">
-            <h3>🔤 Case Conversion</h3>
-            <div class="option-grid">
-                <div class="option-card">
-                    <strong>Lowercase</strong>
-                    <small>Convert selected parts to lowercase.</small>
-                </div>
-                <div class="option-card">
-                    <strong>Uppercase</strong>
-                    <small>Convert selected parts to uppercase.</small>
-                </div>
-            </div>
-            <label>Apply casing to</label>
-            <div class="checkbox-group">
-                <input type="checkbox" id="nameCase" checked onchange="refreshPreview()">
-                <label for="nameCase">File name</label>
-            </div>
-            <div class="checkbox-group">
-                <input type="checkbox" id="extensionCase" checked onchange="refreshPreview()">
-                <label for="extensionCase">File extension</label>
-            </div>
-            <label for="caseMode">Case mode</label>
-            <select id="caseMode" onchange="refreshPreview()">
-                <option value="lower">lowercase</option>
-                <option value="upper">UPPERCASE</option>
-            </select>
-            <div class="help">Check either or both boxes. With both enabled, the complete filename becomes lowercase or uppercase while the file's contents remain unchanged.</div>
-        </div>
-
-        <div class="sidebar-section">
-            <h3>✏️ Rename Rules</h3>
-            <label for="prefix">Add prefix</label>
-            <input type="text" id="prefix" placeholder="e.g. project_">
-            <label for="suffix">Add suffix</label>
-            <input type="text" id="suffix" placeholder="e.g. _final">
-            <label for="findText">Find text</label>
-            <input type="text" id="findText" placeholder="Text to replace">
-            <label for="replaceText">Replace with</label>
-            <input type="text" id="replaceText" placeholder="Replacement">
-            <div class="checkbox-group">
-                <input type="checkbox" id="trimWhitespace" checked>
-                <label for="trimWhitespace">Trim surrounding whitespace</label>
-            </div>
-            <div class="help">These rules are applied to the base filename, not the extension.</div>
-        </div>
-
-        <div class="sidebar-section">
-            <h3>📁 Batch Options</h3>
-            <div class="checkbox-group">
-                <input type="checkbox" id="includeSubfolders" checked>
-                <label for="includeSubfolders">Include subfolders</label>
-            </div>
-            <div class="checkbox-group">
-                <input type="checkbox" id="preserveStructure" checked>
-                <label for="preserveStructure">Preserve folder structure on download</label>
-            </div>
-            <div class="checkbox-group">
-                <input type="checkbox" id="avoidCollisions" checked>
-                <label for="avoidCollisions">Avoid duplicate output names</label>
-            </div>
-        </div>
-
-        <div class="sidebar-section">
-            <h3>🛡️ File Operations</h3>
-            <div class="checkbox-group">
-                <input type="checkbox" id="directRename" checked>
-                <label for="directRename">Try direct rename when supported</label>
-            </div>
-            <div class="help">Direct renaming requires a browser that exposes the File System Access API and a folder opened through its folder picker. Otherwise FileForge creates renamed copies for download.</div>
-        </div>
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <button onclick="toggleTheme()" title="Toggle dark/light mode">🌓 Theme</button>
+        <span class="sep"></span>
+        <button onclick="addFiles()">📁 Add Files</button>
+        <button onclick="addFolder()">📂 Add Folder</button>
+        <span class="sep"></span>
+        <button class="accent" onclick="convertAll()">⚡ Convert All</button>
+        <button onclick="downloadAll()">💾 Download All</button>
+        <button onclick="clearAll()">🗑 Clear</button>
+        <span class="spacer"></span>
+        <span class="badge" id="fileCount">0 files</span>
+        <span class="badge" id="themeBadge">Light</span>
     </div>
 
-    <div class="content-area">
-        <div class="drop-zone" id="dropZone">
-            <div class="drop-zone-icon">📄</div>
-            <div class="drop-zone-text">Drop files here or click to browse</div>
-            <button type="button" onclick="addFiles()" style="margin-top:12px">📁 Open File Explorer</button>
-            <div class="drop-zone-subtext">All file types are accepted. FileForge never changes file contents.</div>
-            <div class="file-list" id="fileList"></div>
-        </div>
-        <div class="batch-progress">
-            <span id="batchProgressText">0 / 0</span>
-            <div class="batch-progress-track"><div class="batch-progress-fill" id="batchProgressFill"></div></div>
-        </div>
-        <div class="output-area" id="outputArea"><span class="output-line info">Ready. Add files to begin.</span></div>
+    <!-- Main -->
+    <div class="main-container">
+        <!-- Sidebar Config -->
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-section">
+    <h3>🔤 Rename Mode</h3>
+    <label for="caseMode">Letter Case</label>
+    <select id="caseMode">
+        <option value="lower">lowercase</option>
+        <option value="upper">UPPERCASE</option>
+    </select>
+
+    <div class="checkbox-group">
+        <input type="checkbox" id="nameCase" checked>
+        <label for="nameCase">Change file name</label>
+    </div>
+
+    <div class="checkbox-group">
+        <input type="checkbox" id="extensionCase" checked>
+        <label for="extensionCase">Change extension</label>
     </div>
 </div>
 
-<input type="file" id="fileInput" multiple class="hidden" onchange="handleFileSelect(event)">
-<input type="file" id="folderInput" webkitdirectory directory multiple class="hidden" onchange="handleFileSelect(event)">
+<div class="sidebar-section">
+    <h3>🧩 Extension Replacement</h3>
+    <label for="forceExtension">Replace extension with</label>
+    <input id="forceExtension" type="text" placeholder="jpeg">
+    <div class="checkbox-group">
+        <input type="checkbox" id="useForcedExtension">
+        <label for="useForcedExtension">Enable extension replacement</label>
+    </div>
+</div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+<div class="sidebar-section">
+    <h3>🔤 Case Conversion</h3>
+
+    <label for="caseMode">Case Mode</label>
+    <select id="caseMode">
+        <option value="lower">lowercase</option>
+        <option value="upper">UPPERCASE</option>
+    </select>
+
+    <div class="checkbox-group">
+        <input type="checkbox" id="nameCase" checked>
+        <label for="nameCase">Change file name</label>
+    </div>
+
+    <div class="checkbox-group">
+        <input type="checkbox" id="extensionCase" checked>
+        <label for="extensionCase">Change extension</label>
+    </div>
+</div>
+
+<div class="sidebar-section">
+    <h3>🧩 Extension Tools</h3>
+
+    <label for="forceExtension">Replace extension</label>
+    <input id="forceExtension" type="text" placeholder="example: jpeg">
+
+    <div class="checkbox-group">
+        <input type="checkbox" id="useForcedExtension">
+        <label for="useForcedExtension">Enable extension replacement</label>
+    </div>
+</div>
+
+<div class="sidebar-section">
+    <h3>✏️ Rename Tools</h3>
+
+    <label for="prefix">Prefix</label>
+    <input id="prefix" type="text" placeholder="optional">
+
+    <label for="suffix">Suffix</label>
+    <input id="suffix" type="text" placeholder="optional">
+
+    <label for="findText">Find</label>
+    <input id="findText" type="text" placeholder="optional">
+
+    <label for="replaceText">Replace</label>
+    <input id="replaceText" type="text" placeholder="optional">
+</div>
+
+<div class="sidebar-section">
+                <h3>📁 Batch Options</h3>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="includeSubfolders" checked>
+                    <label for="includeSubfolders">Include subfolders</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="preserveStructure">
+                    <label for="preserveStructure">Preserve folder structure on download</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="overwriteExisting" checked>
+                    <label for="overwriteExisting">Overwrite if output exists</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content-area">
+            <div class="drop-zone" id="dropZone">
+                <div class="drop-zone-icon">📄</div>
+                <div class="drop-zone-text">Drop files here</div>
+<button class="browse-btn" type="button" onclick="openFilePicker(event)">📁 Open File Explorer</button>
+                <div class="drop-zone-subtext">All file types supported</div>
+                <div class="drop-zone-subtext">🔒 Files are processed locally in your browser</div>
+                <div class="file-list" id="fileList"></div>
+            </div>
+            <div class="batch-progress" id="batchProgressWrap">
+                <span id="batchProgressText">0 / 0</span>
+                <div class="batch-progress-track"><div class="batch-progress-fill" id="batchProgressFill"></div></div>
+            </div>
+            <div class="error-area hidden" id="errorArea" role="alert" aria-live="polite"></div>
+        </div>
+    </div>
+
+    <div class="preview-card">
+                    <h3>Output</h3>
+                    <div class="preview-image-wrap"><img id="previewOutput" alt="Output preview"></div>
+                    <div class="preview-meta" id="previewOutputMeta"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden file inputs -->
+    <input type="file" id="fileInput" multiple accept="image/*,.png,.jpg,.jpeg,.webp,.gif,.bmp,.tiff,.svg" class="hidden" onchange="handleFileSelect(event)">
+    <input type="file" id="folderInput" webkitdirectory directory multiple class="hidden" onchange="handleFileSelect(event)">
+
+    <!-- JSZip + FileSaver from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js">
+    </script>
+
+    <script>
+        // ── State ──────────────────────
+        const files = []; // { name, file, status, outputBlob, outputName, relativePath, progress }
+        let currentBatchDone = 0;
+        let darkMode = localStorage.getItem('utils-theme') === 'dark';
+
+        // ── DOM refs ──────────────────
+        const dropZone = document.getElementById('dropZone');
+        const fileList = document.getElementById('fileList');
+        const errorArea = document.getElementById('errorArea');
+        const fileCountBadge = document.getElementById('fileCount');
+        const themeBadge = document.getElementById('themeBadge');
+        const targetFormat = document.getElementById('targetFormat');
+        const icoSizesSection = document.getElementById('icoSizesSection');
+        const qualitySlider = document.getElementById('qualitySlider');
+        const qualityVal = document.getElementById('qualityVal');
+        const maxWidth = document.getElementById('maxWidth');
+        const maxHeight = document.getElementById('maxHeight');
+        const fileSizeLimit = document.getElementById('fileSizeLimit');
+        const includeSubfolders = document.getElementById('includeSubfolders');
+        const preserveStructure = document.getElementById('preserveStructure');
+        const overwriteExisting = document.getElementById('overwriteExisting');
+        const presetSelect = document.getElementById('presetSelect');
+        const fitMode = document.getElementById('fitMode');
+        const dontEnlarge = document.getElementById('dontEnlarge');
+        const rotate = document.getElementById('rotate');
+        const flipH = document.getElementById('flipH');
+        const flipV = document.getElementById('flipV');
+        const cropWidth = document.getElementById('cropWidth');
+        const cropHeight = document.getElementById('cropHeight');
+        const batchProgressText = document.getElementById('batchProgressText');
+        const batchProgressFill = document.getElementById('batchProgressFill');
+        const previewOverlay = document.getElementById('previewOverlay');
+
+        // ── Theme ─────────────────────
+        function applyTheme() {
+            document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+            themeBadge.textContent = darkMode ? 'Dark' : 'Light';
+        }
+
+        function toggleTheme() {
+            darkMode = !darkMode;
+            localStorage.setItem('utils-theme', darkMode ? 'dark' : 'light');
+            applyTheme();
+        }
+
+        function saveSettings() {
+            const settings = {
+                format: targetFormat.value,
+                quality: qualitySlider.value,
+                maxWidth: maxWidth.value,
+                maxHeight: maxHeight.value,
+                fitMode: fitMode.value,
+                dontEnlarge: dontEnlarge.checked,
+                fileSizeLimit: fileSizeLimit.value,
+                rotate: rotate.value,
+                flipH: flipH.checked,
+                flipV: flipV.checked,
+                cropWidth: cropWidth.value,
+                cropHeight: cropHeight.value,
+                includeSubfolders: includeSubfolders.checked,
+                preserveStructure: preserveStructure.checked,
+                overwriteExisting: overwriteExisting.checked
+            };
+            localStorage.setItem('imageforge-settings', JSON.stringify(settings));
+        }
+
+        function loadSettings() {
+            try {
+                const saved = JSON.parse(localStorage.getItem('imageforge-settings') || 'null');
+                if (!saved) return;
+                if (saved.format) targetFormat.value = saved.format;
+                if (saved.quality) qualitySlider.value = saved.quality;
+                if (saved.maxWidth != null) maxWidth.value = saved.maxWidth;
+                if (saved.maxHeight != null) maxHeight.value = saved.maxHeight;
+                if (saved.fitMode) fitMode.value = saved.fitMode;
+                if (saved.dontEnlarge != null) dontEnlarge.checked = saved.dontEnlarge;
+                if (saved.fileSizeLimit != null) fileSizeLimit.value = saved.fileSizeLimit;
+                if (saved.rotate != null) rotate.value = saved.rotate;
+                if (saved.flipH != null) flipH.checked = saved.flipH;
+                if (saved.flipV != null) flipV.checked = saved.flipV;
+                if (saved.cropWidth != null) cropWidth.value = saved.cropWidth;
+                if (saved.cropHeight != null) cropHeight.value = saved.cropHeight;
+                if (saved.includeSubfolders != null) includeSubfolders.checked = saved.includeSubfolders;
+                if (saved.preserveStructure != null) preserveStructure.checked = saved.preserveStructure;
+                if (saved.overwriteExisting != null) overwriteExisting.checked = saved.overwriteExisting;
+            } catch (_) {}
+        }
+
+        function markCustom() {
+            if (presetSelect) presetSelect.value = 'custom';
+            saveSettings();
+        }
+
+        function applyPreset(name) {
+            const presets = {
+                web: { format:'webp', quality:82, maxWidth:1920, maxHeight:1920, fitMode:'contain', limit:0 },
+                email: { format:'jpg', quality:76, maxWidth:1600, maxHeight:1600, fitMode:'contain', limit:1000 },
+                social: { format:'jpg', quality:88, maxWidth:2048, maxHeight:2048, fitMode:'contain', limit:0 },
+                quality: { format:'png', quality:100, maxWidth:0, maxHeight:0, fitMode:'contain', limit:0 },
+                small: { format:'webp', quality:68, maxWidth:1600, maxHeight:1600, fitMode:'contain', limit:500 }
+            };
+            const preset = presets[name];
+            if (!preset) { saveSettings(); return; }
+            targetFormat.value = preset.format;
+            qualitySlider.value = preset.quality;
+            maxWidth.value = preset.maxWidth;
+            maxHeight.value = preset.maxHeight;
+            fitMode.value = preset.fitMode;
+            fileSizeLimit.value = preset.limit;
+            updateQualityLabel();
+            onFormatChange();
+            saveSettings();
+        }
+
+        function updateQualityLabel() {
+            qualityVal.textContent = qualitySlider.value;
+        }
+
+        function onFormatChange() {
+            const fmt = targetFormat.value;
+            icoSizesSection.style.display = (fmt === 'ico') ? 'block' : 'none';
+            saveSettings();
+        }
+
+        // ── File handling ────────────
+        function openFilePicker(event) {
+            if (event) event.stopPropagation();
+            document.getElementById('fileInput').click();
+        }
+
+        function addFiles() {
+            document.getElementById('fileInput').click();
+        }
+
+        function addFolder() {
+            document.getElementById('folderInput').click();
+        }
+
+        function handleFileSelect(event) {
+            const newFiles = Array.from(event.target.files);
+            const isFolder = event.target.id === 'folderInput';
+
+            for (const f of newFiles) {
+                // Skip non-image files
+                if (!f.type.startsWith('image/') && !f.name.match(/\.(png|jpg|jpeg|webp|gif|bmp|tiff|tif|svg|ico|icns)$/i)) {
+                    continue;
+                }
+                // Build relative path for folder uploads
+                let relPath = '';
+                if (isFolder && f.webkitRelativePath) {
+                    const parts = f.webkitRelativePath.split('/');
+                    parts.pop(); // remove filename
+                    relPath = parts.join('/');
+                }
+                // Avoid duplicates
+                const key = relPath ? `${relPath}/${f.name}` : f.name;
+                if (files.find(x => (x.relativePath ? `${x.relativePath}/${x.name}` : x.name) === key)) {
+                    if (!overwriteExisting.checked) continue;
+                }
+                files.push({
+                    name: f.name,
+                    file: f,
+                    blob: null,
+                    status: 'pending',
+                    outputBlob: null,
+                    outputName: null,
+                    relativePath: relPath || '',
+                });
+            }
+            event.target.value = '';
+            renderFileList();
+        }
+
+        // ── Drag & Drop ──────────────
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('drag-over');
+        });
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('drag-over');
+        });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+            const dt = e.dataTransfer;
+            // Try to get files from the drop
+            if (dt.items) {
+                const entries = [];
+                for (let i = 0; i < dt.items.length; i++) {
+                    const item = dt.items[i];
+                    if (item.kind === 'file') {
+                        const entry = item.webkitGetAsEntry ? item.webkitGetAsEntry() : null;
+                        if (entry) {
+                            entries.push(entry);
+                        } else {
+                            // Fallback: use file directly
+                            const f = item.getAsFile();
+                            if (f) addSingleFile(f, '');
+                        }
+                    }
+                }
+                if (entries.length > 0) {
+                    processEntries(entries, '');
+                }
+            } else if (dt.files) {
+                for (const f of dt.files) {
+                    addSingleFile(f, '');
+                }
+            }
+        });
+
+        async function processEntries(entries, basePath) {
+            for (const entry of entries) {
+                if (entry.isFile) {
+                    const file = await getFileFromEntry(entry);
+                    addSingleFile(file, basePath);
+                } else if (entry.isDirectory) {
+                    if (!includeSubfolders.checked) continue;
+                    const dirReader = entry.createReader();
+                    const subEntries = await readAllEntries(dirReader);
+                    const newBase = basePath ? `${basePath}/${entry.name}` : entry.name;
+                    await processEntries(subEntries, newBase);
+                }
+            }
+        }
+
+        function readAllEntries(dirReader) {
+            return new Promise((resolve) => {
+                const all = [];
+                const readBatch = () => {
+                    dirReader.readEntries((entries) => {
+                        if (entries.length === 0) {
+                            resolve(all);
+                        } else {
+                            all.push(...entries);
+                            readBatch();
+                        }
+                    });
+                };
+                readBatch();
+            });
+        }
+
+        function getFileFromEntry(entry) {
+            return new Promise((resolve) => {
+                entry.file(resolve);
+            });
+        }
+
+        function addSingleFile(file, relativePath) {
+            if (!file.type.startsWith('image/') && !file.name.match(/\.(png|jpg|jpeg|webp|gif|bmp|tiff|tif|svg|ico|icns)$/i)) return;
+            const key = relativePath ? `${relativePath}/${file.name}` : file.name;
+            if (files.find(x => (x.relativePath ? `${x.relativePath}/${x.name}` : x.name) === key)) {
+                if (!overwriteExisting.checked) return;
+                // Remove existing
+                const idx = files.findIndex(x => (x.relativePath ? `${x.relativePath}/${x.name}` : x.name) === key);
+                if (idx >= 0) files.splice(idx, 1);
+            }
+            files.push({
+                name: file.name,
+                file: file,
+                blob: null,
+                status: 'pending',
+                outputBlob: null,
+                outputName: null,
+                relativePath: relativePath || '',
+            });
+            renderFileList();
+        }
+
+        function renderFileList() {
+            if (!files.length) {
+                fileList.innerHTML = '';
+                fileCountBadge.textContent = '0 files';
+                updateBatchProgress();
+                return;
+            }
+            fileList.innerHTML = files.map((f, i) => {
+                const statusClass = `status-${f.status}`;
+                const statusText = f.status === 'converting' ? 'Converting' : f.status.charAt(0).toUpperCase() + f.status.slice(1);
+                const sizeText = f.file ? formatBytes(f.file.size) : '';
+                const pathDisplay = f.relativePath ? `${f.relativePath}/` : '';
+                const thumb = f.file ? URL.createObjectURL(f.file) : '';
+                const progress = Math.max(0, Math.min(100, f.progress || 0));
+                const outputText = f.outputBlob ? `${formatBytes(f.outputBlob.size)} → ${f.outputName}` : `→ ${getOutputName(f.name)}`;
+                return `
+                    <div class="file-item">
+                        ${thumb ? `<img class="file-thumb" src="${thumb}" alt="">` : '<span class="file-icon">📄</span>'}
+                        <div class="file-info">
+                            <div class="file-name" title="${pathDisplay}${f.name}">${pathDisplay}${f.name}</div>
+                            <div class="file-meta">${sizeText} ${outputText}</div>
+                            ${f.status === 'converting' ? `<div class="progress-wrap"><div class="progress-bar" style="width:${progress}%"></div></div>` : ''}
+                        </div>
+                        <span class="file-status ${statusClass}">${statusText}</span>
+                        <div class="file-actions">
+                            ${f.status === 'done' ? `<button type="button" class="mini-btn" onclick="previewFile(${i}); event.stopPropagation()">👁 Preview</button>` : ''}
+                            <button type="button" class="mini-btn" onclick="removeFile(${i}); event.stopPropagation()" title="Remove">✕</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            // Revoke thumbnail URLs after a render pass is not possible while the DOM needs them; browser handles these short-lived URLs.
+            fileCountBadge.textContent = `${files.length} file${files.length !== 1 ? 's' : ''}`;
+            updateBatchProgress();
+        }
+
+        function updateBatchProgress() {
+            const total = files.length;
+            const done = files.filter(f => f.status === 'done' || f.status === 'error').length;
+            const percent = total ? Math.round(done / total * 100) : 0;
+            batchProgressText.textContent = `${done} / ${total}`;
+            batchProgressFill.style.width = `${percent}%`;
+        }
+
+        function previewFile(index) {
+            const f = files[index];
+            if (!f || !f.outputBlob) return;
+            const originalUrl = URL.createObjectURL(f.file);
+            const outputUrl = URL.createObjectURL(f.outputBlob);
+            document.getElementById('previewTitle').textContent = f.outputName || f.name;
+            document.getElementById('previewOriginal').src = originalUrl;
+            document.getElementById('previewOutput').src = outputUrl;
+            document.getElementById('previewOriginalMeta').textContent = `${formatBytes(f.file.size)} · ${f.file.type || 'image'} · ${f.file.name}`;
+            document.getElementById('previewOutputMeta').textContent = `${formatBytes(f.outputBlob.size)} · ${targetFormat.value.toUpperCase()} · ${f.outputName}`;
+            previewOverlay.dataset.originalUrl = originalUrl;
+            previewOverlay.dataset.outputUrl = outputUrl;
+            previewOverlay.classList.remove('hidden');
+        }
+
+        function closePreview() {
+            const originalUrl = previewOverlay.dataset.originalUrl;
+            const outputUrl = previewOverlay.dataset.outputUrl;
+            if (originalUrl) URL.revokeObjectURL(originalUrl);
+            if (outputUrl) URL.revokeObjectURL(outputUrl);
+            previewOverlay.classList.add('hidden');
+            previewOverlay.dataset.originalUrl = '';
+            previewOverlay.dataset.outputUrl = '';
+        }
+
+        function removeFile(index) {
+            files.splice(index, 1);
+            renderFileList();
+        }
+
+        function clearAll() {
+            files.length = 0;
+            renderFileList();
+            clearErrors();
+        }
+
+        function getOutputName(inputName) {
+            const dotIndex = inputName.lastIndexOf('.');
+            const baseName = dotIndex >= 0 ? inputName.substring(0, dotIndex) : inputName;
+            const fmt = targetFormat.value;
+            return `${baseName}.${fmt}`;
+        }
+
+        function formatBytes(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / 1048576).toFixed(2) + ' MB';
+        }
+
+        function log(msg, type = 'info') {
+            if (type !== 'error') return;
+            const line = document.createElement('div');
+            line.className = 'error-line';
+            line.textContent = `⚠ ${msg}`;
+            errorArea.appendChild(line);
+            errorArea.classList.remove('hidden');
+            errorArea.scrollTop = errorArea.scrollHeight;
+        }
+
+        function clearErrors() {
+            errorArea.innerHTML = '';
+            errorArea.classList.add('hidden');
+        }
+
+        // ── Conversion Engine ─────────
+        async function convertAll() {
+            if (files.length === 0) {
+                log('No files to convert.', 'error');
+                return;
+            }
+
+            const fmt = targetFormat.value;
+            const quality = parseInt(qualitySlider.value) / 100;
+            const mw = parseInt(maxWidth.value) || 0;
+            const mh = parseInt(maxHeight.value) || 0;
+            const sizeLimitKB = parseInt(fileSizeLimit.value) || 0;
+            const icoSizes = getIcoSizes();
+            saveSettings();
+            currentBatchDone = 0;
+            files.forEach(f => { f.progress = 0; });
+            updateBatchProgress();
+
+            clearErrors();
+
+            for (let i = 0; i < files.length; i++) {
+                const f = files[i];
+                f.status = 'converting';
+                f.progress = 10;
+                renderFileList();
+
+                try {
+                    const img = await loadImage(f.file);
+                    f.progress = 25;
+                    renderFileList();
+                    let canvas = imgToCanvas(img, mw, mh);
+                    f.progress = 45;
+                    renderFileList();
+
+                    let outputBlob;
+                    if (fmt === 'ico') {
+                        outputBlob = await canvasToIco(canvas, icoSizes);
+                    } else if (fmt === 'icns') {
+                        outputBlob = await canvasToIcns(canvas);
+                    } else if (fmt === 'pdf') {
+                        outputBlob = await canvasToPdf(canvas, quality);
+                    } else if (fmt === 'svg') {
+                        outputBlob = await canvasToSvg(canvas);
+                    } else {
+                        outputBlob = await canvasToRaster(canvas, fmt, quality);
+                    }
+
+                    // Size limit enforcement (try reducing quality for raster formats)
+                    if (sizeLimitKB > 0 && outputBlob.size > sizeLimitKB * 1024) {
+                        if (['png', 'jpg', 'jpeg', 'webp'].includes(fmt)) {
+                            let q = quality;
+                            for (let attempt = 0; attempt < 10 && outputBlob.size > sizeLimitKB * 1024; attempt++) {
+                                q = Math.max(0.05, q - 0.1);
+                                outputBlob = await canvasToRaster(canvas, fmt, q);
+                            }
+                        }
+                        if (outputBlob.size > sizeLimitKB * 1024) {
+                            log(`⚠ ${f.name}: output is ${formatBytes(outputBlob.size)}, exceeds ${sizeLimitKB} KB limit.`, 'error');
+                        }
+                    }
+
+                    f.outputBlob = outputBlob;
+                    f.outputName = getOutputName(f.name);
+                    f.progress = 100;
+                    f.status = 'done';
+                    // Successful conversions remain silent; only errors are shown.
+                } catch (err) {
+                    f.status = 'error';
+                    f.progress = 100;
+                    log(`✗ ${f.name}: ${err.message}`, 'error');
+                }
+                currentBatchDone++;
+                renderFileList();
+
+                // Small delay to allow UI update
+                await sleep(30);
+            }
+
+            // Conversion complete; no bottom status message is shown.
+        }
+
+        function loadImage(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => resolve(img);
+                    img.onerror = () => reject(new Error('Failed to load image'));
+                    img.src = e.target.result;
+                };
+                reader.onerror = () => reject(new Error('Failed to read file'));
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function imgToCanvas(img, maxW, maxH) {
+            let sourceW = img.naturalWidth;
+            let sourceH = img.naturalHeight;
+            const cropW = parseInt(cropWidth.value) || 0;
+            const cropH = parseInt(cropHeight.value) || 0;
+            const angle = parseInt(rotate.value) || 0;
+            const flipHorizontal = flipH.checked;
+            const flipVertical = flipV.checked;
+
+            // Optional centered crop first.
+            if (cropW > 0 && cropH > 0) {
+                sourceW = Math.min(sourceW, cropW);
+                sourceH = Math.min(sourceH, cropH);
+            }
+
+            let targetW = sourceW;
+            let targetH = sourceH;
+            const fit = fitMode.value;
+            const limitW = maxW > 0 ? maxW : sourceW;
+            const limitH = maxH > 0 ? maxH : sourceH;
+
+            if (fit === 'stretch' && maxW > 0 && maxH > 0) {
+                targetW = maxW; targetH = maxH;
+            } else if (maxW > 0 || maxH > 0) {
+                const scale = fit === 'cover'
+                    ? Math.max(limitW / sourceW, limitH / sourceH)
+                    : Math.min(limitW / sourceW, limitH / sourceH);
+                const effectiveScale = dontEnlarge.checked ? Math.min(1, scale) : scale;
+                targetW = Math.max(1, Math.round(sourceW * effectiveScale));
+                targetH = Math.max(1, Math.round(sourceH * effectiveScale));
+                if (fit === 'cover' && maxW > 0 && maxH > 0) {
+                    targetW = maxW; targetH = maxH;
+                }
+            }
+
+            if (dontEnlarge.checked) {
+                targetW = Math.min(targetW, sourceW);
+                targetH = Math.min(targetH, sourceH);
+            }
+
+            const quarterTurn = angle === 90 || angle === 270;
+            const canvas = document.createElement('canvas');
+            canvas.width = quarterTurn ? targetH : targetW;
+            canvas.height = quarterTurn ? targetW : targetH;
+            const ctx = canvas.getContext('2d');
+
+            ctx.save();
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            ctx.rotate(angle * Math.PI / 180);
+            ctx.scale(flipHorizontal ? -1 : 1, flipVertical ? -1 : 1);
+
+            const drawW = targetW;
+            const drawH = targetH;
+            let sx = 0, sy = 0, sw = img.naturalWidth, sh = img.naturalHeight;
+            if (cropW > 0 && cropH > 0) {
+                sw = Math.min(cropW, img.naturalWidth);
+                sh = Math.min(cropH, img.naturalHeight);
+                sx = Math.max(0, (img.naturalWidth - sw) / 2);
+                sy = Math.max(0, (img.naturalHeight - sh) / 2);
+            }
+            ctx.drawImage(img, sx, sy, sw, sh, -drawW / 2, -drawH / 2, drawW, drawH);
+            ctx.restore();
+            return canvas;
+        }
+
+        function canvasToRaster(canvas, format, quality) {
+            return new Promise((resolve) => {
+                const mimeMap = {
+                    'png': 'image/png',
+                    'jpg': 'image/jpeg',
+                    'jpeg': 'image/jpeg',
+                    'webp': 'image/webp',
+                    'gif': 'image/gif',
+                    'bmp': 'image/bmp',
+                    'tiff': 'image/tiff',
+                };
+                const mime = mimeMap[format] || 'image/png';
+                canvas.toBlob((blob) => resolve(blob), mime, quality);
+            });
+        }
+
+        function getIcoSizes() {
+            const sizeIds = ['16', '24', '32', '48', '64', '128', '256'];
+            const sizes = [];
+            for (const id of sizeIds) {
+                const cb = document.getElementById('size' + id);
+                if (cb && cb.checked) sizes.push(parseInt(id));
+            }
+            return sizes.length > 0 ? sizes : [16, 24, 32, 48]; // fallback
+        }
+
+        async function canvasToIco(canvas, sizes) {
+            // ICO format: we create multiple BMP (or PNG) entries and pack them into an ICO container.
+            // Modern ICO supports PNG entries. We'll use PNG for better compression.
+            const headerSize = 6;
+            const dirEntrySize = 16;
+            const numImages = sizes.length;
+            const dirSize = headerSize + numImages * dirEntrySize;
+
+            const imageDatas = [];
+            const dirEntries = [];
+            let currentOffset = dirSize;
+
+            for (const size of sizes) {
+                // Create resized version
+                const resized = document.createElement('canvas');
+                resized.width = size;
+                resized.height = size;
+                const ctx = resized.getContext('2d');
+                ctx.drawImage(canvas, 0, 0, size, size);
+
+                const blob = await new Promise(r => resized.toBlob(r, 'image/png'));
+                const arrayBuffer = await blob.arrayBuffer();
+                const bytes = new Uint8Array(arrayBuffer);
+
+                imageDatas.push(bytes);
+
+                // Directory entry
+                const entry = new ArrayBuffer(dirEntrySize);
+                const dv = new DataView(entry);
+                dv.setUint8(0, size >= 256 ? 0 : size); // width (0 means 256)
+                dv.setUint8(1, size >= 256 ? 0 : size); // height (0 means 256)
+                dv.setUint8(2, 0); // palette
+                dv.setUint8(3, 0); // reserved
+                dv.setUint16(4, 1, true); // planes
+                dv.setUint16(6, 32, true); // bpp
+                dv.setUint32(8, bytes.length, true); // size
+                dv.setUint32(12, currentOffset, true); // offset
+                dirEntries.push(new Uint8Array(entry));
+
+                currentOffset += bytes.length;
+            }
+
+            // Assemble ICO
+            const totalSize = currentOffset;
+            const icoBuffer = new ArrayBuffer(totalSize);
+            const icoView = new Uint8Array(icoBuffer);
+
+            // Header
+            icoView[0] = 0; // reserved
+            icoView[1] = 0;
+            icoView[2] = 1; // type: ICO
+            icoView[3] = 0;
+            icoView[4] = numImages & 0xFF;
+            icoView[5] = (numImages >> 8) & 0xFF;
+
+            let pos = headerSize;
+            for (const entry of dirEntries) {
+                icoView.set(entry, pos);
+                pos += entry.length;
+            }
+            for (const data of imageDatas) {
+                icoView.set(data, pos);
+                pos += data.length;
+            }
+
+            return new Blob([icoBuffer], { type: 'image/x-icon' });
+        }
+
+        async function canvasToIcns(canvas) {
+            // ICNS: simplest approach — wrap a single PNG in ICNS container for common sizes
+            const sizes = [16, 32, 48, 128, 256, 512];
+            const iconTypeMap = {
+                16: 'ic04',
+                32: 'ic05',
+                48: 'ic06',
+                128: 'ic07',
+                256: 'ic08',
+                512: 'ic09',
+            };
+
+            const parts = [];
+            for (const size of sizes) {
+                if (size > Math.max(canvas.width, canvas.height)) continue;
+                const resized = document.createElement('canvas');
+                resized.width = size;
+                resized.height = size;
+                const ctx = resized.getContext('2d');
+                ctx.drawImage(canvas, 0, 0, size, size);
+                const blob = await new Promise(r => resized.toBlob(r, 'image/png'));
+                const ab = await blob.arrayBuffer();
+                const bytes = new Uint8Array(ab);
+
+                const typeStr = iconTypeMap[size] || 'ic08';
+                const typeBytes = new TextEncoder().encode(typeStr);
+                const entrySize = 8 + bytes.length;
+                const entry = new ArrayBuffer(entrySize);
+                const dv = new DataView(entry);
+                for (let i = 0; i < 4; i++) dv.setUint8(i, typeBytes[i]);
+                dv.setUint32(4, entrySize, false);
+                const entryArr = new Uint8Array(entry);
+                entryArr.set(bytes, 8);
+                parts.push(entryArr);
+            }
+
+            // Calculate total size
+            let totalSize = 8; // header
+            for (const p of parts) totalSize += p.length;
+            const buffer = new ArrayBuffer(totalSize);
+            const view = new Uint8Array(buffer);
+            const headerType = new TextEncoder().encode('icns');
+            view.set(headerType, 0);
+            const dvHeader = new DataView(buffer);
+            dvHeader.setUint32(4, totalSize, false);
+
+            let offset = 8;
+            for (const p of parts) {
+                view.set(p, offset);
+                offset += p.length;
+            }
+
+            return new Blob([buffer], { type: 'image/icns' });
+        }
+
+        async function canvasToPdf(canvas, quality) {
+            // Embed image as JPEG in a minimal PDF
+            const jpegBlob = await canvasToRaster(canvas, 'jpg', quality);
+            const jpegAb = await jpegBlob.arrayBuffer();
+            const jpegBytes = new Uint8Array(jpegAb);
+
+            const w = canvas.width;
+            const h = canvas.height;
+
+            // Minimal PDF with embedded JPEG
+            const pdfLines = [
+                '%PDF-1.4',
+                `1 0 obj <</Type /Catalog /Pages 2 0 R>> endobj`,
+                `2 0 obj <</Type /Pages /Kids [3 0 R] /Count 1>> endobj`,
+                `3 0 obj <</Type /Page /Parent 2 0 R /MediaBox [0 0 ${w} ${h}] /Contents 4 0 R /Resources <</XObject <</Im0 5 0 R>>>>>> endobj`,
+                `4 0 obj <</Length 44>> stream`,
+                `q ${w} 0 0 ${h} 0 0 cm /Im0 Do Q`,
+                `endstream endobj`,
+                `5 0 obj <</Type /XObject /Subtype /Image /Width ${w} /Height ${h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpegBytes.length}>> stream`,
+            ];
+
+            const header = pdfLines.join('\n') + '\n';
+            const footer = '\nendstream\nendobj\nxref\n0 6\n0000000000 65535 f \n0000000009 00000 n \n0000000058 00000 n \n0000000115 00000 n \n0000000254 00000 n \n0000000347 00000 n \ntrailer <</Size 6 /Root 1 0 R>>\nstartxref\n' +
+                (header.length + jpegBytes.length + 1) + '\n%%EOF';
+
+            const encoder = new TextEncoder();
+            const headerBytes = encoder.encode(header);
+            const footerBytes = encoder.encode(footer);
+            const total = new Uint8Array(headerBytes.length + jpegBytes.length + footerBytes.length);
+            total.set(headerBytes, 0);
+            total.set(jpegBytes, headerBytes.length);
+            total.set(footerBytes, headerBytes.length + jpegBytes.length);
+
+            return new Blob([total], { type: 'application/pdf' });
+        }
+
+        async function canvasToSvg(canvas) {
+            const dataUrl = canvas.toDataURL('image/png');
+            const w = canvas.width;
+            const h = canvas.height;
+            const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">
+  <image href="${dataUrl}" width="${w}" height="${h}"/>
+</svg>`;
+            return new Blob([svg], { type: 'image/svg+xml' });
+        }
+
+        // ── Download ──────────────────
+        async function downloadAll() {
+            const doneFiles = files.filter(f => f.status === 'done' && f.outputBlob);
+            if (doneFiles.length === 0) {
+                log('No converted files to download.', 'error');
+                return;
+            }
+
+            if (doneFiles.length === 1 && !doneFiles[0].relativePath) {
+                // Single file — direct download
+                const f = doneFiles[0];
+                saveAs(f.outputBlob, f.outputName);
+                log(`Downloaded: ${f.outputName}`, 'success');
+                return;
+            }
+
+            // Multiple files or folder structure — use ZIP
+            log(`Packaging ${doneFiles.length} file(s) into ZIP...`, 'info');
+            const zip = new JSZip();
+
+            for (const f of doneFiles) {
+                let zipPath = f.outputName;
+                if (preserveStructure.checked && f.relativePath) {
+                    zipPath = f.relativePath + '/' + f.outputName;
+                }
+                // Handle duplicate names
+                let finalPath = zipPath;
+                let counter = 1;
+                while (zip.file(finalPath)) {
+                    const parts = zipPath.split('.');
+                    const ext = parts.pop();
+                    finalPath = parts.join('.') + `_${counter}.` + ext;
+                    counter++;
+                }
+                const ab = await f.outputBlob.arrayBuffer();
+                zip.file(finalPath, ab);
+            }
+
+            const zipBlob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } });
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-').substring(0, 19);
+            saveAs(zipBlob, `imageforge-export-${timestamp}.zip`);
+            log(`ZIP downloaded with ${doneFiles.length} file(s).`, 'success');
+        }
+
+        function sleep(ms) {
+            return new Promise(r => setTimeout(r, ms));
+        }
+
+        // ── Init ──────────────────────
+        applyTheme();
+        onFormatChange();
+        renderFileList();
+    </script>
+
 <script>
-const files = [];
-let darkMode = localStorage.getItem('utils-theme') === 'dark';
-const $ = id => document.getElementById(id);
-const dropZone = $('dropZone'), fileList = $('fileList'), outputArea = $('outputArea');
-const fileCountBadge = $('fileCount'), themeBadge = $('themeBadge');
-const progressText = $('batchProgressText'), progressFill = $('batchProgressFill');
-
-function applyTheme(){
-    document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
-    themeBadge.textContent = darkMode ? 'Dark' : 'Light';
-}
-function toggleTheme(){
-    darkMode = !darkMode;
-    localStorage.setItem('utils-theme', darkMode ? 'dark' : 'light');
-    applyTheme();
-}
-function addFiles(){ $('fileInput').click(); }
-function addFolder(){ $('folderInput').click(); }
-
-function getNameParts(name){
-    const lastDot = name.lastIndexOf('.');
-    if(lastDot <= 0) return {base:name, ext:''};
-    return {base:name.slice(0,lastDot), ext:name.slice(lastDot)};
-}
-function transformBase(base){
-    const trim = $('trimWhitespace').checked;
-    let out = trim ? base.trim() : base;
-    const find = $('findText').value;
-    if(find) out = out.split(find).join($('replaceText').value);
-    out = $('prefix').value + out + $('suffix').value;
-    return $('caseMode').value === 'upper' && $('nameCase').checked ? out.toUpperCase()
-         : $('caseMode').value === 'lower' && $('nameCase').checked ? out.toLowerCase() : out;
-}
-function transformExtension(ext){
-    if(!ext || !$('extensionCase').checked) return ext;
-    return $('caseMode').value === 'upper' ? ext.toUpperCase() : ext.toLowerCase();
+function fileForgeParts(name){
+    const dot=name.lastIndexOf('.');
+    return dot>0 ? {base:name.slice(0,dot),ext:name.slice(dot+1)} : {base:name,ext:''};
 }
 function getOutputName(name){
-    const {base,ext} = getNameParts(name);
-    return transformBase(base) + transformExtension(ext);
-}
-function escapeHTML(s){
-    const d=document.createElement('div'); d.textContent=s; return d.innerHTML;
-}
-function keyFor(f){ return (f.relativePath ? f.relativePath + '/' : '') + f.name; }
+    const p=fileForgeParts(name);
+    const mode=document.getElementById('caseMode')?.value || 'lower';
 
-function addFile(file, relativePath=''){
-    const key = relativePath ? relativePath + '/' + file.name : file.name;
-    if(files.some(f => keyFor(f) === key)) return;
-    files.push({name:file.name,file,status:'pending',outputName:null,relativePath:relativePath || '',outputBlob:null,error:null,directHandle:null});
-}
+    let base=p.base;
+    let ext=p.ext;
 
-function handleFileSelect(event){
-    const isFolder = event.target.id === 'folderInput';
-    for(const f of Array.from(event.target.files)){
-        let rel = '';
-        if(isFolder && f.webkitRelativePath){
-            const parts = f.webkitRelativePath.split('/');
-            parts.pop();
-            rel = parts.join('/');
-        }
-        addFile(f, rel);
+    if(document.getElementById('nameCase')?.checked)
+        base=mode==='upper'?base.toUpperCase():base.toLowerCase();
+
+    if(document.getElementById('useForcedExtension')?.checked){
+        const forced=document.getElementById('forceExtension')?.value.trim();
+        if(forced) ext=forced.replace('.','');
     }
-    event.target.value = '';
-    renderFileList();
+
+    if(document.getElementById('extensionCase')?.checked)
+        ext=mode==='upper'?ext.toUpperCase():ext.toLowerCase();
+
+    return ext ? base+'.'+ext : base;
 }
 
-dropZone.addEventListener('click', e => {
-    if(e.target.closest('button') || e.target.closest('.file-item')) return;
-    addFiles();
-});
-dropZone.addEventListener('dragover', e => {e.preventDefault();dropZone.classList.add('drag-over')});
-dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
-dropZone.addEventListener('drop', async e => {
-    e.preventDefault(); dropZone.classList.remove('drag-over');
-    if(e.dataTransfer.items){
-        const entries=[];
-        for(const item of e.dataTransfer.items){
-            if(item.kind !== 'file') continue;
-            const entry=item.webkitGetAsEntry ? item.webkitGetAsEntry() : null;
-            if(entry) entries.push(entry); else {const f=item.getAsFile(); if(f) addFile(f,'');}
-        }
-        for(const entry of entries) await processEntry(entry,'');
-    }else{
-        for(const f of e.dataTransfer.files) addFile(f,'');
-    }
-    renderFileList();
-});
-async function processEntry(entry, basePath){
-    if(entry.isFile){
-        const f=await new Promise(r=>entry.file(r));
-        addFile(f,basePath);
-    }else if(entry.isDirectory && $('includeSubfolders').checked){
-        const reader=entry.createReader();
-        const entries=await readAllEntries(reader);
-        const next=basePath ? basePath+'/'+entry.name : entry.name;
-        for(const child of entries) await processEntry(child,next);
-    }
-}
-function readAllEntries(reader){
-    return new Promise(resolve=>{
-        const all=[];
-        const read=()=>reader.readEntries(batch=>{
-            if(!batch.length) return resolve(all);
-            all.push(...batch); read();
-        });
-        read();
+function convertAll(){
+    files.forEach(f=>{
+        f.outputName=getOutputName(f.name);
+        f.outputBlob=f.file.slice(0,f.file.size,f.file.type);
+        f.status='done';
     });
-}
-
-function refreshPreview(){
-    files.forEach(f => { f.outputName=getOutputName(f.name); if(f.status!=='done') f.status='pending'; });
     renderFileList();
 }
-['caseMode','nameCase','extensionCase','prefix','suffix','findText','replaceText','trimWhitespace'].forEach(id=>{
-    $(id).addEventListener('input', refreshPreview);
-    $(id).addEventListener('change', refreshPreview);
+
+['caseMode','nameCase','extensionCase','forceExtension','useForcedExtension']
+.forEach(id=>{
+    const e=document.getElementById(id);
+    if(e) e.addEventListener('change',renderFileList);
+    if(e) e.addEventListener('input',renderFileList);
 });
-
-function renderFileList(){
-    fileCountBadge.textContent = files.length + (files.length===1?' file':' files');
-    progressText.textContent = `0 / ${files.length}`;
-    progressFill.style.width='0%';
-    if(!files.length){
-        fileList.innerHTML=''; return;
-    }
-    fileList.innerHTML=files.map((f,i)=>{
-        const out=f.outputName || getOutputName(f.name);
-        const status=f.status==='done'?'Done':f.status==='error'?'Error':'Ready';
-        const statusClass=f.status==='done'?'status-done':f.status==='error'?'status-error':'status-pending';
-        const path=f.relativePath ? f.relativePath+'/' : '';
-        return `<div class="file-item">
-            <span class="file-icon">📄</span>
-            <div class="file-info">
-                <div class="file-name" title="${escapeHTML(path+f.name)}">${escapeHTML(path+f.name)}</div>
-                <div class="file-meta">→ <span class="new">${escapeHTML(out)}</span>${f.error ? ' · '+escapeHTML(f.error) : ''}</div>
-            </div>
-            <span class="status ${statusClass}">${status}</span>
-            <div class="file-actions">
-                <button onclick="downloadOne(${i})" title="Download this file">💾</button>
-                <button class="danger" onclick="removeFile(${i})" title="Remove from canvas">✕</button>
-            </div>
-        </div>`;
-    }).join('');
-}
-function removeFile(i){ files.splice(i,1); renderFileList(); }
-function clearAll(){
-    if(files.length && !confirm('Clear all files from FileForge?')) return;
-    files.length=0; renderFileList(); log('Cleared file queue.','info');
-}
-function log(msg,type='info'){
-    const line=document.createElement('span'); line.className='output-line '+type; line.textContent=msg;
-    outputArea.appendChild(line); outputArea.scrollTop=outputArea.scrollHeight;
-}
-function uniqueOutputName(desired, used){
-    if(!used.has(desired)){used.add(desired);return desired}
-    const {base,ext}=getNameParts(desired);
-    let n=1, candidate;
-    do{candidate=base+'_'+n+ext;n++}while(used.has(candidate));
-    used.add(candidate); return candidate;
-}
-function makeRenamedBlob(file){
-    return file.slice(0,file.size,file.type || 'application/octet-stream');
-}
-async function applyChanges(){
-    if(!files.length){log('No files to process.','error');return}
-    const used=new Set(), total=files.length; let done=0;
-    progressText.textContent=`0 / ${total}`; progressFill.style.width='0%';
-    for(const f of files){
-        try{
-            f.outputName = $('avoidCollisions').checked ? uniqueOutputName(getOutputName(f.name), used) : getOutputName(f.name);
-            f.outputBlob = makeRenamedBlob(f.file);
-            f.status='done'; f.error=null;
-            log(`✓ ${f.name} → ${f.outputName}`,'success');
-        }catch(err){
-            f.status='error'; f.error=err.message; log(`✗ ${f.name}: ${err.message}`,'error');
-        }
-        done++; progressText.textContent=`${done} / ${total}`; progressFill.style.width=(done/total*100)+'%'; renderFileList();
-        await new Promise(r=>setTimeout(r,15));
-    }
-    log(`Ready: ${files.filter(f=>f.status==='done').length}/${total} file(s) processed.`,'info');
-}
-function downloadBlob(blob,name){
-    if(window.saveAs) saveAs(blob,name);
-    else{
-        const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; a.click();
-        setTimeout(()=>URL.revokeObjectURL(a.href),1000);
-    }
-}
-function downloadOne(i){
-    const f=files[i];
-    if(!f.outputBlob) {
-        f.outputName=getOutputName(f.name); f.outputBlob=makeRenamedBlob(f.file); f.status='done'; renderFileList();
-    }
-    downloadBlob(f.outputBlob,f.outputName);
-    log(`Downloaded: ${f.outputName}`,'success');
-}
-async function downloadAll(){
-    const ready=files.filter(f=>f.outputBlob && f.status==='done');
-    if(!ready.length){log('Apply changes before downloading.','error');return}
-    if(ready.length===1 && !ready[0].relativePath){downloadOne(files.indexOf(ready[0]));return}
-    if(!window.JSZip){log('ZIP library unavailable. Download files individually.','error');return}
-    const zip=new JSZip();
-    const used=new Set();
-    for(const f of ready){
-        let path=f.outputName;
-        if($('preserveStructure').checked && f.relativePath) path=f.relativePath+'/'+f.outputName;
-        let finalPath=path, n=1;
-        while(used.has(finalPath)){const parts=path.split('/');const leaf=parts.pop();const p=getNameParts(leaf);parts.push(p.base+'_'+n+p.ext);finalPath=parts.join('/');n++}
-        used.add(finalPath);
-        zip.file(finalPath,await f.outputBlob.arrayBuffer());
-    }
-    log(`Packaging ${ready.length} file(s) into ZIP...`,'info');
-    const blob=await zip.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:6}});
-    downloadBlob(blob,`fileforge-export-${new Date().toISOString().replace(/[:.]/g,'-').slice(0,19)}.zip`);
-    log(`ZIP downloaded with ${ready.length} file(s).`,'success');
-}
-
-/* Future-ready direct folder API:
-   Chromium exposes File System Access APIs in secure contexts. This build keeps
-   the normal File/FileList workflow universally compatible and uses downloads as
-   the reliable fallback. The UI option is intentionally present so a future
-   handle-based folder workflow can be added without redesigning the interface.
-*/
-
-applyTheme();
-renderFileList();
 </script>
 </body>
 </html>
+<script>
+/* Final FileForge rename engine */
+function fileForgeGetName(name){
+    const dot = name.lastIndexOf('.');
+    let base = dot > 0 ? name.slice(0,dot) : name;
+    let ext = dot > 0 ? name.slice(dot+1) : "";
+
+    const prefix = document.getElementById("prefix")?.value || "";
+    const suffix = document.getElementById("suffix")?.value || "";
+
+    base = prefix + base + suffix;
+
+    const find = document.getElementById("findText")?.value || "";
+    const replace = document.getElementById("replaceText")?.value || "";
+    if(find) base = base.split(find).join(replace);
+
+    const mode = document.getElementById("caseMode")?.value || "lower";
+
+    if(document.getElementById("nameCase")?.checked)
+        base = mode === "upper" ? base.toUpperCase() : base.toLowerCase();
+
+    if(document.getElementById("useForcedExtension")?.checked){
+        const forced = document.getElementById("forceExtension")?.value.trim();
+        if(forced) ext = forced.replace(".","");
+    }
+
+    if(document.getElementById("extensionCase")?.checked)
+        ext = mode === "upper" ? ext.toUpperCase() : ext.toLowerCase();
+
+    return ext ? base + "." + ext : base;
+}
+
+function getOutputName(name){
+    return fileForgeGetName(name);
+}
+
+async function convertAll(){
+    files.forEach(file=>{
+        file.outputName = fileForgeGetName(file.name);
+        file.outputBlob = file.file.slice(0,file.file.size,file.file.type);
+        file.status = "done";
+    });
+    renderFileList();
+}
+</script>
