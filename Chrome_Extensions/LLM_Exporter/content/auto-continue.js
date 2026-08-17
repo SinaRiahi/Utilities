@@ -71,9 +71,23 @@ window.__universalLLMAutoContinueLoaded = true;
     },
     gemini: {
       matches: () => /(^|\.)gemini\.google\.com$/.test(location.hostname),
-      composerSelectors: ['div[contenteditable="true"]', 'textarea', 'rich-textarea [contenteditable="true"]'],
-      sendSelectors: ['button[aria-label*="Send" i]', 'button[type="submit"]'],
-      stopSelectors: ['button[aria-label*="Stop" i]', 'button[aria-label*="stop generating" i]'],
+      composerSelectors: [
+        'div[contenteditable="true"]',
+        'textarea',
+        'rich-textarea [contenteditable="true"]',
+      ],
+      // Gemini exposes a stable semantic label on the actual send button.
+      // Prefer this over positional/nearby-button detection so the microphone
+      // button can never be mistaken for Send.
+      sendSelectors: [
+        'button[aria-label="Send message"]',
+        'button[aria-label="Send message" i]',
+      ],
+      stopSelectors: [
+        'button[aria-label*="Stop" i]',
+        'button[aria-label*="stop generating" i]',
+        'button[aria-label*="Stop response" i]',
+      ],
     },
     grok: {
       matches: () => /(^|\.)grok\.com$/.test(location.hostname) ||
@@ -286,6 +300,123 @@ window.__universalLLMAutoContinueLoaded = true;
     return null;
   }
 
+  function findNearbySendButton(composer) {
+    const adapter = getAdapter();
+    const direct = findFirst(adapter?.sendSelectors);
+    if (direct && !direct.disabled) return direct;
+
+    if (!composer) return null;
+
+    // Gemini's generated class names change. Walk upward from the composer
+    // and look for a visible, enabled button that semantically looks like
+    // Send/Submit or is the action button attached to the composer footer.
+    let parent = composer;
+    for (let depth = 0; parent && depth < 7; depth++, parent = parent.parentElement) {
+      const buttons = Array.from(parent.querySelectorAll("button")).filter(visible);
+
+      const semantic = buttons.find(button => {
+        if (button.disabled) return false;
+        const label = [
+          button.getAttribute("aria-label"),
+          button.getAttribute("data-tooltip"),
+          button.getAttribute("title"),
+          button.getAttribute("mattooltip"),
+          button.textContent,
+        ].filter(Boolean).join(" ").toLowerCase();
+
+        return /\b(send|submit)\b/.test(label);
+      });
+
+      if (semantic) return semantic;
+
+      // Last-resort geometry check for icon-only send buttons.
+      const cr = composer.getBoundingClientRect();
+      const nearby = buttons.filter(button => {
+        if (button.disabled) return false;
+        const br = button.getBoundingClientRect();
+
+        return (
+          br.top >= cr.top - 120 &&
+          br.bottom <= cr.bottom + 180 &&
+          br.right >= cr.left - 120 &&
+          br.left <= cr.right + 180
+        );
+      });
+
+      if (nearby.length) {
+        return nearby[nearby.length - 1];
+      }
+    }
+
+    return null;
+  }
+
+  async function pressEnter(composer) {
+    composer.focus();
+
+    // Dispatch a complete keyboard sequence. This is useful for frameworks
+    // that listen to keydown/keypress rather than a click on Send.
+    const options = {
+      key: "Enter",
+      code: "Enter",
+      keyCode: 13,
+      which: 13,
+      charCode: 13,
+      bubbles: true,
+      cancelable: true,
+      composed: true,
+    };
+
+    const down = new KeyboardEvent("keydown", options);
+    const pressed = new KeyboardEvent("keypress", options);
+    const up = new KeyboardEvent("keyup", options);
+
+    composer.dispatchEvent(down);
+    if (!down.defaultPrevented) composer.dispatchEvent(pressed);
+    composer.dispatchEvent(up);
+
+    // Some editors use a form submit rather than a key handler.
+    if (!down.defaultPrevented && !pressed.defaultPrevented) {
+      const form = composer.closest("form");
+      if (form) {
+        try {
+          if (typeof form.requestSubmit === "function") {
+            form.requestSubmit();
+            return true;
+          }
+          form.dispatchEvent(new Event("submit", {
+            bubbles: true,
+            cancelable: true,
+          }));
+          return true;
+        } catch {}
+      }
+    }
+
+    return true;
+  }
+
+  async function waitUntilSubmitted(composer, timeout = 3500) {
+    const started = Date.now();
+
+    while (Date.now() - started < timeout) {
+      const current = findComposer();
+      const value = current
+        ? ("value" in current
+            ? String(current.value || "")
+            : String(current.innerText || current.textContent || ""))
+        : "";
+
+      // Clearing the composer is the strongest sign that the site accepted
+      // the prompt. A generation indicator is the other strong signal.
+      if (!value.trim() || controlsGenerating()) return true;
+
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+
+    return false;
+  }
+
   async function sendPrompt(prompt) {
     const adapter = getAdapter();
     if (!adapter) throw new Error("No supported AI platform adapter is active.");
@@ -306,60 +437,48 @@ window.__universalLLMAutoContinueLoaded = true;
         throw new Error("The message composer did not accept the automatic message.");
       }
 
-      let send = findFirst(adapter.sendSelectors);
+      let send = adapter === adapters.deepseek
+        ? findDeepSeekSendButton(acceptedComposer)
+        : adapter === adapters.gemini
+          ? findFirst(adapter.sendSelectors)
+          : findNearbySendButton(acceptedComposer);
 
-      if (adapter === adapters.deepseek) {
-        send = findDeepSeekSendButton(acceptedComposer);
-      }
+      let consumed = false;
 
+      // 1) Prefer the real Send button. This is the most reliable path for
+      // Gemini, whose synthetic Enter events are not guaranteed to reach the
+      // framework's internal event handler.
       if (send && !send.disabled) {
         send.click();
-      } else {
-        // Keyboard fallback for platforms whose send button is unavailable.
-        acceptedComposer.focus();
-        const eventOptions = {
-          key: "Enter",
-          code: "Enter",
-          keyCode: 13,
-          which: 13,
-          bubbles: true,
-          cancelable: true,
-        };
-        acceptedComposer.dispatchEvent(new KeyboardEvent("keydown", eventOptions));
-        acceptedComposer.dispatchEvent(new KeyboardEvent("keypress", eventOptions));
-        acceptedComposer.dispatchEvent(new KeyboardEvent("keyup", eventOptions));
+        consumed = await waitUntilSubmitted(acceptedComposer, 2200);
       }
 
-      // Do not immediately continue just because click() returned. Wait until
-      // the UI consumes the draft. If it doesn't, retry the DeepSeek send once.
-      const sentAt = Date.now();
-      let consumed = false;
-      while (Date.now() - sentAt < 3000) {
-        const current = findComposer(adapter);
-        const value = current
-          ? ("value" in current
-              ? String(current.value || "")
-              : String(current.innerText || current.textContent || ""))
-          : "";
-
-        if (!value.trim() || controlsGenerating()) {
-          consumed = true;
-          break;
-        }
-        await new Promise(resolve => setTimeout(resolve, 120));
+      // 2) Explicitly simulate Enter if the click didn't submit.
+      if (!consumed) {
+        await pressEnter(acceptedComposer);
+        consumed = await waitUntilSubmitted(acceptedComposer, 2200);
       }
 
-      if (!consumed && adapter === adapters.deepseek) {
+      // 3) Re-find the real button after the framework has processed the
+      // keyboard event and click it one final time.
+      if (!consumed) {
         const retryComposer = findComposer(adapter);
-        const retrySend = retryComposer ? findDeepSeekSendButton(retryComposer) : null;
+        const retrySend = retryComposer
+          ? (adapter === adapters.deepseek
+              ? findDeepSeekSendButton(retryComposer)
+              : adapter === adapters.gemini
+                ? findFirst(adapter.sendSelectors)
+                : findNearbySendButton(retryComposer))
+          : null;
+
         if (retrySend && !retrySend.disabled) {
           retrySend.click();
-          await new Promise(resolve => setTimeout(resolve, 500));
+          consumed = await waitUntilSubmitted(retryComposer, 2200);
         }
       }
 
-      if (!consumed && composerHasText() && adapter === adapters.deepseek) {
-        throw new Error("DeepSeek did not accept the automatic message.");
+      if (!consumed) {
+        throw new Error("The AI site did not accept the automatic message. The prompt is still in the composer.");
       }
     } finally {
       setTimeout(() => { state.internalSend = false; }, 1000);

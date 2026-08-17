@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Universal LLM Conversation Exporter",
-  "version": "0.3.5",
+  "version": "0.3.8",
   "description": "Select AI conversation messages, copy them as Markdown, open Markdown Studio, and optionally automate repeated follow-up prompts.",
   "icons": {
     "16": "assets/icon16.png",
