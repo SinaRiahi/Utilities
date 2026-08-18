@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="quillGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1" />
+      <stop offset="50%" stop-color="#4f46e5" />
+      <stop offset="100%" stop-color="#10b981" />
+    </linearGradient>
+    <linearGradient id="featherVane" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#e0e7ff" stop-opacity="0.6" />
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="2" dy="4" stdDeviation="4" flood-color="#1e1b4b" flood-opacity="0.25" />
+    </filter>
+  </defs>
+
+  <!-- Background Rounded Shield -->
+  <rect x="8" y="8" width="112" height="112" rx="28" fill="#0f172a" />
+  <rect x="9" y="9" width="110" height="110" rx="27" fill="none" stroke="url(#quillGrad)" stroke-width="2" opacity="0.6" />
+
+  <!-- Glowing Accent Arc -->
+  <path d="M 28 100 Q 64 110 100 100" fill="none" stroke="#10b981" stroke-width="3" stroke-linecap="round" opacity="0.4" />
+
+  <!-- Quill Feather Pen -->
+  <g filter="url(#shadow)">
+    <!-- Right Vane (Feather Body) -->
+    <path d="M 98 22 C 85 24 55 42 44 68 C 40 78 36 90 32 104 C 38 96 46 88 56 82 C 70 73 90 64 96 44 C 98 37 99 28 98 22 Z" 
+          fill="url(#quillGrad)" />
+    
+    <!-- Feather Barbs detail cutouts -->
+    <path d="M 78 45 L 88 40 M 66 58 L 78 52 M 54 71 L 64 66" 
+          stroke="#0f172a" stroke-width="2.5" stroke-linecap="round" />
+
+    <!-- Left Vane / Inner Highlights -->
+    <path d="M 98 22 C 90 32 75 42 62 50 C 48 58 38 72 32 104 C 33 92 37 78 44 68 C 54 53 76 33 98 22 Z" 
+          fill="url(#featherVane)" />
+
+    <!-- Central Shaft / Rachis -->
+    <path d="M 98 22 Q 62 58 32 104 L 28 110 L 35 106 Q 66 60 98 22 Z" 
+          fill="#f8fafc" />
+
+    <!-- Nib Tip (Writing Point with Ink) -->
+    <path d="M 28 110 L 32 104 L 35 106 Z" fill="#10b981" />
+    <circle cx="27" cy="111" r="2.5" fill="#10b981" />
+    
+    <!-- Form field sparks -->
+    <circle cx="21" cy="98" r="2" fill="#38bdf8" />
+    <circle cx="38" cy="116" r="1.5" fill="#38bdf8" />
+    <path d="M 18 108 L 22 108 M 20 106 L 20 110" stroke="#38bdf8" stroke-width="1.5" stroke-linecap="round" />
+  </g>
+</svg>

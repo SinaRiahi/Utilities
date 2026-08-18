@@ -1,31 +1,100 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <link rel="stylesheet" href="popup.css">
+  <meta charset="UTF-8" />
+  <title>Field Filler - Quill Edition</title>
+  <link rel="stylesheet" href="popup.css" />
 <script src="/_aistudio-iframe.js?v=2f1c016a"></script></head>
 <body>
-  <div class="header">
-    <h3>Field Filler</h3>
-  </div>
-  <div class="content">
-    <div class="toggle-container">
-      <span class="toggle-label">Auto-Fill Active</span>
-      <label class="switch">
-        <input type="checkbox" id="toggle-active">
-        <span class="slider"></span>
-      </label>
+  <!-- Header Bar -->
+  <header class="app-header">
+    <div class="header-brand">
+      <img src="icon48.png" alt="Quill Logo" class="header-icon" />
+      <div>
+        <h1 class="header-title">Field Filler</h1>
+        <p class="header-subtitle">Multi-Template & Excel Automation</p>
+      </div>
     </div>
-    <hr class="divider">
-    <button id="btn-collect" class="btn primary">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
-      Copy Current Fields
-    </button>
-    <button id="btn-fill" class="btn secondary">
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-      Auto-Fill Page
-    </button>
-    <div id="status">Ready.</div>
-  </div>
+    <span class="version-pill">v2.0</span>
+  </header>
+
+  <main class="main-content">
+    <!-- Status Toast / Alert -->
+    <div id="status-bar" class="status-bar">
+      <span id="status-icon" class="status-dot"></span>
+      <span id="status-text">Ready</span>
+    </div>
+
+    <!-- Quick Capture Bar -->
+    <div class="capture-bar">
+      <input type="text" id="new-template-name" placeholder="New Template Name (e.g. Page 1 - Vital Info)" class="template-input" />
+      <button id="btn-create-template" class="btn btn-primary" title="Record current page into new template">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+        Record Page
+      </button>
+    </div>
+
+    <!-- Templates Section Header -->
+    <div class="section-header">
+      <h2 class="section-title">Page Templates (<span id="template-count">0</span>)</h2>
+      <div class="header-actions">
+        <button id="btn-fill-now" class="btn-text" title="Manually trigger auto-fill on current page">
+          ⚡ Fill Current Page
+        </button>
+      </div>
+    </div>
+
+    <!-- Templates Dynamic List -->
+    <div id="templates-list" class="templates-container">
+      <!-- Injected dynamically via popup.js -->
+    </div>
+
+    <!-- Empty State -->
+    <div id="empty-state" class="empty-card" style="display: none;">
+      <p class="empty-title">No templates recorded yet</p>
+      <p class="empty-desc">Open your form page, enter a template name above, and click <strong>Record Page</strong>.</p>
+    </div>
+
+    <!-- Excel Multi-Sheet Automation Section -->
+    <div class="excel-card">
+      <div class="excel-header">
+        <div class="excel-title-group">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="8" y1="13" x2="16" y2="13"></line><line x1="8" y1="17" x2="16" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          <span class="excel-title">Excel (.xlsx) Iteration Hub</span>
+        </div>
+        <span class="excel-badge">Multi-Sheet</span>
+      </div>
+      <p class="excel-hint">Export all templates into one multi-sheet Excel file, add product rows, and re-import to enable batch iteration.</p>
+      
+      <div class="excel-buttons">
+        <button id="btn-export-excel" class="btn btn-secondary">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          Export Excel (.xlsx)
+        </button>
+        <label class="btn btn-outline" for="excel-file-input">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+          Import Excel (.xlsx)
+          <input type="file" id="excel-file-input" accept=".xlsx, .xls, .csv" style="display: none;" />
+        </label>
+      </div>
+
+      <!-- Iteration Global Controls -->
+      <div class="iteration-toolbar">
+        <span class="iteration-label">Batch Stepper:</span>
+        <button id="btn-prev-all" class="btn-micro" title="Step all active templates back one row">◀ Prev Row</button>
+        <button id="btn-next-all" class="btn-micro btn-micro-primary" title="Step all active templates to next row">Next Row ▶</button>
+        <button id="btn-reset-all" class="btn-micro" title="Reset all to Row 1">↺ Reset</button>
+      </div>
+    </div>
+  </main>
+
+  <footer class="app-footer">
+    <span>Field Filler Quill Engine</span>
+    <button id="btn-clear-all" class="btn-link text-danger">Clear All</button>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="lib/xlsx.full.min.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>
