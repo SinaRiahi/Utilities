@@ -1,4 +1,5 @@
 :root {
+  color-scheme: dark;
   --bg: #071426;
   --bg-secondary: #0c1c31;
   --bg-tertiary: #10243d;
@@ -140,6 +141,8 @@ body {
   overflow-y: auto;
   padding: 4px 8px;
   min-height: 120px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
 }
 
 .message-row {
@@ -197,6 +200,7 @@ body {
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
 }
 
