@@ -1,31 +1,49 @@
 /**
- * Field Filler - Quill Edition (v2.0)
+ * Field Filler - Quill Edition (v2.1.1)
  * Multi-Template, Multi-Sheet Excel Automation Controller
  */
 
 // Storage Helpers
 async function getStorage() {
   return new Promise((resolve) => {
-    chrome.storage.local.get(['templates', 'activeTemplateId'], (res) => {
-      resolve({
-        templates: res.templates || {},
-        activeTemplateId: res.activeTemplateId || null,
+    try {
+      chrome.storage.local.get(['templates', 'activeTemplateId'], (res) => {
+        if (chrome.runtime.lastError) {
+          console.warn('Field Filler: Storage read error suppressed:', chrome.runtime.lastError);
+          resolve({ templates: {}, activeTemplateId: null });
+          return;
+        }
+        resolve({
+          templates: res?.templates || {},
+          activeTemplateId: res?.activeTemplateId || null,
+        });
       });
-    });
+    } catch (e) {
+      resolve({ templates: {}, activeTemplateId: null });
+    }
   });
 }
 
 async function saveStorage(data) {
   return new Promise((resolve) => {
-    chrome.storage.local.set(data, resolve);
+    try {
+      chrome.storage.local.set(data, () => {
+        if (chrome.runtime.lastError) {
+          console.warn('Field Filler: Storage write error suppressed:', chrome.runtime.lastError);
+        }
+        resolve();
+      });
+    } catch (e) {
+      resolve();
+    }
   });
 }
 
 // UI Status Display
 function setStatus(text, type = 'normal') {
-  const bar = document.getElementById('status-bar');
   const dot = document.getElementById('status-icon');
   const label = document.getElementById('status-text');
+  if (!label || !dot) return;
 
   label.innerText = text;
   dot.className = 'status-dot';
@@ -45,6 +63,8 @@ async function renderTemplates() {
   const emptyEl = document.getElementById('empty-state');
   const countEl = document.getElementById('template-count');
 
+  if (!listEl || !emptyEl || !countEl) return;
+
   const templateIds = Object.keys(templates);
   countEl.innerText = templateIds.length;
 
@@ -59,6 +79,7 @@ async function renderTemplates() {
 
   templateIds.forEach((id) => {
     const t = templates[id];
+    if (!t) return;
     const fieldCount = Object.keys(t.fields || {}).length;
     const rowCount = (t.rows && t.rows.length) || 0;
     const currRow = (t.currentRowIndex || 0) + 1;
@@ -218,97 +239,371 @@ function attachCardEvents() {
 
 // In-Frame Collector Function for chrome.scripting.executeScript
 function inPageCollectFields() {
-  function getFieldSignature(element) {
-    if (element.id) {
+  function cleanLabelText(raw) {
+    if (!raw || typeof raw !== 'string') return null;
+    let text = raw.replace(/\u00a0/g, ' ');
+    text = text
+      .replace(/\s*\(\s*(required|optional|req|opt)\s*\)/gi, '')
+      .replace(/\s*\[\s*(required|optional|req|opt)\s*\]/gi, '')
+      .replace(/[*?:•]/g, '')
+      .replace(/[:\-–—]+$/, '')
+      .replace(/^\s*[:\-–—]+/, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    return text.length > 0 ? text : null;
+  }
+
+  function cleanMachineName(raw) {
+    if (!raw || typeof raw !== 'string') return null;
+    let s = raw.trim();
+    s = s.replace(/^(ctl00[$_]|cphMain[$_]|FormView\d*[$_]|zone\w*[$_]|zoneCenter[$_]|MainContent[$_])/i, '');
+    s = s.replace(/^(txt|tb|ddl|cb|chk|rad|btn|sel|inp|input|field|fld|lbl|item)_+/i, '');
+    s = s.replace(/^(txt|tb|ddl|cb|chk|rad|btn|sel|inp|input|field|fld|lbl|item)([A-Z])/i, '$2');
+    s = s.replace(/([$_]\d+)+$/, '');
+    s = s.replace(/[-_]+/g, ' ');
+    s = s.replace(/([a-z0-9])([A-Z])/g, '$1 $2');
+    s = s.replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2');
+    s = s.replace(/\s+/g, ' ').trim();
+    return s.length > 1 ? s : null;
+  }
+
+  function deepQuerySelectorAll(root, selector) {
+    const results = [];
+    function traverse(node) {
+      if (!node) return;
       try {
-        const label = document.querySelector(`label[for="${CSS.escape(element.id)}"]`);
-        if (label && label.innerText && label.innerText.trim()) return label.innerText.trim();
+        if (node.querySelectorAll) {
+          const matches = node.querySelectorAll(selector);
+          for (let i = 0; i < matches.length; i++) {
+            results.push(matches[i]);
+          }
+        }
+        if (node.shadowRoot) traverse(node.shadowRoot);
+        if (node.children) {
+          for (let i = 0; i < node.children.length; i++) {
+            const child = node.children[i];
+            if (child && child.shadowRoot) traverse(child.shadowRoot);
+          }
+        }
       } catch (e) {}
     }
-    const parentLabel = element.closest('label');
-    if (parentLabel) {
-      const clone = parentLabel.cloneNode(true);
-      const inputs = clone.querySelectorAll('input, select, textarea');
-      inputs.forEach((i) => i.remove());
-      const text = clone.innerText.trim();
-      if (text) return text;
-    }
-    const fieldset = element.closest('fieldset');
-    if (fieldset) {
-      const legend = fieldset.querySelector('legend');
-      if (legend && legend.innerText.trim()) {
-        const baseLabel = element.name || element.placeholder || element.getAttribute('aria-label');
-        if (baseLabel) return `${legend.innerText.trim()} > ${baseLabel.trim()}`;
-      }
-    }
-    if (element.getAttribute('aria-label')) return element.getAttribute('aria-label').trim();
-    if (element.placeholder && element.placeholder.trim()) return element.placeholder.trim();
-    if (element.name && element.name.trim()) return element.name.trim();
+    traverse(root);
+    return results;
+  }
 
-    let prev = element.previousElementSibling;
-    while (prev) {
-      if (prev.tagName && (prev.tagName.toLowerCase() === 'label' || prev.classList.contains('label'))) {
-        if (prev.innerText && prev.innerText.trim()) return prev.innerText.trim();
+  function getSanitizedNodeText(node) {
+    if (!node) return null;
+    try {
+      const clone = node.cloneNode(true);
+      const junk = clone.querySelectorAll(
+        'input, select, textarea, button, svg, script, style, .tooltip, .help-block, .info-icon, .popover, [class*="tooltip"], [class*="help"], [class*="badge"]'
+      );
+      junk.forEach((el) => {
+        try {
+          el.remove();
+        } catch (e) {}
+      });
+      return cleanLabelText(clone.innerText || clone.textContent);
+    } catch (e) {
+      try {
+        return cleanLabelText(node.innerText || node.textContent);
+      } catch (err) {
+        return null;
       }
-      prev = prev.previousElementSibling;
     }
+  }
+
+  function getFieldSignature(element) {
+    if (!element) return null;
+
+    // 1. Explicit <label for="id"> or <label for="name">
+    if (element.id && typeof element.id === 'string' && element.id.trim()) {
+      try {
+        const label = document.querySelector(`label[for="${CSS.escape(element.id.trim())}"]`);
+        const txt = getSanitizedNodeText(label);
+        if (txt) return txt;
+      } catch (e) {}
+    }
+    if (element.name && typeof element.name === 'string' && element.name.trim()) {
+      try {
+        const label = document.querySelector(`label[for="${CSS.escape(element.name.trim())}"]`);
+        const txt = getSanitizedNodeText(label);
+        if (txt) return txt;
+      } catch (e) {}
+    }
+
+    // 2. Implicit Parent <label>
+    try {
+      const parentLabel = element.closest('label');
+      if (parentLabel) {
+        const txt = getSanitizedNodeText(parentLabel);
+        if (txt) return txt;
+      }
+    } catch (e) {}
+
+    // 3. ARIA Labels
+    try {
+      const ariaLabel = cleanLabelText(element.getAttribute('aria-label'));
+      if (ariaLabel) return ariaLabel;
+
+      const labelledBy = element.getAttribute('aria-labelledby');
+      if (labelledBy) {
+        const parts = labelledBy
+          .split(/\s+/)
+          .map((id) => {
+            const el = document.getElementById(id);
+            return el ? getSanitizedNodeText(el) : null;
+          })
+          .filter(Boolean);
+        if (parts.length > 0) return parts.join(' ');
+      }
+    } catch (e) {}
+
+    // 4. Legacy Table Layouts
+    try {
+      const cell = element.closest('td, th');
+      if (cell) {
+        let prevCell = cell.previousElementSibling;
+        while (prevCell) {
+          const cellText = getSanitizedNodeText(prevCell);
+          if (cellText) return cellText;
+          prevCell = prevCell.previousElementSibling;
+        }
+        const row = cell.closest('tr');
+        const table = cell.closest('table');
+        if (row && table && cell.cellIndex !== undefined) {
+          const headerCell = table.querySelector(
+            `thead tr th:nth-child(${cell.cellIndex + 1}), tr:first-child th:nth-child(${cell.cellIndex + 1})`
+          );
+          if (headerCell && headerCell !== cell) {
+            const headerText = getSanitizedNodeText(headerCell);
+            if (headerText) return headerText;
+          }
+        }
+        if (row && row.previousElementSibling) {
+          const prevRowLabel = row.previousElementSibling.querySelector('td[colspan], th[colspan], td.label, th.label');
+          if (prevRowLabel) {
+            const txt = getSanitizedNodeText(prevRowLabel);
+            if (txt) return txt;
+          }
+        }
+      }
+    } catch (e) {}
+
+    // 5. Definition Lists
+    try {
+      const dd = element.closest('dd');
+      if (dd) {
+        let dt = dd.previousElementSibling;
+        while (dt) {
+          if (dt.tagName && dt.tagName.toLowerCase() === 'dt') {
+            const txt = getSanitizedNodeText(dt);
+            if (txt) return txt;
+          }
+          dt = dt.previousElementSibling;
+        }
+      }
+    } catch (e) {}
+
+    // 6. Floating & Suffix Labels
+    try {
+      let nextEl = element.nextElementSibling;
+      while (nextEl) {
+        if (
+          nextEl.tagName &&
+          (nextEl.tagName.toLowerCase() === 'label' ||
+            nextEl.classList.contains('floating-label') ||
+            nextEl.classList.contains('form-label') ||
+            nextEl.classList.contains('md-label') ||
+            nextEl.classList.contains('label-text'))
+        ) {
+          const txt = getSanitizedNodeText(nextEl);
+          if (txt) return txt;
+        }
+        nextEl = nextEl.nextElementSibling;
+      }
+
+      const floatingWrap = element.closest('.form-floating, .floating-label-wrap, .md-input-container, .form-group-float');
+      if (floatingWrap) {
+        const floatLabel = floatingWrap.querySelector('label, .floating-label, .md-label');
+        if (floatLabel) {
+          const txt = getSanitizedNodeText(floatLabel);
+          if (txt) return txt;
+        }
+      }
+    } catch (e) {}
+
+    // 7. Preceding Sibling Label
+    try {
+      let prevEl = element.previousElementSibling;
+      while (prevEl) {
+        if (
+          prevEl.tagName &&
+          (prevEl.tagName.toLowerCase() === 'label' ||
+            prevEl.classList.contains('label') ||
+            prevEl.classList.contains('form-label') ||
+            prevEl.classList.contains('control-label') ||
+            prevEl.classList.contains('field-label'))
+        ) {
+          const txt = getSanitizedNodeText(prevEl);
+          if (txt) return txt;
+        }
+        prevEl = prevEl.previousElementSibling;
+      }
+    } catch (e) {}
+
+    // 8. Form Group Container Headers
+    try {
+      let container = element.parentElement;
+      let depth = 0;
+      while (container && depth < 4 && container.tagName && container.tagName.toLowerCase() !== 'form' && container.tagName.toLowerCase() !== 'body') {
+        const labelCandidate = container.querySelector(
+          'label, .control-label, .form-label, .field-label, .ant-form-item-label, [class*="label"], [class*="title"], [class*="header"], strong, b, h4, h5, h6'
+        );
+        if (labelCandidate && !labelCandidate.contains(element)) {
+          const txt = getSanitizedNodeText(labelCandidate);
+          if (txt) return txt;
+        }
+        container = container.parentElement;
+        depth++;
+      }
+    } catch (e) {}
+
+    // 9. Fieldset Legend
+    try {
+      const fieldset = element.closest('fieldset');
+      if (fieldset) {
+        const legend = fieldset.querySelector('legend');
+        if (legend) {
+          const legTxt = getSanitizedNodeText(legend);
+          if (legTxt) {
+            const sub = element.placeholder || cleanMachineName(element.name) || cleanMachineName(element.id);
+            return sub ? `${legTxt} > ${sub}` : legTxt;
+          }
+        }
+      }
+    } catch (e) {}
+
+    // 10. Placeholder / Title
+    try {
+      if (element.placeholder && cleanLabelText(element.placeholder)) {
+        return cleanLabelText(element.placeholder);
+      }
+      const titleAttr = element.getAttribute('title') || element.getAttribute('data-placeholder');
+      if (titleAttr && cleanLabelText(titleAttr)) {
+        return cleanLabelText(titleAttr);
+      }
+    } catch (e) {}
+
+    // 11. Clean Machine-Generated Name/ID
+    if (element.name) {
+      const cleaned = cleanMachineName(element.name);
+      if (cleaned) return cleaned;
+    }
+    if (element.id) {
+      const cleaned = cleanMachineName(element.id);
+      if (cleaned) return cleaned;
+    }
+
     return null;
   }
 
   function getFieldGroupLabel(element) {
-    const parent = element.closest('div');
-    if (parent) {
-      const header = parent.querySelector('span, label, p, h4, h5');
-      if (header && header.innerText.trim()) return header.innerText.trim();
+    try {
+      const fieldset = element.closest('fieldset');
+      if (fieldset) {
+        const legend = fieldset.querySelector('legend');
+        const legTxt = getSanitizedNodeText(legend);
+        if (legTxt) return legTxt;
+      }
+
+      const cell = element.closest('td, th');
+      if (cell) {
+        let prevCell = cell.previousElementSibling;
+        while (prevCell) {
+          const txt = getSanitizedNodeText(prevCell);
+          if (txt) return txt;
+          prevCell = prevCell.previousElementSibling;
+        }
+      }
+
+      let parent = element.parentElement;
+      let depth = 0;
+      while (parent && depth < 3 && parent.tagName && parent.tagName.toLowerCase() !== 'body') {
+        const header = parent.querySelector('label, .group-title, .form-label, span.font-semibold, h4, h5, p.font-bold, strong, b');
+        if (header && !header.contains(element)) {
+          const txt = getSanitizedNodeText(header);
+          if (txt) return txt;
+        }
+        parent = parent.parentElement;
+        depth++;
+      }
+    } catch (e) {}
+
+    if (element.name) {
+      const cleaned = cleanMachineName(element.name);
+      if (cleaned) return cleaned;
     }
+
     return element.name || '';
   }
 
-  const inputs = document.querySelectorAll(
-    'input:not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="reset"]), textarea, select'
+  const inputs = deepQuerySelectorAll(
+    document,
+    'input:not([type="hidden"]):not([type="submit"]):not([type="button"]):not([type="reset"]), textarea, select, [contenteditable="true"], [role="textbox"]'
   );
   const data = {};
 
-  Array.from(inputs).forEach((input) => {
-    const sig = getFieldSignature(input);
-    if (!sig) return;
+  for (const input of inputs) {
+    try {
+      const isContentEditable = input.getAttribute('contenteditable') === 'true' || input.getAttribute('role') === 'textbox';
+      const sig = getFieldSignature(input);
+      if (!sig) continue;
 
-    if (input.tagName.toLowerCase() === 'select') {
-      if (input.multiple) {
-        const selectedValues = Array.from(input.selectedOptions).map((opt) => opt.value || opt.text);
-        data[sig] = { type: 'select-multiple', value: selectedValues.join(', ') };
-      } else {
-        data[sig] = { type: 'select', value: input.value };
-      }
-    } else if (input.type === 'checkbox') {
-      if (input.checked) {
-        data[sig] = { type: 'checkbox', value: input.value || 'on', checked: true };
-      }
-    } else if (input.type === 'radio') {
-      if (input.checked) {
-        const groupLabel = getFieldGroupLabel(input);
-        data[sig] = { type: 'radio', group: groupLabel, name: input.name, value: input.value || sig, checked: true };
-        if (groupLabel && groupLabel !== sig) {
-          data[groupLabel] = { type: 'radio', group: groupLabel, name: input.name, value: input.value || sig, checked: true };
+      if (isContentEditable) {
+        const text = input.innerText || input.textContent || '';
+        if (text.trim()) {
+          data[sig] = { type: 'contenteditable', value: text.trim() };
         }
+      } else if (input.tagName && input.tagName.toLowerCase() === 'select') {
+        if (input.multiple) {
+          const selectedValues = Array.from(input.selectedOptions || []).map((opt) => opt.value || opt.text);
+          data[sig] = { type: 'select-multiple', value: selectedValues.join(', ') };
+        } else {
+          data[sig] = { type: 'select', value: input.value };
+        }
+      } else if (input.type === 'checkbox') {
+        if (input.checked) {
+          data[sig] = { type: 'checkbox', value: input.value || 'on', checked: true };
+        }
+      } else if (input.type === 'radio') {
+        if (input.checked) {
+          const groupLabel = getFieldGroupLabel(input);
+          const radioOptionLabel = getSanitizedNodeText(input.closest('label')) || input.value || sig;
+          data[sig] = {
+            type: 'radio',
+            group: groupLabel,
+            name: input.name,
+            value: input.value || radioOptionLabel,
+            checked: true,
+          };
+          if (groupLabel && groupLabel !== sig) {
+            data[groupLabel] = {
+              type: 'radio',
+              group: groupLabel,
+              name: input.name,
+              value: input.value || radioOptionLabel,
+              checked: true,
+            };
+          }
+        }
+      } else if (input.value !== undefined && input.value !== '') {
+        data[sig] = { type: input.type || 'text', value: input.value };
       }
-    } else if (input.value !== undefined && input.value !== '') {
-      data[sig] = { type: input.type || 'text', value: input.value };
-    }
-  });
+    } catch (err) {}
+  }
 
   return data;
-}
-
-// In-Frame Trigger Fill Function
-function inPageTriggerFill() {
-  if (typeof fillActiveTemplates === 'function') {
-    return fillActiveTemplates();
-  } else {
-    // If content script was not loaded yet, dispatch event
-    window.postMessage({ type: 'FIELD_FILLER_TRIGGER' }, '*');
-    return { success: true };
-  }
 }
 
 // Record Form Fields from Active Tab across all frames
@@ -320,8 +615,15 @@ async function recordCurrentPage(targetTemplateId = null) {
       return;
     }
 
-    // Try executing directly across all frames with chrome.scripting
+    // Check if URL is an internal browser page
+    if (tab.url && (tab.url.startsWith('chrome://') || tab.url.startsWith('chrome-extension://') || tab.url.startsWith('edge://') || tab.url.startsWith('about:'))) {
+      setStatus('Cannot record browser internal pages. Please open a website or web form.', 'warning');
+      return;
+    }
+
     let collectedData = {};
+
+    // 1. Try direct execution with executeScript
     try {
       const results = await chrome.scripting.executeScript({
         target: { tabId: tab.id, allFrames: true },
@@ -335,16 +637,21 @@ async function recordCurrentPage(targetTemplateId = null) {
           }
         });
       }
-    } catch (e) {
-      console.warn('Scripting execute failed, trying message passing fallback:', e);
+    } catch (scriptErr) {
+      // Suppress script error and fall back to sendMessage
     }
 
-    // Fallback to sendMessage if needed
+    // 2. Fallback to sendMessage if executeScript didn't yield fields
     if (Object.keys(collectedData).length === 0) {
       const resp = await new Promise((resolve) => {
-        chrome.tabs.sendMessage(tab.id, { action: 'collect' }, (r) => {
-          resolve(r || null);
-        });
+        try {
+          chrome.tabs.sendMessage(tab.id, { action: 'collect' }, (r) => {
+            const err = chrome.runtime.lastError; // Accessing suppresses unchecked runtime.lastError
+            resolve(r || null);
+          });
+        } catch (msgErr) {
+          resolve(null);
+        }
       });
       if (resp && resp.data) {
         collectedData = resp.data;
@@ -353,7 +660,7 @@ async function recordCurrentPage(targetTemplateId = null) {
 
     const fieldCount = Object.keys(collectedData).length;
     if (fieldCount === 0) {
-      setStatus('No form fields detected. Ensure form fields have values or labels.', 'warning');
+      setStatus('No form fields detected on this page.', 'warning');
       return;
     }
 
@@ -361,7 +668,6 @@ async function recordCurrentPage(targetTemplateId = null) {
     let templateName = '';
 
     if (targetTemplateId && templates[targetTemplateId]) {
-      // Updating existing
       templates[targetTemplateId].fields = {
         ...(templates[targetTemplateId].fields || {}),
         ...collectedData,
@@ -369,13 +675,11 @@ async function recordCurrentPage(targetTemplateId = null) {
       templates[targetTemplateId].updatedAt = Date.now();
       templateName = templates[targetTemplateId].name;
     } else {
-      // Creating new
       const nameInput = document.getElementById('new-template-name');
-      const customName = nameInput.value.trim();
+      const customName = nameInput ? nameInput.value.trim() : '';
       templateName = customName || `Page ${Object.keys(templates).length + 1}`;
       const newId = `tpl_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
 
-      // Build default initial row
       const initialRow = {};
       Object.keys(collectedData).forEach((sig) => {
         initialRow[sig] = collectedData[sig].value ?? '';
@@ -392,15 +696,15 @@ async function recordCurrentPage(targetTemplateId = null) {
         updatedAt: Date.now(),
       };
 
-      nameInput.value = '';
+      if (nameInput) nameInput.value = '';
     }
 
     await saveStorage({ templates });
     setStatus(`Recorded ${fieldCount} fields into "${templateName}"!`);
     renderTemplates();
   } catch (err) {
-    console.error(err);
-    setStatus('Error capturing page fields', 'error');
+    console.error('Field Filler capture error:', err);
+    setStatus('Could not record page fields', 'error');
   }
 }
 
@@ -419,53 +723,51 @@ async function exportToExcel() {
     return;
   }
 
-  const wb = XLSX.utils.book_new();
+  try {
+    const wb = XLSX.utils.book_new();
 
-  templateIds.forEach((id) => {
-    const t = templates[id];
-    const fieldKeys = Object.keys(t.fields || {});
+    templateIds.forEach((id) => {
+      const t = templates[id];
+      const fieldKeys = Object.keys(t.fields || {});
 
-    // Prepare table data rows
-    let sheetData = [];
+      let sheetData = [];
 
-    if (t.rows && t.rows.length > 0) {
-      // Export existing iteration rows
-      sheetData = t.rows.map((row) => {
-        const cleanRow = {};
-        fieldKeys.forEach((key) => {
-          cleanRow[key] = row[key] ?? t.fields[key]?.value ?? '';
+      if (t.rows && t.rows.length > 0) {
+        sheetData = t.rows.map((row) => {
+          const cleanRow = {};
+          fieldKeys.forEach((key) => {
+            cleanRow[key] = row[key] ?? t.fields[key]?.value ?? '';
+          });
+          return cleanRow;
         });
-        return cleanRow;
-      });
-    } else {
-      // Export baseline recorded row
-      const baseRow = {};
-      fieldKeys.forEach((key) => {
-        baseRow[key] = t.fields[key]?.value ?? '';
-      });
-      sheetData = [baseRow];
-    }
+      } else {
+        const baseRow = {};
+        fieldKeys.forEach((key) => {
+          baseRow[key] = t.fields[key]?.value ?? '';
+        });
+        sheetData = [baseRow];
+      }
 
-    // Convert to sheet
-    const ws = XLSX.utils.json_to_sheet(sheetData);
+      const ws = XLSX.utils.json_to_sheet(sheetData);
 
-    // Clean sheet name (Excel limits sheet names to 31 chars and no / \ ? * : [ ])
-    let cleanSheetName = t.name.replace(/[/\\?*:[\]]/g, '_').substring(0, 31);
-    if (!cleanSheetName) cleanSheetName = 'Sheet';
+      let cleanSheetName = t.name.replace(/[/\\?*:[\]]/g, '_').substring(0, 31);
+      if (!cleanSheetName) cleanSheetName = 'Sheet';
 
-    // Handle potential duplicate sheet names in workbook
-    let finalSheetName = cleanSheetName;
-    let counter = 1;
-    while (wb.SheetNames.includes(finalSheetName)) {
-      finalSheetName = `${cleanSheetName.substring(0, 28)}_${counter++}`;
-    }
+      let finalSheetName = cleanSheetName;
+      let counter = 1;
+      while (wb.SheetNames.includes(finalSheetName)) {
+        finalSheetName = `${cleanSheetName.substring(0, 28)}_${counter++}`;
+      }
 
-    XLSX.utils.book_append_sheet(wb, ws, finalSheetName);
-  });
+      XLSX.utils.book_append_sheet(wb, ws, finalSheetName);
+    });
 
-  // Trigger download
-  XLSX.writeFile(wb, `Field_Filler_Templates_${new Date().toISOString().slice(0, 10)}.xlsx`);
-  setStatus('Exported multi-sheet Excel file!');
+    XLSX.writeFile(wb, `Field_Filler_Templates_${new Date().toISOString().slice(0, 10)}.xlsx`);
+    setStatus('Exported multi-sheet Excel file!');
+  } catch (err) {
+    console.error('Excel Export Error:', err);
+    setStatus('Export failed', 'error');
+  }
 }
 
 // Import Multi-Sheet Excel (.xlsx)
@@ -494,20 +796,17 @@ async function handleExcelImport(event) {
 
         if (rows.length === 0) return;
 
-        // Try to find matching template by name
         let matchedId = Object.keys(templates).find(
           (id) => templates[id].name.toLowerCase().trim() === sheetName.toLowerCase().trim()
         );
 
         if (matchedId) {
-          // Update existing template with new rows and enable iteration mode
           templates[matchedId].rows = rows;
           templates[matchedId].iterationMode = true;
           templates[matchedId].currentRowIndex = 0;
           importedSheetCount++;
           totalRowsCount += rows.length;
         } else {
-          // Create new template from imported sheet
           const newId = `tpl_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
           const sampleRow = rows[0] || {};
           const fields = {};
@@ -541,7 +840,7 @@ async function handleExcelImport(event) {
   };
 
   reader.readAsArrayBuffer(file);
-  event.target.value = ''; // Reset input
+  event.target.value = '';
 }
 
 // Global Step All Active Templates
@@ -564,8 +863,6 @@ async function stepAllRows(direction = 1) {
     await saveStorage({ templates });
     renderTemplates();
     setStatus(direction > 0 ? 'Stepped all to next row' : 'Stepped all to previous row');
-
-    // Trigger auto-fill on active tab
     triggerFillAcrossAllFrames();
   }
 }
@@ -595,22 +892,30 @@ async function resetAllRows() {
 async function triggerFillAcrossAllFrames() {
   try {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    if (!tab) return;
+    if (!tab || !tab.id) return;
 
-    // Ensure content script is injected into all frames
-    await chrome.scripting.executeScript({
-      target: { tabId: tab.id, allFrames: true },
-      files: ['content.js'],
-    }).catch(() => {});
+    if (tab.url && (tab.url.startsWith('chrome://') || tab.url.startsWith('chrome-extension://') || tab.url.startsWith('edge://') || tab.url.startsWith('about:'))) {
+      setStatus('Cannot run on internal browser pages', 'warning');
+      return;
+    }
 
-    // Send fill message
+    // Attempt injection in case the page was opened before the extension was installed
+    try {
+      await chrome.scripting.executeScript({
+        target: { tabId: tab.id, allFrames: true },
+        files: ['content.js'],
+      });
+    } catch (e) {}
+
     chrome.tabs.sendMessage(tab.id, { action: 'fill' }, (res) => {
+      const err = chrome.runtime.lastError; // Suppresses unchecked error
+      if (err) return;
       if (res?.success) {
         setStatus(`Filled ${res.count || ''} fields!`);
       }
     });
   } catch (err) {
-    console.error('Trigger fill error:', err);
+    console.warn('Trigger fill error suppressed:', err);
   }
 }
 
@@ -618,38 +923,58 @@ async function triggerFillAcrossAllFrames() {
 document.addEventListener('DOMContentLoaded', () => {
   renderTemplates();
 
-  // Create Template Button
-  document.getElementById('btn-create-template').addEventListener('click', () => {
-    recordCurrentPage();
-  });
+  const createBtn = document.getElementById('btn-create-template');
+  if (createBtn) {
+    createBtn.addEventListener('click', () => recordCurrentPage());
+  }
 
-  // Enter Key on Template Name Input
-  document.getElementById('new-template-name').addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') recordCurrentPage();
-  });
+  const nameInput = document.getElementById('new-template-name');
+  if (nameInput) {
+    nameInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') recordCurrentPage();
+    });
+  }
 
-  // Fill Current Page Button
-  document.getElementById('btn-fill-now').addEventListener('click', async () => {
-    await triggerFillAcrossAllFrames();
-  });
+  const fillBtn = document.getElementById('btn-fill-now');
+  if (fillBtn) {
+    fillBtn.addEventListener('click', async () => {
+      await triggerFillAcrossAllFrames();
+    });
+  }
 
-  // Export Excel
-  document.getElementById('btn-export-excel').addEventListener('click', exportToExcel);
+  const exportBtn = document.getElementById('btn-export-excel');
+  if (exportBtn) {
+    exportBtn.addEventListener('click', exportToExcel);
+  }
 
-  // Import Excel
-  document.getElementById('excel-file-input').addEventListener('change', handleExcelImport);
+  const excelInput = document.getElementById('excel-file-input');
+  if (excelInput) {
+    excelInput.addEventListener('change', handleExcelImport);
+  }
 
-  // Batch Iteration Controls
-  document.getElementById('btn-prev-all').addEventListener('click', () => stepAllRows(-1));
-  document.getElementById('btn-next-all').addEventListener('click', () => stepAllRows(1));
-  document.getElementById('btn-reset-all').addEventListener('click', resetAllRows);
+  const prevBtn = document.getElementById('btn-prev-all');
+  if (prevBtn) {
+    prevBtn.addEventListener('click', () => stepAllRows(-1));
+  }
 
-  // Clear All
-  document.getElementById('btn-clear-all').addEventListener('click', async () => {
-    if (confirm('Are you sure you want to clear all recorded templates?')) {
-      await saveStorage({ templates: {} });
-      setStatus('All templates cleared');
-      renderTemplates();
-    }
-  });
+  const nextBtn = document.getElementById('btn-next-all');
+  if (nextBtn) {
+    nextBtn.addEventListener('click', () => stepAllRows(1));
+  }
+
+  const resetBtn = document.getElementById('btn-reset-all');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', resetAllRows);
+  }
+
+  const clearBtn = document.getElementById('btn-clear-all');
+  if (clearBtn) {
+    clearBtn.addEventListener('click', async () => {
+      if (confirm('Are you sure you want to clear all recorded templates?')) {
+        await saveStorage({ templates: {} });
+        setStatus('All templates cleared');
+        renderTemplates();
+      }
+    });
+  }
 });

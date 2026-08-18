@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Field Filler - Quill Edition",
-  "version": "2.0.0",
-  "description": "Multi-page template recorder & Excel-driven auto-filler for bulk product registration.",
+  "name": "Field Filler",
+  "version": "1.0.1",
+  "description": "Multi-paradigm form recorder & Excel-driven auto-filler!",
   "permissions": [
     "storage",
     "activeTab",
