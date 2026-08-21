@@ -528,6 +528,10 @@
                     <label for="includeSubfolders">Include subfolders</label>
                 </div>
                 <div class="checkbox-group">
+                    <input type="checkbox" id="folderCase">
+                    <label for="folderCase">Change folder names</label>
+                </div>
+                <div class="checkbox-group">
                     <input type="checkbox" id="preserveStructure">
                     <label for="preserveStructure">Preserve folder structure on download</label>
                 </div>
@@ -636,6 +640,7 @@
                 cropWidth: cropWidth.value,
                 cropHeight: cropHeight.value,
                 includeSubfolders: includeSubfolders.checked,
+                folderCase: document.getElementById('folderCase')?.checked || false,
                 preserveStructure: preserveStructure.checked,
                 overwriteExisting: overwriteExisting.checked
             };
@@ -659,6 +664,7 @@
                 if (saved.cropWidth != null) cropWidth.value = saved.cropWidth;
                 if (saved.cropHeight != null) cropHeight.value = saved.cropHeight;
                 if (saved.includeSubfolders != null) includeSubfolders.checked = saved.includeSubfolders;
+                if (saved.folderCase != null && document.getElementById('folderCase')) document.getElementById('folderCase').checked = saved.folderCase;
                 if (saved.preserveStructure != null) preserveStructure.checked = saved.preserveStructure;
                 if (saved.overwriteExisting != null) overwriteExisting.checked = saved.overwriteExisting;
             } catch (_) {}
@@ -1332,7 +1338,7 @@
             for (const f of doneFiles) {
                 let zipPath = f.outputName;
                 if (preserveStructure.checked && f.relativePath) {
-                    zipPath = f.relativePath + '/' + f.outputName;
+                    zipPath = getOutputPath(f);
                 }
                 // Handle duplicate names
                 let finalPath = zipPath;
@@ -1439,6 +1445,26 @@ function fileForgeGetName(name){
     return ext ? base + "." + ext : base;
 }
 
+function fileForgeGetFolderPath(relativePath){
+    if(!relativePath) return "";
+
+    // Apply lower/UPPER casing independently to every folder
+    // in the relative path, including the selected root folder.
+    if(!document.getElementById("folderCase")?.checked)
+        return relativePath;
+
+    const mode = document.getElementById("caseMode")?.value || "lower";
+    return relativePath
+        .split("/")
+        .map(folder => mode === "upper" ? folder.toUpperCase() : folder.toLowerCase())
+        .join("/");
+}
+
+function getOutputPath(file){
+    const folderPath = fileForgeGetFolderPath(file.relativePath || "");
+    return folderPath ? folderPath + "/" + file.outputName : file.outputName;
+}
+
 function getOutputName(name){
     return fileForgeGetName(name);
 }
@@ -1451,4 +1477,12 @@ async function convertAll(){
     });
     renderFileList();
 }
+
+["caseMode","nameCase","extensionCase","forceExtension","useForcedExtension",
+ "prefix","suffix","findText","replaceText","folderCase"]
+.forEach(id=>{
+    const e=document.getElementById(id);
+    if(e) e.addEventListener("change",renderFileList);
+    if(e) e.addEventListener("input",renderFileList);
+});
 </script>
