@@ -1,49 +1,63 @@
 # Utilities — File Transfer
 
-A local-network file transfer tool for the Utilities collection.
+A local-network PC ↔ phone file transfer utility.
 
-## What it does
+## Quick start
 
-- Transfer files between a PC/laptop and a phone on the same Wi-Fi/LAN.
-- Upload from either device.
-- Download files from the shared transfer queue.
-- Drag and drop on desktop.
-- Native mobile file picker on phones.
-- QR code for quick phone connection.
-- Shared light/dark theme using the Utilities `utils-theme` setting.
-- No cloud service and no external file upload.
-- Files are stored only in the local `transfers/` folder.
-
-## How it works
-
-The PC/laptop runs a small FastAPI server. The phone opens the server's local IP address.
+For development:
 
 1. Install Python 3.11+.
-2. Open a terminal in this folder.
-3. Install dependencies:
+2. Run `install.bat`.
+3. Run `python launcher.py`.
 
-   `pip install -r requirements.txt`
+For a standalone Windows executable:
 
-4. Start it:
+1. Run `install.bat`.
+2. Find `dist\Utilities File Transfer.exe`.
+3. Double-click it.
+4. Your default browser opens automatically.
 
-   `python app.py`
+Python is not required on the machine where the finished EXE is used.
 
-5. Open the displayed PC address.
-6. On the phone, scan the QR code or open the displayed mobile address.
+## Features
 
-Both devices must be connected to the same local network.
+- PC ↔ phone transfer over the same Wi-Fi/LAN.
+- Random access token for every launch.
+- QR code for phone connection.
+- Drag and drop.
+- Multiple-file upload.
+- 4 GB maximum per uploaded file.
+- Download and delete individual files.
+- One-click Clean Transfer.
+- Transfer-folder selection.
+- Persistent transfer-folder setting.
+- Light/dark theme.
+- Automatic browser launch.
+- No cloud service.
+- Files remain on the selected local folder.
 
-## Firewall
+## Important
 
-On Windows, allow Python/uvicorn through the Private Network firewall prompt if Windows asks.
+The EXE starts a local FastAPI server on port 8765 and opens:
 
-If the phone cannot connect, make sure:
-- both devices are on the same Wi-Fi;
-- the Wi-Fi network does not use client/AP isolation;
-- Windows Firewall allows TCP port 8765 on Private networks.
+`http://127.0.0.1:8765/?token=...`
 
-## Security
+The QR code uses the computer's LAN address so a phone on the same network can connect.
 
-The server is intended for a trusted local network. Each launch creates a random access token and the QR code contains that token.
+Windows Firewall may ask for permission. Allow it on Private networks if you want phone access.
 
-It is **not** intended to be exposed directly to the public internet. For internet-wide transfers, use HTTPS plus proper authentication/storage controls.
+Do not expose this server directly to the public internet.
+
+## Clean Transfer
+
+The Clean Transfer button deletes every file currently in the selected transfer folder. It asks for confirmation first.
+
+## Folder setting
+
+The transfer folder can be changed from the Settings section in the web UI. The selected path is stored locally in `settings.txt`.
+
+## Packaging
+
+`install.bat` installs dependencies and uses PyInstaller to create:
+
+`dist\Utilities File Transfer.exe`

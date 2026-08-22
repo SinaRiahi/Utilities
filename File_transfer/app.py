@@ -3,6 +3,7 @@ import os
 import secrets
 import socket
 import threading
+import webbrowser
 from pathlib import Path
 
 import qrcode
@@ -11,14 +12,32 @@ from fastapi.responses import FileResponse, HTMLResponse, Response
 from fastapi.staticfiles import StaticFiles
 
 APP_DIR = Path(__file__).resolve().parent
-TRANSFER_DIR = APP_DIR / "transfers"
-TRANSFER_DIR.mkdir(exist_ok=True)
+DEFAULT_TRANSFER_DIR = APP_DIR / "transfers"
+DEFAULT_TRANSFER_DIR.mkdir(exist_ok=True)
+SETTINGS_FILE = APP_DIR / "settings.txt"
 
 TOKEN = secrets.token_urlsafe(24)
 MAX_UPLOAD_BYTES = 4 * 1024 * 1024 * 1024
 
 app = FastAPI(title="Utilities File Transfer", docs_url=None, redoc_url=None)
 app.mount("/static", StaticFiles(directory=APP_DIR / "static"), name="static")
+
+
+def get_transfer_dir() -> Path:
+    try:
+        if SETTINGS_FILE.exists():
+            configured = SETTINGS_FILE.read_text(encoding="utf-8").strip()
+            if configured:
+                path = Path(configured).expanduser()
+                path.mkdir(parents=True, exist_ok=True)
+                return path
+    except OSError:
+        pass
+    DEFAULT_TRANSFER_DIR.mkdir(exist_ok=True)
+    return DEFAULT_TRANSFER_DIR
+
+
+TRANSFER_DIR = get_transfer_dir()
 
 
 def local_ip() -> str:
@@ -56,6 +75,7 @@ async def session(token: str | None = Query(default=None)):
         "ip": local_ip(),
         "token": TOKEN,
         "max_upload_bytes": MAX_UPLOAD_BYTES,
+        "transfer_dir": str(TRANSFER_DIR),
     }
 
 
@@ -79,7 +99,6 @@ async def upload_file(
     token: str | None = Query(default=None),
 ):
     check_token(token)
-
     filename = safe_name(file.filename)
     destination = TRANSFER_DIR / filename
 
@@ -126,6 +145,21 @@ async def delete_file(filename: str, token: str | None = Query(default=None)):
     return {"ok": True}
 
 
+@app.post("/api/clean")
+async def clean_transfer(token: str | None = Query(default=None)):
+    check_token(token)
+    deleted = 0
+    errors = []
+    for p in list(TRANSFER_DIR.iterdir()):
+        if p.is_file():
+            try:
+                p.unlink()
+                deleted += 1
+            except OSError as exc:
+                errors.append(f"{p.name}: {exc}")
+    return {"ok": not errors, "deleted": deleted, "errors": errors}
+
+
 @app.get("/qr")
 async def qr(token: str | None = Query(default=None)):
     check_token(token)
@@ -134,6 +168,31 @@ async def qr(token: str | None = Query(default=None)):
     buf = io.BytesIO()
     image.save(buf, format="PNG")
     return Response(content=buf.getvalue(), media_type="image/png")
+
+
+@app.get("/api/settings")
+async def settings(token: str | None = Query(default=None)):
+    check_token(token)
+    return {"transfer_dir": str(TRANSFER_DIR)}
+
+
+@app.post("/api/settings/folder")
+async def set_folder(token: str | None = Query(default=None), path: str = ""):
+    check_token(token)
+    global TRANSFER_DIR
+    if not path.strip():
+        raise HTTPException(status_code=400, detail="Folder path is required")
+    target = Path(path.strip()).expanduser().resolve()
+    try:
+        target.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        raise HTTPException(status_code=400, detail=f"Cannot use folder: {exc}")
+    try:
+        SETTINGS_FILE.write_text(str(target), encoding="utf-8")
+    except OSError as exc:
+        raise HTTPException(status_code=500, detail=f"Cannot save setting: {exc}")
+    TRANSFER_DIR = target
+    return {"transfer_dir": str(TRANSFER_DIR)}
 
 
 def print_connection_info():
@@ -151,4 +210,5 @@ def print_connection_info():
 if __name__ == "__main__":
     import uvicorn
     print_connection_info()
+    webbrowser.open(f"http://127.0.0.1:8765/?token={TOKEN}")
     uvicorn.run(app, host="0.0.0.0", port=8765)
