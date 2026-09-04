@@ -44,6 +44,19 @@ function mergeMessages(target, incoming) {
         // revealed turns as the DOM changes.
         const initial = await extractor.extract();
         const messages = [];
+
+        // If the in-memory recorder has captured messages across this session,
+        // merge them first so virtualized/unloaded messages are preserved.
+        if (window.__universalLLMRecorder) {
+          try {
+            await window.__universalLLMRecorder.recordNow();
+            const ledger = window.__universalLLMRecorder.getLedger();
+            if (Array.isArray(ledger) && ledger.length > 0) {
+              mergeMessages(messages, ledger);
+            }
+          } catch {}
+        }
+
         mergeMessages(messages, initial.messages);
 
         // Do not scroll or traverse automatically. The user can explicitly

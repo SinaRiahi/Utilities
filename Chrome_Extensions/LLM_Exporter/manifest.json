@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Universal LLM Conversation Exporter",
-  "version": "0.3.8",
+  "version": "0.3.9",
   "description": "Select AI conversation messages, copy them as Markdown, open Markdown Studio, and optionally automate repeated follow-up prompts.",
   "icons": {
     "16": "assets/icon16.png",
@@ -39,6 +39,7 @@
       "js": [
         "shared/utils.js",
         "content/extractor-base.js",
+        "content/message-recorder.js",
         "content/chatgpt.js",
         "content/extractor-manager.js",
         "content/auto-continue.js"
@@ -52,6 +53,7 @@
       "js": [
         "shared/utils.js",
         "content/extractor-base.js",
+        "content/message-recorder.js",
         "content/claude.js",
         "content/extractor-manager.js",
         "content/auto-continue.js"
@@ -65,6 +67,7 @@
       "js": [
         "shared/utils.js",
         "content/extractor-base.js",
+        "content/message-recorder.js",
         "content/deepseek.js",
         "content/extractor-manager.js",
         "content/auto-continue.js"
@@ -78,6 +81,7 @@
       "js": [
         "shared/utils.js",
         "content/extractor-base.js",
+        "content/message-recorder.js",
         "content/gemini.js",
         "content/extractor-manager.js",
         "content/auto-continue.js"
@@ -92,6 +96,7 @@
       "js": [
         "shared/utils.js",
         "content/extractor-base.js",
+        "content/message-recorder.js",
         "content/grok.js",
         "content/extractor-manager.js",
         "content/auto-continue.js"

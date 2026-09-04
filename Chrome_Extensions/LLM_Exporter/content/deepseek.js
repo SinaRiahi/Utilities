@@ -10,7 +10,7 @@
  * names fairly often.
  */
 (function registerDeepSeekExtractor() {
-  const MESSAGE_SELECTOR = ".ds-message";
+  const MESSAGE_SELECTOR = ".ds-message, [class*='ds-message']";
   const ASSISTANT_CONTENT_SELECTOR = [
     ".ds-assistant-message-main-content",
     ".ds-markdown",
@@ -20,6 +20,8 @@
     "._9663006",
     ".fbb737a4",
     "[data-message-author-role='user']",
+    "[class*='user-content']",
+    "[class*='user-message']",
   ].join(", ");
 
   function getConversationTitle() {
@@ -32,7 +34,7 @@
   function isAssistantTurn(node) {
     if (!node) return false;
     return !!node.querySelector(
-      ".ds-assistant-message-main-content, .ds-think-content"
+      ".ds-assistant-message-main-content, .ds-think-content, [class*='think-content'], [class*='assistant']"
     );
   }
 
@@ -40,14 +42,25 @@
     if (!node) return null;
 
     if (role === "assistant") {
-      return (
-        node.querySelector(".ds-assistant-message-main-content") ||
-        Array.from(node.querySelectorAll(".ds-markdown")).find(
-          (el) => !el.closest(".ds-think-content")
-        ) ||
-        node.querySelector("[class*='markdown-body']") ||
-        node
+      const main = node.querySelector(".ds-assistant-message-main-content");
+      if (main) return main;
+
+      const markdowns = Array.from(
+        node.querySelectorAll(".ds-markdown, [class*='markdown']")
       );
+      const outsideThink = markdowns.find(
+        (el) => !el.closest(".ds-think-content, [class*='think-content'], [class*='thinking']")
+      );
+      if (outsideThink) return outsideThink;
+
+      const body = node.querySelector("[class*='markdown-body']");
+      if (body && !body.closest(".ds-think-content, [class*='think-content'], [class*='thinking']")) {
+        return body;
+      }
+
+      // If this turn currently only contains thinking/reasoning without answer markdown,
+      // return null so it is not prematurely captured or treated as finished.
+      return null;
     }
 
     return node.querySelector(USER_CONTENT_SELECTOR) || node;

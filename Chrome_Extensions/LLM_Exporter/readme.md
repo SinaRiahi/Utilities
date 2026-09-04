@@ -4,11 +4,17 @@ A lightweight Chrome extension for extracting messages from AI conversations and
 
 Instead of manually copying AI responses one by one, Universal LLM Exporter lets you open the extension while viewing a conversation, select the messages you want, and copy them all at once.
 
-> **Current version:** `0.3.1`
+> **Current version:** `0.3.9`
 
 ---
 
 ## Features
+
+### 🧠 Real-time In-Memory Message Recording
+The extension includes a real-time message recorder that actively captures completed AI responses in memory and local storage as they finish:
+* **Solves DOM Virtualization:** Long chats on platforms like ChatGPT and DeepSeek unload earlier conversation sections as you scroll, causing missing turns or duplicates. The in-memory recorder preserves every finished response across the entire session.
+* **One-Click Export:** When you open the extension, all captured AI turns are already selected and ready to copy with a single click.
+* **Toolbar Controls:** Easily toggle between **All**, **AI only**, **None**, or **Clear memory** for the current chat session.
 
 ### 📋 Select and copy messages
 
@@ -17,12 +23,13 @@ The extension detects messages in the currently open AI conversation and display
 Each message can be individually selected or deselected.
 
 * Select individual messages
-* Select all messages
+* Select all messages or AI only
 * Deselect all messages
+* Clear recorded memory per conversation
 * Refresh the conversation
 * See a short preview of each message
 * AI responses are selected by default
-* Automatically continue the conversation with a message for multi-response documents!
+* **Auto Continue:** Repeatedly send prompts with robust multi-platform generation detection (including DeepSeek thinking and completion tracking).
 
 The selected messages are copied as **Markdown**, making them ready to paste directly into a Markdown editor.
 
@@ -291,18 +298,11 @@ Contains extension assets such as the toolbar icon.
 
 ## DeepSeek support
 
-DeepSeek requires its own extraction logic because its conversation DOM differs significantly from other supported platforms.
+DeepSeek requires its own extraction and auto-prompting logic because its conversation DOM and streaming states differ significantly from other supported platforms:
 
-The exporter supports DeepSeek's current message structure using selectors for:
-
-* Individual message containers
-* Assistant message content
-* Markdown content
-* Thinking/reasoning sections
-
-Thinking content is treated separately from the final assistant response so that the exported answer isn't unnecessarily polluted by internal reasoning UI.
-
-Because AI websites frequently change their frontend implementations, platform-specific selectors may need to be updated in future versions.
+* **Thinking Isolation:** Reasoning blocks (`.ds-think-content`) are extracted separately and strictly excluded from the final assistant answer Markdown.
+* **Accurate Completion Detection:** The extension monitors thinking spinners, text state changes, streaming cursors, the presence of active stop buttons/icons, and the mounting of the completion action bar (Copy/Regenerate buttons) alongside a 2400ms stabilization window. This prevents premature auto-prompt interruption while DeepSeek is still reasoning or formulating its response.
+* **Dynamic Classes:** Resilient selectors accommodate DeepSeek's frequent CSS updates.
 
 ---
 

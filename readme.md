@@ -54,26 +54,109 @@ Rather than creating dozens of half-finished tools, I'd rather build a smaller c
 # 📦 Current Utilities
 
 ## 📝 MD Studio
-
 > A modern Markdown editor focused on creating beautiful documents.
 
-MD Studio combines writing, editing, previewing, and exporting into a single workspace.
-
-### Features
-
-* ✍️ Live Markdown editor
-* 👀 Real-time preview
-* 📄 Export to PDF
-* 🌐 Export to HTML
-* 📝 Export to DOCX
-* 🧮 KaTeX math rendering
-* 📊 Mermaid diagram support
-* 🎨 Syntax highlighting
-* 📑 Automatic Table of Contents
-* 📋 Copy rendered HTML
-* ⚙️ Document customization
+* ✍️ Live Markdown editor & real-time preview
+* 📄 Export to PDF, HTML, and DOCX
+* 🧮 KaTeX math & 📊 Mermaid diagram support
+* 🎨 Syntax highlighting & automatic Table of Contents
 * 🌙 Light & Dark mode
-* 🤖 AI Prompt Library
+
+---
+
+## 📑 PDF to Markdown
+> Fast, privacy-friendly in-browser PDF to Markdown conversion with smart layout analysis.
+
+* 🧠 **Smart Layout & Hierarchy Detection**:
+  * Dynamic heading detection (H1–H6) based on font metrics, weights, and spatial scaling
+  * Multi-column text flow ordering (prevents interleaved column text in academic papers)
+  * Smart paragraph stitching and automatic de-hyphenation across line wraps
+  * Strips recurring running headers, footers, and page numbers
+* 📊 **Table & Math Extraction**:
+  * Converts structured data into clean GitHub-Flavored Markdown (GFM) tables
+  * Recognizes mathematical notation and formats into KaTeX / LaTeX `$math$` and `$$equation$$`
+  * Preserves monospace blocks as fenced code snippets with language hints
+* 🖼️ **Image & Figure Extraction**:
+  * Extracts embedded images, charts, and diagrams with high fidelity
+  * Option to embed as inline Base64 data URIs or export as linked image assets
+  * Image gallery inspector with resolution preview and individual downloads
+* 👁️ **Interactive Dual/Triple View Studio**:
+  * High-resolution PDF page viewer with zoom, rotation, page navigation, and X-Ray structural bounding box overlays
+  * Live Markdown editor with line numbers, search & replace, and real-time formatted HTML preview
+  * Side-by-side visual comparison between original PDF pages and generated Markdown
+* 📦 **Flexible Export & Suite Integration**:
+  * Export as `.md`, `.txt`, `.html`, or full `.zip` bundle (Markdown + images + metadata)
+  * One-click "Open in MD Studio" for instant styling, Mermaid diagramming, and PDF/DOCX rendering
+  * 100% client-side, offline-capable, and private (no files sent to external servers)
+
+---
+
+## 🖼️ Image Forge
+> Professional in-browser image editor, batch converter, and enhancement studio.
+
+* 🔄 Convert between PNG, JPEG, WEBP, GIF, BMP, ICO, ICNS, SVG, and PDF
+* 📐 Resize, smart crop, aspect fit/fill/contain, and dimension limits
+* 🖋️ **Adobe Illustrator "Black and White Logo" Vector & Threshold Mode**:
+  * Precision Rec.709 luminance thresholding with 0–255 parametric sensitivity
+  * Despeckle / Noise reduction filter removing stray raster artifacts
+  * Sub-pixel boundary smoothing to eliminate stair-stepping without blurring
+  * "Ignore White" option for automatic transparent background generation
+  * Direct vector tracing into pure SVG `<path>` elements without raster bloat
+* 🎨 **Creative Effects & Filtering**:
+  * Parametric Sharpening (Laplacian 3x3 convolution)
+  * Radial Vignette with adjustable falloff curves
+  * Posterization tone-reduction (2–16 steps)
+  * Pixelate mosaic generator (2–32 px block size)
+  * Emboss & Sobel 3x3 Edge Detection filters
+  * Color grading presets (Vivid, Warm Golden, Cool Film, Noir B&W, Sepia, Cyberpunk, Invert)
+* 🪄 Instant in-browser background removal (transparent alpha masking)
+* 🔍 EXIF & Image Metadata inspector with privacy stripping on export
+* ⚖️ Side-by-side & Interactive split-slider comparison with real-time effect preview
+* 🌈 Auto-extracted dominant 7-color HEX palette with one-click copy
+* 🔒 100% client-side processing (no server uploads)
+
+---
+
+## 🎵 Audio Forge
+> Professional in-browser audio editor, waveform trimmer, and music converter.
+
+* 🔄 Convert between MP3 (64–320 kbps), WAV (16-bit PCM, 24-bit studio, 32-bit float), WebM, and OGG Opus
+* 🏷️ ID3 Tag & Song Metadata Editor: Title, Artist, Album, Year, Genre, Track #, and Album Cover art embedding
+* ✂️ Visual dual-channel waveform editor with precision trimming, region cutting, and zoom (1x to 8x)
+* 🎚️ 3-Band Equalizer (Bass, Mid, Treble) & Low-Pass / High-Pass filters with audio presets
+* ⚡ Peak & safe volume normalization (-24 dB to +24 dB gain) with fade-in and fade-out
+* 🚀 Tempo/speed stretching (0.25x - 3.0x), reverse audio playback, and center vocal remover
+* 🎙️ Live microphone recording with oscilloscope & synthesizer tone generator
+* 📦 Batch audio conversion with one-click ZIP bundle export
+* 🔒 100% private client-side processing (GitHub Pages ready)
+
+---
+
+## 🗂️ File Forge
+> Batch file renaming, organization, and asset manager.
+
+* 🏷️ Batch rename with prefixes, suffixes, and regex
+* 🔢 Auto-numbering and case transformations
+* 📦 Package and download processed files into a ZIP archive
+
+---
+
+## 📲 File Transfer
+> Fast, private PC ↔ Mobile peer-to-peer file transfer.
+
+* 🌐 **GitHub Pages Ready**: Powered by WebRTC DataChannels with zero cloud storage
+* 📷 Scan QR code to pair phone and PC instantly
+* ⚡ Direct chunked streaming with real-time transfer progress
+* 🔒 End-to-end private transfer
+
+---
+
+## 🔍 WebScope
+> Website intelligence and reconnaissance for AI agents and developers.
+
+* 📡 Inspect website assets, scripts, and endpoints
+* 🔎 Correlate known variables with network responses
+* 📦 Package evidence bundles directly into downloadable ZIPs
 
 ---
 

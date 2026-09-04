@@ -462,6 +462,27 @@
             color: #e4e6ea;
         }
 
+        /* ── Bi-directional Sync Highlight ───────────── */
+        .spot-highlight {
+            position: relative;
+            animation: spotPulse 1.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            border-radius: 4px;
+        }
+        @keyframes spotPulse {
+            0% {
+                background-color: rgba(59, 130, 246, 0.28);
+                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.45);
+            }
+            40% {
+                background-color: rgba(59, 130, 246, 0.18);
+                box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+            }
+            100% {
+                background-color: transparent;
+                box-shadow: 0 0 0 0 transparent;
+            }
+        }
+
         /* ── Mermaid fitting: ensure diagrams never overflow ── */
         .preview-container .mermaid-rendered,
         .preview-container .mermaid {
@@ -1689,7 +1710,7 @@ Use KaTeX for mathematical notation. Use inline $...$ for short expressions and 
 Use GFM tables whenever they communicate comparisons, classifications, options, specifications, or structured data more clearly than prose. Keep tables concise and readable.
 
 # Diagrams
-Use Mermaid when a diagram materially improves understanding. Prefer focused diagrams over large dense diagrams; use LR/RL flowcharts when appropriate to reduce page height. Always use a fenced mermaid block and verify syntax, brackets, arrows, and quoted labels.
+Use Mermaid when a diagram materially improves understanding. Prefer focused diagrams over large dense diagrams. Always use a fenced mermaid block and verify syntax, brackets, arrows, and quoted labels.
 Do not generate boxed items or othe relements that require scrolling (since pdfs cant be scrolled)
 # Writing Style
 Adapt the document to the user's requested purpose. Prioritize accuracy, clarity, logical organization, consistency, completeness, and professional presentation. Do not pad the document with repetition or generic filler.
@@ -1755,7 +1776,7 @@ Semantic meanings:
 Callout bodies should remain normal dark text. Do not manually specify HTML/CSS colors. Use short, focused callouts rather than enclosing every paragraph.
 
 # Mermaid PDF Layout Guidance
-When using Mermaid, prefer focused diagrams and use LR/RL for long processes, pipelines, architectures, timelines, and horizontally related concepts. Avoid unnecessarily tall TD diagrams. If a concept would create an extremely tall diagram, split it into multiple focused diagrams rather than one giant diagram. Keep labels concise and avoid unnecessary nesting. The renderer measures the configured paper size, orientation, and margins and scales each Mermaid diagram proportionally to the printable page area, so do not manually page-break inside diagrams.`
+When using Mermaid, prefer focused diagrams. If a concept would create an extremely large or tall diagram, split it into multiple focused diagrams rather than one giant diagram. Keep labels concise and avoid unnecessary nesting. The renderer measures the configured paper size, orientation, and margins and scales each Mermaid diagram proportionally to the printable page area, so do not manually page-break inside diagrams.`
     },
     {
         id: 'cheat-sheet', label: '⚡ Cheat Sheet',
@@ -1776,7 +1797,7 @@ Tables are the preferred format whenever information can be meaningfully structu
 - Use numbered lists only for ordered procedures.
 
 # Code, Math, Diagrams
-Use fenced code blocks with language labels. Use KaTeX for formulas, with $$...$$ for standalone formulas and proper matrix environments. Use compact Mermaid diagrams only when a visual communicates the information faster than a table or bullets; prefer LR/RL flowcharts.
+Use fenced code blocks with language labels. Use KaTeX for formulas, with $$...$$ for standalone formulas and proper matrix environments. Use compact Mermaid diagrams only when a visual communicates the information faster than a table or bullets.
 
 # Formatting
 - Use no unnecessary blank lines or page breaks.
@@ -1843,7 +1864,7 @@ Semantic meanings:
 Callout bodies should remain normal dark text. Do not manually specify HTML/CSS colors. Use short, focused callouts rather than enclosing every paragraph.
 
 # Mermaid PDF Layout Guidance
-When using Mermaid, prefer focused diagrams and use LR/RL for long processes, pipelines, architectures, timelines, and horizontally related concepts. Avoid unnecessarily tall TD diagrams. If a concept would create an extremely tall diagram, split it into multiple focused diagrams rather than one giant diagram. Keep labels concise and avoid unnecessary nesting. The renderer measures the configured paper size, orientation, and margins and scales each Mermaid diagram proportionally to the printable page area, so do not manually page-break inside diagrams.`
+When using Mermaid, prefer focused diagrams. If a concept would create an extremely large or tall diagram, split it into multiple focused diagrams rather than one giant diagram. Keep labels concise and avoid unnecessary nesting. The renderer measures the configured paper size, orientation, and margins and scales each Mermaid diagram proportionally to the printable page area, so do not manually page-break inside diagrams.`
     },
     {
         id: 'comprehensive-notes', label: '📚 Comprehensive Notes',
@@ -1866,7 +1887,7 @@ Explain ideas rather than merely defining them. When useful, include intuition, 
 Use tables whenever they improve clarity, especially for comparisons, terminology, classifications, algorithms, advantages/disadvantages, feature differences, and related concepts. Do not turn naturally explanatory material into awkward tables.
 
 # Code, Math, Diagrams
-Use fenced code blocks with language labels and explain important examples. Use KaTeX for mathematics: inline $...$ for short expressions and $$...$$ for standalone formulas, derivations, matrices, proofs, or systems. Use proper LaTeX matrix environments. Use Mermaid when it materially improves understanding; prefer multiple focused diagrams and LR/RL flowcharts.
+Use fenced code blocks with language labels and explain important examples. Use KaTeX for mathematics: inline $...$ for short expressions and $$...$$ for standalone formulas, derivations, matrices, proofs, or systems. Use proper LaTeX matrix environments. Use Mermaid when it materially improves understanding; prefer multiple focused diagrams.
 
 # Page and Formatting Rules
 - Do not insert blank lines merely for spacing.
@@ -1934,7 +1955,7 @@ Semantic meanings:
 Callout bodies should remain normal dark text. Do not manually specify HTML/CSS colors. Use short, focused callouts rather than enclosing every paragraph.
 
 # Mermaid PDF Layout Guidance
-When using Mermaid, prefer focused diagrams and use LR/RL for long processes, pipelines, architectures, timelines, and horizontally related concepts. Avoid unnecessarily tall TD diagrams. If a concept would create an extremely tall diagram, split it into multiple focused diagrams rather than one giant diagram. Keep labels concise and avoid unnecessary nesting. The renderer measures the configured paper size, orientation, and margins and scales each Mermaid diagram proportionally to the printable page area, so do not manually page-break inside diagrams.`
+When using Mermaid, prefer focused diagrams. If a concept would create an extremely large or tall diagram, split it into multiple focused diagrams rather than one giant diagram. Keep labels concise and avoid unnecessary nesting. The renderer measures the configured paper size, orientation, and margins and scales each Mermaid diagram proportionally to the printable page area, so do not manually page-break inside diagrams.`
     },
     {
         id: 'course-notes', label: '🎓 Course Notes (Multi-Response)',
@@ -1958,7 +1979,7 @@ Each teaching response must use exactly one H1 for its chapter. Use H2 for subch
 Prioritize deep understanding over memorization. Explain concepts progressively, connect new ideas to earlier material, and use worked examples, analogies, comparisons, and practical demonstrations when they genuinely help. Do not pad the lesson with repetition.
 
 # Tables, Code, Math, Diagrams
-Use tables whenever comparisons, classifications, terminology, algorithms, or trade-offs are clearer in tabular form. Use fenced code blocks with language labels. Use KaTeX for mathematics, with $$...$$ for standalone formulas, derivations, matrices, or proofs. Use Mermaid for useful relationships, flows, architectures, or processes; prefer focused LR/RL diagrams.
+Use tables whenever comparisons, classifications, terminology, algorithms, or trade-offs are clearer in tabular form. Use fenced code blocks with language labels. Use KaTeX for mathematics, with $$...$$ for standalone formulas, derivations, matrices, or proofs. Use Mermaid for useful relationships, flows, architectures, or processes; prefer focused diagrams.
 
 # Formatting
 - Do not add blank lines merely for visual padding.
@@ -2026,7 +2047,7 @@ Semantic meanings:
 Callout bodies should remain normal dark text. Do not manually specify HTML/CSS colors. Use short, focused callouts rather than enclosing every paragraph.
 
 # Mermaid PDF Layout Guidance
-When using Mermaid, prefer focused diagrams and use LR/RL for long processes, pipelines, architectures, timelines, and horizontally related concepts. Avoid unnecessarily tall TD diagrams. If a concept would create an extremely tall diagram, split it into multiple focused diagrams rather than one giant diagram. Keep labels concise and avoid unnecessary nesting. The renderer measures the configured paper size, orientation, and margins and scales each Mermaid diagram proportionally to the printable page area, so do not manually page-break inside diagrams.`
+When using Mermaid, prefer focused diagrams. If a concept would create an extremely large or tall diagram, split it into multiple focused diagrams rather than one giant diagram. Keep labels concise and avoid unnecessary nesting. The renderer measures the configured paper size, orientation, and margins and scales each Mermaid diagram proportionally to the printable page area, so do not manually page-break inside diagrams.`
     },
     {
         id: 'project-bootstrap', label: '🚀 Project Bootstrap Guide',
@@ -2050,7 +2071,7 @@ For every code block:
 - Explain important implementation decisions without drowning the code in prose.
 
 # Architecture and Visuals
-Use Mermaid for architecture, request flow, dependency relationships, lifecycle, folder hierarchy, deployment, or other structures when it improves understanding. Prefer several focused diagrams over one dense diagram and prefer LR/RL flowcharts.
+Use Mermaid for architecture, request flow, dependency relationships, lifecycle, folder hierarchy, deployment, or other structures when it improves understanding. Prefer several focused diagrams over one dense diagram.
 
 # Tables and Formatting
 Use tables when they improve clarity for dependencies, configuration options, technology choices, API summaries, project layouts, or alternatives. Use KaTeX only when mathematical notation genuinely matters. Use numbered lists for procedures and bullets for concepts.
@@ -2121,7 +2142,7 @@ Semantic meanings:
 Callout bodies should remain normal dark text. Do not manually specify HTML/CSS colors. Use short, focused callouts rather than enclosing every paragraph.
 
 # Mermaid PDF Layout Guidance
-When using Mermaid, prefer focused diagrams and use LR/RL for long processes, pipelines, architectures, timelines, and horizontally related concepts. Avoid unnecessarily tall TD diagrams. If a concept would create an extremely tall diagram, split it into multiple focused diagrams rather than one giant diagram. Keep labels concise and avoid unnecessary nesting. The renderer measures the configured paper size, orientation, and margins and scales each Mermaid diagram proportionally to the printable page area, so do not manually page-break inside diagrams.`
+When using Mermaid, prefer focused diagrams. If a concept would create an extremely large or tall diagram, split it into multiple focused diagrams rather than one giant diagram. Keep labels concise and avoid unnecessary nesting. The renderer measures the configured paper size, orientation, and margins and scales each Mermaid diagram proportionally to the printable page area, so do not manually page-break inside diagrams.`
     },
     {
         id: 'deep-dive', label: '🔎 Deep-Dive Topic Study',
@@ -2144,7 +2165,7 @@ Cover the topic from foundations through advanced details as relevant: definitio
 Use H1 for the main topic or major part, H2 for subtopics, and H3-H6 only when genuinely needed. Keep the hierarchy meaningful and avoid shallow sections.
 
 # Tables, Code, Math, Diagrams
-Use tables whenever comparisons, classifications, alternatives, terminology, or structured relationships are clearer in tabular form. Use fenced code blocks with language labels for code. Use KaTeX for mathematical notation, with $$...$$ for standalone derivations, formulas, matrices, or proofs. Use Mermaid for processes, architectures, relationships, or other visuals when it materially improves understanding; prefer focused LR/RL diagrams.
+Use tables whenever comparisons, classifications, alternatives, terminology, or structured relationships are clearer in tabular form. Use fenced code blocks with language labels for code. Use KaTeX for mathematical notation, with $$...$$ for standalone derivations, formulas, matrices, or proofs. Use Mermaid for processes, architectures, relationships, or other visuals when it materially improves understanding; prefer focused diagrams.
 
 # Formatting
 - Do not add blank lines merely for visual padding.
@@ -2212,7 +2233,7 @@ Semantic meanings:
 Callout bodies should remain normal dark text. Do not manually specify HTML/CSS colors. Use short, focused callouts rather than enclosing every paragraph.
 
 # Mermaid PDF Layout Guidance
-When using Mermaid, prefer focused diagrams and use LR/RL for long processes, pipelines, architectures, timelines, and horizontally related concepts. Avoid unnecessarily tall TD diagrams. If a concept would create an extremely tall diagram, split it into multiple focused diagrams rather than one giant diagram. Keep labels concise and avoid unnecessary nesting. The renderer measures the configured paper size, orientation, and margins and scales each Mermaid diagram proportionally to the printable page area, so do not manually page-break inside diagrams.`
+When using Mermaid, prefer focused diagrams. If a concept would create an extremely large or tall diagram, split it into multiple focused diagrams rather than one giant diagram. Keep labels concise and avoid unnecessary nesting. The renderer measures the configured paper size, orientation, and margins and scales each Mermaid diagram proportionally to the printable page area, so do not manually page-break inside diagrams.`
     },
     {
         id: 'business-report', label: '📊 Business Report',
@@ -2288,7 +2309,7 @@ Semantic meanings:
 Callout bodies should remain normal dark text. Do not manually specify HTML/CSS colors. Use short, focused callouts rather than enclosing every paragraph.
 
 # Mermaid PDF Layout Guidance
-When using Mermaid, prefer focused diagrams and use LR/RL for long processes, pipelines, architectures, timelines, and horizontally related concepts. Avoid unnecessarily tall TD diagrams. If a concept would create an extremely tall diagram, split it into multiple focused diagrams rather than one giant diagram. Keep labels concise and avoid unnecessary nesting. The renderer measures the configured paper size, orientation, and margins and scales each Mermaid diagram proportionally to the printable page area, so do not manually page-break inside diagrams.`
+When using Mermaid, prefer focused diagrams. If a concept would create an extremely large or tall diagram, split it into multiple focused diagrams rather than one giant diagram. Keep labels concise and avoid unnecessary nesting. The renderer measures the configured paper size, orientation, and margins and scales each Mermaid diagram proportionally to the printable page area, so do not manually page-break inside diagrams.`
     },
     {
         id: 'meeting-notes', label: '📝 Meeting Notes',
@@ -2358,7 +2379,7 @@ Semantic meanings:
 Callout bodies should remain normal dark text. Do not manually specify HTML/CSS colors. Use short, focused callouts rather than enclosing every paragraph.
 
 # Mermaid PDF Layout Guidance
-When using Mermaid, prefer focused diagrams and use LR/RL for long processes, pipelines, architectures, timelines, and horizontally related concepts. Avoid unnecessarily tall TD diagrams. If a concept would create an extremely tall diagram, split it into multiple focused diagrams rather than one giant diagram. Keep labels concise and avoid unnecessary nesting. The renderer measures the configured paper size, orientation, and margins and scales each Mermaid diagram proportionally to the printable page area, so do not manually page-break inside diagrams.`
+When using Mermaid, prefer focused diagrams. If a concept would create an extremely large or tall diagram, split it into multiple focused diagrams rather than one giant diagram. Keep labels concise and avoid unnecessary nesting. The renderer measures the configured paper size, orientation, and margins and scales each Mermaid diagram proportionally to the printable page area, so do not manually page-break inside diagrams.`
     },
     {
         id: 'technical-proposal', label: '🛠️ Technical Proposal / RFC',
@@ -2431,7 +2452,7 @@ Semantic meanings:
 Callout bodies should remain normal dark text. Do not manually specify HTML/CSS colors. Use short, focused callouts rather than enclosing every paragraph.
 
 # Mermaid PDF Layout Guidance
-When using Mermaid, prefer focused diagrams and use LR/RL for long processes, pipelines, architectures, timelines, and horizontally related concepts. Avoid unnecessarily tall TD diagrams. If a concept would create an extremely tall diagram, split it into multiple focused diagrams rather than one giant diagram. Keep labels concise and avoid unnecessary nesting. The renderer measures the configured paper size, orientation, and margins and scales each Mermaid diagram proportionally to the printable page area, so do not manually page-break inside diagrams.`
+When using Mermaid, prefer focused diagrams. If a concept would create an extremely large or tall diagram, split it into multiple focused diagrams rather than one giant diagram. Keep labels concise and avoid unnecessary nesting. The renderer measures the configured paper size, orientation, and margins and scales each Mermaid diagram proportionally to the printable page area, so do not manually page-break inside diagrams.`
     },
     {
         id: 'research-summary', label: '🔬 Research / Data Summary',
@@ -2501,7 +2522,7 @@ Semantic meanings:
 Callout bodies should remain normal dark text. Do not manually specify HTML/CSS colors. Use short, focused callouts rather than enclosing every paragraph.
 
 # Mermaid PDF Layout Guidance
-When using Mermaid, prefer focused diagrams and use LR/RL for long processes, pipelines, architectures, timelines, and horizontally related concepts. Avoid unnecessarily tall TD diagrams. If a concept would create an extremely tall diagram, split it into multiple focused diagrams rather than one giant diagram. Keep labels concise and avoid unnecessary nesting. The renderer measures the configured paper size, orientation, and margins and scales each Mermaid diagram proportionally to the printable page area, so do not manually page-break inside diagrams.`
+When using Mermaid, prefer focused diagrams. If a concept would create an extremely large or tall diagram, split it into multiple focused diagrams rather than one giant diagram. Keep labels concise and avoid unnecessary nesting. The renderer measures the configured paper size, orientation, and margins and scales each Mermaid diagram proportionally to the printable page area, so do not manually page-break inside diagrams.`
     },
     {
         id: 'resume-cv', label: '👤 Resume / CV',
@@ -2575,7 +2596,7 @@ Semantic meanings:
 Callout bodies should remain normal dark text. Do not manually specify HTML/CSS colors. Use short, focused callouts rather than enclosing every paragraph.
 
 # Mermaid PDF Layout Guidance
-When using Mermaid, prefer focused diagrams and use LR/RL for long processes, pipelines, architectures, timelines, and horizontally related concepts. Avoid unnecessarily tall TD diagrams. If a concept would create an extremely tall diagram, split it into multiple focused diagrams rather than one giant diagram. Keep labels concise and avoid unnecessary nesting. The renderer measures the configured paper size, orientation, and margins and scales each Mermaid diagram proportionally to the printable page area, so do not manually page-break inside diagrams.`
+When using Mermaid, prefer focused diagrams. If a concept would create an extremely large or tall diagram, split it into multiple focused diagrams rather than one giant diagram. Keep labels concise and avoid unnecessary nesting. The renderer measures the configured paper size, orientation, and margins and scales each Mermaid diagram proportionally to the printable page area, so do not manually page-break inside diagrams.`
     },
     {
         id: 'faq-knowledge-base', label: '❓ FAQ / Knowledge Base Article',
@@ -2645,7 +2666,7 @@ Semantic meanings:
 Callout bodies should remain normal dark text. Do not manually specify HTML/CSS colors. Use short, focused callouts rather than enclosing every paragraph.
 
 # Mermaid PDF Layout Guidance
-When using Mermaid, prefer focused diagrams and use LR/RL for long processes, pipelines, architectures, timelines, and horizontally related concepts. Avoid unnecessarily tall TD diagrams. If a concept would create an extremely tall diagram, split it into multiple focused diagrams rather than one giant diagram. Keep labels concise and avoid unnecessary nesting. The renderer measures the configured paper size, orientation, and margins and scales each Mermaid diagram proportionally to the printable page area, so do not manually page-break inside diagrams.`
+When using Mermaid, prefer focused diagrams. If a concept would create an extremely large or tall diagram, split it into multiple focused diagrams rather than one giant diagram. Keep labels concise and avoid unnecessary nesting. The renderer measures the configured paper size, orientation, and margins and scales each Mermaid diagram proportionally to the printable page area, so do not manually page-break inside diagrams.`
     }
 ];
 
@@ -2887,6 +2908,19 @@ When using Mermaid, prefer focused diagrams and use LR/RL for long processes, pi
                     }
                 }
 
+                // Include heading markers (#, ##, etc.) when the heading text is selected
+                const lineBeforeStart = markdown.slice(Math.max(0, markdown.lastIndexOf('\n', start - 1) + 1), start);
+                const headingMatch = lineBeforeStart.match(/^(#{1,6}\s+)/);
+                if (headingMatch && lineBeforeStart.length === headingMatch[0].length) {
+                    sourceStart -= headingMatch[0].length;
+                }
+
+                // Include list markers (- , * , 1. , etc.) or blockquotes (> ) if at line start
+                const listMatch = lineBeforeStart.match(/^(\s*[-*+]\s+|\s*\d+\.\s+|\s*>\s*)/);
+                if (listMatch && lineBeforeStart.length === listMatch[0].length) {
+                    sourceStart -= listMatch[0].length;
+                }
+
                 // Include the Markdown link construct when the visible label is clicked.
                 if (markdown[sourceStart - 1] === '[') {
                     const closeBracket = markdown.indexOf('](', sourceEnd);
@@ -2942,24 +2976,224 @@ When using Mermaid, prefer focused diagrams and use LR/RL for long processes, pi
                 }
             }
 
+            function getTextareaCaretTop(textarea, charIndex) {
+                if (!textarea) return 0;
+                const clampedIndex = Math.max(0, Math.min(textarea.value.length, charIndex || 0));
+                if (clampedIndex === 0) {
+                    return parseFloat(window.getComputedStyle(textarea).paddingTop) || 14;
+                }
+
+                const mirror = document.createElement('div');
+                const style = window.getComputedStyle(textarea);
+
+                const properties = [
+                    'boxSizing', 'paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft',
+                    'borderTopWidth', 'borderRightWidth', 'borderBottomWidth', 'borderLeftWidth',
+                    'fontFamily', 'fontSize', 'fontWeight', 'fontStyle', 'letterSpacing',
+                    'lineHeight', 'textTransform', 'wordSpacing', 'textIndent', 'tabSize',
+                    'direction'
+                ];
+
+                mirror.style.position = 'absolute';
+                mirror.style.top = '-99999px';
+                mirror.style.left = '-99999px';
+                mirror.style.visibility = 'hidden';
+                mirror.style.whiteSpace = 'pre-wrap';
+                mirror.style.wordBreak = 'break-word';
+                mirror.style.overflowWrap = 'break-word';
+
+                properties.forEach(prop => {
+                    mirror.style[prop] = style[prop];
+                });
+
+                mirror.style.width = textarea.clientWidth + 'px';
+                mirror.style.height = 'auto';
+                mirror.style.overflow = 'hidden';
+
+                mirror.textContent = textarea.value.slice(0, clampedIndex);
+
+                const marker = document.createElement('span');
+                marker.textContent = textarea.value.slice(clampedIndex, clampedIndex + 1) || '|';
+                mirror.appendChild(marker);
+
+                document.body.appendChild(mirror);
+                const markerRect = marker.getBoundingClientRect();
+                const mirrorRect = mirror.getBoundingClientRect();
+                const top = markerRect.top - mirrorRect.top;
+                document.body.removeChild(mirror);
+
+                return Math.max(0, top);
+            }
+
             function selectMarkdownSourceFromPreview(event) {
-                if (event.target.closest('.toc-container, .cover-page, pre, .mermaid, .mermaid-rendered, .katex, .katex-block, .copy-code-btn, a, button')) {
+                if (event.target.closest('.toc-container, .cover-page, .copy-code-btn, a, button')) {
                     return;
                 }
 
-                const mapped = event.target.closest('.md-source-map');
-                if (!mapped) return;
+                let start = -1;
+                let end = -1;
 
-                const start = Number(mapped.dataset.mdSelectStart);
-                const end = Number(mapped.dataset.mdSelectEnd);
+                const mapped = event.target.closest('.md-source-map') || event.target.querySelector('.md-source-map');
+                if (mapped) {
+                    start = Number(mapped.dataset.mdSelectStart ?? mapped.dataset.mdStart);
+                    end = Number(mapped.dataset.mdSelectEnd ?? mapped.dataset.mdEnd);
+                }
+
+                if (start < 0 || end <= start) {
+                    const pre = event.target.closest('pre');
+                    if (pre) {
+                        const rawCode = pre.querySelector('code')?.textContent ?? pre.textContent;
+                        const snippet = rawCode.trim().slice(0, 40);
+                        if (snippet) {
+                            const idx = editorEl.value.indexOf(snippet);
+                            if (idx !== -1) {
+                                start = idx;
+                                end = idx + snippet.length;
+                            }
+                        }
+                    }
+                }
+
+                if (start < 0 || end <= start) {
+                    const katexEl = event.target.closest('.katex, .katex-block');
+                    if (katexEl) {
+                        const texAnnotation = katexEl.querySelector('annotation[encoding*="tex"]');
+                        const mathText = texAnnotation?.textContent?.trim() || katexEl.textContent.trim();
+                        if (mathText) {
+                            const idx = editorEl.value.indexOf(mathText);
+                            if (idx !== -1) {
+                                start = idx;
+                                end = idx + mathText.length;
+                            }
+                        }
+                    }
+                }
+
+                if (start < 0 || end <= start) {
+                    const block = event.target.closest('h1, h2, h3, h4, h5, h6, p, li, blockquote, .callout-box');
+                    if (block) {
+                        const text = block.textContent.trim().slice(0, 40);
+                        if (text) {
+                            const idx = editorEl.value.indexOf(text);
+                            if (idx !== -1) {
+                                start = idx;
+                                end = idx + text.length;
+                            }
+                        }
+                    }
+                }
+
                 if (!Number.isInteger(start) || !Number.isInteger(end) || start < 0 || end <= start) return;
 
                 editorEl.focus();
                 editorEl.setSelectionRange(start, end);
 
-                const lineHeight = parseFloat(getComputedStyle(editorEl).lineHeight) || 22;
-                const lineNumber = editorEl.value.slice(0, start).split('\n').length;
-                editorEl.scrollTop = Math.max(0, (lineNumber - 1) * lineHeight - editorEl.clientHeight / 3);
+                const caretTop = getTextareaCaretTop(editorEl, start);
+                const targetScroll = Math.max(0, caretTop - 50);
+
+                editorEl.scrollTo({
+                    top: targetScroll,
+                    behavior: 'smooth'
+                });
+                lineNumbersEl.scrollTop = targetScroll;
+            }
+
+            function selectPreviewFromMarkdownSource() {
+                const cursorPos = editorEl.selectionStart;
+                if (typeof cursorPos !== 'number') return;
+
+                const spans = Array.from(previewEl.querySelectorAll('.md-source-map'));
+                let bestSpan = null;
+                let minDistance = Infinity;
+
+                for (const span of spans) {
+                    const start = Number(span.dataset.mdSelectStart ?? span.dataset.mdStart);
+                    const end = Number(span.dataset.mdSelectEnd ?? span.dataset.mdEnd);
+                    if (Number.isInteger(start) && Number.isInteger(end)) {
+                        if (cursorPos >= start && cursorPos <= end) {
+                            bestSpan = span;
+                            break;
+                        }
+                        const dist = cursorPos < start ? (start - cursorPos) : (cursorPos - end);
+                        if (dist < minDistance) {
+                            minDistance = dist;
+                            bestSpan = span;
+                        }
+                    }
+                }
+
+                if (!bestSpan || minDistance > 80) {
+                    const text = editorEl.value;
+                    const codeBlockRegex = /```[\w-]*\n([\s\S]*?)```/g;
+                    let match;
+                    let blockIndex = 0;
+                    let matchedBlockIndex = -1;
+                    while ((match = codeBlockRegex.exec(text)) !== null) {
+                        const start = match.index;
+                        const end = start + match[0].length;
+                        if (cursorPos >= start && cursorPos <= end) {
+                            matchedBlockIndex = blockIndex;
+                            break;
+                        }
+                        blockIndex++;
+                    }
+                    if (matchedBlockIndex !== -1) {
+                        const preBlocks = Array.from(previewEl.querySelectorAll('pre:not(.cover-page pre)'));
+                        if (preBlocks[matchedBlockIndex]) {
+                            scrollPreviewToElement(preBlocks[matchedBlockIndex]);
+                            return;
+                        }
+                    }
+                }
+
+                const textBefore = editorEl.value.slice(0, cursorPos);
+                const lineStart = textBefore.lastIndexOf('\n') + 1;
+                const nextNewline = editorEl.value.indexOf('\n', cursorPos);
+                const lineEnd = nextNewline === -1 ? editorEl.value.length : nextNewline;
+                const currentLine = editorEl.value.slice(lineStart, lineEnd).trim();
+
+                if (currentLine.startsWith('#')) {
+                    const headingText = currentLine.replace(/^#+\s*/, '').trim();
+                    const allHeadings = Array.from(previewEl.querySelectorAll('h1, h2, h3, h4, h5, h6'));
+                    const matchedHeading = allHeadings.find(h => h.textContent.trim().toLowerCase().includes(headingText.toLowerCase()));
+                    if (matchedHeading) {
+                        scrollPreviewToElement(matchedHeading);
+                        return;
+                    }
+                }
+
+                if (bestSpan) {
+                    scrollPreviewToElement(bestSpan);
+                }
+            }
+
+            function scrollPreviewToElement(targetEl) {
+                if (!targetEl || !previewEl) return;
+
+                const blockEl = targetEl.closest('h1, h2, h3, h4, h5, h6, p, li, tr, blockquote, pre, .callout-box, .katex-block, .mermaid') || targetEl;
+
+                const previewRect = previewEl.getBoundingClientRect();
+                const blockRect = blockEl.getBoundingClientRect();
+
+                const relativeTop = blockRect.top - previewRect.top;
+                const targetScrollTop = previewEl.scrollTop + relativeTop - 50;
+
+                previewEl.scrollTo({
+                    top: Math.max(0, targetScrollTop),
+                    behavior: 'smooth'
+                });
+
+                highlightPreviewElement(blockEl);
+            }
+
+            function highlightPreviewElement(el) {
+                if (!el) return;
+                el.classList.remove('spot-highlight');
+                void el.offsetWidth;
+                el.classList.add('spot-highlight');
+                setTimeout(() => {
+                    el.classList.remove('spot-highlight');
+                }, 1800);
             }
 
             // ── Document language / direction detection ─────────────
@@ -4144,6 +4378,7 @@ updateStats();
 });
 editorEl.addEventListener('scroll', () => { lineNumbersEl.scrollTop = editorEl.scrollTop; });
 previewEl.addEventListener('dblclick', selectMarkdownSourceFromPreview);
+editorEl.addEventListener('dblclick', selectPreviewFromMarkdownSource);
 fileInput.addEventListener('change', handleFileOpen);
 setupDivider();
 setupDragDrop();

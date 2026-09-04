@@ -158,9 +158,33 @@
             overflow-y: auto;
             flex-shrink: 0;
         }
-        .sidebar-section {
+        details.sidebar-section {
             padding: 16px;
             border-bottom: 1px solid var(--border-light);
+        }
+        details.sidebar-section summary {
+            cursor: pointer;
+            list-style: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            user-select: none;
+        }
+        details.sidebar-section summary::-webkit-details-marker { display: none; }
+        details.sidebar-section summary::after {
+            content: '▼';
+            font-size: 10px;
+            color: var(--text-muted);
+            transition: transform 0.2s;
+        }
+        details.sidebar-section[open] summary::after {
+            transform: rotate(180deg);
+        }
+        details.sidebar-section summary h3 {
+            margin-bottom: 0 !important;
+        }
+        details.sidebar-section > *:not(summary) {
+            margin-top: 12px;
         }
         .sidebar-section h3 {
             font-size: 11.5px;
@@ -443,86 +467,53 @@
     <div class="main-container">
         <!-- Sidebar Config -->
         <div class="sidebar" id="sidebar">
-            <div class="sidebar-section">
-    <h3>🔤 Rename Mode</h3>
-    <label for="caseMode">Letter Case</label>
-    <select id="caseMode">
-        <option value="lower">lowercase</option>
-        <option value="upper">UPPERCASE</option>
-    </select>
+            <details class="sidebar-section">
+                <summary><h3>🔤 Rename Mode</h3></summary>
+                <label for="caseMode">Letter Case</label>
+                <select id="caseMode">
+                    <option value="lower">lowercase</option>
+                    <option value="upper">UPPERCASE</option>
+                </select>
 
-    <div class="checkbox-group">
-        <input type="checkbox" id="nameCase" checked>
-        <label for="nameCase">Change file name</label>
-    </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="nameCase" checked>
+                    <label for="nameCase">Change file name</label>
+                </div>
 
-    <div class="checkbox-group">
-        <input type="checkbox" id="extensionCase" checked>
-        <label for="extensionCase">Change extension</label>
-    </div>
-</div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="extensionCase" checked>
+                    <label for="extensionCase">Change extension</label>
+                </div>
+            </details>
 
-<div class="sidebar-section">
-    <h3>🧩 Extension Replacement</h3>
-    <label for="forceExtension">Replace extension with</label>
-    <input id="forceExtension" type="text" placeholder="jpeg">
-    <div class="checkbox-group">
-        <input type="checkbox" id="useForcedExtension">
-        <label for="useForcedExtension">Enable extension replacement</label>
-    </div>
-</div>
+            <details class="sidebar-section">
+                <summary><h3>🧩 Extension Replacement</h3></summary>
+                <label for="forceExtension">Replace extension with</label>
+                <input id="forceExtension" type="text" placeholder="jpeg">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="useForcedExtension">
+                    <label for="useForcedExtension">Enable extension replacement</label>
+                </div>
+            </details>
 
+            <details class="sidebar-section">
+                <summary><h3>✏️ Rename Tools</h3></summary>
 
-<div class="sidebar-section">
-    <h3>🔤 Case Conversion</h3>
+                <label for="prefix">Prefix</label>
+                <input id="prefix" type="text" placeholder="optional">
 
-    <label for="caseMode">Case Mode</label>
-    <select id="caseMode">
-        <option value="lower">lowercase</option>
-        <option value="upper">UPPERCASE</option>
-    </select>
+                <label for="suffix">Suffix</label>
+                <input id="suffix" type="text" placeholder="optional">
 
-    <div class="checkbox-group">
-        <input type="checkbox" id="nameCase" checked>
-        <label for="nameCase">Change file name</label>
-    </div>
+                <label for="findText">Find</label>
+                <input id="findText" type="text" placeholder="optional">
 
-    <div class="checkbox-group">
-        <input type="checkbox" id="extensionCase" checked>
-        <label for="extensionCase">Change extension</label>
-    </div>
-</div>
+                <label for="replaceText">Replace</label>
+                <input id="replaceText" type="text" placeholder="optional">
+            </details>
 
-<div class="sidebar-section">
-    <h3>🧩 Extension Tools</h3>
-
-    <label for="forceExtension">Replace extension</label>
-    <input id="forceExtension" type="text" placeholder="example: jpeg">
-
-    <div class="checkbox-group">
-        <input type="checkbox" id="useForcedExtension">
-        <label for="useForcedExtension">Enable extension replacement</label>
-    </div>
-</div>
-
-<div class="sidebar-section">
-    <h3>✏️ Rename Tools</h3>
-
-    <label for="prefix">Prefix</label>
-    <input id="prefix" type="text" placeholder="optional">
-
-    <label for="suffix">Suffix</label>
-    <input id="suffix" type="text" placeholder="optional">
-
-    <label for="findText">Find</label>
-    <input id="findText" type="text" placeholder="optional">
-
-    <label for="replaceText">Replace</label>
-    <input id="replaceText" type="text" placeholder="optional">
-</div>
-
-<div class="sidebar-section">
-                <h3>📁 Batch Options</h3>
+            <details class="sidebar-section">
+                <summary><h3>📁 Batch Options</h3></summary>
                 <div class="checkbox-group">
                     <input type="checkbox" id="includeSubfolders" checked>
                     <label for="includeSubfolders">Include subfolders</label>
@@ -539,7 +530,7 @@
                     <input type="checkbox" id="overwriteExisting" checked>
                     <label for="overwriteExisting">Overwrite if output exists</label>
                 </div>
-            </div>
+            </details>
         </div>
 
         <!-- Content -->
@@ -877,6 +868,7 @@
                         </div>
                         <span class="file-status ${statusClass}">${statusText}</span>
                         <div class="file-actions">
+                            <button type="button" class="mini-btn" onclick="convertSingle(${i}); event.stopPropagation()" title="Convert this item">⚡ Convert</button>
                             ${f.status === 'done' ? `<button type="button" class="mini-btn" onclick="previewFile(${i}); event.stopPropagation()">👁 Preview</button>` : ''}
                             <button type="button" class="mini-btn" onclick="removeFile(${i}); event.stopPropagation()" title="Remove">✕</button>
                         </div>
@@ -961,11 +953,12 @@
         }
 
         // ── Conversion Engine ─────────
-        async function convertAll() {
-            if (files.length === 0) {
-                log('No files to convert.', 'error');
-                return;
-            }
+        async function convertSingle(index) {
+            const f = files[index];
+            if (!f) return;
+            f.status = 'converting';
+            f.progress = 10;
+            renderFileList();
 
             const fmt = targetFormat.value;
             const quality = parseInt(qualitySlider.value) / 100;
@@ -974,71 +967,71 @@
             const sizeLimitKB = parseInt(fileSizeLimit.value) || 0;
             const icoSizes = getIcoSizes();
             saveSettings();
+            clearErrors();
+
+            try {
+                const img = await loadImage(f.file);
+                f.progress = 25;
+                renderFileList();
+                let canvas = imgToCanvas(img, mw, mh);
+                f.progress = 45;
+                renderFileList();
+
+                let outputBlob;
+                if (fmt === 'ico') {
+                    outputBlob = await canvasToIco(canvas, icoSizes);
+                } else if (fmt === 'icns') {
+                    outputBlob = await canvasToIcns(canvas);
+                } else if (fmt === 'pdf') {
+                    outputBlob = await canvasToPdf(canvas, quality);
+                } else if (fmt === 'svg') {
+                    outputBlob = await canvasToSvg(canvas);
+                } else {
+                    outputBlob = await canvasToRaster(canvas, fmt, quality);
+                }
+
+                if (sizeLimitKB > 0 && outputBlob.size > sizeLimitKB * 1024) {
+                    if (['png', 'jpg', 'jpeg', 'webp'].includes(fmt)) {
+                        let q = quality;
+                        for (let attempt = 0; attempt < 10 && outputBlob.size > sizeLimitKB * 1024; attempt++) {
+                            q = Math.max(0.05, q - 0.1);
+                            outputBlob = await canvasToRaster(canvas, fmt, q);
+                        }
+                    }
+                    if (outputBlob.size > sizeLimitKB * 1024) {
+                        log(`⚠ ${f.name}: output is ${formatBytes(outputBlob.size)}, exceeds ${sizeLimitKB} KB limit.`, 'error');
+                    }
+                }
+
+                f.outputBlob = outputBlob;
+                f.outputName = getOutputName(f.name);
+                f.progress = 100;
+                f.status = 'done';
+            } catch (err) {
+                f.status = 'error';
+                f.progress = 100;
+                log(`✗ ${f.name}: ${err.message}`, 'error');
+            }
+            renderFileList();
+        }
+
+        async function convertAll() {
+            if (files.length === 0) {
+                log('No files to convert.', 'error');
+                return;
+            }
+
+            saveSettings();
             currentBatchDone = 0;
             files.forEach(f => { f.progress = 0; });
             updateBatchProgress();
-
             clearErrors();
 
             for (let i = 0; i < files.length; i++) {
-                const f = files[i];
-                f.status = 'converting';
-                f.progress = 10;
-                renderFileList();
-
-                try {
-                    const img = await loadImage(f.file);
-                    f.progress = 25;
-                    renderFileList();
-                    let canvas = imgToCanvas(img, mw, mh);
-                    f.progress = 45;
-                    renderFileList();
-
-                    let outputBlob;
-                    if (fmt === 'ico') {
-                        outputBlob = await canvasToIco(canvas, icoSizes);
-                    } else if (fmt === 'icns') {
-                        outputBlob = await canvasToIcns(canvas);
-                    } else if (fmt === 'pdf') {
-                        outputBlob = await canvasToPdf(canvas, quality);
-                    } else if (fmt === 'svg') {
-                        outputBlob = await canvasToSvg(canvas);
-                    } else {
-                        outputBlob = await canvasToRaster(canvas, fmt, quality);
-                    }
-
-                    // Size limit enforcement (try reducing quality for raster formats)
-                    if (sizeLimitKB > 0 && outputBlob.size > sizeLimitKB * 1024) {
-                        if (['png', 'jpg', 'jpeg', 'webp'].includes(fmt)) {
-                            let q = quality;
-                            for (let attempt = 0; attempt < 10 && outputBlob.size > sizeLimitKB * 1024; attempt++) {
-                                q = Math.max(0.05, q - 0.1);
-                                outputBlob = await canvasToRaster(canvas, fmt, q);
-                            }
-                        }
-                        if (outputBlob.size > sizeLimitKB * 1024) {
-                            log(`⚠ ${f.name}: output is ${formatBytes(outputBlob.size)}, exceeds ${sizeLimitKB} KB limit.`, 'error');
-                        }
-                    }
-
-                    f.outputBlob = outputBlob;
-                    f.outputName = getOutputName(f.name);
-                    f.progress = 100;
-                    f.status = 'done';
-                    // Successful conversions remain silent; only errors are shown.
-                } catch (err) {
-                    f.status = 'error';
-                    f.progress = 100;
-                    log(`✗ ${f.name}: ${err.message}`, 'error');
-                }
+                await convertSingle(i);
                 currentBatchDone++;
-                renderFileList();
-
-                // Small delay to allow UI update
                 await sleep(30);
             }
-
-            // Conversion complete; no bottom status message is shown.
         }
 
         function loadImage(file) {

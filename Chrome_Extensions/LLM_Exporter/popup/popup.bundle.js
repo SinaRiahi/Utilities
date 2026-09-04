@@ -11,8 +11,10 @@ const SUPPORTED_HOSTS = [
 const MD_STUDIO_URL = "https://sinariahi.github.io/Utilities/MD_Studio/index.html";
 const el = {
   siteBadge: document.getElementById("site-badge"), statusBanner: document.getElementById("status-banner"),
+  memoryBadge: document.getElementById("memory-badge"),
   messageList: document.getElementById("message-list"), selectionCount: document.getElementById("selection-count"),
-  selectAll: document.getElementById("btn-select-all"), deselectAll: document.getElementById("btn-deselect-all"),
+  selectAll: document.getElementById("btn-select-all"), selectAi: document.getElementById("btn-select-ai"),
+  deselectAll: document.getElementById("btn-deselect-all"), clearMemory: document.getElementById("btn-clear-memory"),
   scroll: document.getElementById("btn-scroll"), refresh: document.getElementById("btn-refresh"), copy: document.getElementById("btn-copy"), openMd: document.getElementById("btn-open-md"),
   autoToggle: document.getElementById("auto-toggle"), autoState: document.getElementById("auto-state"), autoConfig: document.getElementById("auto-config"),
   autoPrompt: document.getElementById("auto-prompt"), autoCount: document.getElementById("auto-count"), autoStatus: document.getElementById("auto-status"),
@@ -22,7 +24,22 @@ let activeTab = null, conversation = null, selected = new Set(), autoStatusTimer
 function showStatus(message, kind = "info") { el.statusBanner.textContent = message; el.statusBanner.className = `status-banner ${kind}`; }
 function clearStatus() { el.statusBanner.className = "status-banner hidden"; }
 function getSiteLabel(url) { try { const hostname = new URL(url).hostname; return SUPPORTED_HOSTS.find(s => hostname === s.host || hostname.endsWith(`.${s.host}`))?.label || null; } catch { return null; } }
-function updateSelectionUI() { const count = selected.size, total = conversation?.messages?.length || 0; el.selectionCount.textContent = `${count} of ${total} selected`; el.copy.disabled = count === 0; el.openMd.disabled = false; }
+function updateSelectionUI() {
+  const count = selected.size, total = conversation?.messages?.length || 0;
+  const selectedAiCount = (conversation?.messages || []).filter((m, i) => selected.has(i) && m.role === "assistant").length;
+
+  el.selectionCount.textContent = `${count} of ${total} selected`;
+  el.copy.disabled = count === 0;
+  el.openMd.disabled = false;
+
+  if (count > 0 && count === selectedAiCount) {
+    el.copy.textContent = `Copy AI responses (${count})`;
+  } else if (count > 0) {
+    el.copy.textContent = `Copy selected Markdown (${count})`;
+  } else {
+    el.copy.textContent = "Copy selected Markdown";
+  }
+}
 function renderMessages() {
   el.messageList.replaceChildren(); const messages = conversation?.messages || [];
   if (!messages.length) { const empty = document.createElement("div"); empty.className = "empty-state"; empty.textContent = "No messages found."; el.messageList.appendChild(empty); updateSelectionUI(); return; }
@@ -42,6 +59,16 @@ function renderMessages() {
 function sendToPage(message) {
   return new Promise(resolve => chrome.tabs.sendMessage(activeTab.id, message, result => { if (chrome.runtime.lastError) resolve({ ok: false, error: chrome.runtime.lastError.message }); else resolve(result || { ok: false }); }));
 }
+async function checkMemoryStatus() {
+  if (!activeTab?.id) return;
+  const res = await sendToPage({ type: "EXPORTER_GET_RECORDED_REQUEST" });
+  if (res?.ok && res.count > 0) {
+    el.memoryBadge.textContent = `● ${res.aiCount || res.count} in memory`;
+    el.memoryBadge.classList.remove("hidden");
+  } else {
+    el.memoryBadge.classList.add("hidden");
+  }
+}
 async function extractConversation() {
   if (!activeTab?.id) { showStatus("Couldn't find the active tab.", "error"); return false; }
   clearStatus(); el.refresh.disabled = true; el.copy.disabled = true; el.messageList.innerHTML = '<div class="loading-state">Reading conversation…</div>';
@@ -50,6 +77,7 @@ async function extractConversation() {
   conversation = response.conversation;
   selected = new Set(conversation.messages.map((m, i) => m.role === "assistant" ? i : -1).filter(i => i >= 0));
   renderMessages();
+  await checkMemoryStatus();
   if (response.conversation.traversal?.traversed) showStatus(`Found ${conversation.messages.length} messages after checking the conversation history.`, "success");
   return true;
 }
@@ -77,6 +105,7 @@ async function scrollConversation() {
       .filter(i => i >= 0)
   );
   renderMessages();
+  await checkMemoryStatus();
   showStatus(
     `Loaded ${conversation.messages.length} messages from the conversation.`,
     "success"
@@ -89,10 +118,24 @@ async function copySelected() {
   el.copy.disabled = true; el.copy.textContent = "Copying…";
   try { await navigator.clipboard.writeText(markdown); showStatus(`${selected.size} message${selected.size === 1 ? "" : "s"} copied as Markdown.`, "success"); }
   catch (err) { console.error(err); showStatus("Clipboard access failed. Try again or check browser permissions.", "error"); }
-  finally { el.copy.disabled = selected.size === 0; el.copy.textContent = "Copy selected Markdown"; }
+  finally { updateSelectionUI(); }
 }
 function openMarkdownStudio() { chrome.tabs.create({ url: MD_STUDIO_URL }); }
 function setAllSelected(value) { if (!conversation) return; selected = value ? new Set(conversation.messages.map((_, i) => i)) : new Set(); renderMessages(); }
+function selectAiOnly() {
+  if (!conversation?.messages) return;
+  selected = new Set(conversation.messages.map((m, i) => m.role === "assistant" ? i : -1).filter(i => i >= 0));
+  renderMessages();
+}
+async function clearMemoryAction() {
+  if (!activeTab?.id) return;
+  const res = await sendToPage({ type: "EXPORTER_CLEAR_RECORDED_REQUEST" });
+  if (res?.ok) {
+    el.memoryBadge.classList.add("hidden");
+    showStatus("Chat memory cleared for this conversation.", "info");
+    await extractConversation();
+  }
+}
 function renderAutoStatus(status) {
   if (!status) return;
   el.autoToggle.checked = !!status.enabled;
@@ -116,13 +159,10 @@ async function toggleAuto() {
   const count = Math.min(50, Math.max(1, Number.parseInt(el.autoCount.value, 10) || 5));
   el.autoCount.value = String(count);
 
-  // Explicitly inject the Auto Continue controller into the active tab.
-  // This makes the feature resilient if another content script on the page
-  // failed during startup or Chrome loaded the extension before the tab did.
   try {
     await chrome.scripting.executeScript({
       target: { tabId: activeTab.id },
-      files: ["content/auto-continue.js"],
+      files: ["content/message-recorder.js", "content/auto-continue.js"],
     });
   } catch (err) {
     el.autoToggle.checked = false;
@@ -161,7 +201,10 @@ async function detectSiteAndLoad() {
   await loadAutoStatus();
 }
 function init() {
-  el.selectAll.addEventListener("click", () => setAllSelected(true)); el.deselectAll.addEventListener("click", () => setAllSelected(false));
+  el.selectAll.addEventListener("click", () => setAllSelected(true));
+  el.selectAi?.addEventListener("click", selectAiOnly);
+  el.deselectAll.addEventListener("click", () => setAllSelected(false));
+  el.clearMemory?.addEventListener("click", clearMemoryAction);
   el.scroll.addEventListener("click", scrollConversation);
   el.refresh.addEventListener("click", extractConversation); el.copy.addEventListener("click", copySelected); el.openMd.addEventListener("click", openMarkdownStudio);
   el.autoToggle.addEventListener("change", toggleAuto);

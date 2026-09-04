@@ -15,8 +15,8 @@ window.__universalLLMAutoContinueLoaded = true;
   const DEFAULT_COUNT = 5;
   const MAX_COUNT = 50;
   const POLL_MS = 350;
-  const SETTLE_MS = 1400;
-  const START_TIMEOUT_MS = 20000;
+  const SETTLE_MS = 2400;
+  const START_TIMEOUT_MS = 25000;
 
   const state = {
     enabled: false,
@@ -52,21 +52,31 @@ window.__universalLLMAutoContinueLoaded = true;
       composerSelectors: [
         'textarea',
         'textarea[placeholder*="message" i]',
+        'textarea[placeholder*="发送消息" i]',
         '[contenteditable="true"]',
         '[role="textbox"]',
+        '#chat-input',
       ],
       sendSelectors: [
         'button[aria-label*="Send" i]',
         'button[title*="Send" i]',
+        'button[aria-label*="发送" i]',
+        'button[title*="发送" i]',
         'button[data-testid*="send" i]',
         'button[class*="send" i]',
+        'div[role="button"][aria-label*="Send" i]',
+        'div[role="button"][aria-label*="发送" i]',
         'button[type="submit"]',
       ],
       stopSelectors: [
         'button[aria-label*="Stop" i]',
         'button[title*="Stop" i]',
+        'button[aria-label*="停止" i]',
+        'button[title*="停止" i]',
         'button[data-testid*="stop" i]',
         'button[class*="stop" i]',
+        'div[role="button"][aria-label*="Stop" i]',
+        'div[role="button"][aria-label*="停止" i]',
       ],
     },
     gemini: {
@@ -76,9 +86,6 @@ window.__universalLLMAutoContinueLoaded = true;
         'textarea',
         'rich-textarea [contenteditable="true"]',
       ],
-      // Gemini exposes a stable semantic label on the actual send button.
-      // Prefer this over positional/nearby-button detection so the microphone
-      // button can never be mistaken for Send.
       sendSelectors: [
         'button[aria-label="Send message"]',
         'button[aria-label="Send message" i]',
@@ -134,21 +141,165 @@ window.__universalLLMAutoContinueLoaded = true;
       : String(composer.innerText || composer.textContent || "").trim().length > 0;
   }
 
+  function hasStopSquareIcon(btn) {
+    if (!btn) return false;
+    // Square icon inside stop button is universal across modern LLM interfaces
+    const rects = btn.querySelectorAll("svg rect");
+    for (const r of rects) {
+      const w = parseFloat(r.getAttribute("width") || "0");
+      const h = parseFloat(r.getAttribute("height") || "0");
+      if (w >= 4 && h >= 4) return true;
+    }
+    const svgs = btn.querySelectorAll("svg");
+    for (const s of svgs) {
+      const cls = (s.getAttribute("class") || "").toLowerCase();
+      if (cls.includes("stop") || cls.includes("square")) return true;
+    }
+    return false;
+  }
+
+  function findActiveStopButton() {
+    const adapter = getAdapter();
+    if (adapter) {
+      const direct = findFirst(adapter.stopSelectors);
+      if (direct && visible(direct)) return direct;
+    }
+
+    const composer = findComposer();
+    let searchArea = composer ? composer.parentElement : document.body;
+    for (let depth = 0; composer && searchArea && depth < 6; depth++, searchArea = searchArea.parentElement) {
+      const btns = searchArea.querySelectorAll("button, [role='button'], div[class*='button']");
+      for (const b of btns) {
+        if (!visible(b)) continue;
+        const label = `${b.getAttribute("aria-label") || ""} ${b.getAttribute("title") || ""} ${b.textContent || ""}`.toLowerCase();
+        if (label.includes("stop") || label.includes("停止")) return b;
+        if (hasStopSquareIcon(b)) return b;
+      }
+    }
+
+    const allButtons = document.querySelectorAll("button, [role='button']");
+    for (const b of allButtons) {
+      if (!visible(b)) continue;
+      const label = `${b.getAttribute("aria-label") || ""} ${b.getAttribute("title") || ""} ${b.textContent || ""}`.toLowerCase();
+      if (label.includes("stop generating") || label.includes("停止生成")) return b;
+      if (hasStopSquareIcon(b)) return b;
+    }
+
+    return null;
+  }
+
+  function isDeepSeekActive() {
+    if (!adapters.deepseek.matches()) return false;
+
+    // 1. Visible stop button or stop square anywhere
+    if (findActiveStopButton()) return true;
+
+    // 2. Identify the assistant message turns
+    const assistantNodes = Array.from(
+      document.querySelectorAll(".ds-message, [class*='ds-message'], [class*='message']")
+    ).filter(el =>
+      el.querySelector(".ds-assistant-message-main-content, .ds-think-content, [class*='think-content'], [class*='markdown']")
+    );
+
+    if (assistantNodes.length === 0) return false;
+
+    const latest = assistantNodes[assistantNodes.length - 1];
+
+    // 3. Cursor or typing indicator
+    const cursor = latest.querySelector(".ds-cursor, [class*='cursor'], [class*='typing'], span[class*='loading']");
+    if (cursor && visible(cursor)) return true;
+
+    // 4. Thinking state detection:
+    const think = latest.querySelector(".ds-think-content, [class*='think-content'], [class*='thinking']");
+    if (think) {
+      const spinner = think.querySelector("svg[class*='spin'], [class*='loading'], [class*='animate'], .ds-loading");
+      if (spinner && visible(spinner)) return true;
+
+      const thinkText = think.textContent?.toLowerCase() || "";
+      if (thinkText.includes("thinking...") || thinkText.includes("thinking (") || thinkText.includes("思考中")) {
+        return true;
+      }
+
+      // If the message has thinking, but the main answer content has not started yet:
+      const main = latest.querySelector(
+        ".ds-assistant-message-main-content, .ds-markdown:not(.ds-think-content .ds-markdown)"
+      );
+      const mainText = main?.textContent?.trim() || "";
+      if (!mainText) {
+        const hasCopyBtn = latest.querySelector(
+          "button[aria-label*='Copy' i], button[title*='Copy' i], button[aria-label*='复制' i], [class*='ds-icon-button']"
+        );
+        if (!hasCopyBtn) return true;
+      }
+    }
+
+    // 5. Completion Action Bar:
+    // When DeepSeek finishes writing, it attaches action buttons (Copy / Regenerate) to the bottom of the turn.
+    // While thinking or streaming, these action buttons DO NOT EXIST!
+    const actionButtons = latest.querySelectorAll("button, [role='button']");
+    const hasFinishedActions = Array.from(actionButtons).some(btn => {
+      const label = `${btn.getAttribute("aria-label") || ""} ${btn.getAttribute("title") || ""} ${btn.textContent || ""}`.toLowerCase();
+      return (
+        label.includes("copy") ||
+        label.includes("复制") ||
+        label.includes("regenerate") ||
+        label.includes("重新生成") ||
+        label.includes("like") ||
+        label.includes("dislike")
+      );
+    });
+
+    if (!hasFinishedActions) {
+      return true;
+    }
+
+    return false;
+  }
+
   async function getAssistantSignature() {
     try {
       const active = window.ExporterExtractors?.findActive?.();
-      if (!active?.extract) return "";
+      let assistants = [];
+      if (active?.extract) {
+        const result = await active.extract();
+        assistants = (result?.messages || [])
+          .filter(m => m?.role === "assistant" && typeof m.markdown === "string" && m.markdown.trim());
+      }
 
-      const result = await active.extract();
-      const assistants = (result?.messages || [])
-        .filter(m => m?.role === "assistant" && typeof m.markdown === "string" && m.markdown.trim());
+      // Capture raw DOM text (including thinking text) and action bar presence of the latest assistant message
+      let domTail = "";
+      let hasActions = false;
 
-      if (!assistants.length) return "";
+      if (adapters.deepseek.matches()) {
+        const assistantNodes = Array.from(
+          document.querySelectorAll(".ds-message, [class*='ds-message'], [class*='message']")
+        ).filter(el =>
+          el.querySelector(".ds-assistant-message-main-content, .ds-think-content, [class*='think-content'], [class*='markdown']")
+        );
+        const lastNode = assistantNodes.pop();
+        if (lastNode) {
+          domTail = lastNode.textContent?.trim().slice(-1200) || "";
+          hasActions = Array.from(lastNode.querySelectorAll("button, [role='button']")).some(btn => {
+            const lbl = `${btn.getAttribute("aria-label") || ""} ${btn.getAttribute("title") || ""} ${btn.textContent || ""}`.toLowerCase();
+            return (
+              lbl.includes("copy") ||
+              lbl.includes("复制") ||
+              lbl.includes("regenerate") ||
+              lbl.includes("重新生成")
+            );
+          });
+        }
+      } else {
+        const lastAssistant = document.querySelector(
+          "[data-message-author-role='assistant']:last-of-type, .ds-message:last-of-type"
+        );
+        if (lastAssistant) {
+          domTail = lastAssistant.textContent?.trim().slice(-1200) || "";
+        }
+      }
 
-      // Include both count and the tail of the latest answer. This changes
-      // while streaming and remains stable once the response stops changing.
-      const latest = assistants[assistants.length - 1].markdown.trim();
-      return `${assistants.length}:${latest.length}:${latest.slice(-1200)}`;
+      const latest = assistants.length ? assistants[assistants.length - 1].markdown.trim() : "";
+      return `${assistants.length}:${latest.length}:${latest.slice(-600)}:${domTail.length}:${domTail.slice(-400)}:${hasActions ? 1 : 0}`;
     } catch {
       return "";
     }
@@ -158,7 +309,11 @@ window.__universalLLMAutoContinueLoaded = true;
     const adapter = getAdapter();
     if (!adapter) return false;
 
-    if (findFirst(adapter.stopSelectors)) return true;
+    if (findActiveStopButton()) return true;
+
+    if (adapter === adapters.deepseek && isDeepSeekActive()) {
+      return true;
+    }
 
     const send = findFirst(adapter.sendSelectors);
     if (send && send.disabled) return true;
@@ -551,6 +706,11 @@ window.__universalLLMAutoContinueLoaded = true;
     }
 
     state.stableSince = 0;
+
+    // Immediately record completed AI response in memory
+    try {
+      window.__universalLLMRecorder?.recordNow?.();
+    } catch {}
 
     if (state.remaining <= 0) {
       stop(`Completed ${state.sent} automatic message${state.sent === 1 ? "" : "s"}.`);

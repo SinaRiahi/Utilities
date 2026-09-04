@@ -11,7 +11,10 @@
     <header class="popup-header">
       <div>
         <h1>LLM Exporter</h1>
-        <span id="selection-count" class="selection-count">0 selected</span>
+        <div class="header-sub">
+          <span id="selection-count" class="selection-count">0 selected</span>
+          <span id="memory-badge" class="memory-badge hidden" title="Real-time in-memory recording active">● Memory active</span>
+        </div>
       </div>
       <span id="site-badge" class="site-badge">Reading…</span>
     </header>
@@ -41,8 +44,10 @@
     </section>
 
     <section class="toolbar">
-      <button id="btn-select-all" class="text-button">Select all</button>
-      <button id="btn-deselect-all" class="text-button">Deselect all</button>
+      <button id="btn-select-all" class="text-button" title="Select all messages">All</button>
+      <button id="btn-select-ai" class="text-button" title="Select only AI responses">AI only</button>
+      <button id="btn-deselect-all" class="text-button" title="Deselect all messages">None</button>
+      <button id="btn-clear-memory" class="text-button" title="Clear recorded chat memory for this conversation">Clear memory</button>
       <button id="btn-scroll" class="icon-button" title="Scroll through the full conversation" aria-label="Load full conversation history">⇅</button>
       <button id="btn-refresh" class="icon-button" title="Refresh messages" aria-label="Refresh messages">↻</button>
     </section>

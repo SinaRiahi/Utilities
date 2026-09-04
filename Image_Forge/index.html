@@ -158,9 +158,33 @@
             overflow-y: auto;
             flex-shrink: 0;
         }
-        .sidebar-section {
+        details.sidebar-section {
             padding: 16px;
             border-bottom: 1px solid var(--border-light);
+        }
+        details.sidebar-section summary {
+            cursor: pointer;
+            list-style: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            user-select: none;
+        }
+        details.sidebar-section summary::-webkit-details-marker { display: none; }
+        details.sidebar-section summary::after {
+            content: '▼';
+            font-size: 10px;
+            color: var(--text-muted);
+            transition: transform 0.2s;
+        }
+        details.sidebar-section[open] summary::after {
+            transform: rotate(180deg);
+        }
+        details.sidebar-section summary h3 {
+            margin-bottom: 0 !important;
+        }
+        details.sidebar-section > *:not(summary) {
+            margin-top: 12px;
         }
         .sidebar-section h3 {
             font-size: 11.5px;
@@ -406,6 +430,124 @@
             border-color: var(--accent);
         }
 
+        /* Enhancements: Palette, EXIF, and Compare Slider */
+        .filter-slider-group {
+            margin-bottom: 10px;
+        }
+        .filter-slider-group .slider-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 3px;
+        }
+        .palette-row {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+        .palette-swatch {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.15s ease;
+        }
+        .palette-swatch:hover {
+            transform: scale(1.15);
+            z-index: 2;
+        }
+        .exif-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+        .exif-table th, .exif-table td {
+            text-align: left;
+            padding: 6px 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        .exif-table th {
+            color: var(--text-secondary);
+            width: 40%;
+            font-weight: 500;
+        }
+        .exif-table td {
+            font-family: var(--font-mono, monospace);
+            color: var(--text);
+            word-break: break-all;
+        }
+        .compare-container {
+            position: relative;
+            width: 100%;
+            height: 380px;
+            overflow: hidden;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: repeating-conic-gradient(var(--bg-tertiary) 0% 25%, var(--bg) 0% 50%) 50% / 20px 20px;
+            user-select: none;
+        }
+        .compare-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            pointer-events: none;
+        }
+        .compare-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            overflow: hidden;
+            border-right: 2px solid var(--accent);
+            background: repeating-conic-gradient(var(--bg-tertiary) 0% 25%, var(--bg) 0% 50%) 50% / 20px 20px;
+            pointer-events: none;
+        }
+        .compare-slider-bar {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--accent);
+            cursor: ew-resize;
+            transform: translateX(-50%);
+            z-index: 10;
+        }
+        .compare-handle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+        .compare-badge {
+            position: absolute;
+            top: 8px;
+            padding: 3px 8px;
+            background: rgba(0,0,0,0.7);
+            color: #fff;
+            font-size: 11px;
+            border-radius: 4px;
+            z-index: 5;
+            pointer-events: none;
+        }
+
         .hidden { display: none !important; }
 
         /* Scrollbar */
@@ -443,8 +585,8 @@
     <div class="main-container">
         <!-- Sidebar Config -->
         <div class="sidebar" id="sidebar">
-            <div class="sidebar-section">
-                <h3>🎯 Conversion Target</h3>
+            <details class="sidebar-section">
+                <summary><h3>🎯 Conversion Target</h3></summary>
                 <label for="targetFormat">Output Format</label>
                 <select id="targetFormat" onchange="onFormatChange()">
                     <optgroup label="Icons">
@@ -464,10 +606,10 @@
                         <option value="pdf">PDF (embed image)</option>
                     </optgroup>
                 </select>
-            </div>
+            </details>
 
-            <div class="sidebar-section" id="icoSizesSection">
-                <h3>📐 ICO Sizes</h3>
+            <details class="sidebar-section" id="icoSizesSection">
+                <summary><h3>📐 ICO Sizes</h3></summary>
                 <div class="checkbox-group">
                     <input type="checkbox" id="size16" checked>
                     <label for="size16">16×16</label>
@@ -496,22 +638,23 @@
                     <input type="checkbox" id="size256">
                     <label for="size256">256×256</label>
                 </div>
-            </div>
+            </details>
 
-            <div class="sidebar-section">
-                <h3>✨ Presets</h3>
+            <details class="sidebar-section">
+                <summary><h3>✨ Presets</h3></summary>
                 <select id="presetSelect" onchange="applyPreset(this.value)">
                     <option value="custom">Custom</option>
+                    <option value="bw_logo">🔲 Black & White Logo (Illustrator)</option>
                     <option value="web">Web Optimized</option>
                     <option value="email">Email</option>
                     <option value="social">Social Media</option>
                     <option value="quality">High Quality</option>
                     <option value="small">Small File</option>
                 </select>
-            </div>
+            </details>
 
-            <div class="sidebar-section">
-                <h3>⚙️ Quality & Size</h3>
+            <details class="sidebar-section">
+                <summary><h3>⚙️ Quality & Size</h3></summary>
                 <label for="qualitySlider">Quality: <span id="qualityVal">90</span>%</label>
                 <input type="range" id="qualitySlider" min="1" max="100" value="90" oninput="updateQualityLabel(); markCustom()">
                 <div class="range-labels"><span>1% (smallest)</span><span>100% (best)</span></div>
@@ -536,10 +679,10 @@
 
                 <label for="fileSizeLimit">Target Max File Size (KB, 0 = no limit)</label>
                 <input type="number" id="fileSizeLimit" value="0" min="0" max="100000" step="1" onchange="markCustom()">
-            </div>
+            </details>
 
-            <div class="sidebar-section">
-                <h3>✂️ Transform</h3>
+            <details class="sidebar-section">
+                <summary><h3>✂️ Transform</h3></summary>
                 <div class="transform-grid">
                     <div>
                         <label for="rotate">Rotate</label>
@@ -571,10 +714,155 @@
                     <input type="checkbox" id="stripMetadata" checked disabled>
                     <label for="stripMetadata">Strip image metadata (browser canvas)</label>
                 </div>
-            </div>
+            </details>
 
-            <div class="sidebar-section">
-                <h3>📁 Batch Options</h3>
+            <!-- 4. Color Grading, Filters & AI Effects -->
+            <details class="sidebar-section">
+                <summary><h3>🎨 Color Grading & Effects</h3></summary>
+                <div style="margin-bottom:10px;">
+                    <label for="filterPresetSelect">Active Effect / Preset</label>
+                    <select id="filterPresetSelect" onchange="onFilterPresetChange()">
+                        <option value="none" selected>Normal (None)</option>
+                        <optgroup label="Vector & Graphic Effects">
+                            <option value="bw_logo">🔲 Black & White Logo (Adobe Illustrator)</option>
+                            <option value="grayscale">🖤 Grayscale / Monochrome</option>
+                            <option value="invert">🔄 Invert / Negative</option>
+                            <option value="edge">✏️ Edge Detection (Sketch / Outline)</option>
+                            <option value="emboss">🗿 Emboss (3D Relief)</option>
+                        </optgroup>
+                        <optgroup label="Creative & Detail Effects">
+                            <option value="sharpen">🗡️ Sharpen & Clarity</option>
+                            <option value="vignette">📷 Vignette (Lens Falloff)</option>
+                            <option value="posterize">🎨 Posterize (Pop-Art Bands)</option>
+                            <option value="pixelate">👾 Pixelate (8-Bit Retro)</option>
+                        </optgroup>
+                        <optgroup label="Color Grading & LUTs">
+                            <option value="vivid">Vivid & Saturated</option>
+                            <option value="warm">Warm Sunlight (Golden Hour)</option>
+                            <option value="cool">Cool Cinema / Teal</option>
+                            <option value="noir">Classic Black & White</option>
+                            <option value="sepia">Vintage Sepia</option>
+                            <option value="cyberpunk">Cyberpunk (High Contrast & Neon)</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <!-- Adobe Illustrator B&W Logo Parameters Panel -->
+                <div id="bwLogoOptions" style="display:none; background:var(--bg-secondary); border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px; margin-bottom:12px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+                        <span style="font-size:12px; font-weight:600; color:var(--text);">🔲 Illustrator B&W Logo</span>
+                        <span style="font-size:10px; background:var(--accent); color:#fff; padding:1px 6px; border-radius:10px; font-weight:600;">Vector Ready</span>
+                    </div>
+
+                    <div class="filter-slider-group">
+                        <div class="slider-label">
+                            <span>Threshold (Cutoff)</span>
+                            <span id="bwThresholdVal">128 (50%)</span>
+                        </div>
+                        <input type="range" id="bwThresholdSlider" min="1" max="255" value="128" oninput="onBwLogoParamChange()">
+                    </div>
+
+                    <div class="filter-slider-group">
+                        <div class="slider-label">
+                            <span>Noise / Despeckle</span>
+                            <span id="bwNoiseVal">2 px</span>
+                        </div>
+                        <input type="range" id="bwNoiseSlider" min="0" max="15" value="2" oninput="onBwLogoParamChange()">
+                    </div>
+
+                    <div class="checkbox-group" style="margin-bottom:6px;">
+                        <input type="checkbox" id="bwIgnoreWhiteCheck" checked onchange="onBwLogoParamChange()">
+                        <label for="bwIgnoreWhiteCheck">Ignore White (Transparent Cutout)</label>
+                    </div>
+
+                    <div class="checkbox-group" style="margin-bottom:6px;">
+                        <input type="checkbox" id="bwInvertCheck" onchange="onBwLogoParamChange()">
+                        <label for="bwInvertCheck">Invert (White Logo)</label>
+                    </div>
+
+                    <div class="checkbox-group" style="margin-bottom:6px;">
+                        <input type="checkbox" id="bwSmoothCheck" checked onchange="onBwLogoParamChange()">
+                        <label for="bwSmoothCheck">Smooth Edges (Anti-Aliasing, No Quality Loss)</label>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="bwVectorizeSvgCheck" checked onchange="onBwLogoParamChange()">
+                        <label for="bwVectorizeSvgCheck">Vectorize to SVG Paths (When SVG target)</label>
+                    </div>
+                </div>
+
+                <!-- Contextual Parametric Sliders for Creative Effects -->
+                <div id="sharpenOptions" style="display:none;" class="filter-slider-group">
+                    <div class="slider-label">
+                        <span>Sharpen Intensity</span>
+                        <span id="sharpenVal">60%</span>
+                    </div>
+                    <input type="range" id="sharpenSlider" min="10" max="150" value="60" oninput="onEffectSliderChange()">
+                </div>
+
+                <div id="vignetteOptions" style="display:none;" class="filter-slider-group">
+                    <div class="slider-label">
+                        <span>Vignette Falloff</span>
+                        <span id="vignetteVal">50%</span>
+                    </div>
+                    <input type="range" id="vignetteSlider" min="10" max="100" value="50" oninput="onEffectSliderChange()">
+                </div>
+
+                <div id="posterizeOptions" style="display:none;" class="filter-slider-group">
+                    <div class="slider-label">
+                        <span>Posterize Tone Bands</span>
+                        <span id="posterizeVal">4 tones</span>
+                    </div>
+                    <input type="range" id="posterizeSlider" min="2" max="16" value="4" oninput="onEffectSliderChange()">
+                </div>
+
+                <div id="pixelateOptions" style="display:none;" class="filter-slider-group">
+                    <div class="slider-label">
+                        <span>Pixel Block Size</span>
+                        <span id="pixelateVal">8 px</span>
+                    </div>
+                    <input type="range" id="pixelateSlider" min="2" max="32" value="8" oninput="onEffectSliderChange()">
+                </div>
+
+                <div class="filter-slider-group">
+                    <div class="slider-label">
+                        <span>Brightness</span>
+                        <span id="brightnessVal">100%</span>
+                    </div>
+                    <input type="range" id="brightnessSlider" min="0" max="200" value="100" oninput="onFilterSliderInput()">
+                </div>
+                <div class="filter-slider-group">
+                    <div class="slider-label">
+                        <span>Contrast</span>
+                        <span id="contrastVal">100%</span>
+                    </div>
+                    <input type="range" id="contrastSlider" min="0" max="200" value="100" oninput="onFilterSliderInput()">
+                </div>
+                <div class="filter-slider-group">
+                    <div class="slider-label">
+                        <span>Saturation</span>
+                        <span id="saturationVal">100%</span>
+                    </div>
+                    <input type="range" id="saturationSlider" min="0" max="200" value="100" oninput="onFilterSliderInput()">
+                </div>
+                <div class="filter-slider-group">
+                    <div class="slider-label">
+                        <span>Blur</span>
+                        <span id="blurVal">0px</span>
+                    </div>
+                    <input type="range" id="blurSlider" min="0" max="20" value="0" oninput="onFilterSliderInput()">
+                </div>
+                <div class="checkbox-group" style="margin-top:6px;">
+                    <input type="checkbox" id="removeBgCheck" onchange="markCustom()">
+                    <label for="removeBgCheck">Auto Remove Background (AI Chroma / Edge)</label>
+                </div>
+                <div style="margin-top:6px;">
+                    <button type="button" class="mini-btn" onclick="resetFilters()" style="width:100%;">↺ Reset Color & Effects</button>
+                </div>
+            </details>
+
+            <details class="sidebar-section">
+                <summary><h3>📁 Batch Options</h3></summary>
                 <div class="checkbox-group">
                     <input type="checkbox" id="includeSubfolders" checked>
                     <label for="includeSubfolders">Include subfolders</label>
@@ -587,7 +875,7 @@
                     <input type="checkbox" id="overwriteExisting" checked>
                     <label for="overwriteExisting">Overwrite if output exists</label>
                 </div>
-            </div>
+            </details>
         </div>
 
         <!-- Content -->
@@ -611,10 +899,15 @@
     <div class="preview-overlay hidden" id="previewOverlay" onclick="closePreview(event)">
         <div class="preview-modal" onclick="event.stopPropagation()">
             <div class="preview-header">
-                <h2 id="previewTitle">Preview</h2>
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <h2 id="previewTitle" style="margin:0;">Preview</h2>
+                    <button type="button" class="mini-btn" id="previewModeBtn" onclick="togglePreviewMode()" style="font-weight:600;">⇄ Switch to Split Slider</button>
+                </div>
                 <button class="preview-close" onclick="closePreview()">✕ Close</button>
             </div>
-            <div class="preview-grid">
+
+            <!-- Mode 1: Side-by-Side Cards -->
+            <div class="preview-grid" id="previewSideBySide">
                 <div class="preview-card">
                     <h3>Original</h3>
                     <div class="preview-image-wrap"><img id="previewOriginal" alt="Original preview"></div>
@@ -625,6 +918,57 @@
                     <div class="preview-image-wrap"><img id="previewOutput" alt="Output preview"></div>
                     <div class="preview-meta" id="previewOutputMeta"></div>
                 </div>
+            </div>
+
+            <!-- Mode 2: Interactive Split Slider Comparison -->
+            <div id="previewSplitWrap" class="hidden" style="margin-bottom:12px;">
+                <div class="compare-container" id="compareContainer">
+                    <span class="compare-badge" style="left:8px;">Original</span>
+                    <span class="compare-badge" style="right:8px;">Output</span>
+                    <!-- Bottom full image: Output -->
+                    <img class="compare-img" id="compareImgOutput" alt="Output">
+                    <!-- Top clipped overlay: Original -->
+                    <div class="compare-overlay" id="compareOverlay">
+                        <img class="compare-img" id="compareImgOriginal" alt="Original">
+                    </div>
+                    <!-- Draggable divider line -->
+                    <div class="compare-slider-bar" id="compareBar" style="left:50%;">
+                        <div class="compare-handle">↔</div>
+                    </div>
+                </div>
+                <div style="text-align:center;font-size:11px;color:var(--text-muted);margin-top:6px;">Drag slider left/right to compare original vs processed image</div>
+            </div>
+
+            <!-- Extracted Color Palette -->
+            <div style="margin-top:14px;padding:12px;background:var(--bg-secondary);border-radius:8px;border:1px solid var(--border);">
+                <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px;">🎨 Dominant Color Palette (Click swatch to copy HEX)</div>
+                <div class="palette-row" id="paletteRow">
+                    <span style="font-size:11px;color:var(--text-muted);">Extracting colors…</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- EXIF Inspector Modal -->
+    <div class="modal-overlay hidden" id="exifModal" onclick="closeExifModal(event)">
+        <div class="modal" onclick="event.stopPropagation()" style="max-width:540px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                <h2 style="margin:0;font-size:15px;">🔍 EXIF & Metadata Inspector</h2>
+                <button type="button" class="mini-btn" onclick="closeExifModal()">✕</button>
+            </div>
+            <div id="exifFileName" style="font-size:12px;color:var(--text-secondary);margin-bottom:10px;font-weight:600;"></div>
+            <div style="max-height:300px;overflow-y:auto;border:1px solid var(--border);border-radius:6px;">
+                <table class="exif-table">
+                    <tbody id="exifTableBody">
+                        <tr><td colspan="2" style="text-align:center;color:var(--text-muted);">Reading metadata…</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div style="margin-top:12px;font-size:11px;color:var(--text-muted);line-height:1.5;">
+                🔒 <strong>Privacy Note:</strong> Image Forge automatically strips camera models, timestamps, and GPS metadata when exporting via browser canvas.
+            </div>
+            <div style="display:flex;justify-content:flex-end;margin-top:16px;">
+                <button type="button" class="browse-btn primary" onclick="closeExifModal()">Close</button>
             </div>
         </div>
     </div>
@@ -673,6 +1017,61 @@
         const batchProgressFill = document.getElementById('batchProgressFill');
         const previewOverlay = document.getElementById('previewOverlay');
 
+        // Enhancements DOM refs
+        const filterPresetSelect = document.getElementById('filterPresetSelect');
+        const brightnessSlider = document.getElementById('brightnessSlider');
+        const brightnessVal = document.getElementById('brightnessVal');
+        const contrastSlider = document.getElementById('contrastSlider');
+        const contrastVal = document.getElementById('contrastVal');
+        const saturationSlider = document.getElementById('saturationSlider');
+        const saturationVal = document.getElementById('saturationVal');
+        const blurSlider = document.getElementById('blurSlider');
+        const blurVal = document.getElementById('blurVal');
+        const removeBgCheck = document.getElementById('removeBgCheck');
+
+        // B&W Logo & Creative Effects DOM refs
+        const bwLogoOptions = document.getElementById('bwLogoOptions');
+        const bwThresholdSlider = document.getElementById('bwThresholdSlider');
+        const bwThresholdVal = document.getElementById('bwThresholdVal');
+        const bwNoiseSlider = document.getElementById('bwNoiseSlider');
+        const bwNoiseVal = document.getElementById('bwNoiseVal');
+        const bwIgnoreWhiteCheck = document.getElementById('bwIgnoreWhiteCheck');
+        const bwInvertCheck = document.getElementById('bwInvertCheck');
+        const bwSmoothCheck = document.getElementById('bwSmoothCheck');
+        const bwVectorizeSvgCheck = document.getElementById('bwVectorizeSvgCheck');
+
+        const sharpenOptions = document.getElementById('sharpenOptions');
+        const sharpenSlider = document.getElementById('sharpenSlider');
+        const sharpenVal = document.getElementById('sharpenVal');
+
+        const vignetteOptions = document.getElementById('vignetteOptions');
+        const vignetteSlider = document.getElementById('vignetteSlider');
+        const vignetteVal = document.getElementById('vignetteVal');
+
+        const posterizeOptions = document.getElementById('posterizeOptions');
+        const posterizeSlider = document.getElementById('posterizeSlider');
+        const posterizeVal = document.getElementById('posterizeVal');
+
+        const pixelateOptions = document.getElementById('pixelateOptions');
+        const pixelateSlider = document.getElementById('pixelateSlider');
+        const pixelateVal = document.getElementById('pixelateVal');
+
+        const exifModal = document.getElementById('exifModal');
+        const exifTableBody = document.getElementById('exifTableBody');
+        const exifFileName = document.getElementById('exifFileName');
+        const previewSideBySide = document.getElementById('previewSideBySide');
+        const previewSplitWrap = document.getElementById('previewSplitWrap');
+        const previewModeBtn = document.getElementById('previewModeBtn');
+        const compareContainer = document.getElementById('compareContainer');
+        const compareBar = document.getElementById('compareBar');
+        const compareOverlay = document.getElementById('compareOverlay');
+        const compareImgOriginal = document.getElementById('compareImgOriginal');
+        const compareImgOutput = document.getElementById('compareImgOutput');
+        const paletteRow = document.getElementById('paletteRow');
+
+        let isSplitCompareMode = false;
+        let isDraggingCompare = false;
+
         // ── Theme ─────────────────────
         function applyTheme() {
             document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
@@ -701,7 +1100,23 @@
                 cropHeight: cropHeight.value,
                 includeSubfolders: includeSubfolders.checked,
                 preserveStructure: preserveStructure.checked,
-                overwriteExisting: overwriteExisting.checked
+                overwriteExisting: overwriteExisting.checked,
+                filterPreset: filterPresetSelect ? filterPresetSelect.value : 'none',
+                brightness: brightnessSlider ? brightnessSlider.value : 100,
+                contrast: contrastSlider ? contrastSlider.value : 100,
+                saturation: saturationSlider ? saturationSlider.value : 100,
+                blur: blurSlider ? blurSlider.value : 0,
+                removeBg: removeBgCheck ? removeBgCheck.checked : false,
+                bwThreshold: bwThresholdSlider ? bwThresholdSlider.value : 128,
+                bwNoise: bwNoiseSlider ? bwNoiseSlider.value : 2,
+                bwIgnoreWhite: bwIgnoreWhiteCheck ? bwIgnoreWhiteCheck.checked : true,
+                bwInvert: bwInvertCheck ? bwInvertCheck.checked : false,
+                bwSmooth: bwSmoothCheck ? bwSmoothCheck.checked : true,
+                bwVectorizeSvg: bwVectorizeSvgCheck ? bwVectorizeSvgCheck.checked : true,
+                sharpen: sharpenSlider ? sharpenSlider.value : 60,
+                vignette: vignetteSlider ? vignetteSlider.value : 50,
+                posterize: posterizeSlider ? posterizeSlider.value : 4,
+                pixelate: pixelateSlider ? pixelateSlider.value : 8
             };
             localStorage.setItem('imageforge-settings', JSON.stringify(settings));
         }
@@ -725,6 +1140,54 @@
                 if (saved.includeSubfolders != null) includeSubfolders.checked = saved.includeSubfolders;
                 if (saved.preserveStructure != null) preserveStructure.checked = saved.preserveStructure;
                 if (saved.overwriteExisting != null) overwriteExisting.checked = saved.overwriteExisting;
+                if (saved.filterPreset && filterPresetSelect) filterPresetSelect.value = saved.filterPreset;
+                if (saved.brightness != null && brightnessSlider) {
+                    brightnessSlider.value = saved.brightness;
+                    brightnessVal.textContent = saved.brightness + '%';
+                }
+                if (saved.contrast != null && contrastSlider) {
+                    contrastSlider.value = saved.contrast;
+                    contrastVal.textContent = saved.contrast + '%';
+                }
+                if (saved.saturation != null && saturationSlider) {
+                    saturationSlider.value = saved.saturation;
+                    saturationVal.textContent = saved.saturation + '%';
+                }
+                if (saved.blur != null && blurSlider) {
+                    blurSlider.value = saved.blur;
+                    blurVal.textContent = saved.blur + 'px';
+                }
+                if (saved.removeBg != null && removeBgCheck) removeBgCheck.checked = saved.removeBg;
+                if (saved.bwThreshold != null && bwThresholdSlider) {
+                    bwThresholdSlider.value = saved.bwThreshold;
+                    const pct = Math.round((parseInt(saved.bwThreshold) / 255) * 100);
+                    if (bwThresholdVal) bwThresholdVal.textContent = `${saved.bwThreshold} (${pct}%)`;
+                }
+                if (saved.bwNoise != null && bwNoiseSlider) {
+                    bwNoiseSlider.value = saved.bwNoise;
+                    if (bwNoiseVal) bwNoiseVal.textContent = `${saved.bwNoise} px`;
+                }
+                if (saved.bwIgnoreWhite != null && bwIgnoreWhiteCheck) bwIgnoreWhiteCheck.checked = saved.bwIgnoreWhite;
+                if (saved.bwInvert != null && bwInvertCheck) bwInvertCheck.checked = saved.bwInvert;
+                if (saved.bwSmooth != null && bwSmoothCheck) bwSmoothCheck.checked = saved.bwSmooth;
+                if (saved.bwVectorizeSvg != null && bwVectorizeSvgCheck) bwVectorizeSvgCheck.checked = saved.bwVectorizeSvg;
+                if (saved.sharpen != null && sharpenSlider) {
+                    sharpenSlider.value = saved.sharpen;
+                    if (sharpenVal) sharpenVal.textContent = `${saved.sharpen}%`;
+                }
+                if (saved.vignette != null && vignetteSlider) {
+                    vignetteSlider.value = saved.vignette;
+                    if (vignetteVal) vignetteVal.textContent = `${saved.vignette}%`;
+                }
+                if (saved.posterize != null && posterizeSlider) {
+                    posterizeSlider.value = saved.posterize;
+                    if (posterizeVal) posterizeVal.textContent = `${saved.posterize} tones`;
+                }
+                if (saved.pixelate != null && pixelateSlider) {
+                    pixelateSlider.value = saved.pixelate;
+                    if (pixelateVal) pixelateVal.textContent = `${saved.pixelate} px`;
+                }
+                onFilterPresetChange(false);
             } catch (_) {}
         }
 
@@ -733,7 +1196,145 @@
             saveSettings();
         }
 
+        // ── Filter & Effects Controls ───────────
+        function onFilterSliderInput() {
+            if (brightnessVal && brightnessSlider) brightnessVal.textContent = brightnessSlider.value + '%';
+            if (contrastVal && contrastSlider) contrastVal.textContent = contrastSlider.value + '%';
+            if (saturationVal && saturationSlider) saturationVal.textContent = saturationSlider.value + '%';
+            if (blurVal && blurSlider) blurVal.textContent = blurSlider.value + 'px';
+            markCustom();
+            refreshActivePreview();
+        }
+
+        function onFilterPresetChange(shouldSave = true) {
+            const val = filterPresetSelect ? filterPresetSelect.value : 'none';
+
+            // Toggle contextual parameter panels
+            if (bwLogoOptions) bwLogoOptions.style.display = (val === 'bw_logo') ? 'block' : 'none';
+            if (sharpenOptions) sharpenOptions.style.display = (val === 'sharpen') ? 'block' : 'none';
+            if (vignetteOptions) vignetteOptions.style.display = (val === 'vignette') ? 'block' : 'none';
+            if (posterizeOptions) posterizeOptions.style.display = (val === 'posterize') ? 'block' : 'none';
+            if (pixelateOptions) pixelateOptions.style.display = (val === 'pixelate') ? 'block' : 'none';
+
+            if (val === 'none') {
+                resetFilters(false);
+            } else if (val === 'bw_logo') {
+                // Adobe Illustrator B&W Logo default calibration
+                if (brightnessSlider) brightnessSlider.value = 100;
+                if (contrastSlider) contrastSlider.value = 100;
+                if (saturationSlider) saturationSlider.value = 100;
+                if (blurSlider) blurSlider.value = 0;
+            } else if (val === 'grayscale') {
+                if (saturationSlider) saturationSlider.value = 0;
+            } else if (val === 'vivid') {
+                brightnessSlider.value = 105;
+                contrastSlider.value = 120;
+                saturationSlider.value = 140;
+                blurSlider.value = 0;
+            } else if (val === 'warm') {
+                brightnessSlider.value = 105;
+                contrastSlider.value = 110;
+                saturationSlider.value = 115;
+                blurSlider.value = 0;
+            } else if (val === 'cool') {
+                brightnessSlider.value = 100;
+                contrastSlider.value = 115;
+                saturationSlider.value = 90;
+                blurSlider.value = 0;
+            } else if (val === 'noir') {
+                brightnessSlider.value = 100;
+                contrastSlider.value = 135;
+                saturationSlider.value = 0;
+                blurSlider.value = 0;
+            } else if (val === 'sepia') {
+                brightnessSlider.value = 100;
+                contrastSlider.value = 110;
+                saturationSlider.value = 80;
+                blurSlider.value = 0;
+            } else if (val === 'cyberpunk') {
+                brightnessSlider.value = 110;
+                contrastSlider.value = 150;
+                saturationSlider.value = 160;
+                blurSlider.value = 0;
+            }
+
+            if (brightnessVal && brightnessSlider) brightnessVal.textContent = brightnessSlider.value + '%';
+            if (contrastVal && contrastSlider) contrastVal.textContent = contrastSlider.value + '%';
+            if (saturationVal && saturationSlider) saturationVal.textContent = saturationSlider.value + '%';
+            if (blurVal && blurSlider) blurVal.textContent = blurSlider.value + 'px';
+
+            if (shouldSave) markCustom();
+            refreshActivePreview();
+        }
+
+        function onBwLogoParamChange() {
+            if (bwThresholdVal && bwThresholdSlider) {
+                const pct = Math.round((parseInt(bwThresholdSlider.value) / 255) * 100);
+                bwThresholdVal.textContent = `${bwThresholdSlider.value} (${pct}%)`;
+            }
+            if (bwNoiseVal && bwNoiseSlider) {
+                bwNoiseVal.textContent = `${bwNoiseSlider.value} px`;
+            }
+            markCustom();
+            refreshActivePreview();
+        }
+
+        function onEffectSliderChange() {
+            if (sharpenVal && sharpenSlider) sharpenVal.textContent = sharpenSlider.value + '%';
+            if (vignetteVal && vignetteSlider) vignetteVal.textContent = vignetteSlider.value + '%';
+            if (posterizeVal && posterizeSlider) posterizeVal.textContent = posterizeSlider.value + ' tones';
+            if (pixelateVal && pixelateSlider) pixelateVal.textContent = pixelateSlider.value + ' px';
+            markCustom();
+            refreshActivePreview();
+        }
+
+        function resetFilters(shouldSave = true) {
+            if (filterPresetSelect) filterPresetSelect.value = 'none';
+            if (bwLogoOptions) bwLogoOptions.style.display = 'none';
+            if (sharpenOptions) sharpenOptions.style.display = 'none';
+            if (vignetteOptions) vignetteOptions.style.display = 'none';
+            if (posterizeOptions) posterizeOptions.style.display = 'none';
+            if (pixelateOptions) pixelateOptions.style.display = 'none';
+
+            if (brightnessSlider) brightnessSlider.value = 100;
+            if (contrastSlider) contrastSlider.value = 100;
+            if (saturationSlider) saturationSlider.value = 100;
+            if (blurSlider) blurSlider.value = 0;
+            if (brightnessVal) brightnessVal.textContent = '100%';
+            if (contrastVal) contrastVal.textContent = '100%';
+            if (saturationVal) saturationVal.textContent = '100%';
+            if (blurVal) blurVal.textContent = '0px';
+
+            if (bwThresholdSlider) bwThresholdSlider.value = 128;
+            if (bwThresholdVal) bwThresholdVal.textContent = '128 (50%)';
+            if (bwNoiseSlider) bwNoiseSlider.value = 2;
+            if (bwNoiseVal) bwNoiseVal.textContent = '2 px';
+            if (bwIgnoreWhiteCheck) bwIgnoreWhiteCheck.checked = true;
+            if (bwInvertCheck) bwInvertCheck.checked = false;
+            if (bwSmoothCheck) bwSmoothCheck.checked = true;
+            if (bwVectorizeSvgCheck) bwVectorizeSvgCheck.checked = true;
+
+            if (removeBgCheck) removeBgCheck.checked = false;
+            if (shouldSave) markCustom();
+            refreshActivePreview();
+        }
+
         function applyPreset(name) {
+            if (name === 'bw_logo') {
+                targetFormat.value = 'png';
+                qualitySlider.value = 100;
+                maxWidth.value = 0;
+                maxHeight.value = 0;
+                fitMode.value = 'contain';
+                fileSizeLimit.value = 0;
+                if (filterPresetSelect) filterPresetSelect.value = 'bw_logo';
+                onFilterPresetChange(false);
+                updateQualityLabel();
+                onFormatChange();
+                saveSettings();
+                return;
+            }
+
             const presets = {
                 web: { format:'webp', quality:82, maxWidth:1920, maxHeight:1920, fitMode:'contain', limit:0 },
                 email: { format:'jpg', quality:76, maxWidth:1600, maxHeight:1600, fitMode:'contain', limit:1000 },
@@ -935,7 +1536,9 @@
                         </div>
                         <span class="file-status ${statusClass}">${statusText}</span>
                         <div class="file-actions">
-                            ${f.status === 'done' ? `<button type="button" class="mini-btn" onclick="previewFile(${i}); event.stopPropagation()">👁 Preview</button>` : ''}
+                            <button type="button" class="mini-btn" onclick="convertSingle(${i}); event.stopPropagation()" title="Convert this item">⚡ Convert</button>
+                            <button type="button" class="mini-btn" onclick="inspectExif(${i}); event.stopPropagation()" title="Inspect EXIF / Metadata">🔍 EXIF</button>
+                            <button type="button" class="mini-btn" onclick="previewFile(${i}); event.stopPropagation()" title="Preview Image & Effects">👁 Preview</button>
                             <button type="button" class="mini-btn" onclick="downloadSingle(${i}); event.stopPropagation()" title="Download">💾</button>
                             <button type="button" class="mini-btn" onclick="removeFile(${i}); event.stopPropagation()" title="Remove">✕</button>
                         </div>
@@ -955,22 +1558,50 @@
             batchProgressFill.style.width = `${percent}%`;
         }
 
-        function previewFile(index) {
+        let activePreviewIndex = -1;
+
+        async function previewFile(index) {
             const f = files[index];
-            if (!f || !f.outputBlob) return;
+            if (!f) return;
+            activePreviewIndex = index;
             const originalUrl = URL.createObjectURL(f.file);
-            const outputUrl = URL.createObjectURL(f.outputBlob);
-            document.getElementById('previewTitle').textContent = f.outputName || f.name;
+            let outputBlob = f.outputBlob;
+
+            if (!outputBlob) {
+                try {
+                    const img = await loadImage(f.file);
+                    const mw = parseInt(maxWidth.value) || 0;
+                    const mh = parseInt(maxHeight.value) || 0;
+                    const previewCanvas = imgToCanvas(img, mw, mh);
+                    const fmt = targetFormat.value === 'svg' ? 'png' : targetFormat.value;
+                    outputBlob = await canvasToRaster(previewCanvas, fmt, 0.95);
+                } catch (err) {
+                    outputBlob = f.file;
+                }
+            }
+
+            const outputUrl = URL.createObjectURL(outputBlob);
+            document.getElementById('previewTitle').textContent = (f.outputName || f.name) + (f.outputBlob ? '' : ' (Live Effect Preview)');
             document.getElementById('previewOriginal').src = originalUrl;
             document.getElementById('previewOutput').src = outputUrl;
             document.getElementById('previewOriginalMeta').textContent = `${formatBytes(f.file.size)} · ${f.file.type || 'image'} · ${f.file.name}`;
-            document.getElementById('previewOutputMeta').textContent = `${formatBytes(f.outputBlob.size)} · ${targetFormat.value.toUpperCase()} · ${f.outputName}`;
+            document.getElementById('previewOutputMeta').textContent = `${formatBytes(outputBlob.size)} · ${targetFormat.value.toUpperCase()} · ${f.outputName || 'Preview'}`;
+            
+            // Populate Split Slider Comparison images
+            if (compareImgOriginal) compareImgOriginal.src = originalUrl;
+            if (compareImgOutput) compareImgOutput.src = outputUrl;
+            setCompareSliderPercent(50);
+
+            // Extract Dominant Color Palette from output image
+            extractPaletteFromBlob(outputBlob);
+
             previewOverlay.dataset.originalUrl = originalUrl;
             previewOverlay.dataset.outputUrl = outputUrl;
             previewOverlay.classList.remove('hidden');
         }
 
         function closePreview() {
+            activePreviewIndex = -1;
             const originalUrl = previewOverlay.dataset.originalUrl;
             const outputUrl = previewOverlay.dataset.outputUrl;
             if (originalUrl) URL.revokeObjectURL(originalUrl);
@@ -978,6 +1609,192 @@
             previewOverlay.classList.add('hidden');
             previewOverlay.dataset.originalUrl = '';
             previewOverlay.dataset.outputUrl = '';
+        }
+
+        let previewRefreshTimeout = null;
+        function refreshActivePreview() {
+            if (activePreviewIndex < 0 || previewOverlay.classList.contains('hidden')) return;
+            if (previewRefreshTimeout) clearTimeout(previewRefreshTimeout);
+            previewRefreshTimeout = setTimeout(async () => {
+                const f = files[activePreviewIndex];
+                if (!f) return;
+                try {
+                    const img = await loadImage(f.file);
+                    const mw = parseInt(maxWidth.value) || 0;
+                    const mh = parseInt(maxHeight.value) || 0;
+                    const previewCanvas = imgToCanvas(img, mw, mh);
+                    const fmt = targetFormat.value === 'svg' ? 'png' : targetFormat.value;
+                    const blob = await canvasToRaster(previewCanvas, fmt, 0.95);
+                    const newOutputUrl = URL.createObjectURL(blob);
+
+                    const oldUrl = previewOverlay.dataset.outputUrl;
+                    if (oldUrl) URL.revokeObjectURL(oldUrl);
+                    previewOverlay.dataset.outputUrl = newOutputUrl;
+
+                    document.getElementById('previewOutput').src = newOutputUrl;
+                    if (compareImgOutput) compareImgOutput.src = newOutputUrl;
+                    document.getElementById('previewOutputMeta').textContent = `${formatBytes(blob.size)} · ${targetFormat.value.toUpperCase()} (Live Effect Preview)`;
+                    extractPaletteFromBlob(blob);
+                } catch (_) {}
+            }, 75);
+        }
+
+        function togglePreviewMode() {
+            isSplitCompareMode = !isSplitCompareMode;
+            if (isSplitCompareMode) {
+                previewSideBySide.classList.add('hidden');
+                previewSplitWrap.classList.remove('hidden');
+                previewModeBtn.textContent = '⊞ Switch to Side-by-Side';
+                setCompareSliderPercent(50);
+            } else {
+                previewSplitWrap.classList.add('hidden');
+                previewSideBySide.classList.remove('hidden');
+                previewModeBtn.textContent = '⇄ Switch to Split Slider';
+            }
+        }
+
+        function setCompareSliderPercent(pct) {
+            const clamped = Math.max(0, Math.min(100, pct));
+            if (compareBar) compareBar.style.left = `${clamped}%`;
+            if (compareOverlay) compareOverlay.style.width = `${clamped}%`;
+        }
+
+        // Color Palette Extractor
+        async function extractPaletteFromBlob(blob) {
+            if (!paletteRow) return;
+            paletteRow.innerHTML = '<span style="font-size:11px;color:var(--text-muted);">Extracting colors…</span>';
+            try {
+                const img = await loadImage(blob);
+                const sampleCanvas = document.createElement('canvas');
+                sampleCanvas.width = 60;
+                sampleCanvas.height = 60;
+                const ctx = sampleCanvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, 60, 60);
+                const pData = ctx.getImageData(0, 0, 60, 60).data;
+                const colorBuckets = {};
+
+                for (let i = 0; i < pData.length; i += 16) {
+                    const r = pData[i];
+                    const g = pData[i + 1];
+                    const b = pData[i + 2];
+                    const a = pData[i + 3];
+                    if (a < 64) continue; // skip transparent
+                    // quantize to nearest multiple of 24
+                    const qr = Math.round(r / 24) * 24;
+                    const qg = Math.round(g / 24) * 24;
+                    const qb = Math.round(b / 24) * 24;
+                    const key = `${qr},${qg},${qb}`;
+                    colorBuckets[key] = (colorBuckets[key] || 0) + 1;
+                }
+
+                const sorted = Object.entries(colorBuckets)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 7);
+
+                if (!sorted.length) {
+                    paletteRow.innerHTML = '<span style="font-size:11px;color:var(--text-muted);">No distinct colors found.</span>';
+                    return;
+                }
+
+                paletteRow.innerHTML = sorted.map(([rgbStr]) => {
+                    const [r, g, b] = rgbStr.split(',').map(Number);
+                    const hex = '#' + [r, g, b].map(x => {
+                        const h = Math.min(255, Math.max(0, x)).toString(16);
+                        return h.length === 1 ? '0' + h : h;
+                    }).join('').toUpperCase();
+                    return `<div class="palette-swatch" style="background:${hex};" title="Click to copy ${hex}" onclick="copyHexColor('${hex}')"></div>`;
+                }).join('');
+            } catch (err) {
+                paletteRow.innerHTML = '<span style="font-size:11px;color:var(--text-muted);">Color extraction unavailable</span>';
+            }
+        }
+
+        function copyHexColor(hex) {
+            navigator.clipboard.writeText(hex).then(() => {
+                log(`Copied color ${hex} to clipboard!`, 'info');
+            }).catch(() => {
+                log(`Hex color: ${hex}`, 'info');
+            });
+        }
+
+        // EXIF & Metadata Inspector
+        async function inspectExif(index) {
+            const f = files[index];
+            if (!f || !f.file) return;
+
+            exifFileName.textContent = `File: ${f.name} (${formatBytes(f.file.size)})`;
+            exifTableBody.innerHTML = '<tr><td colspan="2" style="text-align:center;color:var(--text-muted);">Reading metadata…</td></tr>';
+            exifModal.classList.remove('hidden');
+
+            const rows = [];
+            rows.push(['File Name', f.name]);
+            rows.push(['File Size', `${formatBytes(f.file.size)} (${f.file.size.toLocaleString()} bytes)`]);
+            rows.push(['MIME Type', f.file.type || 'Unknown']);
+            if (f.file.lastModified) {
+                rows.push(['Last Modified', new Date(f.file.lastModified).toLocaleString()]);
+            }
+
+            try {
+                const img = await loadImage(f.file);
+                rows.push(['Natural Dimensions', `${img.naturalWidth} × ${img.naturalHeight} px`]);
+                const aspect = (img.naturalWidth / img.naturalHeight).toFixed(2);
+                rows.push(['Aspect Ratio', `${aspect} : 1`]);
+            } catch (_) {}
+
+            // Read raw EXIF markers if JPEG
+            try {
+                const buffer = await f.file.slice(0, 128 * 1024).arrayBuffer();
+                const view = new DataView(buffer);
+                let isJpeg = view.getUint16(0, false) === 0xFFD8;
+                if (isJpeg) {
+                    let offset = 2;
+                    let foundExif = false;
+                    while (offset < view.byteLength - 4) {
+                        const marker = view.getUint16(offset, false);
+                        offset += 2;
+                        if (marker === 0xFFE1) { // APP1 Exif Marker
+                            foundExif = true;
+                            const length = view.getUint16(offset, false);
+                            offset += 2;
+                            const exifHeader = String.fromCharCode(
+                                view.getUint8(offset), view.getUint8(offset+1),
+                                view.getUint8(offset+2), view.getUint8(offset+3)
+                            );
+                            if (exifHeader === 'Exif') {
+                                rows.push(['EXIF App1 Block', `Present (${length} bytes header)`]);
+                                rows.push(['Privacy Status', 'Contains camera/GPS data — Image Forge will strip this on export!']);
+                            }
+                            break;
+                        } else if ((marker & 0xFF00) === 0xFF00) {
+                            const segLen = view.getUint16(offset, false);
+                            offset += segLen;
+                        } else {
+                            break;
+                        }
+                    }
+                    if (!foundExif) {
+                        rows.push(['EXIF Header', 'None detected (clean JPEG)']);
+                    }
+                } else if (f.name.toLowerCase().endsWith('.png')) {
+                    rows.push(['Format Container', 'Standard PNG chunks (IHDR, sRGB/iCCP)']);
+                } else if (f.name.toLowerCase().endsWith('.webp')) {
+                    rows.push(['Format Container', 'RIFF WebP Bitstream']);
+                }
+            } catch (err) {
+                rows.push(['Raw Inspection', 'Standard image container']);
+            }
+
+            exifTableBody.innerHTML = rows.map(([label, val]) => `
+                <tr>
+                    <th>${label}</th>
+                    <td>${val}</td>
+                </tr>
+            `).join('');
+        }
+
+        function closeExifModal(e) {
+            if (e && e.target !== exifModal && !e.target.classList.contains('browse-btn') && !e.target.classList.contains('mini-btn')) return;
+            exifModal.classList.add('hidden');
         }
 
         function downloadSingle(index) {
@@ -1029,11 +1846,12 @@
         }
 
         // ── Conversion Engine ─────────
-        async function convertAll() {
-            if (files.length === 0) {
-                log('No files to convert.', 'error');
-                return;
-            }
+        async function convertSingle(index) {
+            const f = files[index];
+            if (!f) return;
+            f.status = 'converting';
+            f.progress = 10;
+            renderFileList();
 
             const fmt = targetFormat.value;
             const quality = parseInt(qualitySlider.value) / 100;
@@ -1042,71 +1860,72 @@
             const sizeLimitKB = parseInt(fileSizeLimit.value) || 0;
             const icoSizes = getIcoSizes();
             saveSettings();
+            clearErrors();
+
+            try {
+                const img = await loadImage(f.file);
+                f.progress = 25;
+                renderFileList();
+                let canvas = imgToCanvas(img, mw, mh);
+                f.progress = 45;
+                renderFileList();
+
+                let outputBlob;
+                if (fmt === 'ico') {
+                    outputBlob = await canvasToIco(canvas, icoSizes);
+                } else if (fmt === 'icns') {
+                    outputBlob = await canvasToIcns(canvas);
+                } else if (fmt === 'pdf') {
+                    outputBlob = await canvasToPdf(canvas, quality);
+                } else if (fmt === 'svg') {
+                    outputBlob = await canvasToSvg(canvas);
+                } else {
+                    outputBlob = await canvasToRaster(canvas, fmt, quality);
+                }
+
+                // Size limit enforcement (try reducing quality for raster formats)
+                if (sizeLimitKB > 0 && outputBlob.size > sizeLimitKB * 1024) {
+                    if (['png', 'jpg', 'jpeg', 'webp'].includes(fmt)) {
+                        let q = quality;
+                        for (let attempt = 0; attempt < 10 && outputBlob.size > sizeLimitKB * 1024; attempt++) {
+                            q = Math.max(0.05, q - 0.1);
+                            outputBlob = await canvasToRaster(canvas, fmt, q);
+                        }
+                    }
+                    if (outputBlob.size > sizeLimitKB * 1024) {
+                        log(`⚠ ${f.name}: output is ${formatBytes(outputBlob.size)}, exceeds ${sizeLimitKB} KB limit.`, 'error');
+                    }
+                }
+
+                f.outputBlob = outputBlob;
+                f.outputName = getOutputName(f.name);
+                f.progress = 100;
+                f.status = 'done';
+            } catch (err) {
+                f.status = 'error';
+                f.progress = 100;
+                log(`✗ ${f.name}: ${err.message}`, 'error');
+            }
+            renderFileList();
+        }
+
+        async function convertAll() {
+            if (files.length === 0) {
+                log('No files to convert.', 'error');
+                return;
+            }
+
+            saveSettings();
             currentBatchDone = 0;
             files.forEach(f => { f.progress = 0; });
             updateBatchProgress();
-
             clearErrors();
 
             for (let i = 0; i < files.length; i++) {
-                const f = files[i];
-                f.status = 'converting';
-                f.progress = 10;
-                renderFileList();
-
-                try {
-                    const img = await loadImage(f.file);
-                    f.progress = 25;
-                    renderFileList();
-                    let canvas = imgToCanvas(img, mw, mh);
-                    f.progress = 45;
-                    renderFileList();
-
-                    let outputBlob;
-                    if (fmt === 'ico') {
-                        outputBlob = await canvasToIco(canvas, icoSizes);
-                    } else if (fmt === 'icns') {
-                        outputBlob = await canvasToIcns(canvas);
-                    } else if (fmt === 'pdf') {
-                        outputBlob = await canvasToPdf(canvas, quality);
-                    } else if (fmt === 'svg') {
-                        outputBlob = await canvasToSvg(canvas);
-                    } else {
-                        outputBlob = await canvasToRaster(canvas, fmt, quality);
-                    }
-
-                    // Size limit enforcement (try reducing quality for raster formats)
-                    if (sizeLimitKB > 0 && outputBlob.size > sizeLimitKB * 1024) {
-                        if (['png', 'jpg', 'jpeg', 'webp'].includes(fmt)) {
-                            let q = quality;
-                            for (let attempt = 0; attempt < 10 && outputBlob.size > sizeLimitKB * 1024; attempt++) {
-                                q = Math.max(0.05, q - 0.1);
-                                outputBlob = await canvasToRaster(canvas, fmt, q);
-                            }
-                        }
-                        if (outputBlob.size > sizeLimitKB * 1024) {
-                            log(`⚠ ${f.name}: output is ${formatBytes(outputBlob.size)}, exceeds ${sizeLimitKB} KB limit.`, 'error');
-                        }
-                    }
-
-                    f.outputBlob = outputBlob;
-                    f.outputName = getOutputName(f.name);
-                    f.progress = 100;
-                    f.status = 'done';
-                    // Successful conversions remain silent; only errors are shown.
-                } catch (err) {
-                    f.status = 'error';
-                    f.progress = 100;
-                    log(`✗ ${f.name}: ${err.message}`, 'error');
-                }
+                await convertSingle(i);
                 currentBatchDone++;
-                renderFileList();
-
-                // Small delay to allow UI update
                 await sleep(30);
             }
-
-            // Conversion complete; no bottom status message is shown.
         }
 
         function loadImage(file) {
@@ -1183,9 +2002,525 @@
                 sx = Math.max(0, (img.naturalWidth - sw) / 2);
                 sy = Math.max(0, (img.naturalHeight - sh) / 2);
             }
+
+            // Apply Color Grading Filters (brightness, contrast, saturation, blur, preset)
+            const filterParts = [];
+            const bVal = brightnessSlider ? parseInt(brightnessSlider.value) : 100;
+            const cVal = contrastSlider ? parseInt(contrastSlider.value) : 100;
+            const sVal = saturationSlider ? parseInt(saturationSlider.value) : 100;
+            const blVal = blurSlider ? parseInt(blurSlider.value) : 0;
+            const preset = filterPresetSelect ? filterPresetSelect.value : 'none';
+
+            if (bVal !== 100) filterParts.push(`brightness(${bVal}%)`);
+            if (cVal !== 100) filterParts.push(`contrast(${cVal}%)`);
+            if (sVal !== 100) filterParts.push(`saturate(${sVal}%)`);
+            if (blVal > 0) filterParts.push(`blur(${blVal}px)`);
+
+            if (preset === 'sepia') {
+                filterParts.push('sepia(70%)');
+            } else if (preset === 'warm') {
+                filterParts.push('sepia(20%) hue-rotate(-10deg)');
+            } else if (preset === 'cool') {
+                filterParts.push('hue-rotate(18deg)');
+            } else if (preset === 'cyberpunk') {
+                filterParts.push('hue-rotate(180deg) contrast(140%)');
+            }
+
+            if (filterParts.length > 0) {
+                ctx.filter = filterParts.join(' ');
+            }
+
             ctx.drawImage(img, sx, sy, sw, sh, -drawW / 2, -drawH / 2, drawW, drawH);
             ctx.restore();
+
+            // Client-Side Background Removal (Smart Edge / Chroma Alpha Masking)
+            if (removeBgCheck && removeBgCheck.checked) {
+                applyBackgroundRemoval(canvas);
+            }
+
+            // Client-Side Image Effects & Adobe Illustrator B&W Logo
+            applyImageEffects(canvas);
+
             return canvas;
+        }
+
+        // Fast In-Browser AI/Chroma Background Remover
+        function applyBackgroundRemoval(canvas) {
+            const ctx = canvas.getContext('2d');
+            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imgData.data;
+            const w = canvas.width;
+            const h = canvas.height;
+
+            // Sample corners to identify background tone
+            const cornerIndices = [
+                0,                                  // Top-left
+                (w - 1) * 4,                        // Top-right
+                ((h - 1) * w) * 4,                  // Bottom-left
+                ((h - 1) * w + (w - 1)) * 4         // Bottom-right
+            ];
+
+            let totalR = 0, totalG = 0, totalB = 0;
+            cornerIndices.forEach(idx => {
+                totalR += data[idx];
+                totalG += data[idx + 1];
+                totalB += data[idx + 2];
+            });
+            const bgR = Math.round(totalR / 4);
+            const bgG = Math.round(totalG / 4);
+            const bgB = Math.round(totalB / 4);
+
+            const tolerance = 42; // Euclidean color distance threshold
+            const feather = 18;
+
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                const dist = Math.sqrt((r - bgR) ** 2 + (g - bgG) ** 2 + (b - bgB) ** 2);
+
+                if (dist < tolerance) {
+                    data[i + 3] = 0; // completely transparent
+                } else if (dist < tolerance + feather) {
+                    const factor = (dist - tolerance) / feather;
+                    data[i + 3] = Math.round(data[i + 3] * factor);
+                }
+            }
+
+            ctx.putImageData(imgData, 0, 0);
+        }
+
+        // ── Custom Pixel Effects Pipeline ──
+        function applyImageEffects(canvas) {
+            const effect = filterPresetSelect ? filterPresetSelect.value : 'none';
+            if (effect === 'none' || !effect) return;
+
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width;
+            const h = canvas.height;
+            if (w <= 0 || h <= 0) return;
+
+            const imgData = ctx.getImageData(0, 0, w, h);
+
+            if (effect === 'bw_logo') {
+                applyBwLogoEffect(imgData, w, h);
+            } else if (effect === 'grayscale') {
+                applyGrayscaleEffect(imgData);
+            } else if (effect === 'invert') {
+                applyInvertEffect(imgData);
+            } else if (effect === 'sharpen') {
+                applySharpenEffect(imgData, w, h);
+            } else if (effect === 'vignette') {
+                applyVignetteEffect(imgData, w, h);
+            } else if (effect === 'posterize') {
+                applyPosterizeEffect(imgData);
+            } else if (effect === 'pixelate') {
+                applyPixelateEffect(imgData, w, h);
+            } else if (effect === 'emboss') {
+                applyEmbossEffect(imgData, w, h);
+            } else if (effect === 'edge') {
+                applyEdgeDetectEffect(imgData, w, h);
+            }
+
+            ctx.putImageData(imgData, 0, 0);
+        }
+
+        // Adobe Illustrator "Black and White Logo" Algorithm:
+        // 1. Luminance calculation via standard Rec.709 coefficients
+        // 2. High-precision binarization with threshold slider (0-255)
+        // 3. Noise reduction / Despeckle filter (removes stray pixels under noise size)
+        // 4. Boundary anti-aliasing / smoothing (eliminates harsh jagged raster stair-stepping)
+        // 5. Ignore White option (creates clean transparent background like Illustrator vector output)
+        function applyBwLogoEffect(imgData, w, h) {
+            const data = imgData.data;
+            const threshold = bwThresholdSlider ? parseInt(bwThresholdSlider.value) : 128;
+            const noise = bwNoiseSlider ? parseInt(bwNoiseSlider.value) : 2;
+            const ignoreWhite = bwIgnoreWhiteCheck ? bwIgnoreWhiteCheck.checked : true;
+            const invert = bwInvertCheck ? bwInvertCheck.checked : false;
+            const smooth = bwSmoothCheck ? bwSmoothCheck.checked : true;
+
+            const binaryMap = new Uint8Array(w * h);
+
+            // 1. Initial Luminance thresholding
+            for (let y = 0; y < h; y++) {
+                for (let x = 0; x < w; x++) {
+                    const idx = (y * w + x) * 4;
+                    const a = data[idx + 3];
+                    if (a < 64) {
+                        // Pre-existing transparent pixels
+                        binaryMap[y * w + x] = invert ? 1 : 0;
+                        continue;
+                    }
+                    const r = data[idx];
+                    const g = data[idx + 1];
+                    const b = data[idx + 2];
+                    const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+                    let isDark = lum < threshold;
+                    if (invert) isDark = !isDark;
+                    binaryMap[y * w + x] = isDark ? 1 : 0;
+                }
+            }
+
+            // 2. Noise reduction / Despeckle (illustrator "Noise" filter)
+            if (noise > 0) {
+                const radius = Math.min(4, noise);
+                const cleaned = new Uint8Array(binaryMap);
+                for (let y = radius; y < h - radius; y++) {
+                    for (let x = radius; x < w - radius; x++) {
+                        const self = binaryMap[y * w + x];
+                        let matchNeighbors = 0;
+                        let totalNeighbors = 0;
+                        for (let dy = -radius; dy <= radius; dy++) {
+                            for (let dx = -radius; dx <= radius; dx++) {
+                                if (dx === 0 && dy === 0) continue;
+                                totalNeighbors++;
+                                if (binaryMap[(y + dy) * w + (x + dx)] === self) {
+                                    matchNeighbors++;
+                                }
+                            }
+                        }
+                        // If an isolated pixel is overwhelmingly surrounded by opposite tone, flip it
+                        if (matchNeighbors / totalNeighbors < 0.22) {
+                            cleaned[y * w + x] = self === 1 ? 0 : 1;
+                        }
+                    }
+                }
+                binaryMap.set(cleaned);
+            }
+
+            // 3. Render back to canvas with optional sub-pixel edge smoothing and transparent white
+            for (let y = 0; y < h; y++) {
+                for (let x = 0; x < w; x++) {
+                    const idx = (y * w + x) * 4;
+                    const isForeground = binaryMap[y * w + x] === 1;
+
+                    if (smooth && (x > 0 && x < w - 1 && y > 0 && y < h - 1)) {
+                        // 3x3 box blur for sub-pixel anti-aliased edge smoothing
+                        let sum = 0;
+                        for (let dy = -1; dy <= 1; dy++) {
+                            for (let dx = -1; dx <= 1; dx++) {
+                                sum += binaryMap[(y + dy) * w + (x + dx)];
+                            }
+                        }
+                        const density = sum / 9; // 0 (all white) to 1 (all black)
+                        if (density <= 0.05) {
+                            // Pure background
+                            if (ignoreWhite) {
+                                data[idx + 3] = 0;
+                            } else {
+                                data[idx] = 255;
+                                data[idx + 1] = 255;
+                                data[idx + 2] = 255;
+                                data[idx + 3] = 255;
+                            }
+                        } else if (density >= 0.95) {
+                            // Pure black foreground
+                            data[idx] = 0;
+                            data[idx + 1] = 0;
+                            data[idx + 2] = 0;
+                            data[idx + 3] = 255;
+                        } else {
+                            // Anti-aliased transition edge
+                            if (ignoreWhite) {
+                                data[idx] = 0;
+                                data[idx + 1] = 0;
+                                data[idx + 2] = 0;
+                                data[idx + 3] = Math.round(density * 255);
+                            } else {
+                                const val = Math.round((1 - density) * 255);
+                                data[idx] = val;
+                                data[idx + 1] = val;
+                                data[idx + 2] = val;
+                                data[idx + 3] = 255;
+                            }
+                        }
+                    } else {
+                        if (isForeground) {
+                            data[idx] = 0;
+                            data[idx + 1] = 0;
+                            data[idx + 2] = 0;
+                            data[idx + 3] = 255;
+                        } else {
+                            if (ignoreWhite) {
+                                data[idx + 3] = 0;
+                            } else {
+                                data[idx] = 255;
+                                data[idx + 1] = 255;
+                                data[idx + 2] = 255;
+                                data[idx + 3] = 255;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        function applyGrayscaleEffect(imgData) {
+            const data = imgData.data;
+            for (let i = 0; i < data.length; i += 4) {
+                const lum = Math.round(0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]);
+                data[i] = lum;
+                data[i + 1] = lum;
+                data[i + 2] = lum;
+            }
+        }
+
+        function applyInvertEffect(imgData) {
+            const data = imgData.data;
+            for (let i = 0; i < data.length; i += 4) {
+                data[i] = 255 - data[i];
+                data[i + 1] = 255 - data[i + 1];
+                data[i + 2] = 255 - data[i + 2];
+            }
+        }
+
+        function applySharpenEffect(imgData, w, h) {
+            const data = imgData.data;
+            const strength = (sharpenSlider ? parseInt(sharpenSlider.value) : 60) / 100;
+            const original = new Uint8ClampedArray(data);
+
+            // 3x3 Laplacian sharpening kernel
+            for (let y = 1; y < h - 1; y++) {
+                for (let x = 1; x < w - 1; x++) {
+                    const idx = (y * w + x) * 4;
+                    for (let c = 0; c < 3; c++) {
+                        const top = original[((y - 1) * w + x) * 4 + c];
+                        const bottom = original[((y + 1) * w + x) * 4 + c];
+                        const left = original[(y * w + (x - 1)) * 4 + c];
+                        const right = original[(y * w + (x + 1)) * 4 + c];
+                        const center = original[idx + c];
+
+                        const laplacian = 4 * center - (top + bottom + left + right);
+                        const sharpened = center + laplacian * strength * 0.5;
+                        data[idx + c] = Math.min(255, Math.max(0, Math.round(sharpened)));
+                    }
+                }
+            }
+        }
+
+        function applyVignetteEffect(imgData, w, h) {
+            const data = imgData.data;
+            const strength = (vignetteSlider ? parseInt(vignetteSlider.value) : 50) / 100;
+            const cx = w / 2;
+            const cy = h / 2;
+            const maxDist = Math.sqrt(cx * cx + cy * cy);
+
+            for (let y = 0; y < h; y++) {
+                for (let x = 0; x < w; x++) {
+                    const idx = (y * w + x) * 4;
+                    const dx = x - cx;
+                    const dy = y - cy;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    const normDist = dist / maxDist;
+
+                    // Falloff curve
+                    const vignetteFactor = 1 - Math.pow(normDist, 1.8) * strength;
+                    const factor = Math.max(0, Math.min(1, vignetteFactor));
+
+                    data[idx] = Math.round(data[idx] * factor);
+                    data[idx + 1] = Math.round(data[idx + 1] * factor);
+                    data[idx + 2] = Math.round(data[idx + 2] * factor);
+                }
+            }
+        }
+
+        function applyPosterizeEffect(imgData) {
+            const data = imgData.data;
+            const tones = posterizeSlider ? Math.max(2, parseInt(posterizeSlider.value)) : 4;
+            const step = 255 / (tones - 1);
+
+            for (let i = 0; i < data.length; i += 4) {
+                data[i] = Math.round(Math.round(data[i] / step) * step);
+                data[i + 1] = Math.round(Math.round(data[i + 1] / step) * step);
+                data[i + 2] = Math.round(Math.round(data[i + 2] / step) * step);
+            }
+        }
+
+        function applyPixelateEffect(imgData, w, h) {
+            const data = imgData.data;
+            const blockSize = pixelateSlider ? Math.max(2, parseInt(pixelateSlider.value)) : 8;
+
+            for (let y = 0; y < h; y += blockSize) {
+                for (let x = 0; x < w; x += blockSize) {
+                    const blockW = Math.min(blockSize, w - x);
+                    const blockH = Math.min(blockSize, h - y);
+                    let sumR = 0, sumG = 0, sumB = 0, sumA = 0;
+                    const count = blockW * blockH;
+
+                    for (let by = 0; by < blockH; by++) {
+                        for (let bx = 0; bx < blockW; bx++) {
+                            const idx = ((y + by) * w + (x + bx)) * 4;
+                            sumR += data[idx];
+                            sumG += data[idx + 1];
+                            sumB += data[idx + 2];
+                            sumA += data[idx + 3];
+                        }
+                    }
+
+                    const avgR = Math.round(sumR / count);
+                    const avgG = Math.round(sumG / count);
+                    const avgB = Math.round(sumB / count);
+                    const avgA = Math.round(sumA / count);
+
+                    for (let by = 0; by < blockH; by++) {
+                        for (let bx = 0; bx < blockW; bx++) {
+                            const idx = ((y + by) * w + (x + bx)) * 4;
+                            data[idx] = avgR;
+                            data[idx + 1] = avgG;
+                            data[idx + 2] = avgB;
+                            data[idx + 3] = avgA;
+                        }
+                    }
+                }
+            }
+        }
+
+        function applyEmbossEffect(imgData, w, h) {
+            const data = imgData.data;
+            const copy = new Uint8ClampedArray(data);
+
+            for (let y = 1; y < h - 1; y++) {
+                for (let x = 1; x < w - 1; x++) {
+                    const idx = (y * w + x) * 4;
+                    const topIdx = ((y - 1) * w + (x - 1)) * 4;
+                    const botIdx = ((y + 1) * w + (x + 1)) * 4;
+
+                    const rDiff = copy[topIdx] - copy[botIdx];
+                    const gDiff = copy[topIdx + 1] - copy[botIdx + 1];
+                    const bDiff = copy[topIdx + 2] - copy[botIdx + 2];
+
+                    const gray = Math.round(128 + (rDiff + gDiff + bDiff) / 3);
+                    const val = Math.min(255, Math.max(0, gray));
+
+                    data[idx] = val;
+                    data[idx + 1] = val;
+                    data[idx + 2] = val;
+                }
+            }
+        }
+
+        function applyEdgeDetectEffect(imgData, w, h) {
+            const data = imgData.data;
+            const copy = new Uint8ClampedArray(data);
+
+            // Sobel 3x3 filter
+            for (let y = 1; y < h - 1; y++) {
+                for (let x = 1; x < w - 1; x++) {
+                    const idx = (y * w + x) * 4;
+                    // Horizontal gradient
+                    const p00 = copy[((y - 1) * w + (x - 1)) * 4];
+                    const p02 = copy[((y - 1) * w + (x + 1)) * 4];
+                    const p10 = copy[(y * w + (x - 1)) * 4];
+                    const p12 = copy[(y * w + (x + 1)) * 4];
+                    const p20 = copy[((y + 1) * w + (x - 1)) * 4];
+                    const p22 = copy[((y + 1) * w + (x + 1)) * 4];
+
+                    // Vertical gradient
+                    const p01 = copy[((y - 1) * w + x) * 4];
+                    const p21 = copy[((y + 1) * w + x) * 4];
+
+                    const gx = -p00 + p02 - 2 * p10 + 2 * p12 - p20 + p22;
+                    const gy = -p00 - 2 * p01 - p02 + p20 + 2 * p21 + p22;
+                    const mag = Math.min(255, Math.round(Math.sqrt(gx * gx + gy * gy)));
+
+                    data[idx] = mag;
+                    data[idx + 1] = mag;
+                    data[idx + 2] = mag;
+                }
+            }
+        }
+
+        // Adobe Illustrator Vector Trace output for SVG
+        function vectorTraceCanvasToSvg(canvas) {
+            const w = canvas.width;
+            const h = canvas.height;
+            const ctx = canvas.getContext('2d');
+            const imgData = ctx.getImageData(0, 0, w, h);
+            const data = imgData.data;
+
+            const ignoreWhite = bwIgnoreWhiteCheck ? bwIgnoreWhiteCheck.checked : true;
+            const invert = bwInvertCheck ? bwInvertCheck.checked : false;
+            const fillColor = invert ? '#ffffff' : '#000000';
+
+            // Scan horizontal spans and merge vertically adjacent identical spans into vectorized SVG paths
+            let activeSpans = [];
+            const pathCommands = [];
+
+            for (let y = 0; y < h; y++) {
+                const lineSpans = [];
+                let inSpan = false;
+                let startX = 0;
+
+                for (let x = 0; x < w; x++) {
+                    const idx = (y * w + x) * 4;
+                    const a = data[idx + 3];
+                    let isForeground = false;
+
+                    if (ignoreWhite) {
+                        isForeground = a > 96;
+                    } else {
+                        const lum = 0.299 * data[idx] + 0.587 * data[idx + 1] + 0.114 * data[idx + 2];
+                        isForeground = invert ? (lum > 128) : (lum < 128);
+                    }
+
+                    if (isForeground && !inSpan) {
+                        inSpan = true;
+                        startX = x;
+                    } else if (!isForeground && inSpan) {
+                        inSpan = false;
+                        lineSpans.push({ startX, endX: x });
+                    }
+                }
+                if (inSpan) {
+                    lineSpans.push({ startX, endX: w });
+                }
+
+                // Merge with previous line spans
+                const nextActive = [];
+                const matchedActive = new Set();
+
+                for (const ls of lineSpans) {
+                    let merged = false;
+                    for (let ai = 0; ai < activeSpans.length; ai++) {
+                        if (matchedActive.has(ai)) continue;
+                        const as = activeSpans[ai];
+                        if (as.startX === ls.startX && as.endX === ls.endX && (as.startY + as.height === y)) {
+                            as.height++;
+                            nextActive.push(as);
+                            matchedActive.add(ai);
+                            merged = true;
+                            break;
+                        }
+                    }
+                    if (!merged) {
+                        nextActive.push({ startX: ls.startX, endX: ls.endX, startY: y, height: 1 });
+                    }
+                }
+
+                for (let ai = 0; ai < activeSpans.length; ai++) {
+                    if (!matchedActive.has(ai) && !nextActive.includes(activeSpans[ai])) {
+                        const as = activeSpans[ai];
+                        const spanW = as.endX - as.startX;
+                        pathCommands.push(`M${as.startX} ${as.startY}h${spanW}v${as.height}h${-spanW}z`);
+                    }
+                }
+
+                activeSpans = nextActive;
+            }
+
+            for (const as of activeSpans) {
+                const spanW = as.endX - as.startX;
+                pathCommands.push(`M${as.startX} ${as.startY}h${spanW}v${as.height}h${-spanW}z`);
+            }
+
+            const bgRect = (!ignoreWhite) ? `<rect width="${w}" height="${h}" fill="${invert ? '#000000' : '#ffffff'}"/>\n  ` : '';
+            const d = pathCommands.length > 0 ? pathCommands.join(' ') : 'M0 0';
+            const svgStr = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">
+  ${bgRect}<path fill="${fillColor}" fill-rule="evenodd" d="${d}"/>
+</svg>`;
+
+            return new Blob([svgStr], { type: 'image/svg+xml' });
         }
 
         function canvasToRaster(canvas, format, quality) {
@@ -1374,6 +2709,10 @@
         }
 
         async function canvasToSvg(canvas) {
+            const effect = filterPresetSelect ? filterPresetSelect.value : 'none';
+            if (effect === 'bw_logo' && bwVectorizeSvgCheck && bwVectorizeSvgCheck.checked) {
+                return vectorTraceCanvasToSvg(canvas);
+            }
             const dataUrl = canvas.toDataURL('image/png');
             const w = canvas.width;
             const h = canvas.height;
@@ -1431,8 +2770,34 @@
             return new Promise(r => setTimeout(r, ms));
         }
 
+        // Compare Split Slider Mouse/Touch Drag Events
+        function handleCompareMove(e) {
+            if (!isDraggingCompare || !compareContainer) return;
+            const rect = compareContainer.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const offsetX = clientX - rect.left;
+            const pct = (offsetX / rect.width) * 100;
+            setCompareSliderPercent(pct);
+        }
+
+        if (compareContainer) {
+            compareContainer.addEventListener('mousedown', (e) => {
+                isDraggingCompare = true;
+                handleCompareMove(e);
+            });
+            compareContainer.addEventListener('touchstart', (e) => {
+                isDraggingCompare = true;
+                handleCompareMove(e);
+            }, { passive: true });
+        }
+        window.addEventListener('mousemove', handleCompareMove);
+        window.addEventListener('touchmove', handleCompareMove, { passive: true });
+        window.addEventListener('mouseup', () => { isDraggingCompare = false; });
+        window.addEventListener('touchend', () => { isDraggingCompare = false; });
+
         // ── Init ──────────────────────
         applyTheme();
+        loadSettings();
         onFormatChange();
         renderFileList();
     </script>

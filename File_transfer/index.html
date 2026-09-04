@@ -122,7 +122,7 @@ h1 { font-size: 20px; }
     </div>
   </div>
   <div class="toolbar">
-    <button class="btn" id="homeBtn" onclick="location.href='../../'">🏠 Home</button>
+    <button class="btn" id="homeBtn" onclick="location.href='../'">🏠 Home</button>
     <button class="btn" id="themeBtn">🌓 Dark</button>
     <button class="btn danger" onclick="clearTransfers()">🧹 Clear List</button>
   </div>
@@ -303,6 +303,7 @@ function generateRandomId() {
 // WebRTC P2P Connection
 // ─────────────────────────────────────────────────────────────
 function initP2P() {
+  // If URL has room, we are client connecting to host room. Otherwise generate host ID.
   const isJoining = !!roomParam;
   const peerId = isJoining ? generateRandomId() : generateRandomId();
   myPeerId = peerId;
@@ -341,6 +342,7 @@ function initP2P() {
 
     peer.on('error', err => {
       console.warn('PeerJS error:', err);
+      // Fallback or retry
       statusEl.textContent = `P2P status: ${err.type || 'network event'}`;
     });
   } catch (e) {
@@ -411,6 +413,7 @@ function openShareLink() {
 // ─────────────────────────────────────────────────────────────
 async function sendFile(file) {
   if (!activeConn || !activeConn.open) {
+    // Try server upload fallback if running in server container
     if (await tryServerUpload(file)) return;
     statusEl.textContent = '⚠️ No second device connected yet. Scan QR code first!';
     statusEl.className = 'status error';
@@ -425,6 +428,7 @@ async function sendFile(file) {
   progressBar.style.display = 'block';
   progressFill.style.width = '0%';
 
+  // Send header
   activeConn.send({
     type: 'file-start',
     id: fileId,
@@ -455,6 +459,7 @@ async function sendFile(file) {
     progressFill.style.width = pct + '%';
     statusEl.textContent = `Sending ${file.name}… ${pct}%`;
 
+    // Yield to event loop
     if (chunkIndex % 10 === 0) {
       await new Promise(r => setTimeout(r, 15));
     }
@@ -553,6 +558,7 @@ fileInput.addEventListener('change', e => handleFiles(e.target.files));
 ['dragleave', 'drop'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.remove('drag'); }));
 drop.addEventListener('drop', e => { e.preventDefault(); handleFiles(e.dataTransfer.files); });
 
+// Init P2P on start
 initP2P();
 </script>
 </body>

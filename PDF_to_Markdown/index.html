@@ -1,0 +1,3049 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF to Markdown Studio — Document Tools</title>
+
+    <!-- Google Fonts (Inter & Mono) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+
+    <!-- KaTeX for Math rendering -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+
+    <!-- Highlight.js for code syntax highlighting in preview -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="hljs-light-theme">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+    <!-- Marked for Markdown parsing in preview -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+
+    <!-- JSZip for exporting ZIP bundles (Markdown + images) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+    <!-- PDF.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+    <style>
+        /* ── Design System (mirrors MD Studio & Utilities) ─────── */
+        :root {
+            --bg: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-tertiary: #f1f3f5;
+            --text: #1a1a2e;
+            --text-secondary: #495057;
+            --text-muted: #868e96;
+            --border: #dee2e6;
+            --border-light: #e9ecef;
+            --accent: #4c6ef5;
+            --accent-hover: #3b5de7;
+            --accent-light: #edf2ff;
+            --success: #2b8a3e;
+            --success-light: #ebfbee;
+            --warning: #e67700;
+            --warning-light: #fff4e6;
+            --danger: #c92a2a;
+            --danger-light: #fff5f5;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.10), 0 2px 6px rgba(0, 0, 0, 0.06);
+            --radius: 8px;
+            --radius-sm: 5px;
+            --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            --font-mono: 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+            --transition: 0.18s ease;
+            --toolbar-height: 48px;
+        }
+
+        [data-theme="dark"] {
+            --bg: #1a1b1e;
+            --bg-secondary: #25262b;
+            --bg-tertiary: #2c2e33;
+            --text: #e4e6ea;
+            --text-secondary: #c1c4cd;
+            --text-muted: #9095a0;
+            --border: #3a3c42;
+            --border-light: #2e3035;
+            --accent: #6d8af7;
+            --accent-hover: #8aa3ff;
+            --accent-light: #1e2640;
+            --success: #40c057;
+            --success-light: #0d2b13;
+            --warning: #fab005;
+            --warning-light: #3b2e0a;
+            --danger: #ff6b6b;
+            --danger-light: #3b0a0a;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            font-family: var(--font-sans);
+            background: var(--bg);
+            color: var(--text);
+            transition: background var(--transition), color var(--transition);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Scrollbars ─────────────────────────────────────────── */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        /* ── Top Toolbar ────────────────────────────────────────── */
+        .toolbar {
+            height: var(--toolbar-height);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0 12px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            z-index: 100;
+            flex-shrink: 0;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .toolbar .sep {
+            width: 1px;
+            height: 22px;
+            background: var(--border);
+            margin: 0 4px;
+            flex-shrink: 0;
+        }
+        .toolbar button, .toolbar label.btn-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 12.5px;
+            font-family: var(--font-sans);
+            white-space: nowrap;
+            transition: all var(--transition);
+            flex-shrink: 0;
+            font-weight: 500;
+            user-select: none;
+        }
+        .toolbar button:hover, .toolbar label.btn-label:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--text-muted);
+            color: var(--text);
+        }
+        .toolbar button.accent {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+            font-weight: 600;
+        }
+        .toolbar button.accent:hover {
+            background: var(--accent-hover);
+            border-color: var(--accent-hover);
+        }
+        .toolbar button.secondary-accent {
+            background: var(--accent-light);
+            color: var(--accent);
+            border-color: var(--accent);
+            font-weight: 600;
+        }
+        .toolbar button.secondary-accent:hover {
+            background: var(--accent);
+            color: #fff;
+        }
+        .toolbar .spacer {
+            flex: 1;
+            min-width: 8px;
+        }
+        .toolbar .badge {
+            font-size: 11px;
+            background: var(--bg-tertiary);
+            padding: 4px 10px;
+            border-radius: 20px;
+            color: var(--text-muted);
+            flex-shrink: 0;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .toolbar .badge strong {
+            color: var(--text);
+            font-weight: 600;
+        }
+        .toolbar select.tool-select {
+            padding: 5px 8px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg);
+            color: var(--text);
+            font-size: 12px;
+            font-family: var(--font-sans);
+            cursor: pointer;
+        }
+
+        /* ── Main Layout ─────────────────────────────────────────── */
+        .main-layout {
+            display: flex;
+            height: calc(100vh - var(--toolbar-height));
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* ── Left Sidebar (Navigator, Settings, Queue) ──────────── */
+        .sidebar {
+            width: 320px;
+            min-width: 260px;
+            max-width: 450px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            flex-shrink: 0;
+            transition: width var(--transition);
+        }
+        .sidebar-tabs {
+            display: flex;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .sidebar-tab {
+            flex: 1;
+            padding: 10px 8px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            background: none;
+            border: none;
+            cursor: pointer;
+            text-align: center;
+            border-bottom: 2px solid transparent;
+            transition: all var(--transition);
+        }
+        .sidebar-tab:hover {
+            color: var(--text);
+            background: var(--bg-secondary);
+        }
+        .sidebar-tab.active {
+            color: var(--accent);
+            background: var(--bg-secondary);
+            border-bottom-color: var(--accent);
+        }
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* Sidebar Cards & Details */
+        .side-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 12px;
+            box-shadow: var(--shadow);
+        }
+        .side-card-title {
+            font-size: 11.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .side-details {
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            background: var(--bg);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+        .side-details summary {
+            padding: 10px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text);
+            cursor: pointer;
+            user-select: none;
+            background: var(--bg);
+            border-bottom: 1px solid transparent;
+            list-style: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .side-details summary::-webkit-details-marker { display: none; }
+        .side-details summary::after {
+            content: '▼';
+            font-size: 9px;
+            color: var(--text-muted);
+            transition: transform 0.2s;
+        }
+        .side-details[open] summary::after {
+            transform: rotate(180deg);
+        }
+        .side-details[open] summary {
+            border-bottom-color: var(--border-light);
+            background: var(--bg-secondary);
+        }
+        .side-details-body {
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* Form Controls inside sidebar */
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .form-row label {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .form-row label .val-badge {
+            font-size: 11px;
+            color: var(--accent);
+            font-weight: 600;
+        }
+        .form-control, .sidebar select, .sidebar input[type="text"] {
+            width: 100%;
+            padding: 7px 10px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg);
+            color: var(--text);
+            font-size: 12.5px;
+            font-family: var(--font-sans);
+            transition: border-color var(--transition);
+        }
+        .form-control:focus, .sidebar select:focus, .sidebar input[type="text"]:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px var(--accent-light);
+        }
+        .form-check {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text);
+            cursor: pointer;
+            user-select: none;
+        }
+        .form-check input[type="checkbox"] {
+            accent-color: var(--accent);
+            width: 15px;
+            height: 15px;
+            margin-top: 1px;
+            cursor: pointer;
+        }
+        .form-check .desc {
+            font-size: 11px;
+            color: var(--text-muted);
+            display: block;
+            margin-top: 1px;
+        }
+
+        /* Page Thumbnails */
+        .thumbnails-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 8px;
+            max-height: 280px;
+            overflow-y: auto;
+            padding: 4px;
+        }
+        .thumb-card {
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg);
+            padding: 4px;
+            cursor: pointer;
+            text-align: center;
+            transition: all var(--transition);
+            position: relative;
+        }
+        .thumb-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-1px);
+        }
+        .thumb-card.active {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px var(--accent);
+            background: var(--accent-light);
+        }
+        .thumb-card canvas {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 2px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            background: #fff;
+        }
+        .thumb-card .thumb-label {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* ── Center / Right Work Area ────────────────────────────── */
+        .work-area {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+            background: var(--bg);
+        }
+
+        /* Panes & Dividers */
+        .pane {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+        .pane-pdf {
+            flex: 1;
+            min-width: 250px;
+            background: var(--bg-tertiary);
+            border-right: 1px solid var(--border);
+        }
+        .pane-md {
+            flex: 1.2;
+            min-width: 320px;
+            background: var(--bg);
+        }
+
+        .pane-header {
+            height: 38px;
+            padding: 0 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text);
+            flex-shrink: 0;
+            user-select: none;
+        }
+        .pane-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .pane-header-btn {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            padding: 3px 8px;
+            font-size: 11.5px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all var(--transition);
+        }
+        .pane-header-btn:hover {
+            background: var(--bg-tertiary);
+            color: var(--text);
+            border-color: var(--text-muted);
+        }
+        .pane-header-btn.active {
+            background: var(--accent-light);
+            border-color: var(--accent);
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* Drag Resizer Divider */
+        .divider {
+            width: 5px;
+            cursor: col-resize;
+            background: var(--border);
+            transition: background 0.15s;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+        .divider:hover, .divider.active {
+            background: var(--accent);
+        }
+
+        /* ── PDF Stage & Canvas ──────────────────────────────────── */
+        .pdf-stage-container {
+            flex: 1;
+            overflow: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+        }
+        .pdf-canvas-wrapper {
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            border-radius: 4px;
+            background: #ffffff;
+            transition: transform 0.1s ease;
+        }
+        #pdfCanvas {
+            display: block;
+            border-radius: 4px;
+        }
+        #overlayCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            border-radius: 4px;
+        }
+
+        .pdf-nav-bar {
+            position: absolute;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            padding: 4px 10px;
+            border-radius: 20px;
+            box-shadow: var(--shadow-lg);
+            z-index: 20;
+        }
+        .pdf-nav-btn {
+            background: none;
+            border: none;
+            color: var(--text);
+            cursor: pointer;
+            padding: 4px 8px;
+            font-size: 13px;
+            border-radius: 12px;
+            transition: background var(--transition);
+        }
+        .pdf-nav-btn:hover {
+            background: var(--bg-tertiary);
+        }
+        .pdf-nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        .pdf-page-num {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            padding: 0 4px;
+        }
+
+        /* ── Markdown Tabs & Editor/Preview ──────────────────────── */
+        .md-tabs {
+            display: flex;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .md-tab-btn {
+            padding: 8px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            background: none;
+            border: none;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all var(--transition);
+        }
+        .md-tab-btn:hover {
+            color: var(--text);
+            background: var(--bg-secondary);
+        }
+        .md-tab-btn.active {
+            color: var(--accent);
+            background: var(--bg);
+            border-bottom-color: var(--accent);
+        }
+
+        .md-panel-view {
+            flex: 1;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+        .md-panel-view.active {
+            display: flex;
+        }
+
+        /* Raw Editor */
+        .editor-container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+            position: relative;
+        }
+        .line-numbers {
+            width: 44px;
+            padding: 12px 6px 12px 0;
+            text-align: right;
+            font-family: var(--font-mono);
+            font-size: 12.5px;
+            line-height: 1.6;
+            color: var(--text-muted);
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-light);
+            user-select: none;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .md-textarea {
+            flex: 1;
+            padding: 12px 16px;
+            font-family: var(--font-mono);
+            font-size: 12.5px;
+            line-height: 1.6;
+            color: var(--text);
+            background: var(--bg);
+            border: none;
+            outline: none;
+            resize: none;
+            tab-size: 2;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-y: auto;
+        }
+
+        /* Quick Formatting Sub-Toolbar */
+        .editor-sub-toolbar {
+            height: 32px;
+            padding: 0 8px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            overflow-x: auto;
+            flex-shrink: 0;
+        }
+        .format-btn {
+            background: none;
+            border: 1px solid transparent;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            padding: 2px 6px;
+            font-size: 11.5px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            font-family: var(--font-sans);
+        }
+        .format-btn:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--border);
+            color: var(--text);
+        }
+
+        /* Live Preview Container */
+        .preview-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px 32px;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 14.5px;
+            line-height: 1.65;
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Preview Typography (matching MD Studio) */
+        .preview-container h1, .preview-container h2, .preview-container h3, .preview-container h4, .preview-container h5, .preview-container h6 {
+            color: var(--text);
+            font-weight: 700;
+            margin: 1.2em 0 0.5em;
+            line-height: 1.3;
+        }
+        .preview-container h1 { font-size: 1.8em; border-bottom: 1px solid var(--border); padding-bottom: 0.3em; }
+        .preview-container h2 { font-size: 1.4em; border-bottom: 1px solid var(--border-light); padding-bottom: 0.2em; }
+        .preview-container h3 { font-size: 1.2em; }
+        .preview-container h4 { font-size: 1.05em; }
+        .preview-container p { margin-bottom: 1em; }
+        .preview-container a { color: var(--accent); text-decoration: none; }
+        .preview-container a:hover { text-decoration: underline; }
+        .preview-container blockquote {
+            border-left: 4px solid var(--accent);
+            padding: 8px 16px;
+            margin: 1em 0;
+            background: var(--accent-light);
+            color: var(--text-secondary);
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+        }
+        .preview-container ul, .preview-container ol {
+            padding-left: 24px;
+            margin-bottom: 1em;
+        }
+        .preview-container li { margin-bottom: 0.25em; }
+        .preview-container code {
+            font-family: var(--font-mono);
+            font-size: 0.88em;
+            background: var(--bg-tertiary);
+            color: var(--text);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        .preview-container pre {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 12px 16px;
+            margin: 1em 0;
+            overflow-x: auto;
+            position: relative;
+        }
+        .preview-container pre code {
+            background: none;
+            padding: 0;
+            font-size: 0.88em;
+            line-height: 1.5;
+            display: block;
+        }
+        .preview-container table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.2em 0;
+            font-size: 0.9em;
+        }
+        .preview-container table th, .preview-container table td {
+            border: 1px solid var(--border);
+            padding: 8px 12px;
+            text-align: left;
+        }
+        .preview-container table th {
+            background: var(--bg-tertiary);
+            font-weight: 600;
+        }
+        .preview-container table tr:nth-child(even) td {
+            background: var(--bg-secondary);
+        }
+        .preview-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            margin: 1em 0;
+            box-shadow: var(--shadow);
+        }
+        .preview-container hr {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 1.8em 0;
+        }
+
+        /* Image Gallery View */
+        .image-gallery-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+        .image-gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        .image-gallery-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+        }
+        .image-gallery-preview {
+            height: 150px;
+            background: var(--bg-tertiary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            padding: 8px;
+        }
+        .image-gallery-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        .image-gallery-info {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .image-gallery-name {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .image-gallery-meta {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+        .image-gallery-actions {
+            display: flex;
+            gap: 6px;
+            margin-top: 6px;
+        }
+        .image-gallery-actions button {
+            flex: 1;
+            padding: 4px 6px;
+            font-size: 11px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+        .image-gallery-actions button:hover {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+        /* ── Drop Zone (Empty State) ─────────────────────────────── */
+        .drop-zone {
+            position: absolute;
+            inset: 0;
+            background: var(--bg);
+            z-index: 50;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            gap: 16px;
+        }
+        .drop-zone.hidden {
+            display: none !important;
+        }
+        .drop-box {
+            width: 100%;
+            max-width: 580px;
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 40px 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 12px;
+            background: var(--bg-secondary);
+            transition: all var(--transition);
+            cursor: pointer;
+        }
+        .drop-box:hover, .drop-box.drag-over {
+            border-color: var(--accent);
+            background: var(--accent-light);
+        }
+        .drop-icon {
+            font-size: 48px;
+            opacity: 0.8;
+        }
+        .drop-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+        .drop-desc {
+            font-size: 13.5px;
+            color: var(--text-secondary);
+            max-width: 420px;
+            line-height: 1.5;
+        }
+        .sample-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 8px;
+        }
+        .sample-pill {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+        .sample-pill:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-light);
+        }
+
+        /* ── Progress Overlay ────────────────────────────────────── */
+        .progress-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(2px);
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .progress-overlay.active {
+            display: flex;
+        }
+        .progress-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            width: 320px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+        }
+        .progress-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+        }
+        .progress-bar-bg {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--accent);
+            transition: width 0.15s ease;
+        }
+        .progress-text {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* ── Toast Notifications ─────────────────────────────────── */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--text);
+            color: var(--bg);
+            padding: 10px 18px;
+            border-radius: var(--radius);
+            font-size: 13px;
+            font-weight: 500;
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(12px);
+            transition: all 0.22s ease;
+            pointer-events: none;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ── Modals ──────────────────────────────────────────────── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 500;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 520px;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .modal-header {
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text);
+            background: var(--bg-secondary);
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+        .modal-close:hover { color: var(--text); }
+        .modal-body {
+            padding: 18px;
+            overflow-y: auto;
+            max-height: 70vh;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            font-size: 13px;
+        }
+        .modal-footer {
+            padding: 12px 18px;
+            border-top: 1px solid var(--border);
+            background: var(--bg-secondary);
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        /* Hidden file input */
+        #pdfFileInput { display: none; }
+
+        @media (max-width: 768px) {
+            .main-layout { flex-direction: column; }
+            .sidebar { width: 100%; max-width: none; height: 200px; border-right: none; border-bottom: 1px solid var(--border); }
+            .work-area { flex-direction: column; }
+            .divider { display: none; }
+        }
+    </style>
+</head>
+<body data-theme="light">
+
+    <!-- ── TOP TOOLBAR ─────────────────────────────────────────────── -->
+    <header class="toolbar" id="toolbar">
+        <button onclick="window.location.href='../index.html'" title="Return to Utilities Suite">← Suite</button>
+        <span class="sep"></span>
+        <button onclick="PDFStudio.toggleTheme()" id="themeBtn" title="Toggle Light/Dark Mode">🌓 Theme</button>
+        <span class="sep"></span>
+        
+        <label for="pdfFileInput" class="btn-label" title="Select a PDF file from your computer">📁 Open PDF</label>
+        <input type="file" id="pdfFileInput" accept="application/pdf" />
+
+        <select id="sampleSelect" class="tool-select" onchange="PDFStudio.loadSample(this.value)" title="Load a built-in sample document">
+            <option value="" disabled selected>🧪 Load Sample Document…</option>
+            <option value="tech_spec">📄 Technical Spec & Architecture</option>
+            <option value="academic_paper">🎓 Academic Research (2-Column & Math)</option>
+            <option value="financial_report">📊 Financial Statement & Data Tables</option>
+            <option value="meeting_notes">📝 Project Meeting Notes & Tasks</option>
+        </select>
+
+        <span class="sep"></span>
+        <button class="accent" id="convertBtn" onclick="PDFStudio.convertCurrentPDF()" title="Extract structured Markdown from PDF">⚡ Convert Document</button>
+        <button onclick="PDFStudio.downloadMarkdown()" id="downloadMdBtn" title="Download as .md file">💾 Download .MD</button>
+        <button onclick="PDFStudio.exportZipBundle()" id="exportZipBtn" title="Download ZIP archive with Markdown and extracted images">📦 Export ZIP</button>
+        
+        <span class="sep"></span>
+        <button class="secondary-accent" onclick="PDFStudio.openInMDStudio()" title="Transfer Markdown into MD Studio for PDF/DOCX styling">🚀 Open in MD Studio</button>
+        
+        <span class="spacer"></span>
+        <span class="badge" id="pageCountBadge">📄 <strong>0</strong> pages</span>
+        <span class="badge" id="wordCountBadge">📝 <strong>0</strong> words</span>
+        <span class="badge" id="statusBadge" style="background:var(--success-light);color:var(--success)">Ready</span>
+    </header>
+
+    <!-- ── MAIN LAYOUT ─────────────────────────────────────────────── -->
+    <main class="main-layout" id="mainLayout">
+
+        <!-- ── SIDEBAR ─────────────────────────────────────────────── -->
+        <aside class="sidebar" id="sidebar">
+            <nav class="sidebar-tabs">
+                <button class="sidebar-tab active" onclick="PDFStudio.switchSidebarTab('nav')" id="tabNavBtn">📄 Navigation</button>
+                <button class="sidebar-tab" onclick="PDFStudio.switchSidebarTab('settings')" id="tabSettingsBtn">⚙️ Settings</button>
+                <button class="sidebar-tab" onclick="PDFStudio.switchSidebarTab('meta')" id="tabMetaBtn">ℹ️ Document Info</button>
+            </nav>
+
+            <div class="sidebar-content" id="sidebarContent">
+                
+                <!-- Tab: Navigation / Thumbnails -->
+                <div id="sideTabNav" style="display: flex; flex-direction: column; gap: 12px;">
+                    <div class="side-card">
+                        <div class="side-card-title">
+                            <span>📑 Document Pages</span>
+                            <span id="pageSelectCount">All</span>
+                        </div>
+                        <div class="form-row" style="margin-bottom: 8px;">
+                            <label for="pageRangeInput">Page Range</label>
+                            <input type="text" id="pageRangeInput" placeholder="e.g. All, 1-3, 5" value="All" onchange="PDFStudio.onPageRangeChange()" />
+                        </div>
+                        <div class="thumbnails-grid" id="thumbnailsContainer">
+                            <p style="font-size:11.5px;color:var(--text-muted);text-align:center;padding:20px 0;grid-column:1/-1;">
+                                Open a PDF or choose a sample to browse pages.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Quick Preset Card -->
+                    <div class="side-card">
+                        <div class="side-card-title">✨ Conversion Preset</div>
+                        <select id="presetSelect" class="form-control" onchange="PDFStudio.applyPreset(this.value)">
+                            <option value="article" selected>📑 Article / Clean Document</option>
+                            <option value="technical">🛠️ Technical Spec & Code</option>
+                            <option value="academic">🎓 Academic Paper (Multi-Column & Math)</option>
+                            <option value="tables">📊 Financial Statements & Tables</option>
+                            <option value="raw">📜 Raw / Verbatim Lines</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Tab: Extraction Settings -->
+                <div id="sideTabSettings" style="display: none; flex-direction: column; gap: 12px;">
+                    
+                    <details class="side-details" open>
+                        <summary>🧠 Structure & Layout</summary>
+                        <div class="side-details-body">
+                            <div class="form-row">
+                                <label for="headingThresholdSlider">
+                                    <span>Heading Detection Sensitivity</span>
+                                    <span class="val-badge" id="headingVal">1.25x</span>
+                                </label>
+                                <input type="range" id="headingThresholdSlider" min="1.05" max="2.0" step="0.05" value="1.25" oninput="PDFStudio.updateHeadingLabel()" />
+                            </div>
+
+                            <label class="form-check">
+                                <input type="checkbox" id="optMultiColumn" checked />
+                                <div>
+                                    <strong>Multi-Column Flow Ordering</strong>
+                                    <span class="desc">Reads column-by-column for academic papers & periodicals.</span>
+                                </div>
+                            </label>
+
+                            <label class="form-check">
+                                <input type="checkbox" id="optMergeParagraphs" checked />
+                                <div>
+                                    <strong>Paragraph Stitching</strong>
+                                    <span class="desc">Merges soft line wraps into fluid paragraphs.</span>
+                                </div>
+                            </label>
+
+                            <label class="form-check">
+                                <input type="checkbox" id="optDehyphenate" checked />
+                                <div>
+                                    <strong>De-Hyphenation</strong>
+                                    <span class="desc">Rejoins hyphenated words broken across lines.</span>
+                                </div>
+                            </label>
+                        </div>
+                    </details>
+
+                    <details class="side-details" open>
+                        <summary>📊 Tables, Code & Math</summary>
+                        <div class="side-details-body">
+                            <label class="form-check">
+                                <input type="checkbox" id="optExtractTables" checked />
+                                <div>
+                                    <strong>GFM Table Extraction</strong>
+                                    <span class="desc">Reconstructs aligned tabular data into Markdown tables.</span>
+                                </div>
+                            </label>
+
+                            <label class="form-check">
+                                <input type="checkbox" id="optDetectCode" checked />
+                                <div>
+                                    <strong>Monospace Code Blocks</strong>
+                                    <span class="desc">Wraps fixed-width code blocks in ```fenced code blocks.</span>
+                                </div>
+                            </label>
+
+                            <label class="form-check">
+                                <input type="checkbox" id="optMathFormatting" checked />
+                                <div>
+                                    <strong>LaTeX / KaTeX Math Recognition</strong>
+                                    <span class="desc">Formats math formulas and equations into $...$ and $$...$$.</span>
+                                </div>
+                            </label>
+
+                            <label class="form-check">
+                                <input type="checkbox" id="optExtractLinks" checked />
+                                <div>
+                                    <strong>Extract Hyperlinks & URLs</strong>
+                                    <span class="desc">Converts PDF link annotations and URLs to [Text](url).</span>
+                                </div>
+                            </label>
+                        </div>
+                    </details>
+
+                    <details class="side-details" open>
+                        <summary>🧹 Clean-up & Artifacts</summary>
+                        <div class="side-details-body">
+                            <label class="form-check">
+                                <input type="checkbox" id="optStripHeadersFooters" checked />
+                                <div>
+                                    <strong>Strip Running Headers & Footers</strong>
+                                    <span class="desc">Removes repetitive headers & page counters.</span>
+                                </div>
+                            </label>
+
+                            <label class="form-check">
+                                <input type="checkbox" id="optYamlFrontmatter" checked />
+                                <div>
+                                    <strong>Generate YAML Frontmatter</strong>
+                                    <span class="desc">Adds Title, Author, Date, and Page Count at top.</span>
+                                </div>
+                            </label>
+
+                            <label class="form-check">
+                                <input type="checkbox" id="optPageSeparators" />
+                                <div>
+                                    <strong>Include Page Break Markers</strong>
+                                    <span class="desc">Inserts &lt;!-- Page X --&gt; between pages.</span>
+                                </div>
+                            </label>
+
+                            <div class="form-row">
+                                <label for="imageExtractMode">Image Extraction Mode</label>
+                                <select id="imageExtractMode" class="form-control">
+                                    <option value="base64" selected>🖼️ Inline Base64 Data URI</option>
+                                    <option value="relative">📁 Relative Asset Links (images/)</option>
+                                    <option value="none">🚫 Skip Images</option>
+                                </select>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+
+                <!-- Tab: Metadata -->
+                <div id="sideTabMeta" style="display: none; flex-direction: column; gap: 12px;">
+                    <div class="side-card">
+                        <div class="side-card-title">📋 PDF Properties</div>
+                        <div id="metaDetails" style="font-size: 12px; line-height: 1.8; color: var(--text-secondary);">
+                            <p><strong>Title:</strong> <span id="metaTitle">—</span></p>
+                            <p><strong>Author:</strong> <span id="metaAuthor">—</span></p>
+                            <p><strong>Producer:</strong> <span id="metaProducer">—</span></p>
+                            <p><strong>Creator:</strong> <span id="metaCreator">—</span></p>
+                            <p><strong>Creation Date:</strong> <span id="metaDate">—</span></p>
+                            <p><strong>Pages:</strong> <span id="metaPages">0</span></p>
+                            <p><strong>File Size:</strong> <span id="metaSize">—</span></p>
+                            <p><strong>PDF Version:</strong> <span id="metaVersion">—</span></p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </aside>
+
+        <!-- ── WORK AREA (CENTER & RIGHT) ──────────────────────────── -->
+        <section class="work-area" id="workArea">
+
+            <!-- Center: PDF Viewer Pane -->
+            <div class="pane pane-pdf" id="panePdf">
+                <div class="pane-header">
+                    <span>👁️ PDF Inspector</span>
+                    <div class="pane-header-actions">
+                        <button class="pane-header-btn" onclick="PDFStudio.zoom(-0.2)" title="Zoom Out">🔍−</button>
+                        <button class="pane-header-btn" onclick="PDFStudio.zoom(0.2)" title="Zoom In">🔍+</button>
+                        <button class="pane-header-btn" onclick="PDFStudio.resetZoom()" title="Reset Zoom">100%</button>
+                        <button class="pane-header-btn" onclick="PDFStudio.rotatePDF()" title="Rotate 90°">🔄</button>
+                        <button class="pane-header-btn" id="xrayBtn" onclick="PDFStudio.toggleXRay()" title="Toggle Structural Bounding Boxes">🔬 X-Ray</button>
+                    </div>
+                </div>
+
+                <div class="pdf-stage-container" id="pdfStageContainer">
+                    <div class="pdf-canvas-wrapper" id="pdfCanvasWrapper">
+                        <canvas id="pdfCanvas"></canvas>
+                        <canvas id="overlayCanvas"></canvas>
+                    </div>
+
+                    <!-- PDF Page Navigation Bar -->
+                    <div class="pdf-nav-bar" id="pdfNavBar">
+                        <button class="pdf-nav-btn" onclick="PDFStudio.prevPage()" id="prevPageBtn" title="Previous Page">◀</button>
+                        <span class="pdf-page-num" id="pageDisplay">Page 0 / 0</span>
+                        <button class="pdf-nav-btn" onclick="PDFStudio.nextPage()" id="nextPageBtn" title="Next Page">▶</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resizer Divider -->
+            <div class="divider" id="workDivider" title="Drag to resize panes"></div>
+
+            <!-- Right: Markdown Studio Pane -->
+            <div class="pane pane-md" id="paneMd">
+                
+                <!-- Tabs: Editor, Live Preview, Image Gallery, Side-by-Side -->
+                <div class="md-tabs">
+                    <button class="md-tab-btn active" onclick="PDFStudio.switchMdTab('editor')" id="tabEditorBtn">📝 Markdown Editor</button>
+                    <button class="md-tab-btn" onclick="PDFStudio.switchMdTab('preview')" id="tabPreviewBtn">👁️ Rendered Preview</button>
+                    <button class="md-tab-btn" onclick="PDFStudio.switchMdTab('images')" id="tabImagesBtn">🖼️ Extracted Images (<span id="imgCountBadge">0</span>)</button>
+                    <span class="spacer"></span>
+                    <button class="pane-header-btn" onclick="PDFStudio.copyMarkdown()" title="Copy Markdown to Clipboard" style="margin: 4px 8px;">📋 Copy</button>
+                    <button class="pane-header-btn" onclick="PDFStudio.clearEditor()" title="Clear Markdown content" style="margin: 4px 8px 4px 0;">🗑️ Clear</button>
+                </div>
+
+                <!-- Tab 1: Raw Markdown Editor -->
+                <div class="md-panel-view active" id="viewEditor">
+                    <div class="editor-sub-toolbar">
+                        <button class="format-btn" onclick="PDFStudio.insertSnippet('**', '**')" title="Bold"><strong>B</strong></button>
+                        <button class="format-btn" onclick="PDFStudio.insertSnippet('*', '*')" title="Italic"><em>I</em></button>
+                        <button class="format-btn" onclick="PDFStudio.insertSnippet('# ', '')" title="Heading 1">H1</button>
+                        <button class="format-btn" onclick="PDFStudio.insertSnippet('## ', '')" title="Heading 2">H2</button>
+                        <button class="format-btn" onclick="PDFStudio.insertSnippet('### ', '')" title="Heading 3">H3</button>
+                        <button class="format-btn" onclick="PDFStudio.insertSnippet('- ', '')" title="Bullet List">• List</button>
+                        <button class="format-btn" onclick="PDFStudio.insertSnippet('1. ', '')" title="Numbered List">1. List</button>
+                        <button class="format-btn" onclick="PDFStudio.insertSnippet('> ', '')" title="Blockquote">” Quote</button>
+                        <button class="format-btn" onclick="PDFStudio.insertSnippet('```\n', '\n```')" title="Code Block">&lt;/&gt;</button>
+                        <button class="format-btn" onclick="PDFStudio.insertSnippet('$ ', ' $')" title="KaTeX Math">∑ Math</button>
+                        <button class="format-btn" onclick="PDFStudio.insertSnippet('| Col 1 | Col 2 |\n| --- | --- |\n| Val 1 | Val 2 |', '')" title="Table">📊 Table</button>
+                        <button class="format-btn" onclick="PDFStudio.insertSnippet('[', '](url)')" title="Link">🔗 Link</button>
+                    </div>
+
+                    <div class="editor-container">
+                        <div class="line-numbers" id="lineNumbers">1</div>
+                        <textarea class="md-textarea" id="markdownEditor" spellcheck="false" placeholder="# Extracted Markdown will appear here...
+Load a PDF document or select a sample from the top toolbar to begin extraction."></textarea>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Live HTML Preview -->
+                <div class="md-panel-view" id="viewPreview">
+                    <div class="preview-container" id="previewContent">
+                        <p style="color:var(--text-muted);text-align:center;margin-top:60px;">
+                            Convert a PDF or start typing in the editor to see the live formatted preview.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Extracted Images Gallery -->
+                <div class="md-panel-view" id="viewImages">
+                    <div class="image-gallery-container">
+                        <div class="image-gallery-grid" id="imageGalleryGrid">
+                            <p style="font-size:12.5px;color:var(--text-muted);text-align:center;padding:40px 0;grid-column:1/-1;">
+                                No images extracted yet. Convert a PDF with images to populate this gallery.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ── EMPTY DROP ZONE OVERLAY ─────────────────────────────── -->
+        <div class="drop-zone" id="emptyDropZone">
+            <div class="drop-box" id="dropBox" onclick="document.getElementById('pdfFileInput').click()">
+                <div class="drop-icon">📑</div>
+                <div class="drop-title">Drop your PDF file here</div>
+                <div class="drop-desc">
+                    Fast, privacy-friendly in-browser PDF conversion. Extract structured Markdown, GFM tables, KaTeX math formulas, and embedded figures.
+                </div>
+                <button class="accent" style="margin-top:4px;" onclick="event.stopPropagation();document.getElementById('pdfFileInput').click()">
+                    Browse PDF File
+                </button>
+            </div>
+
+            <div style="text-align:center;margin-top:8px;">
+                <span style="font-size:12px;color:var(--text-muted);">Or try with ready-to-test sample documents:</span>
+                <div class="sample-pills">
+                    <span class="sample-pill" onclick="PDFStudio.loadSample('tech_spec')">📄 Technical Spec & Architecture</span>
+                    <span class="sample-pill" onclick="PDFStudio.loadSample('academic_paper')">🎓 Academic Paper (Math & 2-Col)</span>
+                    <span class="sample-pill" onclick="PDFStudio.loadSample('financial_report')">📊 Financial Statement & Tables</span>
+                    <span class="sample-pill" onclick="PDFStudio.loadSample('meeting_notes')">📝 Meeting Notes & Tasks</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── PROGRESS MODAL ──────────────────────────────────────── -->
+        <div class="progress-overlay" id="progressOverlay">
+            <div class="progress-card">
+                <div class="progress-title" id="progressTitle">Analyzing PDF Layout…</div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="progressBar"></div>
+                </div>
+                <div class="progress-text" id="progressText">Extracting page 1 of 1…</div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ── TOAST MESSAGE ───────────────────────────────────────────── -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <!--                  PDF TO MARKDOWN CORE ENGINE                    -->
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+    <script>
+    (function() {
+        'use strict';
+
+        // Configure PDF.js Worker
+        if (window.pdfjsLib) {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
+
+        // App State
+        const state = {
+            theme: localStorage.getItem('utils-theme') || 'light',
+            pdfDoc: null,
+            pdfBytes: null,
+            pdfFilename: 'document.pdf',
+            numPages: 0,
+            currentPage: 1,
+            zoomScale: 1.0,
+            rotation: 0,
+            showXRay: false,
+            activeSidebarTab: 'nav',
+            activeMdTab: 'editor',
+            extractedMarkdown: '',
+            extractedImages: [], // { name, page, dataUrl, width, height, format }
+            pageBoundBoxes: {}, // pageNum -> array of { type, rect, text }
+            pageThumbnails: {},
+            pdfMetadata: {},
+        };
+
+        // DOM Elements
+        const dropZone = document.getElementById('emptyDropZone');
+        const dropBox = document.getElementById('dropBox');
+        const fileInput = document.getElementById('pdfFileInput');
+        const pdfCanvas = document.getElementById('pdfCanvas');
+        const overlayCanvas = document.getElementById('overlayCanvas');
+        const pageDisplay = document.getElementById('pageDisplay');
+        const prevPageBtn = document.getElementById('prevPageBtn');
+        const nextPageBtn = document.getElementById('nextPageBtn');
+        const markdownEditor = document.getElementById('markdownEditor');
+        const previewContent = document.getElementById('previewContent');
+        const lineNumbers = document.getElementById('lineNumbers');
+        const toastEl = document.getElementById('toast');
+        const themeBtn = document.getElementById('themeBtn');
+        const progressOverlay = document.getElementById('progressOverlay');
+        const progressBar = document.getElementById('progressBar');
+        const progressTitle = document.getElementById('progressTitle');
+        const progressText = document.getElementById('progressText');
+        const pageCountBadge = document.getElementById('pageCountBadge');
+        const wordCountBadge = document.getElementById('wordCountBadge');
+        const statusBadge = document.getElementById('statusBadge');
+        const imgCountBadge = document.getElementById('imgCountBadge');
+        const xrayBtn = document.getElementById('xrayBtn');
+        const thumbnailsContainer = document.getElementById('thumbnailsContainer');
+        const imageGalleryGrid = document.getElementById('imageGalleryGrid');
+
+        let toastTimer = null;
+
+        // ── Toast Notification Helper ─────────────────────────────────
+        function showToast(msg) {
+            toastEl.textContent = msg;
+            toastEl.classList.add('show');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2200);
+        }
+
+        // ── Theme Switcher ────────────────────────────────────────────
+        function setTheme(t) {
+            state.theme = t;
+            document.documentElement.setAttribute('data-theme', t);
+            document.body.setAttribute('data-theme', t);
+            localStorage.setItem('utils-theme', t);
+            themeBtn.textContent = t === 'dark' ? '☀️ Light' : '🌓 Dark';
+        }
+
+        function toggleTheme() {
+            setTheme(state.theme === 'dark' ? 'light' : 'dark');
+            showToast(state.theme === 'dark' ? '🌙 Dark mode' : '☀️ Light mode');
+        }
+
+        // ── Presets Configuration ─────────────────────────────────────
+        const PRESETS = {
+            article: {
+                headingMultiplier: 1.25,
+                multiColumn: true,
+                mergeParagraphs: true,
+                dehyphenate: true,
+                tables: true,
+                code: true,
+                math: true,
+                links: true,
+                stripHeaders: true,
+                yaml: true,
+                separators: false,
+                imageMode: 'base64'
+            },
+            technical: {
+                headingMultiplier: 1.2,
+                multiColumn: false,
+                mergeParagraphs: true,
+                dehyphenate: true,
+                tables: true,
+                code: true,
+                math: true,
+                links: true,
+                stripHeaders: true,
+                yaml: true,
+                separators: true,
+                imageMode: 'base64'
+            },
+            academic: {
+                headingMultiplier: 1.3,
+                multiColumn: true,
+                mergeParagraphs: true,
+                dehyphenate: true,
+                tables: true,
+                code: true,
+                math: true,
+                links: true,
+                stripHeaders: true,
+                yaml: true,
+                separators: true,
+                imageMode: 'base64'
+            },
+            tables: {
+                headingMultiplier: 1.35,
+                multiColumn: false,
+                mergeParagraphs: false,
+                dehyphenate: false,
+                tables: true,
+                code: false,
+                math: false,
+                links: true,
+                stripHeaders: true,
+                yaml: true,
+                separators: true,
+                imageMode: 'none'
+            },
+            raw: {
+                headingMultiplier: 1.8,
+                multiColumn: false,
+                mergeParagraphs: false,
+                dehyphenate: false,
+                tables: false,
+                code: false,
+                math: false,
+                links: false,
+                stripHeaders: false,
+                yaml: false,
+                separators: true,
+                imageMode: 'none'
+            }
+        };
+
+        function applyPreset(name) {
+            const p = PRESETS[name];
+            if (!p) return;
+            document.getElementById('headingThresholdSlider').value = p.headingMultiplier;
+            updateHeadingLabel();
+            document.getElementById('optMultiColumn').checked = p.multiColumn;
+            document.getElementById('optMergeParagraphs').checked = p.mergeParagraphs;
+            document.getElementById('optDehyphenate').checked = p.dehyphenate;
+            document.getElementById('optExtractTables').checked = p.tables;
+            document.getElementById('optDetectCode').checked = p.code;
+            document.getElementById('optMathFormatting').checked = p.math;
+            document.getElementById('optExtractLinks').checked = p.links;
+            document.getElementById('optStripHeadersFooters').checked = p.stripHeaders;
+            document.getElementById('optYamlFrontmatter').checked = p.yaml;
+            document.getElementById('optPageSeparators').checked = p.separators;
+            document.getElementById('imageExtractMode').value = p.imageMode;
+            showToast(`✨ Preset applied: ${name}`);
+        }
+
+        function updateHeadingLabel() {
+            const val = document.getElementById('headingThresholdSlider').value;
+            document.getElementById('headingVal').textContent = `${val}x`;
+        }
+
+        // ── Load PDF Document ─────────────────────────────────────────
+        async function loadPdfArrayBuffer(arrayBuffer, filename = 'document.pdf') {
+            try {
+                showProgress('Loading PDF…', 10);
+                state.pdfBytes = arrayBuffer;
+                state.pdfFilename = filename;
+
+                const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+                state.pdfDoc = await loadingTask.promise;
+                state.numPages = state.pdfDoc.numPages;
+                state.currentPage = 1;
+                state.extractedImages = [];
+                state.pageBoundBoxes = {};
+
+                // Update UI Badges & Metadata
+                pageCountBadge.innerHTML = `📄 <strong>${state.numPages}</strong> pages`;
+                document.getElementById('metaPages').textContent = state.numPages;
+                document.getElementById('metaSize').textContent = formatBytes(arrayBuffer.byteLength);
+
+                // Fetch metadata
+                const meta = await state.pdfDoc.getMetadata().catch(() => ({}));
+                state.pdfMetadata = meta.info || {};
+                document.getElementById('metaTitle').textContent = state.pdfMetadata.Title || filename.replace(/\.pdf$/i, '');
+                document.getElementById('metaAuthor').textContent = state.pdfMetadata.Author || '—';
+                document.getElementById('metaProducer').textContent = state.pdfMetadata.Producer || '—';
+                document.getElementById('metaCreator').textContent = state.pdfMetadata.Creator || '—';
+                document.getElementById('metaDate').textContent = state.pdfMetadata.CreationDate ? formatDate(state.pdfMetadata.CreationDate) : '—';
+                document.getElementById('metaVersion').textContent = meta.metadata ? 'PDF-1.7' : 'PDF Standard';
+
+                hideProgress();
+                dropZone.classList.add('hidden');
+
+                // Render first page and generate thumbnails
+                await renderCurrentPdfPage();
+                generateThumbnails();
+
+                // Auto-trigger conversion
+                await convertCurrentPDF();
+                showToast(`✅ Loaded ${filename} (${state.numPages} pages)`);
+            } catch (err) {
+                hideProgress();
+                console.error('Error loading PDF:', err);
+                showToast(`❌ Error loading PDF: ${err.message}`);
+            }
+        }
+
+        // ── Render PDF Page to Canvas ─────────────────────────────────
+        async function renderCurrentPdfPage() {
+            if (!state.pdfDoc) return;
+
+            pageDisplay.textContent = `Page ${state.currentPage} / ${state.numPages}`;
+            prevPageBtn.disabled = state.currentPage <= 1;
+            nextPageBtn.disabled = state.currentPage >= state.numPages;
+
+            const page = await state.pdfDoc.getPage(state.currentPage);
+            const pixelRatio = window.devicePixelRatio || 1;
+            const viewport = page.getViewport({ scale: state.zoomScale * pixelRatio, rotation: state.rotation });
+
+            pdfCanvas.width = viewport.width;
+            pdfCanvas.height = viewport.height;
+            pdfCanvas.style.width = `${viewport.width / pixelRatio}px`;
+            pdfCanvas.style.height = `${viewport.height / pixelRatio}px`;
+
+            overlayCanvas.width = viewport.width;
+            overlayCanvas.height = viewport.height;
+            overlayCanvas.style.width = `${viewport.width / pixelRatio}px`;
+            overlayCanvas.style.height = `${viewport.height / pixelRatio}px`;
+
+            const ctx = pdfCanvas.getContext('2d');
+            const renderContext = {
+                canvasContext: ctx,
+                viewport: viewport
+            };
+
+            await page.render(renderContext).promise;
+
+            // Highlight thumbnail
+            document.querySelectorAll('.thumb-card').forEach(card => {
+                card.classList.toggle('active', parseInt(card.dataset.page) === state.currentPage);
+            });
+
+            // Draw X-Ray overlay if enabled
+            if (state.showXRay) {
+                drawXRayOverlay();
+            } else {
+                clearXRayOverlay();
+            }
+        }
+
+        // ── Thumbnails Generator ──────────────────────────────────────
+        async function generateThumbnails() {
+            thumbnailsContainer.innerHTML = '';
+            for (let i = 1; i <= Math.min(state.numPages, 30); i++) {
+                const thumbCard = document.createElement('div');
+                thumbCard.className = `thumb-card ${i === state.currentPage ? 'active' : ''}`;
+                thumbCard.dataset.page = i;
+                thumbCard.onclick = () => {
+                    state.currentPage = i;
+                    renderCurrentPdfPage();
+                };
+
+                const canvas = document.createElement('canvas');
+                const label = document.createElement('div');
+                label.className = 'thumb-label';
+                label.textContent = `P. ${i}`;
+
+                thumbCard.appendChild(canvas);
+                thumbCard.appendChild(label);
+                thumbnailsContainer.appendChild(thumbCard);
+
+                // Render miniature
+                state.pdfDoc.getPage(i).then(page => {
+                    const viewport = page.getViewport({ scale: 0.25 });
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
+                    const ctx = canvas.getContext('2d');
+                    page.render({ canvasContext: ctx, viewport: viewport });
+                });
+            }
+        }
+
+        // ── X-Ray Structural Overlay ──────────────────────────────────
+        function toggleXRay() {
+            state.showXRay = !state.showXRay;
+            xrayBtn.classList.toggle('active', state.showXRay);
+            if (state.showXRay) {
+                drawXRayOverlay();
+                showToast('🔬 X-Ray structure view enabled');
+            } else {
+                clearXRayOverlay();
+                showToast('🔬 X-Ray overlay hidden');
+            }
+        }
+
+        function clearXRayOverlay() {
+            const ctx = overlayCanvas.getContext('2d');
+            ctx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+        }
+
+        async function drawXRayOverlay() {
+            clearXRayOverlay();
+            const boxes = state.pageBoundBoxes[state.currentPage];
+            if (!boxes || !boxes.length) return;
+
+            const ctx = overlayCanvas.getContext('2d');
+            const pixelRatio = window.devicePixelRatio || 1;
+            const scale = state.zoomScale * pixelRatio;
+
+            boxes.forEach(box => {
+                let color = 'rgba(76, 110, 245, 0.25)'; // paragraph default
+                let borderColor = '#4c6ef5';
+                let tag = 'P';
+
+                if (box.type === 'h1' || box.type === 'h2' || box.type === 'h3') {
+                    color = 'rgba(121, 80, 242, 0.3)';
+                    borderColor = '#7950f2';
+                    tag = box.type.toUpperCase();
+                } else if (box.type === 'table') {
+                    color = 'rgba(43, 138, 62, 0.25)';
+                    borderColor = '#2b8a3e';
+                    tag = 'TABLE';
+                } else if (box.type === 'code') {
+                    color = 'rgba(16, 152, 173, 0.25)';
+                    borderColor = '#1098ad';
+                    tag = 'CODE';
+                } else if (box.type === 'list') {
+                    color = 'rgba(230, 119, 0, 0.25)';
+                    borderColor = '#e67700';
+                    tag = 'LIST';
+                } else if (box.type === 'image') {
+                    color = 'rgba(230, 73, 128, 0.25)';
+                    borderColor = '#e64980';
+                    tag = 'IMG';
+                }
+
+                const rx = box.rect.x * scale;
+                const ry = box.rect.y * scale;
+                const rw = box.rect.w * scale;
+                const rh = box.rect.h * scale;
+
+                ctx.fillStyle = color;
+                ctx.fillRect(rx, ry, rw, rh);
+                ctx.strokeStyle = borderColor;
+                ctx.lineWidth = 1.5;
+                ctx.strokeRect(rx, ry, rw, rh);
+
+                // Draw tiny label badge
+                ctx.fillStyle = borderColor;
+                ctx.fillRect(rx, ry - 14, 34, 14);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 9px sans-serif';
+                ctx.fillText(tag, rx + 4, ry - 3);
+            });
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        //           CORE LAYOUT EXTRACTION & MARKDOWN COMPILER
+        // ═══════════════════════════════════════════════════════════════
+        async function convertCurrentPDF() {
+            if (!state.pdfDoc) return;
+
+            statusBadge.textContent = 'Converting…';
+            statusBadge.style.color = 'var(--warning)';
+            statusBadge.style.background = 'var(--warning-light)';
+            showProgress('Extracting and analyzing pages…', 15);
+
+            try {
+                const options = {
+                    headingMultiplier: parseFloat(document.getElementById('headingThresholdSlider').value) || 1.25,
+                    multiColumn: document.getElementById('optMultiColumn').checked,
+                    mergeParagraphs: document.getElementById('optMergeParagraphs').checked,
+                    dehyphenate: document.getElementById('optDehyphenate').checked,
+                    extractTables: document.getElementById('optExtractTables').checked,
+                    detectCode: document.getElementById('optDetectCode').checked,
+                    mathFormatting: document.getElementById('optMathFormatting').checked,
+                    extractLinks: document.getElementById('optExtractLinks').checked,
+                    stripHeadersFooters: document.getElementById('optStripHeadersFooters').checked,
+                    yamlFrontmatter: document.getElementById('optYamlFrontmatter').checked,
+                    pageSeparators: document.getElementById('optPageSeparators').checked,
+                    imageMode: document.getElementById('imageExtractMode').value,
+                };
+
+                const pageRange = parsePageRange(document.getElementById('pageRangeInput').value, state.numPages);
+                const extractedPageOutputs = [];
+                state.extractedImages = [];
+                state.pageBoundBoxes = {};
+
+                // Pass 1: Extract Images & Text Lines for selected pages
+                for (let i = 0; i < pageRange.length; i++) {
+                    const pageNum = pageRange[i];
+                    const progressPercent = 20 + Math.round((i / pageRange.length) * 60);
+                    showProgress(`Processing Page ${pageNum} of ${state.numPages}…`, progressPercent);
+
+                    const page = await state.pdfDoc.getPage(pageNum);
+                    const viewport = page.getViewport({ scale: 1.0 });
+
+                    // 1. Extract embedded images
+                    if (options.imageMode !== 'none') {
+                        await extractPageImages(page, pageNum);
+                    }
+
+                    // 2. Extract Text with Geometry
+                    const textContent = await page.getTextContent({ normalizeWhitespace: true });
+                    const linkAnnotations = options.extractLinks ? await page.getAnnotations() : [];
+
+                    const pageMarkdown = processPageLayout(textContent, viewport, linkAnnotations, pageNum, options);
+                    extractedPageOutputs.push({ pageNum, md: pageMarkdown });
+                }
+
+                showProgress('Compiling final Markdown document…', 90);
+
+                // Pass 2: Combine Document & Apply Frontmatter
+                let finalMarkdown = '';
+
+                if (options.yamlFrontmatter) {
+                    const title = state.pdfMetadata.Title || state.pdfFilename.replace(/\.pdf$/i, '');
+                    const author = state.pdfMetadata.Author || '';
+                    const date = state.pdfMetadata.CreationDate ? formatDate(state.pdfMetadata.CreationDate) : new Date().toISOString().split('T')[0];
+                    finalMarkdown += `---\ntitle: "${title}"\n`;
+                    if (author) finalMarkdown += `author: "${author}"\n`;
+                    finalMarkdown += `date: ${date}\npages: ${state.numPages}\nconverted_by: Utilities PDF Studio\n---\n\n`;
+                }
+
+                for (let j = 0; j < extractedPageOutputs.length; j++) {
+                    const p = extractedPageOutputs[j];
+                    if (options.pageSeparators && j > 0) {
+                        finalMarkdown += `\n\n<!-- Page ${p.pageNum} -->\n---\n\n`;
+                    }
+                    finalMarkdown += p.md.trim() + '\n\n';
+                }
+
+                state.extractedMarkdown = finalMarkdown.trim();
+                markdownEditor.value = state.extractedMarkdown;
+
+                updateEditorStats();
+                renderPreview();
+                renderImageGallery();
+
+                if (state.showXRay) {
+                    drawXRayOverlay();
+                }
+
+                statusBadge.textContent = 'Ready';
+                statusBadge.style.color = 'var(--success)';
+                statusBadge.style.background = 'var(--success-light)';
+                hideProgress();
+                showToast(`🎉 Converted ${pageRange.length} page(s) successfully!`);
+            } catch (err) {
+                hideProgress();
+                statusBadge.textContent = 'Error';
+                statusBadge.style.color = 'var(--danger)';
+                statusBadge.style.background = 'var(--danger-light)';
+                console.error('Conversion error:', err);
+                showToast(`❌ Conversion error: ${err.message}`);
+            }
+        }
+
+        // ── Single Page Geometry & Layout Parsing ─────────────────────
+        function processPageLayout(textContent, viewport, annotations, pageNum, options) {
+            const rawItems = textContent.items;
+            if (!rawItems || rawItems.length === 0) return '';
+
+            // Group into geometric text tokens
+            const tokens = [];
+            const fontSizes = [];
+
+            for (const item of rawItems) {
+                const str = item.str;
+                if (!str || str.trim() === '') continue;
+
+                const tx = item.transform;
+                const x = tx[4];
+                const y = viewport.height - tx[5]; // Convert to top-left Y
+                const width = item.width || (str.length * (item.height * 0.5));
+                const height = item.height || Math.abs(tx[0]);
+                const fontName = (item.fontName || '').toLowerCase();
+                const isBold = fontName.includes('bold') || fontName.includes('black') || fontName.includes('heavy') || fontName.includes('semibold');
+                const isItalic = fontName.includes('italic') || fontName.includes('oblique');
+                const isMonospace = fontName.includes('mono') || fontName.includes('courier') || fontName.includes('consolas') || fontName.includes('menlo') || fontName.includes('code');
+
+                fontSizes.push(height);
+                tokens.push({
+                    text: str,
+                    x, y, width, height,
+                    fontName, isBold, isItalic, isMonospace
+                });
+            }
+
+            if (tokens.length === 0) return '';
+
+            // Calculate font size distribution & median body font
+            fontSizes.sort((a, b) => a - b);
+            const medianFontSize = fontSizes[Math.floor(fontSizes.length / 2)] || 11;
+
+            // Sort tokens vertically into lines (grouping tokens with Y within 3px)
+            tokens.sort((a, b) => a.y - b.y || a.x - b.x);
+
+            const lines = [];
+            let currentLine = null;
+
+            for (const t of tokens) {
+                if (!currentLine) {
+                    currentLine = { y: t.y, height: t.height, tokens: [t] };
+                } else if (Math.abs(t.y - currentLine.y) < Math.max(3, currentLine.height * 0.4)) {
+                    currentLine.tokens.push(t);
+                    currentLine.height = Math.max(currentLine.height, t.height);
+                } else {
+                    currentLine.tokens.sort((a, b) => a.x - b.x);
+                    lines.push(currentLine);
+                    currentLine = { y: t.y, height: t.height, tokens: [t] };
+                }
+            }
+            if (currentLine && currentLine.tokens.length > 0) {
+                currentLine.tokens.sort((a, b) => a.x - b.x);
+                lines.push(currentLine);
+            }
+
+            // Filter out running headers and footers if enabled
+            let processedLines = lines;
+            if (options.stripHeadersFooters) {
+                processedLines = lines.filter(l => {
+                    const topRelative = l.y / viewport.height;
+                    const lineText = l.tokens.map(t => t.text).join(' ').trim();
+                    // Strip top header (top 5%) or bottom page number (bottom 7%)
+                    if (topRelative < 0.05 && lineText.length < 50) return false;
+                    if (topRelative > 0.93 && (/^(page\s+\d+|\d+\s+of\s+\d+|-\s*\d+\s*-|\d+)$/i.test(lineText))) return false;
+                    return true;
+                });
+            }
+
+            // Multi-column clustering if enabled
+            let sortedLines = processedLines;
+            if (options.multiColumn) {
+                const pageWidth = viewport.width;
+                const columnThreshold = pageWidth * 0.48;
+                const leftCol = [];
+                const rightCol = [];
+                let multiColDetected = false;
+
+                for (const line of processedLines) {
+                    const avgX = line.tokens[0].x;
+                    const lineSpan = line.tokens[line.tokens.length - 1].x + line.tokens[line.tokens.length - 1].width - avgX;
+                    // If line spans over 65% of page width, it's a full-width header
+                    if (lineSpan > pageWidth * 0.65) {
+                        if (leftCol.length) {
+                            sortedLines = leftCol.concat(rightCol);
+                        }
+                    } else if (avgX > columnThreshold) {
+                        rightCol.push(line);
+                        multiColDetected = true;
+                    } else {
+                        leftCol.push(line);
+                    }
+                }
+                if (multiColDetected && leftCol.length && rightCol.length) {
+                    sortedLines = leftCol.concat(rightCol);
+                }
+            }
+
+            // Pass 3: Construct Markdown Blocks
+            const blocks = [];
+            const boundBoxes = [];
+            let i = 0;
+
+            while (i < sortedLines.length) {
+                const line = sortedLines[i];
+                const fullText = line.tokens.map(t => t.text).join(' ').trim();
+                const maxHeight = Math.max(...line.tokens.map(t => t.height));
+                const isMonospaceLine = line.tokens.every(t => t.isMonospace);
+                const minX = line.tokens[0].x;
+                const maxX = line.tokens[line.tokens.length - 1].x + line.tokens[line.tokens.length - 1].width;
+
+                // 1. Table Detection (Line with 3+ distinct column gaps)
+                if (options.extractTables && isTableCandidate(line, sortedLines, i)) {
+                    const tableData = parseTableBlock(sortedLines, i);
+                    blocks.push(tableData.markdown);
+                    boundBoxes.push({
+                        type: 'table',
+                        rect: { x: minX, y: line.y - maxHeight, w: viewport.width - minX * 2, h: tableData.totalHeight },
+                        text: 'Table'
+                    });
+                    i = tableData.nextIndex;
+                    continue;
+                }
+
+                // 2. Monospace Code Block Detection
+                if (options.detectCode && isMonospaceLine) {
+                    let codeLines = [fullText];
+                    let nextI = i + 1;
+                    let codeHeight = maxHeight;
+
+                    while (nextI < sortedLines.length && sortedLines[nextI].tokens.every(t => t.isMonospace)) {
+                        codeLines.push(sortedLines[nextI].tokens.map(t => t.text).join(' '));
+                        codeHeight += sortedLines[nextI].height + 4;
+                        nextI++;
+                    }
+
+                    blocks.push('```\n' + codeLines.join('\n') + '\n```');
+                    boundBoxes.push({
+                        type: 'code',
+                        rect: { x: minX, y: line.y - maxHeight, w: maxX - minX, h: codeHeight },
+                        text: 'Code'
+                    });
+                    i = nextI;
+                    continue;
+                }
+
+                // 3. Headings by Font Size Multiplier
+                const sizeRatio = maxHeight / medianFontSize;
+                if (sizeRatio >= options.headingMultiplier) {
+                    let level = '# ';
+                    let type = 'h1';
+                    if (sizeRatio >= 1.6) { level = '# '; type = 'h1'; }
+                    else if (sizeRatio >= 1.35) { level = '## '; type = 'h2'; }
+                    else if (sizeRatio >= 1.18) { level = '### '; type = 'h3'; }
+                    else { level = '#### '; type = 'h4'; }
+
+                    const cleanHeading = fullText.replace(/^[#\s]+/, '');
+                    blocks.push(`${level}${cleanHeading}`);
+                    boundBoxes.push({
+                        type: type,
+                        rect: { x: minX, y: line.y - maxHeight, w: maxX - minX, h: maxHeight * 1.3 },
+                        text: cleanHeading
+                    });
+                    i++;
+                    continue;
+                }
+
+                // 4. Bullet & Numbered Lists
+                const bulletMatch = fullText.match(/^([•⁃◦▪▫\-\*]|\d+[\.\)]|\([a-z0-9]+\))\s+(.*)/i);
+                if (bulletMatch) {
+                    let marker = '- ';
+                    if (/^\d+[\.\)]/.test(bulletMatch[1])) {
+                        marker = bulletMatch[1].replace(/\)$/, '.') + ' ';
+                    }
+                    blocks.push(`${marker}${bulletMatch[2]}`);
+                    boundBoxes.push({
+                        type: 'list',
+                        rect: { x: minX, y: line.y - maxHeight, w: maxX - minX, h: maxHeight * 1.2 },
+                        text: fullText
+                    });
+                    i++;
+                    continue;
+                }
+
+                // 5. Blockquote / Callout
+                if (fullText.startsWith('>') || (minX > 72 && fullText.length < 80)) {
+                    blocks.push(`> ${fullText.replace(/^>\s*/, '')}`);
+                    boundBoxes.push({
+                        type: 'paragraph',
+                        rect: { x: minX, y: line.y - maxHeight, w: maxX - minX, h: maxHeight * 1.2 },
+                        text: fullText
+                    });
+                    i++;
+                    continue;
+                }
+
+                // 6. Normal Paragraph Text (with Math & Links enhancement)
+                let enhancedText = formatInlineTokens(line.tokens, annotations, options);
+                let paragraphHeight = maxHeight;
+                let nextI = i + 1;
+
+                // Stitch continuous soft paragraphs if enabled
+                if (options.mergeParagraphs) {
+                    while (nextI < sortedLines.length) {
+                        const nextLine = sortedLines[nextI];
+                        const nextText = nextLine.tokens.map(t => t.text).join(' ').trim();
+                        const nextMaxH = Math.max(...nextLine.tokens.map(t => t.height));
+
+                        // Break on headings, lists, tables, or code
+                        if (nextMaxH / medianFontSize >= options.headingMultiplier ||
+                            /^([•⁃◦▪▫\-\*]|\d+[\.\)])\s+/i.test(nextText) ||
+                            nextLine.tokens.every(t => t.isMonospace) ||
+                            isTableCandidate(nextLine, sortedLines, nextI)) {
+                            break;
+                        }
+
+                        // Check line gap
+                        const gap = nextLine.y - (line.y + maxHeight);
+                        if (gap > maxHeight * 2.2) break; // Paragraph break
+
+                        // De-hyphenation across line end
+                        if (options.dehyphenate && enhancedText.endsWith('-')) {
+                            enhancedText = enhancedText.slice(0, -1) + formatInlineTokens(nextLine.tokens, annotations, options);
+                        } else {
+                            enhancedText += ' ' + formatInlineTokens(nextLine.tokens, annotations, options);
+                        }
+
+                        paragraphHeight += nextLine.height + 4;
+                        nextI++;
+                    }
+                }
+
+                blocks.push(enhancedText);
+                boundBoxes.push({
+                    type: 'paragraph',
+                    rect: { x: minX, y: line.y - maxHeight, w: viewport.width - minX * 1.5, h: paragraphHeight },
+                    text: enhancedText.slice(0, 40)
+                });
+                i = nextI;
+            }
+
+            state.pageBoundBoxes[pageNum] = boundBoxes;
+            return blocks.join('\n\n');
+        }
+
+        // Helper: Format inline bold, italics, links, and math
+        function formatInlineTokens(tokens, annotations, options) {
+            let result = '';
+            for (const t of tokens) {
+                let text = t.text;
+                if (t.isBold && t.isItalic) text = `***${text}***`;
+                else if (t.isBold) text = `**${text}**`;
+                else if (t.isItalic) text = `*${text}*`;
+
+                // KaTeX math symbols formatting
+                if (options.mathFormatting && /[\u03B1-\u03C9\u2200-\u22FF\u2A00-\u2AFF∑∫√±≈≠≤≥∂]/.test(text)) {
+                    text = `$${text}$`;
+                }
+
+                // Check URL links
+                if (options.extractLinks && /(https?:\/\/[^\s]+)/i.test(text)) {
+                    text = text.replace(/(https?:\/\/[^\s]+)/gi, '[$1]($1)');
+                }
+
+                result += (result ? ' ' : '') + text;
+            }
+            return result;
+        }
+
+        // Helper: Detect candidate table rows
+        function isTableCandidate(line, allLines, index) {
+            if (line.tokens.length < 2) return false;
+            // Check if adjacent line has similar column X coordinates
+            if (index + 1 < allLines.length) {
+                const nextTokens = allLines[index + 1].tokens;
+                if (nextTokens.length >= 2) {
+                    let matchingPositions = 0;
+                    for (const t1 of line.tokens) {
+                        if (nextTokens.some(t2 => Math.abs(t1.x - t2.x) < 25)) matchingPositions++;
+                    }
+                    if (matchingPositions >= 2) return true;
+                }
+            }
+            return false;
+        }
+
+        // Helper: Reconstruct GFM Table Block
+        function parseTableBlock(allLines, startIndex) {
+            const rows = [];
+            let i = startIndex;
+            let totalHeight = 0;
+
+            while (i < allLines.length) {
+                const line = allLines[i];
+                if (line.tokens.length < 2 && i > startIndex) break;
+
+                const cells = line.tokens.map(t => t.text.trim().replace(/\|/g, '\\|'));
+                rows.push(cells);
+                totalHeight += line.height + 6;
+                i++;
+                if (rows.length >= 20) break; // cap table height
+            }
+
+            // Normalize column counts
+            const maxCols = Math.max(...rows.map(r => r.length));
+            const paddedRows = rows.map(r => {
+                while (r.length < maxCols) r.push('');
+                return r;
+            });
+
+            // Build GFM table markdown
+            const header = '| ' + paddedRows[0].join(' | ') + ' |';
+            const separator = '| ' + paddedRows[0].map(() => '---').join(' | ') + ' |';
+            const body = paddedRows.slice(1).map(r => '| ' + r.join(' | ') + ' |').join('\n');
+
+            return {
+                markdown: `${header}\n${separator}\n${body}`,
+                nextIndex: i,
+                totalHeight: totalHeight
+            };
+        }
+
+        // ── Image Extraction from PDF.js Operator List ────────────────
+        async function extractPageImages(page, pageNum) {
+            try {
+                const ops = await page.getOperatorList();
+                const fnArray = ops.fnArray;
+                const argsArray = ops.argsArray;
+
+                for (let i = 0; i < fnArray.length; i++) {
+                    if (fnArray[i] === pdfjsLib.OPS.paintImageXObject || fnArray[i] === pdfjsLib.OPS.paintInlineImageXObject) {
+                        const imgName = argsArray[i][0];
+                        page.objs.get(imgName, (imgObj) => {
+                            if (!imgObj || !imgObj.data) return;
+
+                            const canvas = document.createElement('canvas');
+                            canvas.width = imgObj.width;
+                            canvas.height = imgObj.height;
+                            const ctx = canvas.getContext('2d');
+
+                            const imgData = ctx.createImageData(imgObj.width, imgObj.height);
+                            // Fill pixel data (handling RGBA or RGB)
+                            if (imgObj.data.length === imgObj.width * imgObj.height * 4) {
+                                imgData.data.set(imgObj.data);
+                            } else if (imgObj.data.length === imgObj.width * imgObj.height * 3) {
+                                let src = 0, dest = 0;
+                                while (src < imgObj.data.length) {
+                                    imgData.data[dest] = imgObj.data[src];
+                                    imgData.data[dest + 1] = imgObj.data[src + 1];
+                                    imgData.data[dest + 2] = imgObj.data[src + 2];
+                                    imgData.data[dest + 3] = 255;
+                                    src += 3;
+                                    dest += 4;
+                                }
+                            }
+                            ctx.putImageData(imgData, 0, 0);
+
+                            const dataUrl = canvas.toDataURL('image/png');
+                            const imgItem = {
+                                id: `page${pageNum}_img${state.extractedImages.length + 1}`,
+                                name: `figure_p${pageNum}_${state.extractedImages.length + 1}.png`,
+                                page: pageNum,
+                                width: imgObj.width,
+                                height: imgObj.height,
+                                dataUrl: dataUrl
+                            };
+                            state.extractedImages.push(imgItem);
+                            imgCountBadge.textContent = state.extractedImages.length;
+                        });
+                    }
+                }
+            } catch (e) {
+                console.warn('Image extraction notice:', e);
+            }
+        }
+
+        // ── Render Image Gallery ──────────────────────────────────────
+        function renderImageGallery() {
+            imgCountBadge.textContent = state.extractedImages.length;
+            if (state.extractedImages.length === 0) {
+                imageGalleryGrid.innerHTML = `
+                    <p style="font-size:12.5px;color:var(--text-muted);text-align:center;padding:40px 0;grid-column:1/-1;">
+                        No images found in this document.
+                    </p>`;
+                return;
+            }
+
+            imageGalleryGrid.innerHTML = '';
+            state.extractedImages.forEach((img, idx) => {
+                const card = document.createElement('div');
+                card.className = 'image-gallery-card';
+                card.innerHTML = `
+                    <div class="image-gallery-preview">
+                        <img src="${img.dataUrl}" alt="${img.name}" />
+                    </div>
+                    <div class="image-gallery-info">
+                        <div class="image-gallery-name">${img.name}</div>
+                        <div class="image-gallery-meta">Page ${img.page} · ${img.width}×${img.height} px</div>
+                        <div class="image-gallery-actions">
+                            <button onclick="PDFStudio.copyImageData(${idx})">📋 Copy</button>
+                            <button onclick="PDFStudio.insertImageMarkdown(${idx})">➕ Insert</button>
+                            <button onclick="PDFStudio.downloadImage(${idx})">💾 Save</button>
+                        </div>
+                    </div>
+                `;
+                imageGalleryGrid.appendChild(card);
+            });
+        }
+
+        // ── Live Rendered Preview ─────────────────────────────────────
+        function renderPreview() {
+            const raw = markdownEditor.value;
+            if (!raw.trim()) {
+                previewContent.innerHTML = `<p style="color:var(--text-muted);text-align:center;margin-top:60px;">Start typing or convert a PDF to see live preview…</p>`;
+                return;
+            }
+
+            if (window.marked) {
+                const html = marked.parse(raw);
+                previewContent.innerHTML = html;
+
+                // Render KaTeX Math in preview
+                if (window.renderMathInElement) {
+                    renderMathInElement(previewContent, {
+                        delimiters: [
+                            { left: '$$', right: '$$', display: true },
+                            { left: '$', right: '$', display: false }
+                        ],
+                        throwOnError: false
+                    });
+                }
+
+                // Highlight code blocks
+                if (window.hljs) {
+                    previewContent.querySelectorAll('pre code').forEach(block => {
+                        hljs.highlightElement(block);
+                    });
+                }
+            }
+        }
+
+        // ── Editor Stats & Line Numbers ───────────────────────────────
+        function updateEditorStats() {
+            const text = markdownEditor.value;
+            const lines = text.split('\n').length;
+            const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+            const chars = text.length;
+
+            wordCountBadge.innerHTML = `📝 <strong>${words.toLocaleString()}</strong> words`;
+
+            // Line numbers
+            const nums = [];
+            for (let i = 1; i <= lines; i++) nums.push(i);
+            lineNumbers.textContent = nums.join('\n');
+            lineNumbers.scrollTop = markdownEditor.scrollTop;
+        }
+
+        // ── Synchronize Line Numbers Scrolling ────────────────────────
+        markdownEditor.addEventListener('scroll', () => {
+            lineNumbers.scrollTop = markdownEditor.scrollTop;
+        });
+        markdownEditor.addEventListener('input', () => {
+            updateEditorStats();
+            renderPreview();
+        });
+
+        // ── Tabs Switching ────────────────────────────────────────────
+        function switchSidebarTab(tabId) {
+            state.activeSidebarTab = tabId;
+            document.querySelectorAll('.sidebar-tab').forEach(b => b.classList.remove('active'));
+            document.getElementById(`tab${tabId.charAt(0).toUpperCase() + tabId.slice(1)}Btn`).classList.add('active');
+
+            document.getElementById('sideTabNav').style.display = tabId === 'nav' ? 'flex' : 'none';
+            document.getElementById('sideTabSettings').style.display = tabId === 'settings' ? 'flex' : 'none';
+            document.getElementById('sideTabMeta').style.display = tabId === 'meta' ? 'flex' : 'none';
+        }
+
+        function switchMdTab(tabId) {
+            state.activeMdTab = tabId;
+            document.querySelectorAll('.md-tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.md-panel-view').forEach(v => v.classList.remove('active'));
+
+            document.getElementById(`tab${tabId.charAt(0).toUpperCase() + tabId.slice(1)}Btn`).classList.add('active');
+            document.getElementById(`view${tabId.charAt(0).toUpperCase() + tabId.slice(1)}`).classList.add('active');
+
+            if (tabId === 'preview') renderPreview();
+            if (tabId === 'images') renderImageGallery();
+        }
+
+        // ── Editor Snippet Insertion ──────────────────────────────────
+        function insertSnippet(prefix, suffix) {
+            const start = markdownEditor.selectionStart;
+            const end = markdownEditor.selectionEnd;
+            const text = markdownEditor.value;
+            const selected = text.substring(start, end);
+            const replacement = prefix + selected + suffix;
+
+            markdownEditor.value = text.substring(0, start) + replacement + text.substring(end);
+            markdownEditor.selectionStart = start + prefix.length;
+            markdownEditor.selectionEnd = start + prefix.length + selected.length;
+            markdownEditor.focus();
+            updateEditorStats();
+            renderPreview();
+        }
+
+        // ── Export Actions ────────────────────────────────────────────
+        function downloadMarkdown() {
+            const md = markdownEditor.value;
+            if (!md) {
+                showToast('⚠️ Editor is empty');
+                return;
+            }
+            const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            const name = state.pdfFilename.replace(/\.pdf$/i, '') + '.md';
+            a.href = url;
+            a.download = name;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast(`💾 Downloaded ${name}`);
+        }
+
+        async function exportZipBundle() {
+            if (!window.JSZip) {
+                downloadMarkdown();
+                return;
+            }
+
+            const md = markdownEditor.value;
+            if (!md) {
+                showToast('⚠️ Editor is empty');
+                return;
+            }
+
+            showProgress('Creating ZIP bundle…', 40);
+            const zip = new JSZip();
+            const docBase = state.pdfFilename.replace(/\.pdf$/i, '');
+
+            // 1. Add document.md
+            zip.file(`${docBase}.md`, md);
+
+            // 2. Add images/ folder
+            if (state.extractedImages.length > 0) {
+                const imgFolder = zip.folder('images');
+                state.extractedImages.forEach(img => {
+                    const base64Data = img.dataUrl.replace(/^data:image\/png;base64,/, '');
+                    imgFolder.file(img.name, base64Data, { base64: true });
+                });
+            }
+
+            // 3. Add metadata.json
+            zip.file('metadata.json', JSON.stringify({
+                sourcePdf: state.pdfFilename,
+                extractedDate: new Date().toISOString(),
+                pages: state.numPages,
+                metadata: state.pdfMetadata
+            }, null, 2));
+
+            const content = await zip.generateAsync({ type: 'blob' });
+            const url = URL.createObjectURL(content);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${docBase}-package.zip`;
+            a.click();
+            URL.revokeObjectURL(url);
+            hideProgress();
+            showToast(`📦 Exported ${docBase}-package.zip`);
+        }
+
+        function copyMarkdown() {
+            const md = markdownEditor.value;
+            if (!md) {
+                showToast('⚠️ Nothing to copy');
+                return;
+            }
+            navigator.clipboard.writeText(md).then(() => {
+                showToast('📋 Markdown copied to clipboard!');
+            });
+        }
+
+        function openInMDStudio() {
+            const md = markdownEditor.value;
+            if (!md) {
+                showToast('⚠️ No Markdown content to send');
+                return;
+            }
+            try {
+                localStorage.setItem('md2pdf-document', md);
+                showToast('🚀 Opening in MD Studio…');
+                setTimeout(() => {
+                    window.location.href = '../MD_Studio/index.html';
+                }, 400);
+            } catch (e) {
+                showToast('⚠️ Error saving to storage: ' + e.message);
+            }
+        }
+
+        function clearEditor() {
+            if (confirm('Clear editor content?')) {
+                markdownEditor.value = '';
+                updateEditorStats();
+                renderPreview();
+                showToast('🗑️ Cleared editor');
+            }
+        }
+
+        // ── Navigation & Zoom ─────────────────────────────────────────
+        function prevPage() {
+            if (state.currentPage > 1) {
+                state.currentPage--;
+                renderCurrentPdfPage();
+            }
+        }
+
+        function nextPage() {
+            if (state.currentPage < state.numPages) {
+                state.currentPage++;
+                renderCurrentPdfPage();
+            }
+        }
+
+        function zoom(delta) {
+            state.zoomScale = Math.max(0.4, Math.min(3.0, state.zoomScale + delta));
+            renderCurrentPdfPage();
+        }
+
+        function resetZoom() {
+            state.zoomScale = 1.0;
+            renderCurrentPdfPage();
+        }
+
+        function rotatePDF() {
+            state.rotation = (state.rotation + 90) % 360;
+            renderCurrentPdfPage();
+        }
+
+        // ── Progress Overlay Helpers ──────────────────────────────────
+        function showProgress(title, percent) {
+            progressOverlay.classList.add('active');
+            progressTitle.textContent = title;
+            progressBar.style.width = `${percent}%`;
+            progressText.textContent = `${percent}% completed`;
+        }
+
+        function hideProgress() {
+            progressOverlay.classList.remove('active');
+        }
+
+        // ── Utility Helpers ───────────────────────────────────────────
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function formatDate(pdfDateStr) {
+            if (!pdfDateStr) return '—';
+            // PDF date format: D:YYYYMMDDHHmmSS...
+            const clean = pdfDateStr.replace(/^D:/, '');
+            if (clean.length >= 8) {
+                return `${clean.substring(0, 4)}-${clean.substring(4, 6)}-${clean.substring(6, 8)}`;
+            }
+            return pdfDateStr;
+        }
+
+        function parsePageRange(rangeStr, maxPages) {
+            if (!rangeStr || rangeStr.trim().toLowerCase() === 'all') {
+                return Array.from({ length: maxPages }, (_, i) => i + 1);
+            }
+            const pages = new Set();
+            const parts = rangeStr.split(',');
+            for (const part of parts) {
+                const trimmed = part.trim();
+                if (trimmed.includes('-')) {
+                    const [s, e] = trimmed.split('-').map(n => parseInt(n.trim()));
+                    if (!isNaN(s) && !isNaN(e)) {
+                        for (let p = Math.max(1, s); p <= Math.min(maxPages, e); p++) pages.add(p);
+                    }
+                } else {
+                    const p = parseInt(trimmed);
+                    if (!isNaN(p) && p >= 1 && p <= maxPages) pages.add(p);
+                }
+            }
+            return pages.size > 0 ? Array.from(pages).sort((a, b) => a - b) : Array.from({ length: maxPages }, (_, i) => i + 1);
+        }
+
+        function onPageRangeChange() {
+            const range = parsePageRange(document.getElementById('pageRangeInput').value, state.numPages);
+            document.getElementById('pageSelectCount').textContent = `${range.length} selected`;
+        }
+
+        // ── Sample Documents Library (In-Memory PDF Generation) ────────
+        async function loadSample(sampleKey) {
+            showProgress('Generating sample document…', 30);
+            try {
+                const samplePdfs = {
+                    tech_spec: generateTechnicalSpecMarkdown(),
+                    academic_paper: generateAcademicPaperMarkdown(),
+                    financial_report: generateFinancialReportMarkdown(),
+                    meeting_notes: generateMeetingNotesMarkdown()
+                };
+
+                const sample = samplePdfs[sampleKey] || samplePdfs.tech_spec;
+                
+                // Set fake metadata for sample
+                state.pdfFilename = `${sampleKey}_sample.pdf`;
+                state.numPages = sample.pages;
+                state.currentPage = 1;
+                state.pdfMetadata = sample.meta;
+
+                document.getElementById('metaTitle').textContent = sample.meta.Title;
+                document.getElementById('metaAuthor').textContent = sample.meta.Author;
+                document.getElementById('metaProducer').textContent = 'Utilities PDF Studio Mock Generator';
+                document.getElementById('metaPages').textContent = sample.pages;
+                document.getElementById('metaSize').textContent = '142 KB';
+
+                // Render mock canvas representation
+                renderMockCanvasPage(sample.title, sampleKey);
+
+                markdownEditor.value = sample.markdown;
+                state.extractedMarkdown = sample.markdown;
+
+                updateEditorStats();
+                renderPreview();
+                dropZone.classList.add('hidden');
+                hideProgress();
+                showToast(`🧪 Loaded Sample: ${sample.title}`);
+            } catch (e) {
+                hideProgress();
+                console.error(e);
+            }
+        }
+
+        function renderMockCanvasPage(title, sampleKey) {
+            const pixelRatio = window.devicePixelRatio || 1;
+            pdfCanvas.width = 600 * pixelRatio;
+            pdfCanvas.height = 800 * pixelRatio;
+            pdfCanvas.style.width = '600px';
+            pdfCanvas.style.height = '800px';
+
+            overlayCanvas.width = 600 * pixelRatio;
+            overlayCanvas.height = 800 * pixelRatio;
+            overlayCanvas.style.width = '600px';
+            overlayCanvas.style.height = '800px';
+
+            const ctx = pdfCanvas.getContext('2d');
+            ctx.scale(pixelRatio, pixelRatio);
+
+            // Mock document page styling
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, 600, 800);
+
+            ctx.fillStyle = '#1a1a2e';
+            ctx.font = 'bold 22px Inter, sans-serif';
+            ctx.fillText(title, 40, 60);
+
+            ctx.fillStyle = '#4c6ef5';
+            ctx.font = '13px Inter, sans-serif';
+            ctx.fillText('Interactive In-Browser Document Preview', 40, 85);
+
+            ctx.strokeStyle = '#dee2e6';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(40, 100);
+            ctx.lineTo(560, 100);
+            ctx.stroke();
+
+            // Draw paragraph blocks
+            ctx.fillStyle = '#495057';
+            ctx.font = '12px Inter, sans-serif';
+            ctx.fillText('This document illustrates the extraction capabilities of PDF to Markdown Studio,', 40, 130);
+            ctx.fillText('including dynamic heading detection, GitHub-Flavored tables, LaTeX math,', 40, 150);
+            ctx.fillText('and monospace code block fences.', 40, 170);
+
+            // Draw mock table box
+            ctx.strokeStyle = '#3b5de7';
+            ctx.strokeRect(40, 200, 520, 160);
+            ctx.fillStyle = '#edf2ff';
+            ctx.fillRect(40, 200, 520, 32);
+            ctx.fillStyle = '#1a1a2e';
+            ctx.font = 'bold 12px Inter, sans-serif';
+            ctx.fillText('Metric', 60, 222);
+            ctx.fillText('Specification', 220, 222);
+            ctx.fillText('Status', 440, 222);
+
+            ctx.fillStyle = '#495057';
+            ctx.font = '12px Inter, sans-serif';
+            ctx.fillText('Parser Engine', 60, 260);
+            ctx.fillText('Spatial Geometry + Font Clustering', 220, 260);
+            ctx.fillText('Active', 440, 260);
+
+            ctx.fillText('Privacy Level', 60, 295);
+            ctx.fillText('100% Client-Side In-Browser', 220, 295);
+            ctx.fillText('Enforced', 440, 295);
+
+            ctx.fillText('Export Format', 60, 330);
+            ctx.fillText('Markdown, GFM Tables, Math, ZIP', 220, 330);
+            ctx.fillText('Supported', 440, 330);
+
+            // Draw mock code snippet box
+            ctx.fillStyle = '#f8f9fa';
+            ctx.fillRect(40, 390, 520, 140);
+            ctx.strokeStyle = '#dee2e6';
+            ctx.strokeRect(40, 390, 520, 140);
+            ctx.fillStyle = '#1a1a2e';
+            ctx.font = '11.5px monospace';
+            ctx.fillText('// Extracted Code Sample', 55, 420);
+            ctx.fillText('const converter = new PDFToMarkdown({', 55, 445);
+            ctx.fillText('  multiColumn: true,', 55, 470);
+            ctx.fillText('  extractTables: true,', 55, 495);
+            ctx.fillText('});', 55, 520);
+
+            pageDisplay.textContent = 'Page 1 / 1 (Sample)';
+            prevPageBtn.disabled = true;
+            nextPageBtn.disabled = true;
+        }
+
+        // ── Sample Document Content Generators ────────────────────────
+        function generateTechnicalSpecMarkdown() {
+            return {
+                title: 'Technical Architecture & Spec',
+                pages: 2,
+                meta: { Title: 'Cloud Architecture Spec', Author: 'Engineering Team', CreationDate: '2026-09-04' },
+                markdown: `# Cloud Microservices Architecture Specification
+
+**Author**: Infrastructure Engineering  
+**Version**: 2.4.0  
+**Status**: Approved  
+
+---
+
+## 1. System Overview
+The distributed event platform ingests streaming telemetry from edge gateways and processes telemetry pipelines in under 12ms.
+
+### Key Performance Indicators
+- **P99 Latency**: $< 15\\text{ms}$
+- **Throughput**: $120,000\\text{ req/sec}$
+- **Availability Target**: $99.999\\%$
+
+---
+
+## 2. Component Configuration Matrix
+
+| Component | Technology | Replicas | Max Memory | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| Ingress Proxy | Envoy / Nginx | 8 | 4 GB | Operational |
+| Worker Queue | Redis Cluster | 6 | 16 GB | Operational |
+| Stream Engine | Apache Kafka | 12 | 64 GB | Operational |
+| Database Primary | Spanner / PostgreSQL | 3 | 128 GB | Operational |
+
+---
+
+## 3. Core Handler Implementation
+
+\`\`\`typescript
+import { StreamHandler, TelemetryEvent } from '@cloud/events';
+
+export async function processIngressEvent(event: TelemetryEvent): Promise<boolean> {
+  const sanitized = sanitizePayload(event.data);
+  if (!sanitized.isValid) {
+    throw new ValidationError('Malformed event payload');
+  }
+  return await EventQueue.dispatch(sanitized);
+}
+\`\`\`
+
+---
+
+## 4. Verification Checklist
+- [x] TLS 1.3 encryption across all internal VPC boundaries
+- [x] Mutual TLS (mTLS) between service meshes
+- [ ] Automated failover chaos validation (scheduled Q4)`
+            };
+        }
+
+        function generateAcademicPaperMarkdown() {
+            return {
+                title: 'Academic Research Paper',
+                pages: 3,
+                meta: { Title: 'Spatial Token Clustering for PDF Layout Analysis', Author: 'Dr. A. Turing et al.', CreationDate: '2026-09-04' },
+                markdown: `# Spatial Geometry and Dynamic Token Clustering in PDF Layout Reconstruction
+
+**Authors**: Dr. Alan Turing, Dr. Ada Lovelace  
+**Affiliation**: Institute for Advanced Computing  
+**Published**: IEEE Transactions on Knowledge Discovery  
+
+---
+
+## Abstract
+Extracting semantic structural elements from raw PDF document primitives requires robust geometric classification. In this paper, we demonstrate a unified pipeline utilizing density-based spatial clustering to infer multi-column reading orders, table grids, and mathematical formulations.
+
+---
+
+## 1. Mathematical Formulation
+
+Given a token set $T = \\{t_1, t_2, \\dots, t_n\\}$ where each token $t_i = (x_i, y_i, w_i, h_i)$, the vertical distance metric between consecutive baseline intervals is defined as:
+
+$$\\Delta y_{ij} = |y_i - y_j| - \\frac{h_i + h_j}{2}$$
+
+The objective function minimizes cross-column reading variance:
+
+$$\\min_{\\pi} \\sum_{k=1}^{K} \\sum_{i,j \\in C_k} \\|t_{\\pi(i)} - t_{\\pi(j)}\\|^2_2$$
+
+---
+
+## 2. Experimental Benchmark Results
+
+| Model Architecture | Heading Precision | Table F1 | Code Recall | Overall Accuracy |
+| :--- | :--- | :--- | :--- | :--- |
+| Naive Line Sweep | 64.2% | 51.8% | 72.0% | 61.4% |
+| Spatial Bounding Grid | 88.5% | 84.1% | 89.3% | 87.2% |
+| **Proposed Hybrid Engine** | **98.7%** | **96.4%** | **99.1%** | **98.2%** |
+
+---
+
+## 3. Key Findings
+1. Multi-column flow ordering prevents text line interleaved corruption in $99.4\\%$ of two-column layouts.
+2. Dynamic font scaling eliminates hardcoded threshold brittle failures across varying document typographic scales.`
+            };
+        }
+
+        function generateFinancialReportMarkdown() {
+            return {
+                title: 'Financial Statement & Report',
+                pages: 2,
+                meta: { Title: 'Q3 Financial Performance Report', Author: 'Finance Dept', CreationDate: '2026-09-04' },
+                markdown: `# Q3 Corporate Financial Performance Report
+
+**Reporting Period**: July 1 – September 30  
+**Currency**: USD ($ in Millions)  
+
+---
+
+## Executive Summary
+Net revenue expanded **+18.4% YoY**, driven by strong expansion across enterprise SaaS subscriptions and developer platform integrations.
+
+---
+
+## Consolidated Statement of Operations
+
+| Financial Metric | Q3 Actual | Q3 Target | Q2 Prior | YoY Growth |
+| :--- | :--- | :--- | :--- | :--- |
+| **Gross Revenue** | **$482.6** | $465.0 | $424.1 | **+18.4%** |
+| Cost of Goods Sold (COGS) | $98.4 | $102.0 | $91.2 | +7.9% |
+| **Gross Margin** | **$384.2 (79.6%)** | $363.0 (78.1%) | $332.9 (78.5%) | **+15.4%** |
+| Research & Development | $112.5 | $115.0 | $104.2 | +8.0% |
+| Sales & Marketing | $145.0 | $148.0 | $138.6 | +4.6% |
+| General & Administrative | $36.2 | $38.0 | $34.5 | +4.9% |
+| **Operating Income (EBIT)** | **$90.5** | $62.0 | $55.6 | **+62.8%** |
+
+---
+
+## Capital Expenditure & Cash Position
+- **Operating Cash Flow**: $148.2M
+- **Cash & Cash Equivalents**: $1,240.5M
+- **Total Debt**: $0.0M (Zero Debt Balance)`
+            };
+        }
+
+        function generateMeetingNotesMarkdown() {
+            return {
+                title: 'Project Meeting Notes',
+                pages: 1,
+                meta: { Title: 'Sprint Planning & Design Review', Author: 'Project Lead', CreationDate: '2026-09-04' },
+                markdown: `# Sprint Planning & Platform Architecture Sync
+
+**Date**: September 4, 2026  
+**Attendees**: Sina (Lead), Architecture Team, UX Design  
+**Topic**: Document Tooling Suite Expansion  
+
+---
+
+## Key Discussion Points
+
+> "All document conversions must remain 100% private, client-side, and blisteringly fast without external server requirements."
+
+### 1. Feature Priorities
+- [x] PDF to Markdown engine with GFM tables and KaTeX math support
+- [x] One-click seamless handoff into MD Studio for PDF/DOCX rendering
+- [x] X-Ray structural inspection overlay on rendered PDF canvases
+- [ ] Export package as ZIP with embedded images
+
+---
+
+## Action Items & Ownership
+
+| Task Item | Owner | Priority | Target Date |
+| :--- | :--- | :--- | :--- |
+| Finalize layout clustering tests | Sina | High | Sep 6 |
+| Verify dark/light mode contrast | Design | Medium | Sep 7 |
+| Build sample document library | Dev | High | Completed |`
+            };
+        }
+
+        // ── Drag & Drop Event Listeners ───────────────────────────────
+        window.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropBox.classList.add('drag-over');
+        });
+        window.addEventListener('dragleave', (e) => {
+            if (e.relatedTarget === null) {
+                dropBox.classList.remove('drag-over');
+            }
+        });
+        window.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropBox.classList.remove('drag-over');
+            if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                const file = e.dataTransfer.files[0];
+                if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+                    const reader = new FileReader();
+                    reader.onload = () => loadPdfArrayBuffer(reader.result, file.name);
+                    reader.readAsArrayBuffer(file);
+                } else {
+                    showToast('⚠️ Please drop a valid .pdf file');
+                }
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files.length > 0) {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = () => loadPdfArrayBuffer(reader.result, file.name);
+                reader.readAsArrayBuffer(file);
+            }
+        });
+
+        // ── Keyboard Shortcuts ────────────────────────────────────────
+        document.addEventListener('keydown', (e) => {
+            const ctrl = e.ctrlKey || e.metaKey;
+            if (ctrl && e.key === 'o') {
+                e.preventDefault();
+                fileInput.click();
+            } else if (ctrl && e.key === 'Enter') {
+                e.preventDefault();
+                convertCurrentPDF();
+            } else if (ctrl && e.key === 's') {
+                e.preventDefault();
+                downloadMarkdown();
+            } else if (ctrl && e.shiftKey && (e.key === 'C' || e.key === 'c')) {
+                e.preventDefault();
+                copyMarkdown();
+            }
+        });
+
+        // ── Resizable Split Pane Divider ──────────────────────────────
+        const workDivider = document.getElementById('workDivider');
+        const panePdf = document.getElementById('panePdf');
+        const paneMd = document.getElementById('paneMd');
+        let isDraggingDivider = false;
+
+        workDivider.addEventListener('mousedown', (e) => {
+            isDraggingDivider = true;
+            workDivider.classList.add('active');
+            document.body.style.cursor = 'col-resize';
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDraggingDivider) return;
+            const containerWidth = document.getElementById('workArea').offsetWidth;
+            const mouseX = e.clientX - document.getElementById('sidebar').offsetWidth;
+            const percentage = (mouseX / containerWidth) * 100;
+            if (percentage > 20 && percentage < 80) {
+                panePdf.style.flex = `${percentage}`;
+                paneMd.style.flex = `${100 - percentage}`;
+            }
+        });
+
+        window.addEventListener('mouseup', () => {
+            if (isDraggingDivider) {
+                isDraggingDivider = false;
+                workDivider.classList.remove('active');
+                document.body.style.cursor = '';
+            }
+        });
+
+        // ── Public API ────────────────────────────────────────────────
+        window.PDFStudio = {
+            toggleTheme,
+            applyPreset,
+            updateHeadingLabel,
+            convertCurrentPDF,
+            downloadMarkdown,
+            exportZipBundle,
+            copyMarkdown,
+            openInMDStudio,
+            clearEditor,
+            switchSidebarTab,
+            switchMdTab,
+            insertSnippet,
+            prevPage,
+            nextPage,
+            zoom,
+            resetZoom,
+            rotatePDF,
+            toggleXRay,
+            loadSample,
+            onPageRangeChange,
+            copyImageData: (idx) => {
+                const img = state.extractedImages[idx];
+                if (img) {
+                    navigator.clipboard.writeText(img.dataUrl);
+                    showToast('📋 Image Data URI copied!');
+                }
+            },
+            insertImageMarkdown: (idx) => {
+                const img = state.extractedImages[idx];
+                if (img) {
+                    insertSnippet(`\n![${img.name}](${img.dataUrl})\n`, '');
+                    showToast('➕ Inserted image into Markdown editor');
+                }
+            },
+            downloadImage: (idx) => {
+                const img = state.extractedImages[idx];
+                if (img) {
+                    const a = document.createElement('a');
+                    a.href = img.dataUrl;
+                    a.download = img.name;
+                    a.click();
+                    showToast(`💾 Saved ${img.name}`);
+                }
+            }
+        };
+
+        // Initialize Theme on load
+        setTheme(state.theme);
+        updateEditorStats();
+
+    })();
+    </script>
+</body>
+</html>

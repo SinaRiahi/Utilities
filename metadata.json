@@ -1,0 +1,10 @@
+{
+  "name": "Utilities",
+  "description": "A developer tool suite featuring MD Studio, PDF to Markdown (PDF converter & layout extractor), Image Forge, Audio Forge, File Forge, File Transfer, and WebScope.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

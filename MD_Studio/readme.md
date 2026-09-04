@@ -8,6 +8,7 @@ A modern browser-based Markdown editor with live preview and professional docume
 
 - 📝 Live Markdown editor
 - 👀 Real-time preview
+- 🔄 Bi-directional double-click sync (navigate seamlessly between editor and preview)
 - 📄 Export to PDF
 - 🌐 Export to HTML
 - 📄 Export to DOCX
