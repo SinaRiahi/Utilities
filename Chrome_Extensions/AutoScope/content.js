@@ -132,9 +132,10 @@ function handleClick(e) {
     const info = getElementInfo(e.target);
     
     // Copy to clipboard
-    const textToCopy = `// Playwright Selector:\npage.locator('${info.selector}')`;
     navigator.clipboard.writeText(info.selector).then(() => {
         showToast(`Copied to clipboard: ${info.selector}`);
+    }).catch(() => {
+        showToast(`Selected: ${info.selector}`);
     });
 
     // Disable inspect mode after picking
@@ -176,21 +177,23 @@ function scanPage() {
         return info;
     }).filter(info => info.isVisible);
 
-    const json = JSON.stringify({
-        url: window.location.href,
-        title: document.title,
-        timestamp: new Date().toISOString(),
-        elements: results
-    }, null, 2);
-
-    navigator.clipboard.writeText(json).then(() => {
-        setupUI();
-        showToast(`Scanned ${results.length} elements and copied JSON to clipboard!`);
-    }).catch(err => {
-        console.error("Failed to copy", err);
+    // Format as Markdown
+    let md = `# AutoScope Scan: ${document.title}\n`;
+    md += `**URL:** ${window.location.href}\n`;
+    md += `**Timestamp:** ${new Date().toISOString()}\n\n`;
+    md += `## Interactable Elements (${results.length})\n\n`;
+    md += `| Tag | Text / Value | Selector | Attributes |\n`;
+    md += `|---|---|---|---|\n`;
+    
+    results.forEach(info => {
+        let attrStr = Object.entries(info.attributes).map(([k,v]) => `${k}="${v}"`).join(' ');
+        let cleanText = (info.text || '').replace(/\|/g, '\\|').replace(/\n/g, ' ');
+        let cleanSelector = info.selector.replace(/\|/g, '\\|');
+        let cleanAttr = attrStr.replace(/\|/g, '\\|');
+        md += `| \`${info.tag}\` | ${cleanText} | \`${cleanSelector}\` | \`${cleanAttr}\` |\n`;
     });
 
-    return true;
+    return { markdown: md, count: results.length, title: document.title };
 }
 
 // Listener for popup messages
@@ -199,8 +202,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         const isActive = toggleInspectMode();
         sendResponse({ active: isActive });
     } else if (request.action === "scanPage") {
-        const success = scanPage();
-        sendResponse({ success });
+        const data = scanPage();
+        sendResponse({ success: true, data: data });
+        setupUI();
+        showToast(`Scanned ${data.count} elements!`);
     }
     return true;
 });

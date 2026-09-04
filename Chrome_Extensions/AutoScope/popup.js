@@ -27,10 +27,25 @@ document.addEventListener('DOMContentLoaded', () => {
         let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
         if (!tab) return;
         
+        setStatus("Scanning...");
         await injectContentScript(tab.id);
         chrome.tabs.sendMessage(tab.id, { action: "scanPage" }, (response) => {
-            if (response && response.success) {
-                setStatus("✅ Page scanned! Data copied to clipboard.");
+            if (response && response.success && response.data) {
+                // Create and download Markdown file
+                const blob = new Blob([response.data.markdown], { type: 'text/markdown;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                
+                const filename = response.data.title ? response.data.title.replace(/[^a-z0-9]/gi, '_').toLowerCase() : 'page';
+                a.download = `AutoScope_${filename}.md`;
+                
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                setStatus(`✅ Scanned ${response.data.count} elements. Downloaded MD.`);
             } else {
                 setStatus("❌ Failed to scan page.");
             }
