@@ -50,14 +50,18 @@ window.__universalLLMAutoContinueLoaded = true;
     deepseek: {
       matches: () => /(^|\.)chat\.deepseek\.com$/.test(location.hostname),
       composerSelectors: [
-        'textarea',
+        'textarea[name="search"]',
+        'textarea[placeholder*="Message DeepSeek" i]',
+        'textarea[id="chat-input"]',
         'textarea[placeholder*="message" i]',
         'textarea[placeholder*="发送消息" i]',
         '[contenteditable="true"]',
-        '[role="textbox"]',
-        '#chat-input',
+        '[role="textbox"]'
       ],
       sendSelectors: [
+        '.ds-button--primary',
+        'div.ds-button--primary',
+        'button.ds-button--primary',
         'button[aria-label*="Send" i]',
         'button[title*="Send" i]',
         'button[aria-label*="发送" i]',
@@ -66,7 +70,7 @@ window.__universalLLMAutoContinueLoaded = true;
         'button[class*="send" i]',
         'div[role="button"][aria-label*="Send" i]',
         'div[role="button"][aria-label*="发送" i]',
-        'button[type="submit"]',
+        'button[type="submit"]'
       ],
       stopSelectors: [
         'button[aria-label*="Stop" i]',
