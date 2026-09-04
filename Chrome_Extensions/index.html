@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chrome Extensions Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-tertiary: #f1f3f5;
+            --text: #1a1a2e;
+            --text-secondary: #495057;
+            --text-muted: #868e96;
+            --border: #dee2e6;
+            --accent: #4c6ef5;
+            --accent-hover: #3b5de7;
+            --radius: 8px;
+            --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+            --toolbar-height: 52px;
+        }
+
+        [data-theme="dark"] {
+            --bg: #1a1b1e;
+            --bg-secondary: #25262b;
+            --bg-tertiary: #2c2e33;
+            --text: #e4e6ea;
+            --text-secondary: #c1c4cd;
+            --text-muted: #9095a0;
+            --border: #3a3c42;
+            --accent: #6d8af7;
+            --accent-hover: #8aa3ff;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        .toolbar {
+            height: var(--toolbar-height);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            gap: 12px;
+        }
+
+        .toolbar button {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.2s;
+        }
+
+        .toolbar button:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .header {
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
+        .ext-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .ext-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .ext-card-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .ext-icon {
+            font-size: 32px;
+            background: var(--bg-tertiary);
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            flex-shrink: 0;
+        }
+
+        .ext-info {
+            flex: 1;
+        }
+
+        .ext-info h2 {
+            margin: 0 0 4px 0;
+            font-size: 20px;
+        }
+
+        .ext-info p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .download-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            align-self: flex-start;
+            transition: 0.2s;
+        }
+
+        .download-btn:hover {
+            background: var(--accent-hover);
+        }
+
+        .guide-section {
+            margin-top: 50px;
+            background: var(--bg-tertiary);
+            padding: 24px;
+            border-radius: var(--radius);
+        }
+
+        .guide-section h3 {
+            margin-top: 0;
+        }
+
+        .guide-section ol {
+            margin: 0;
+            padding-left: 20px;
+            color: var(--text-secondary);
+        }
+
+        .guide-section li {
+            margin-bottom: 8px;
+        }
+
+        .guide-section code {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body data-theme="light">
+    
+    <div class="toolbar">
+        <button onclick="location.href='../'">🏠 Home</button>
+        <div style="flex:1"></div>
+        <button onclick="toggleTheme()">🌓 Theme</button>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>🧩 Chrome Extensions Hub</h1>
+            <p>Download and install custom productivity & automation extensions.</p>
+        </div>
+
+        <div class="ext-grid">
+            
+            <!-- AutoScope -->
+            <div class="ext-card">
+                <div class="ext-card-header">
+                    <div class="ext-icon">🎯</div>
+                    <div class="ext-info">
+                        <h2>AutoScope</h2>
+                        <p>Inspect and scan web pages to generate robust selectors (CSS/XPath) for browser automation frameworks like Playwright and Puppeteer. Perfect for extracting elements reliably.</p>
+                    </div>
+                </div>
+                <a href="AutoScope.zip" download class="download-btn">⬇️ Download AutoScope (.ZIP)</a>
+            </div>
+
+            <!-- Field Filler -->
+            <div class="ext-card">
+                <div class="ext-card-header">
+                    <div class="ext-icon">📝</div>
+                    <div class="ext-info">
+                        <h2>Field Filler</h2>
+                        <p>A multi-paradigm form recorder & Excel-driven auto-filler. Automatically maps variables to input fields and records form submission procedures to streamline repetitive data entry tasks.</p>
+                    </div>
+                </div>
+                <a href="Field_Filler.zip" download class="download-btn">⬇️ Download Field Filler (.ZIP)</a>
+            </div>
+
+            <!-- LLM Exporter -->
+            <div class="ext-card">
+                <div class="ext-card-header">
+                    <div class="ext-icon">💬</div>
+                    <div class="ext-info">
+                        <h2>LLM Conversation Exporter</h2>
+                        <p>Universal AI conversation exporter for ChatGPT, Claude, DeepSeek, Gemini, and Grok. Select messages, extract them directly into clean Markdown, and easily transfer them into MD Studio.</p>
+                    </div>
+                </div>
+                <a href="LLM_Exporter.zip" download class="download-btn">⬇️ Download LLM Exporter (.ZIP)</a>
+            </div>
+
+        </div>
+
+        <div class="guide-section">
+            <h3>📖 Installation Guide (How to use in Chrome)</h3>
+            <ol>
+                <li>Click the <strong>Download (.ZIP)</strong> button for the extension you want.</li>
+                <li><strong>Extract (unzip)</strong> the downloaded folder to a location on your computer.</li>
+                <li>Open Google Chrome and navigate to <code>chrome://extensions/</code> in your address bar.</li>
+                <li>Enable <strong>Developer mode</strong> using the toggle switch in the top right corner.</li>
+                <li>Click the <strong>Load unpacked</strong> button that appears in the top left.</li>
+                <li>Select the extracted folder from step 2. The extension is now installed and ready to use!</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        // Check system preference / local storage for theme
+        if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.body.setAttribute('data-theme', 'dark');
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            if (body.getAttribute('data-theme') === 'light') {
+                body.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
+            }
+        }
+    </script>
+</body>
+</html>

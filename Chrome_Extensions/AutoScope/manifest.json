@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "AutoScope — Automation Inspector",
+  "version": "1.0",
+  "description": "Inspect and scan web pages to generate robust selectors (CSS/XPath) for browser automation (Playwright/Puppeteer).",
+  "permissions": [
+    "activeTab",
+    "scripting"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "AutoScope"
+  }
+}
