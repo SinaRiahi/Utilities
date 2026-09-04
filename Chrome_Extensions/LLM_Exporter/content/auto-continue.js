@@ -14,8 +14,8 @@ window.__universalLLMAutoContinueLoaded = true;
   const DEFAULT_MESSAGE = "Continue";
   const DEFAULT_COUNT = 5;
   const MAX_COUNT = 50;
-  const POLL_MS = 350;
-  const SETTLE_MS = 2400;
+  const POLL_MS = 300;
+  const SETTLE_MS = 1200;
   const START_TIMEOUT_MS = 25000;
 
   const state = {
@@ -172,7 +172,7 @@ window.__universalLLMAutoContinueLoaded = true;
     const composer = findComposer();
     let searchArea = composer ? composer.parentElement : document.body;
     for (let depth = 0; composer && searchArea && depth < 6; depth++, searchArea = searchArea.parentElement) {
-      const btns = searchArea.querySelectorAll("button, [role='button'], div[class*='button']");
+      const btns = searchArea.querySelectorAll("button, [role='button'], div[class*='button'], div[class*='ds-button']");
       for (const b of btns) {
         if (!visible(b)) continue;
         const label = `${b.getAttribute("aria-label") || ""} ${b.getAttribute("title") || ""} ${b.textContent || ""}`.toLowerCase();
@@ -181,7 +181,7 @@ window.__universalLLMAutoContinueLoaded = true;
       }
     }
 
-    const allButtons = document.querySelectorAll("button, [role='button']");
+    const allButtons = document.querySelectorAll("button, [role='button'], div[class*='ds-button']");
     for (const b of allButtons) {
       if (!visible(b)) continue;
       const label = `${b.getAttribute("aria-label") || ""} ${b.getAttribute("title") || ""} ${b.textContent || ""}`.toLowerCase();
@@ -200,61 +200,31 @@ window.__universalLLMAutoContinueLoaded = true;
 
     // 2. Identify the assistant message turns
     const assistantNodes = Array.from(
-      document.querySelectorAll(".ds-message, [class*='ds-message'], [class*='message']")
-    ).filter(el =>
-      el.querySelector(".ds-assistant-message-main-content, .ds-think-content, [class*='think-content'], [class*='markdown']")
+      document.querySelectorAll(".ds-message, [class*='ds-message'], [class*='message'], .ds-markdown")
     );
 
     if (assistantNodes.length === 0) return false;
 
     const latest = assistantNodes[assistantNodes.length - 1];
 
-    // 3. Cursor or typing indicator
-    const cursor = latest.querySelector(".ds-cursor, [class*='cursor'], [class*='typing'], span[class*='loading']");
+    // 3. Cursor or typing indicator actively animating
+    const cursor = latest.querySelector(".ds-cursor, [class*='cursor'], [class*='typing'], [class*='streaming']");
     if (cursor && visible(cursor)) return true;
 
     // 4. Thinking state detection:
     const think = latest.querySelector(".ds-think-content, [class*='think-content'], [class*='thinking']");
-    if (think) {
+    if (think && visible(think)) {
       const spinner = think.querySelector("svg[class*='spin'], [class*='loading'], [class*='animate'], .ds-loading");
       if (spinner && visible(spinner)) return true;
 
       const thinkText = think.textContent?.toLowerCase() || "";
-      if (thinkText.includes("thinking...") || thinkText.includes("thinking (") || thinkText.includes("思考中")) {
+      // If thinking is explicitly active and has not concluded with duration/summary
+      if ((thinkText.includes("thinking...") || thinkText.includes("思考中")) && 
+          !thinkText.includes("thought for") && 
+          !thinkText.includes("用时") && 
+          !thinkText.includes("已深度思考")) {
         return true;
       }
-
-      // If the message has thinking, but the main answer content has not started yet:
-      const main = latest.querySelector(
-        ".ds-assistant-message-main-content, .ds-markdown:not(.ds-think-content .ds-markdown)"
-      );
-      const mainText = main?.textContent?.trim() || "";
-      if (!mainText) {
-        const hasCopyBtn = latest.querySelector(
-          "button[aria-label*='Copy' i], button[title*='Copy' i], button[aria-label*='复制' i], [class*='ds-icon-button']"
-        );
-        if (!hasCopyBtn) return true;
-      }
-    }
-
-    // 5. Completion Action Bar:
-    // When DeepSeek finishes writing, it attaches action buttons (Copy / Regenerate) to the bottom of the turn.
-    // While thinking or streaming, these action buttons DO NOT EXIST!
-    const actionButtons = latest.querySelectorAll("button, [role='button']");
-    const hasFinishedActions = Array.from(actionButtons).some(btn => {
-      const label = `${btn.getAttribute("aria-label") || ""} ${btn.getAttribute("title") || ""} ${btn.textContent || ""}`.toLowerCase();
-      return (
-        label.includes("copy") ||
-        label.includes("复制") ||
-        label.includes("regenerate") ||
-        label.includes("重新生成") ||
-        label.includes("like") ||
-        label.includes("dislike")
-      );
-    });
-
-    if (!hasFinishedActions) {
-      return true;
     }
 
     return false;
@@ -270,40 +240,16 @@ window.__universalLLMAutoContinueLoaded = true;
           .filter(m => m?.role === "assistant" && typeof m.markdown === "string" && m.markdown.trim());
       }
 
-      // Capture raw DOM text (including thinking text) and action bar presence of the latest assistant message
       let domTail = "";
-      let hasActions = false;
-
-      if (adapters.deepseek.matches()) {
-        const assistantNodes = Array.from(
-          document.querySelectorAll(".ds-message, [class*='ds-message'], [class*='message']")
-        ).filter(el =>
-          el.querySelector(".ds-assistant-message-main-content, .ds-think-content, [class*='think-content'], [class*='markdown']")
-        );
-        const lastNode = assistantNodes.pop();
-        if (lastNode) {
-          domTail = lastNode.textContent?.trim().slice(-1200) || "";
-          hasActions = Array.from(lastNode.querySelectorAll("button, [role='button']")).some(btn => {
-            const lbl = `${btn.getAttribute("aria-label") || ""} ${btn.getAttribute("title") || ""} ${btn.textContent || ""}`.toLowerCase();
-            return (
-              lbl.includes("copy") ||
-              lbl.includes("复制") ||
-              lbl.includes("regenerate") ||
-              lbl.includes("重新生成")
-            );
-          });
-        }
-      } else {
-        const lastAssistant = document.querySelector(
-          "[data-message-author-role='assistant']:last-of-type, .ds-message:last-of-type"
-        );
-        if (lastAssistant) {
-          domTail = lastAssistant.textContent?.trim().slice(-1200) || "";
-        }
+      const lastAssistant = document.querySelector(
+        ".ds-message:last-of-type, [data-message-author-role='assistant']:last-of-type, [class*='message']:last-of-type, .ds-markdown:last-of-type"
+      );
+      if (lastAssistant) {
+        domTail = (lastAssistant.textContent || "").trim().slice(-1200);
       }
 
       const latest = assistants.length ? assistants[assistants.length - 1].markdown.trim() : "";
-      return `${assistants.length}:${latest.length}:${latest.slice(-600)}:${domTail.length}:${domTail.slice(-400)}:${hasActions ? 1 : 0}`;
+      return `${assistants.length}:${latest.length}:${latest.slice(-600)}:${domTail.length}:${domTail.slice(-400)}`;
     } catch {
       return "";
     }
@@ -319,11 +265,10 @@ window.__universalLLMAutoContinueLoaded = true;
       return true;
     }
 
-    const send = findFirst(adapter.sendSelectors);
-    if (send && send.disabled) return true;
-
     const busy = document.querySelector('[aria-busy="true"]');
-    return !!(busy && visible(busy));
+    if (busy && visible(busy)) return true;
+
+    return false;
   }
 
   function status(phase, message) {
@@ -434,27 +379,39 @@ window.__universalLLMAutoContinueLoaded = true;
 
   function findDeepSeekSendButton(composer) {
     const adapter = getAdapter();
-    const direct = findFirst(adapter?.sendSelectors);
-    if (direct && !direct.disabled) return direct;
-
-    // DeepSeek has changed generated class names over time. If the semantic
-    // selectors aren't available, find a button physically belonging to the
-    // composer/footer area rather than clicking an unrelated page button.
-    let parent = composer;
-    for (let depth = 0; parent && depth < 6; depth++, parent = parent.parentElement) {
-      const buttons = Array.from(parent.querySelectorAll("button")).filter(visible);
-      const candidates = buttons.filter(button => {
-        if (button.disabled) return false;
-        const label = `${button.getAttribute("aria-label") || ""} ${button.getAttribute("title") || ""} ${button.textContent || ""}`.toLowerCase();
-        if (/send|submit/.test(label)) return true;
-        // Icon-only button near a composer is a useful DeepSeek fallback.
-        const br = button.getBoundingClientRect();
-        const cr = composer.getBoundingClientRect();
-        return br.top >= cr.top - 140 && br.left >= cr.left - 80 &&
-          br.right <= cr.right + 120 && br.bottom <= cr.bottom + 100;
-      });
-      if (candidates.length) return candidates[candidates.length - 1];
+    for (const sel of adapter?.sendSelectors || []) {
+      try {
+        const found = Array.from(document.querySelectorAll(sel)).find(el => 
+          visible(el) && !el.disabled && !el.classList.contains("ds-button--disabled") && el.getAttribute("aria-disabled") !== "true"
+        );
+        if (found) return found;
+      } catch {}
     }
+
+    if (!composer) return null;
+
+    let parent = composer;
+    for (let depth = 0; parent && depth < 7; depth++, parent = parent.parentElement) {
+      const candidates = Array.from(parent.querySelectorAll("button, [role='button'], div[class*='ds-button'], div[class*='button']")).filter(visible);
+      const activeBtn = candidates.find(btn => {
+        if (btn.disabled || btn.classList.contains("ds-button--disabled") || btn.getAttribute("aria-disabled") === "true") return false;
+        const label = `${btn.getAttribute("aria-label") || ""} ${btn.getAttribute("title") || ""} ${btn.textContent || ""}`.toLowerCase();
+        if (/send|submit|发送/.test(label)) return true;
+        if (btn.classList.contains("ds-button--primary") || btn.classList.contains("ds-button--filled")) return true;
+        return false;
+      });
+      if (activeBtn) return activeBtn;
+    }
+
+    const cr = composer.getBoundingClientRect();
+    const allPossible = Array.from(document.querySelectorAll("button, [role='button'], div[class*='ds-button'], div[class*='button']")).filter(visible);
+    const nearby = allPossible.filter(b => {
+      if (b.disabled || b.classList.contains("ds-button--disabled") || b.getAttribute("aria-disabled") === "true") return false;
+      const br = b.getBoundingClientRect();
+      return br.top >= cr.top - 140 && br.bottom <= cr.bottom + 140 &&
+             br.left >= cr.left - 60 && br.right <= cr.right + 140;
+    });
+    if (nearby.length) return nearby[nearby.length - 1];
 
     return null;
   }

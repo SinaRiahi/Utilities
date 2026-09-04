@@ -46,7 +46,7 @@
       if (main) return main;
 
       const markdowns = Array.from(
-        node.querySelectorAll(".ds-markdown, [class*='markdown']")
+        node.querySelectorAll(".ds-markdown, [class*='markdown'], [class*='ds-message-content']")
       );
       const outsideThink = markdowns.find(
         (el) => !el.closest(".ds-think-content, [class*='think-content'], [class*='thinking']")
@@ -58,9 +58,16 @@
         return body;
       }
 
-      // If this turn currently only contains thinking/reasoning without answer markdown,
-      // return null so it is not prematurely captured or treated as finished.
-      return null;
+      const thinkEl = node.querySelector(".ds-think-content, [class*='think-content'], [class*='thinking']");
+      if (thinkEl) {
+        const clone = node.cloneNode(true);
+        const cloneThink = clone.querySelector(".ds-think-content, [class*='think-content'], [class*='thinking']");
+        if (cloneThink) cloneThink.remove();
+        if (clone.textContent.trim().length > 0) return clone;
+        return null;
+      }
+
+      return node;
     }
 
     return node.querySelector(USER_CONTENT_SELECTOR) || node;
