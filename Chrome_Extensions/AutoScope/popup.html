@@ -1,86 +1,275 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <title>AutoScope</title>
     <style>
         :root {
-            --bg: #ffffff;
-            --text: #1a1a2e;
-            --border: #dee2e6;
-            --accent: #4c6ef5;
-            --accent-hover: #3b5de7;
-            --bg-secondary: #f8f9fa;
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --surface-hover: #334155;
+            --border: #334155;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --accent: #38bdf8;
+            --success: #10b981;
         }
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg: #1a1b1e;
-                --text: #e4e6ea;
-                --border: #3a3c42;
-                --bg-secondary: #25262b;
-            }
-        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             margin: 0;
             padding: 16px;
-            width: 320px;
+            width: 340px;
             background: var(--bg);
-            color: var(--text);
+            color: var(--text-main);
+            box-sizing: border-box;
         }
-        h2 {
-            margin: 0 0 12px 0;
-            font-size: 16px;
+
+        .header {
             display: flex;
             align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand img {
+            border-radius: 6px;
+        }
+
+        .brand h2 {
+            margin: 0;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: -0.2px;
+        }
+
+        .version-badge {
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--accent);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 9999px;
+            font-family: ui-monospace, monospace;
+        }
+
+        p.desc {
+            font-size: 12px;
+            margin: 0 0 14px 0;
+            color: var(--text-sub);
+            line-height: 1.4;
+        }
+
+        /* Quick Stats Pill Bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 6px;
+            margin-bottom: 14px;
+            text-align: center;
+        }
+
+        .stat-item .val {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--accent);
+            font-family: ui-monospace, monospace;
+        }
+
+        .stat-item .lbl {
+            font-size: 10px;
+            color: var(--text-sub);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-top: 1px;
+        }
+
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            flex-direction: column;
             gap: 8px;
         }
-        p {
-            font-size: 13px;
-            margin: 0 0 16px 0;
-            color: #888;
-        }
+
         button {
             width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
             border: none;
-            border-radius: 6px;
-            background: var(--accent);
-            color: white;
-            font-size: 14px;
-            font-weight: 600;
+            border-radius: 8px;
+            font-family: inherit;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.15s ease;
+            box-sizing: border-box;
         }
-        button:hover {
-            background: var(--accent-hover);
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            padding: 10px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
-        button.secondary {
-            background: var(--bg-secondary);
-            color: var(--text);
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background: var(--surface);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            padding: 9px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .btn-secondary:hover {
+            background: var(--surface-hover);
+            border-color: var(--accent);
+        }
+
+        .btn-toggle {
+            background: #1e1b4b;
+            color: #c7d2fe;
+            border: 1px solid #4338ca;
+            padding: 10px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-toggle:hover {
+            background: #312e81;
+        }
+
+        .btn-toggle.active {
+            background: #064e3b;
+            color: #a7f3d0;
+            border-color: #059669;
+        }
+
+        .export-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .export-grid button {
+            padding: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            background: var(--surface);
+            color: var(--text-main);
             border: 1px solid var(--border);
         }
-        button.secondary:hover {
-            background: var(--border);
+
+        .export-grid button:hover {
+            background: var(--surface-hover);
+            border-color: var(--accent);
         }
+
         .status {
-            font-size: 12px;
+            font-size: 11px;
             text-align: center;
             margin-top: 10px;
             min-height: 16px;
             color: var(--accent);
+            font-weight: 500;
+        }
+
+        .footer-note {
+            margin-top: 12px;
+            padding-top: 8px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 10px;
+            color: var(--text-sub);
         }
     </style>
 </head>
 <body>
-    <h2><img src="icon48.png" width="24" height="24" style="border-radius:6px;vertical-align:middle;" /> AutoScope</h2>
-    <p>Scan the page or pick elements to generate robust selectors for automation.</p>
+    <div class="header">
+        <div class="brand">
+            <img src="icon48.png" width="22" height="22" alt="AutoScope" />
+            <h2>AutoScope</h2>
+        </div>
+        <span class="version-badge">v2.0 Automation</span>
+    </div>
+
+    <p class="desc">Deep site intelligence & code-ready selectors for Playwright, Puppeteer, and Python bots.</p>
     
-    <button id="btnScan">📊 Scan Full Page (Extract All)</button>
-    <button id="btnInspect" class="secondary">🔍 Toggle Inspect Mode</button>
+    <!-- Quick Stats -->
+    <div class="stats-bar" id="statsBar">
+        <div class="stat-item">
+            <div class="val" id="statInputs">--</div>
+            <div class="lbl">Fields</div>
+        </div>
+        <div class="stat-item">
+            <div class="val" id="statActions">--</div>
+            <div class="lbl">Buttons</div>
+        </div>
+        <div class="stat-item">
+            <div class="val" id="statForms">--</div>
+            <div class="lbl">Forms</div>
+        </div>
+        <div class="stat-item">
+            <div class="val" id="statIframes">--</div>
+            <div class="lbl">iFrames</div>
+        </div>
+    </div>
+
+    <div class="btn-group">
+        <!-- Main Scan & Download -->
+        <button id="btnScan" class="btn-primary">
+            <span>📊</span>
+            <span>Download Automation Dossier (.md)</span>
+        </button>
+
+        <!-- Secondary Export Grid -->
+        <div class="export-grid">
+            <button id="btnExportJson">⚙️ Spec (.json)</button>
+            <button id="btnExportSpec">🎭 Test (.spec.ts)</button>
+        </div>
+
+        <!-- In-Page HUD Toggle -->
+        <button id="btnInspect" class="btn-toggle">
+            <span>🎯</span>
+            <span id="btnInspectText">Launch In-Page HUD & Inspector</span>
+        </button>
+    </div>
     
     <div class="status" id="statusMsg"></div>
+
+    <div class="footer-note">
+        <span>Frameworks: React, Vue, Angular, etc.</span>
+        <span>Esc toggles in-page</span>
+    </div>
 
     <script src="popup.js"></script>
 </body>

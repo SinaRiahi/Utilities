@@ -160,6 +160,32 @@ Rather than creating dozens of half-finished tools, I'd rather build a smaller c
 
 ---
 
+## 🎯 AutoScope — Automation & Site Intelligence (Chrome Extension v2.0)
+> Advanced in-browser automation inspector and reconnaissance studio for Playwright, Puppeteer, Selenium, and Python bots.
+
+* 🧠 **Deep Site & Environmental Intelligence**:
+  * SPA framework & architecture detection (React, Next.js, Vue, Nuxt, Angular, Svelte, jQuery, Tailwind, Bootstrap)
+  * iFrame & cross-origin boundary mapping with `page.frameLocator(...)` snippets
+  * Modal, dialog, and popover state tracking (`[aria-modal="true"]`, `<dialog>`)
+  * Live viewport metrics, device pixel ratio, document dimensions, and storage counters
+* 🎯 **Multi-Strategy Resilient Selectors**:
+  * Prioritizes Playwright best practices: `page.getByTestId()`, `page.getByRole()`, `page.getByLabel()`, `page.getByPlaceholder()`, `page.getByText()`
+  * Unique verified CSS paths evaluated against DOM uniqueness
+  * Semantic XPaths (`//button[normalize-space()='...']`, `//input[@name='...']`)
+  * Code-ready action snippets: `await page.click()`, `await page.fill()`, `await page.check()`
+* 🖥️ **Interactive In-Page Automation HUD & Live Inspector**:
+  * Non-intrusive floating dock with Inspector, Insights, and Quick Export panes
+  * Real-time element highlight box with live dimension badge (`width × height px`)
+  * Quick 1-click clipboard copy for Playwright, CSS, XPath, and Python snippets
+  * Keyboard shortcut: `Esc` to toggle live inspector on and off
+* 📦 **Comprehensive Export Formats**:
+  * **Automation Dossier (`.md`)**: Full structural Markdown report with tables, action guides, and frame warnings
+  * **Automation Spec (`.json`)**: Machine-readable schema for AI coding agents and automated scrapers
+  * **Playwright Test Scaffolding (`.spec.ts`)**: Runnable test script ready for `npx playwright test`
+  * **Python Playwright Script (`automate.py`)**: Synchronous script template ready to execute
+
+---
+
 # 🚀 Planned Utilities
 
 Utilities is designed to grow over time.

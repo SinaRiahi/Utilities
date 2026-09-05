@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "AutoScope — Automation Inspector",
-  "version": "1.0",
-  "description": "Inspect and scan web pages to generate robust selectors (CSS/XPath) for browser automation (Playwright/Puppeteer).",
+  "name": "AutoScope — Automation & Site Intelligence",
+  "version": "2.0",
+  "description": "Deep site intelligence, framework detection, and code-ready selectors for Playwright, Puppeteer, Selenium, and Python automations.",
   "permissions": [
     "activeTab",
     "scripting"

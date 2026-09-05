@@ -1,56 +1,444 @@
-/* AutoScope Content Styles */
-.autoscope-highlight {
-    outline: 2px dashed #4c6ef5 !important;
-    outline-offset: 2px !important;
-    background-color: rgba(76, 110, 245, 0.15) !important;
-    cursor: crosshair !important;
-    transition: all 0.1s ease !important;
+/* AutoScope v2.0 — Advanced In-Page Automation HUD & Styles */
+
+/* 1. Element Highlighting & Bounds */
+#autoscope-highlight-box {
+    position: absolute;
+    z-index: 2147483640;
+    pointer-events: none;
+    border: 2px solid #3b82f6;
+    background: rgba(59, 130, 246, 0.15);
+    border-radius: 4px;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.6), 0 4px 16px rgba(59, 130, 246, 0.3);
+    display: none;
+    transition: all 0.06s ease-out;
 }
 
-#autoscope-tooltip {
-    position: fixed;
-    z-index: 2147483647; /* Max z-index */
-    background: #1a1b1e;
-    color: #fff;
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-family: monospace;
-    font-size: 12px;
+#autoscope-dim-badge {
+    position: absolute;
+    z-index: 2147483641;
     pointer-events: none;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    border: 1px solid #3a3c42;
-    max-width: 400px;
-    word-wrap: break-word;
-    opacity: 0;
-    transition: opacity 0.1s;
+    background: #0f172a;
+    color: #38bdf8;
+    border: 1px solid #1e293b;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 11px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+    display: none;
+    white-space: nowrap;
+}
+
+/* 2. Floating Toast System */
+#autoscope-toast-container {
+    position: fixed;
+    bottom: 24px;
+    left: 24px;
+    z-index: 2147483647;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 8px;
+    pointer-events: none;
 }
 
-#autoscope-tooltip strong {
-    color: #4c6ef5;
+.autoscope-toast {
+    background: #0f172a;
+    color: #f8fafc;
+    border: 1px solid #334155;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-#autoscope-toast {
+.autoscope-toast.visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.autoscope-toast-success {
+    border-color: #10b981;
+    color: #ecfdf5;
+}
+
+.autoscope-toast-info {
+    border-color: #3b82f6;
+    color: #eff6ff;
+}
+
+/* 3. In-Page Automation HUD Dock */
+#autoscope-hud-dock {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    z-index: 2147483647;
-    background: #2b8a3e;
-    color: white;
-    padding: 12px 20px;
-    border-radius: 8px;
-    font-family: -apple-system, sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    transform: translateY(100px);
-    opacity: 0;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    width: 380px;
+    max-height: 520px;
+    background: #0f172a;
+    color: #f8fafc;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
+    z-index: 2147483646;
+    display: flex;
+    flex-direction: column;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 13px;
+    overflow: hidden;
+    animation: autoscope-dock-enter 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-#autoscope-toast.show {
-    transform: translateY(0);
-    opacity: 1;
+@keyframes autoscope-dock-enter {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Header */
+.autoscope-hud-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: #1e293b;
+    border-bottom: 1px solid #334155;
+    user-select: none;
+}
+
+.autoscope-hud-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.autoscope-hud-logo {
+    font-size: 15px;
+}
+
+.autoscope-badge {
+    background: #10b981;
+    color: #064e3b;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 9999px;
+    text-transform: uppercase;
+}
+
+.autoscope-badge.paused {
+    background: #eab308;
+    color: #713f12;
+}
+
+.autoscope-hud-controls {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.autoscope-btn-icon {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    transition: background 0.15s, color 0.15s;
+}
+
+.autoscope-btn-icon:hover {
+    background: #334155;
+    color: #f8fafc;
+}
+
+/* Tabs */
+.autoscope-hud-tabs {
+    display: flex;
+    background: #1e293b;
+    padding: 0 8px;
+    border-bottom: 1px solid #334155;
+}
+
+.autoscope-tab-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    padding: 8px 4px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+}
+
+.autoscope-tab-btn:hover {
+    color: #f8fafc;
+}
+
+.autoscope-tab-btn.active {
+    color: #38bdf8;
+    border-bottom-color: #38bdf8;
+}
+
+/* Body & Content */
+.autoscope-hud-body {
+    padding: 12px;
+    overflow-y: auto;
+    max-height: 420px;
+}
+
+.autoscope-tab-pane {
+    display: none;
+}
+
+.autoscope-tab-pane.active {
+    display: block;
+}
+
+/* Inspector Details */
+#autoscope-inspector-empty {
+    color: #94a3b8;
+    text-align: center;
+    padding: 24px 12px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.autoscope-hint {
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 8px;
+}
+
+.autoscope-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+
+.autoscope-tag-pill {
+    background: #3b82f6;
+    color: white;
+    font-family: ui-monospace, monospace;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.autoscope-dim-pill {
+    background: #334155;
+    color: #cbd5e1;
+    font-family: ui-monospace, monospace;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.autoscope-role-pill {
+    background: #1e293b;
+    color: #94a3b8;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    border: 1px solid #334155;
+}
+
+.autoscope-field-group {
+    margin-bottom: 10px;
+}
+
+.autoscope-field-group label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: #94a3b8;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.autoscope-code-copy-row {
+    display: flex;
+    align-items: center;
+    background: #020617;
+    border: 1px solid #1e293b;
+    border-radius: 6px;
+    padding: 4px 6px;
+    gap: 6px;
+}
+
+.autoscope-code-copy-row code {
+    flex: 1;
+    font-family: ui-monospace, monospace;
+    font-size: 11px;
+    color: #38bdf8;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+.autoscope-btn-copy {
+    background: #334155;
+    color: #f8fafc;
+    border: none;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 4px 8px;
+    cursor: pointer;
+    transition: background 0.15s;
+    white-space: nowrap;
+}
+
+.autoscope-btn-copy:hover {
+    background: #3b82f6;
+}
+
+.autoscope-actions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.autoscope-btn-action {
+    background: #1e293b;
+    color: #f8fafc;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+}
+
+.autoscope-btn-action:hover {
+    background: #3b82f6;
+    border-color: #3b82f6;
+}
+
+/* Insights Tab */
+.autoscope-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.autoscope-stat-box {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+}
+
+.stat-number {
+    display: block;
+    font-size: 20px;
+    font-weight: 700;
+    color: #38bdf8;
+}
+
+.stat-label {
+    display: block;
+    font-size: 11px;
+    color: #94a3b8;
+    margin-top: 2px;
+}
+
+.autoscope-tech-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.autoscope-tech-chip {
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.autoscope-btn-primary {
+    width: 100%;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.autoscope-btn-primary:hover {
+    background: #2563eb;
+}
+
+/* Exports Tab */
+.autoscope-desc {
+    color: #94a3b8;
+    font-size: 12px;
+    margin: 0 0 12px 0;
+    line-height: 1.4;
+}
+
+.autoscope-export-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.autoscope-btn-export {
+    background: #1e293b;
+    color: #f8fafc;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 10px 12px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.autoscope-btn-export span {
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.autoscope-btn-export small {
+    color: #94a3b8;
+    font-size: 11px;
+}
+
+.autoscope-btn-export:hover {
+    background: #334155;
+    border-color: #38bdf8;
 }
