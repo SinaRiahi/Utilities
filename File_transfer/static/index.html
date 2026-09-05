@@ -60,34 +60,111 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 h1 { font-size: 20px; }
 .subtitle { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
 .toolbar { display: flex; gap: 8px; flex-wrap: wrap; }
-.btn { border: 1px solid var(--border); background: var(--bg-secondary); color: var(--text); padding: 8px 12px; border-radius: var(--radius-sm); font-size: 13px; transition: .15s; }
+.btn { border: 1px solid var(--border); background: var(--bg-secondary); color: var(--text); padding: 8px 12px; border-radius: var(--radius-sm); font-size: 13px; transition: .15s; display: inline-flex; align-items: center; gap: 6px; user-select: none; }
 .btn:hover { background: var(--bg-tertiary); }
 .btn.primary { background: var(--accent); border-color: var(--accent); color: white; }
 .btn.primary:hover { background: var(--accent-hover); }
 .btn.danger { color: var(--danger); border-color: var(--danger); }
+.btn-sm { padding: 5px 10px; font-size: 12px; }
 .layout { display: grid; grid-template-columns: 1fr 340px; gap: 16px; }
 .card { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
-.drop { min-height: 280px; border: 2px dashed var(--border); border-radius: var(--radius); margin: 14px; padding: 36px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; transition: .15s; }
+.drop { min-height: 250px; border: 2px dashed var(--border); border-radius: var(--radius); margin: 14px; padding: 32px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; transition: .15s; }
 .drop.drag { border-color: var(--accent); background: var(--accent-light); }
-.drop-icon { font-size: 42px; margin-bottom: 12px; }
-.drop h2 { font-size: 18px; margin-bottom: 6px; }
-.drop p { color: var(--text-muted); font-size: 13px; margin-bottom: 18px; max-width: 440px; }
-.file-list { border-top: 1px solid var(--border); max-height: 420px; overflow: auto; }
+.drop-icon { font-size: 40px; margin-bottom: 10px; }
+.drop h2 { font-size: 17px; margin-bottom: 6px; }
+.drop p { color: var(--text-muted); font-size: 13px; margin-bottom: 16px; max-width: 440px; line-height: 1.4; }
+.file-list-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-top: 1px solid var(--border); background: var(--bg-tertiary); font-size: 12px; font-weight: 600; }
+.file-list-header-left { display: flex; align-items: center; gap: 8px; }
+.file-list { max-height: 420px; overflow: auto; }
 .file-row { display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-bottom: 1px solid var(--border-light); }
 .file-icon { font-size: 19px; width: 26px; text-align: center; }
 .file-main { min-width: 0; flex: 1; }
 .file-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 13px; font-weight: 500; }
 .file-meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
 .file-actions { display: flex; gap: 5px; }
-.icon-btn { border: 1px solid var(--border); background: var(--bg); color: var(--text); padding: 5px 10px; border-radius: var(--radius-sm); font-size: 12px; }
+.icon-btn { border: 1px solid var(--border); background: var(--bg); color: var(--text); padding: 5px 10px; border-radius: var(--radius-sm); font-size: 12px; display: inline-flex; align-items: center; gap: 4px; }
 .icon-btn:hover { background: var(--bg-tertiary); color: var(--accent); }
+.icon-btn.danger:hover { color: var(--danger); }
 .side { padding: 16px; }
-.side h3 { font-size: 14px; margin-bottom: 12px; }
+.side h3 { font-size: 14px; margin-bottom: 8px; }
 .section { border-top: 1px solid var(--border); margin-top: 16px; padding-top: 16px; }
+
+/* 4-Digit Code Box */
+.code-card {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+  text-align: center;
+  margin-bottom: 14px;
+}
+.code-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.code-display {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.code-digit {
+  width: 44px;
+  height: 50px;
+  background: var(--bg);
+  border: 2px solid var(--accent);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--accent);
+  box-shadow: var(--shadow);
+  user-select: all;
+}
+.code-actions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* 4-Digit Join Input */
+.code-input-group {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+#codeInput {
+  flex: 1;
+  min-width: 0;
+  border: 2px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  text-align: center;
+  text-transform: uppercase;
+  transition: border-color 0.15s;
+}
+#codeInput:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
 .connection { background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px; font-family: var(--font-mono); font-size: 11px; word-break: break-all; margin-top: 8px; }
-.qr-box { display: flex; justify-content: center; align-items: center; background: #fff; padding: 10px; border-radius: 6px; margin: 12px auto; width: 200px; height: 200px; border: 1px solid var(--border); }
-#qrcode canvas, #qrcode img { width: 180px !important; height: 180px !important; }
-.hint { font-size: 12px; color: var(--text-muted); line-height: 1.55; }
+.qr-box { display: flex; justify-content: center; align-items: center; background: #fff; padding: 10px; border-radius: 6px; margin: 10px auto; width: 170px; height: 170px; border: 1px solid var(--border); }
+#qrcode canvas, #qrcode img { width: 150px !important; height: 150px !important; }
+.hint { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
 .empty { padding: 28px; text-align: center; color: var(--text-muted); font-size: 13px; }
 .status { font-size: 12px; color: var(--text-muted); min-height: 18px; margin-top: 10px; }
 .error { color: var(--danger); }
@@ -99,13 +176,17 @@ h1 { font-size: 20px; }
 .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
 .progress { height: 6px; background: var(--border); border-radius: 4px; overflow: hidden; margin-top: 8px; width: 100%; max-width: 320px; }
 .progress > div { height: 100%; width: 0; background: var(--accent); transition: width .1s; }
-.transfer-mode-pill { font-size: 11px; padding: 2px 8px; border-radius: 12px; background: var(--accent-light); color: var(--accent); border: 1px solid var(--border); margin-left: 8px; }
+.transfer-mode-pill { font-size: 11px; padding: 2px 8px; border-radius: 12px; background: var(--accent-light); color: var(--accent); border: 1px solid var(--border); margin-left: 8px; font-weight: 600; }
+.live-sync-indicator { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: var(--success); font-weight: 500; }
+.live-sync-indicator.syncing { color: var(--accent); }
+.spin { animation: spin 0.7s linear infinite; display: inline-block; }
+@keyframes spin { 100% { transform: rotate(360deg); } }
 @media(max-width:780px) {
   body { padding: 12px; }
   .layout { grid-template-columns: 1fr; }
   .side { order: -1; }
-  .qr-box { width: 170px; height: 170px; }
-  #qrcode canvas, #qrcode img { width: 150px !important; height: 150px !important; }
+  .qr-box { width: 150px; height: 150px; }
+  #qrcode canvas, #qrcode img { width: 130px !important; height: 130px !important; }
   .drop { min-height: 210px; }
   header { align-items: flex-start; }
 }
@@ -117,12 +198,16 @@ h1 { font-size: 20px; }
   <div class="brand">
     <div class="logo">📲</div>
     <div>
-      <h1>File Transfer <span class="transfer-mode-pill" id="modeBadge">WebRTC P2P</span></h1>
-      <div class="subtitle">Direct PC ↔ Mobile · Peer-to-Peer & Local Network</div>
+      <h1>File Transfer <span class="transfer-mode-pill" id="modeBadge">Live Auto-Sync</span></h1>
+      <div class="subtitle">Direct PC ↔ PC & Mobile · 4-Digit Code & Real-Time Sync</div>
     </div>
   </div>
   <div class="toolbar">
     <button class="btn" id="homeBtn" onclick="location.href='../../'">🏠 Home</button>
+    <button class="btn" id="refreshBtn" onclick="manualRefresh()">
+      <span id="refreshIcon">🔄</span>
+      <span>Refresh</span>
+    </button>
     <button class="btn" id="themeBtn">🌓 Dark</button>
     <button class="btn danger" onclick="clearTransfers()">🧹 Clear List</button>
   </div>
@@ -133,36 +218,66 @@ h1 { font-size: 20px; }
     <div class="drop" id="drop">
       <div class="drop-icon">⇅</div>
       <h2 id="dropHeading">Drop files here to share</h2>
-      <p id="dropSub">Files are encrypted and transferred directly between devices via peer-to-peer WebRTC. Nothing is uploaded to any cloud server.</p>
+      <p id="dropSub">Files are encrypted and transferred directly between devices. When an upload finishes, other devices refresh automatically in real time.</p>
       <button class="btn primary" id="chooseBtn" onclick="fileInput.click()">Choose files</button>
       <input id="fileInput" type="file" multiple hidden>
       <div class="status" id="status">Connecting to peer network…</div>
       <div class="progress" id="progressBar" style="display:none;"><div id="progressFill"></div></div>
     </div>
+
+    <div class="file-list-header">
+      <div class="file-list-header-left">
+        <span>Files & Transfers (<span id="fileCount">0</span>)</span>
+        <span class="live-sync-indicator" id="liveSyncIndicator">⚡ Real-time signal active</span>
+      </div>
+      <button class="icon-btn" id="listRefreshBtn" onclick="manualRefresh()" title="Refresh file list">
+        <span id="listRefreshIcon">↻</span> Refresh
+      </button>
+    </div>
+
     <div class="file-list" id="fileList">
-      <div class="empty">No files transferred yet. Connect a second device and select files to transfer.</div>
+      <div class="empty">No files transferred yet. Connect a second device or drop files here.</div>
     </div>
   </section>
 
   <aside class="card side">
     <div id="peerStatusBadge" class="badge-status waiting">📡 Waiting for peer...</div>
-    <h3>Connect second device</h3>
-    <div class="qr-box" id="qrcode"></div>
-    <div class="connection" id="connection">Generating pairing link…</div>
-    <div class="actions">
-      <button class="btn" onclick="copyConnection()">📋 Copy link</button>
-      <button class="btn" onclick="openShareLink()">↗ Open</button>
-      <button class="btn" onclick="newSession()">↻ New Room</button>
-    </div>
-    <p class="hint" style="margin-top:14px">
-      Scan this QR code with your phone camera to pair instantly. Both devices will connect directly via WebRTC.
-    </p>
-    <div class="section">
-      <h3>Manual Room Pairing</h3>
-      <div style="display:flex;gap:6px;margin-top:8px;">
-        <input id="joinInput" placeholder="Enter Room / Peer ID" style="flex:1;min-width:0;border:1px solid var(--border);background:var(--bg);color:var(--text);padding:8px;border-radius:var(--radius-sm);font-size:12px;">
-        <button class="btn primary" onclick="manualJoin()">Join</button>
+    
+    <!-- 4-Digit Pairing Code Display -->
+    <div class="code-card">
+      <div class="code-label">4-Digit Pairing Code (PC ↔ PC)</div>
+      <div class="code-display" id="myCodeDisplay">
+        <span class="code-digit" id="digit0">-</span>
+        <span class="code-digit" id="digit1">-</span>
+        <span class="code-digit" id="digit2">-</span>
+        <span class="code-digit" id="digit3">-</span>
       </div>
+      <div class="code-actions">
+        <button class="btn btn-sm" onclick="copyCode()" title="Copy 4-digit code">📋 Copy Code</button>
+        <button class="btn btn-sm" onclick="newSession()" title="Generate new 4-digit code">↻ New Code</button>
+      </div>
+    </div>
+
+    <!-- Quick Join by 4-Digit Code -->
+    <div style="margin-bottom: 14px;">
+      <h3 style="font-size: 13px;">Connect via 4-Digit Code</h3>
+      <p class="hint">Type the 4-digit code shown on the other PC/device:</p>
+      <div class="code-input-group">
+        <input id="codeInput" maxlength="4" placeholder="0000" inputmode="numeric" pattern="[0-9]*" autocomplete="off">
+        <button class="btn primary" id="btnJoinCode" onclick="joinByCode()">Connect</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Mobile QR Code Pairing</h3>
+      <div class="qr-box" id="qrcode"></div>
+      <div class="connection" id="connection">Generating pairing link…</div>
+      <div class="actions">
+        <button class="btn" onclick="copyConnection()">📋 Copy link</button>
+      </div>
+      <p class="hint" style="margin-top:10px">
+        Scan this QR code with your phone camera to pair instantly without typing.
+      </p>
     </div>
   </aside>
 </div>
@@ -182,31 +297,46 @@ themeBtn.onclick = () => setTheme((localStorage.getItem('utils-theme') || 'light
 // State
 let peer = null;
 let activeConn = null;
+let currentCode = '';
 let myPeerId = '';
 let targetPeerId = '';
-const transferredFiles = [];
+const p2pFiles = [];
+let serverFiles = [];
 const CHUNK_SIZE = 64 * 1024; // 64KB chunks for reliable WebRTC data transfer
 const incomingBuffers = new Map();
+let isServerAvailable = false;
+let eventSource = null;
 
 const urlParams = new URLSearchParams(location.search);
-const roomParam = urlParams.get('room') || urlParams.get('token') || '';
+const rawRoomParam = urlParams.get('code') || urlParams.get('room') || urlParams.get('token') || '';
 
 const drop = document.getElementById('drop');
 const fileInput = document.getElementById('fileInput');
 const fileList = document.getElementById('fileList');
+const fileCountEl = document.getElementById('fileCount');
 const statusEl = document.getElementById('status');
 const connectionEl = document.getElementById('connection');
 const qrContainer = document.getElementById('qrcode');
 const peerStatusBadge = document.getElementById('peerStatusBadge');
 const progressBar = document.getElementById('progressBar');
 const progressFill = document.getElementById('progressFill');
-const modeBadge = document.getElementById('modeBadge');
+const refreshIcon = document.getElementById('refreshIcon');
+const listRefreshIcon = document.getElementById('listRefreshIcon');
+const liveSyncIndicator = document.getElementById('liveSyncIndicator');
+const codeInput = document.getElementById('codeInput');
 
 function fmt(b) {
+  if (b === undefined || b === null || isNaN(b)) return '0 B';
   if (b < 1024) return b + ' B';
   if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
   if (b < 1073741824) return (b / 1048576).toFixed(2) + ' MB';
   return (b / 1073741824).toFixed(2) + ' GB';
+}
+
+function fmtTime(secOrDate) {
+  if (!secOrDate) return 'Just now';
+  const d = typeof secOrDate === 'number' ? new Date(secOrDate * 1000) : new Date(secOrDate);
+  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
 function icon(n) {
@@ -234,8 +364,8 @@ function updateQr(url) {
   if (typeof QRCode !== 'undefined') {
     new QRCode(qrContainer, {
       text: url,
-      width: 180,
-      height: 180,
+      width: 150,
+      height: 150,
       colorDark: "#000000",
       colorLight: "#ffffff",
       correctLevel: QRCode.CorrectLevel.M
@@ -243,29 +373,89 @@ function updateQr(url) {
   }
 }
 
+function display4DigitCode(code) {
+  const digits = String(code).padStart(4, '-').split('');
+  for (let i = 0; i < 4; i++) {
+    const el = document.getElementById(`digit${i}`);
+    if (el) el.textContent = digits[i] || '-';
+  }
+}
+
+function generate4DigitCode() {
+  return Math.floor(1000 + Math.random() * 9000).toString();
+}
+
+function codeToPeerId(code) {
+  const clean = String(code).trim().replace(/[^a-zA-Z0-9]/g, '');
+  if (/^\d{4}$/.test(clean)) {
+    return `util-room-${clean}`;
+  }
+  return clean.startsWith('util-room-') ? clean : `util-room-${clean}`;
+}
+
+// Combine server files and P2P in-memory files for full view
+function getAllFiles() {
+  const combined = [];
+  const namesSeen = new Set();
+
+  // 1. P2P in-memory received/sent files
+  p2pFiles.forEach(f => {
+    combined.push({
+      ...f,
+      source: f.direction === 'received' ? '📥 Received (P2P)' : '📤 Sent (P2P)',
+      isP2P: true,
+      uniqueKey: 'p2p_' + f.name + '_' + (f.time || '')
+    });
+    namesSeen.add(f.name);
+  });
+
+  // 2. Server files from disk
+  serverFiles.forEach(sf => {
+    if (!namesSeen.has(sf.name)) {
+      combined.push({
+        name: sf.name,
+        size: sf.size,
+        time: fmtTime(sf.modified),
+        source: '💾 Server Sync',
+        url: `/api/download/${encodeURIComponent(sf.name)}`,
+        isServer: true,
+        uniqueKey: 'srv_' + sf.name
+      });
+    }
+  });
+
+  return combined;
+}
+
 function renderFileList() {
-  if (!transferredFiles.length) {
-    fileList.innerHTML = '<div class="empty">No files transferred yet. Connect a device and select files.</div>';
+  const all = getAllFiles();
+  fileCountEl.textContent = all.length;
+
+  if (!all.length) {
+    fileList.innerHTML = '<div class="empty">No files transferred yet. Connect a second device or drop files to share.</div>';
     return;
   }
-  fileList.innerHTML = transferredFiles.map((f, idx) => `
+
+  fileList.innerHTML = all.map((f) => `
     <div class="file-row">
       <div class="file-icon">${icon(f.name)}</div>
       <div class="file-main">
         <div class="file-name" title="${escapeHtml(f.name)}">${escapeHtml(f.name)}</div>
-        <div class="file-meta">${fmt(f.size)} · ${f.direction === 'received' ? '📥 Received' : '📤 Sent'} · ${f.time}</div>
+        <div class="file-meta">${fmt(f.size)} · ${f.source} · ${f.time}</div>
       </div>
       <div class="file-actions">
-        ${f.url ? `<button class="icon-btn" title="Download" onclick="downloadBlob(${idx})">⬇ Download</button>` : ''}
-        <button class="icon-btn" title="Remove" onclick="removeFile(${idx})">✕</button>
+        ${f.url ? `<button class="icon-btn" title="Download" onclick="downloadFileItem('${escapeHtml(f.uniqueKey)}')">⬇ Download</button>` : ''}
+        <button class="icon-btn danger" title="Remove" onclick="removeFileItem('${escapeHtml(f.uniqueKey)}')">✕</button>
       </div>
     </div>
   `).join('');
 }
 
-function downloadBlob(idx) {
-  const file = transferredFiles[idx];
+function downloadFileItem(uniqueKey) {
+  const all = getAllFiles();
+  const file = all.find(f => f.uniqueKey === uniqueKey);
   if (!file || !file.url) return;
+
   const a = document.createElement('a');
   a.href = file.url;
   a.download = file.name;
@@ -274,41 +464,153 @@ function downloadBlob(idx) {
   document.body.removeChild(a);
 }
 
-function removeFile(idx) {
-  transferredFiles.splice(idx, 1);
-  renderFileList();
+async function removeFileItem(uniqueKey) {
+  const all = getAllFiles();
+  const file = all.find(f => f.uniqueKey === uniqueKey);
+  if (!file) return;
+
+  if (file.isServer) {
+    try {
+      const res = await fetch(`/api/files/${encodeURIComponent(file.name)}`, { method: 'DELETE' });
+      if (res.ok) {
+        statusEl.textContent = `✓ Deleted ${file.name} from transfer storage.`;
+        statusEl.className = 'status ok';
+        fetchServerFiles();
+        return;
+      }
+    } catch {}
+  }
+
+  // Remove from P2P list if present
+  const p2pIdx = p2pFiles.findIndex(f => ('p2p_' + f.name + '_' + (f.time || '')) === uniqueKey);
+  if (p2pIdx !== -1) {
+    const [removed] = p2pFiles.splice(p2pIdx, 1);
+    if (removed.url) URL.revokeObjectURL(removed.url);
+    renderFileList();
+  }
 }
 
-function clearTransfers() {
-  if (!transferredFiles.length) return;
-  if (!confirm('Clear transfer list?')) return;
-  transferredFiles.forEach(f => {
+async function clearTransfers() {
+  if (!getAllFiles().length) return;
+  if (!confirm('Clear all transferred and stored files?')) return;
+
+  p2pFiles.forEach(f => {
     if (f.url) URL.revokeObjectURL(f.url);
   });
-  transferredFiles.length = 0;
-  renderFileList();
-  statusEl.textContent = 'Transfer list cleared.';
-}
+  p2pFiles.length = 0;
 
-function generateRandomId() {
-  const chars = 'abcdefghjkmnpqrstuvwxyz23456789';
-  let res = 'util-';
-  for (let i = 0; i < 6; i++) {
-    res += chars.charAt(Math.floor(Math.random() * chars.length));
+  if (isServerAvailable) {
+    try {
+      await fetch('/api/clean', { method: 'POST' });
+    } catch {}
+    await fetchServerFiles();
+  } else {
+    renderFileList();
   }
-  return res;
+
+  statusEl.textContent = 'Transfer list cleared.';
+  statusEl.className = 'status';
 }
 
 // ─────────────────────────────────────────────────────────────
-// WebRTC P2P Connection
+// Real-time Refresh & Auto-Sync Signals
+// ─────────────────────────────────────────────────────────────
+async function fetchServerFiles(silent = false) {
+  try {
+    const res = await fetch('/api/files');
+    if (res.ok) {
+      isServerAvailable = true;
+      serverFiles = await res.json();
+      renderFileList();
+      if (!silent) {
+        liveSyncIndicator.textContent = '⚡ Real-time sync active';
+        liveSyncIndicator.className = 'live-sync-indicator';
+      }
+      return true;
+    }
+  } catch {
+    isServerAvailable = false;
+  }
+  return false;
+}
+
+// Manual refresh triggered by user clicking the Refresh button
+async function manualRefresh() {
+  refreshIcon.classList.add('spin');
+  listRefreshIcon.classList.add('spin');
+  liveSyncIndicator.textContent = '🔄 Refreshing files…';
+  liveSyncIndicator.className = 'live-sync-indicator syncing';
+
+  const updated = await fetchServerFiles();
+
+  // If connected via WebRTC P2P, send a sync signal to peer
+  if (activeConn && activeConn.open) {
+    try {
+      activeConn.send({ type: 'refresh-signal', timestamp: Date.now() });
+    } catch {}
+  }
+
+  setTimeout(() => {
+    refreshIcon.classList.remove('spin');
+    listRefreshIcon.classList.remove('spin');
+    liveSyncIndicator.textContent = '⚡ Real-time sync active';
+    liveSyncIndicator.className = 'live-sync-indicator';
+    const count = getAllFiles().length;
+    statusEl.textContent = `✓ Refreshed! ${count} file${count === 1 ? '' : 's'} ready.`;
+    statusEl.className = 'status ok';
+  }, 400);
+}
+
+// Initialize Server-Sent Events (SSE) for instant cross-device upload signals
+function initServerEventStream() {
+  try {
+    if (eventSource) eventSource.close();
+    eventSource = new EventSource('/api/transfer-events');
+
+    eventSource.onmessage = (e) => {
+      try {
+        const data = JSON.parse(e.data);
+        if (data.type === 'upload_completed') {
+          // Automatic refresh signal received from another device!
+          statusEl.textContent = `⚡ New file uploaded (${data.name || 'file'}) — auto-refreshed!`;
+          statusEl.className = 'status ok';
+          fetchServerFiles(true);
+        } else if (data.type === 'file_deleted' || data.type === 'files_cleaned') {
+          fetchServerFiles(true);
+        }
+      } catch {}
+    };
+
+    eventSource.onerror = () => {
+      // EventSource automatically retries connection
+    };
+  } catch {}
+}
+
+// ─────────────────────────────────────────────────────────────
+// WebRTC P2P Connection with 4-Digit Code
 // ─────────────────────────────────────────────────────────────
 function initP2P() {
-  const isJoining = !!roomParam;
-  const peerId = isJoining ? generateRandomId() : generateRandomId();
-  myPeerId = peerId;
+  const isJoiningParam = !!rawRoomParam;
+  
+  if (isJoiningParam) {
+    // If joined via URL query parameter (e.g. ?code=7429)
+    currentCode = rawRoomParam.replace(/[^0-9]/g, '').slice(0, 4) || '9999';
+    display4DigitCode(currentCode);
+    codeInput.value = currentCode;
+  } else {
+    currentCode = generate4DigitCode();
+    display4DigitCode(currentCode);
+  }
+
+  myPeerId = codeToPeerId(currentCode);
 
   try {
-    peer = new Peer(peerId, {
+    if (peer) {
+      peer.destroy();
+    }
+
+    peer = new Peer(myPeerId, {
       debug: 1,
       config: {
         iceServers: [
@@ -321,17 +623,17 @@ function initP2P() {
     peer.on('open', id => {
       myPeerId = id;
       const baseUrl = `${location.protocol}//${location.host}${location.pathname}`;
-      const shareUrl = isJoining ? `${baseUrl}?room=${roomParam}` : `${baseUrl}?room=${id}`;
+      const shareUrl = `${baseUrl}?code=${currentCode}`;
       connectionEl.textContent = shareUrl;
       updateQr(shareUrl);
 
-      if (isJoining) {
-        statusEl.textContent = `Connecting to room ${roomParam}…`;
-        updatePeerStatus('waiting', `Connecting to ${roomParam}…`);
-        connectToPeer(roomParam);
+      if (isJoiningParam && rawRoomParam) {
+        statusEl.textContent = `Connecting to peer with code ${currentCode}…`;
+        updatePeerStatus('waiting', `Connecting to Code: ${currentCode}…`);
+        connectToPeer(codeToPeerId(rawRoomParam));
       } else {
-        statusEl.textContent = `Ready! Scan the QR code with phone or share the link.`;
-        updatePeerStatus('waiting', '📡 Waiting for peer to connect...');
+        statusEl.textContent = `Ready! Share code ${currentCode} with peer or scan QR code.`;
+        updatePeerStatus('waiting', `📡 Waiting for Code: ${currentCode}...`);
       }
     });
 
@@ -340,8 +642,15 @@ function initP2P() {
     });
 
     peer.on('error', err => {
-      console.warn('PeerJS error:', err);
-      statusEl.textContent = `P2P status: ${err.type || 'network event'}`;
+      console.warn('PeerJS event:', err);
+      if (err.type === 'unavailable-id') {
+        // ID already in use on public peer server, pick another 4-digit code
+        currentCode = generate4DigitCode();
+        display4DigitCode(currentCode);
+        setTimeout(initP2P, 200);
+      } else {
+        statusEl.textContent = `P2P status: ${err.type || 'network notice'}`;
+      }
     });
   } catch (e) {
     statusEl.textContent = 'P2P setup failed: ' + e.message;
@@ -350,6 +659,11 @@ function initP2P() {
 
 function connectToPeer(targetId) {
   targetPeerId = targetId;
+  const targetCodeMatch = targetId.replace(/[^0-9]/g, '').slice(-4);
+  statusEl.textContent = `Pairing with code ${targetCodeMatch || targetId}…`;
+  statusEl.className = 'status';
+  updatePeerStatus('waiting', `Connecting to ${targetCodeMatch || targetId}…`);
+
   const conn = peer.connect(targetId, { reliable: true });
   setupConnection(conn);
 }
@@ -358,8 +672,9 @@ function setupConnection(conn) {
   activeConn = conn;
 
   conn.on('open', () => {
-    updatePeerStatus('connected', '🟢 Connected with ' + (conn.peer || 'device'));
-    statusEl.textContent = '✓ Device paired! You can now send files in real time.';
+    const peerCode = (conn.peer || '').replace(/[^0-9]/g, '').slice(-4) || currentCode;
+    updatePeerStatus('connected', `🟢 Connected (Code: ${peerCode})`);
+    statusEl.textContent = `✓ Connected with peer (Code: ${peerCode})! Transfer files in real time.`;
     statusEl.className = 'status ok';
   });
 
@@ -369,7 +684,7 @@ function setupConnection(conn) {
 
   conn.on('close', () => {
     updatePeerStatus('disconnected', '⚪ Peer disconnected');
-    statusEl.textContent = 'Device disconnected. Scan QR code or re-join to connect.';
+    statusEl.textContent = 'Device disconnected. Reconnect with 4-digit code or QR code.';
     statusEl.className = 'status error';
     activeConn = null;
   });
@@ -380,14 +695,45 @@ function setupConnection(conn) {
   });
 }
 
-function manualJoin() {
-  const id = document.getElementById('joinInput').value.trim();
-  if (!id) return;
-  connectToPeer(id);
+function joinByCode() {
+  const code = codeInput.value.trim();
+  if (!code || code.length < 4) {
+    statusEl.textContent = '⚠️ Please enter a 4-digit code (e.g. 7429).';
+    statusEl.className = 'status error';
+    codeInput.focus();
+    return;
+  }
+
+  const targetId = codeToPeerId(code);
+  connectToPeer(targetId);
 }
+
+codeInput.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    joinByCode();
+  }
+});
+
+codeInput.addEventListener('input', () => {
+  codeInput.value = codeInput.value.replace(/[^0-9]/g, '').slice(0, 4);
+  if (codeInput.value.length === 4) {
+    // Auto trigger connection when 4 digits typed
+    joinByCode();
+  }
+});
 
 function newSession() {
   location.href = location.pathname;
+}
+
+function copyCode() {
+  if (!currentCode) return;
+  navigator.clipboard.writeText(currentCode).then(() => {
+    statusEl.textContent = `✓ 4-digit code ${currentCode} copied to clipboard!`;
+    statusEl.className = 'status ok';
+  }).catch(() => {
+    statusEl.textContent = `Code: ${currentCode}`;
+  });
 }
 
 function copyConnection() {
@@ -401,82 +747,91 @@ function copyConnection() {
   });
 }
 
-function openShareLink() {
-  const text = connectionEl.textContent;
-  if (text) window.open(text, '_blank');
-}
-
 // ─────────────────────────────────────────────────────────────
-// Chunked File Transfer Protocol
+// Chunked File Transfer Protocol with Automatic Refresh Signals
 // ─────────────────────────────────────────────────────────────
 async function sendFile(file) {
-  if (!activeConn || !activeConn.open) {
-    if (await tryServerUpload(file)) return;
-    statusEl.textContent = '⚠️ No second device connected yet. Scan QR code first!';
-    statusEl.className = 'status error';
+  // If active P2P connection is open, stream via WebRTC
+  if (activeConn && activeConn.open) {
+    const fileId = 'f_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+    const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+
+    statusEl.textContent = `Sending ${file.name}… (0%)`;
+    statusEl.className = 'status';
+    progressBar.style.display = 'block';
+    progressFill.style.width = '0%';
+
+    activeConn.send({
+      type: 'file-start',
+      id: fileId,
+      name: file.name,
+      size: file.size,
+      mimeType: file.type || 'application/octet-stream',
+      totalChunks
+    });
+
+    let offset = 0;
+    let chunkIndex = 0;
+
+    while (offset < file.size) {
+      const slice = file.slice(offset, offset + CHUNK_SIZE);
+      const buffer = await slice.arrayBuffer();
+      
+      activeConn.send({
+        type: 'file-chunk',
+        id: fileId,
+        index: chunkIndex,
+        chunk: buffer
+      });
+
+      offset += CHUNK_SIZE;
+      chunkIndex++;
+
+      const pct = Math.min(100, Math.round((offset / file.size) * 100));
+      progressFill.style.width = pct + '%';
+      statusEl.textContent = `Sending ${file.name}… ${pct}%`;
+
+      if (chunkIndex % 10 === 0) {
+        await new Promise(r => setTimeout(r, 15));
+      }
+    }
+
+    activeConn.send({
+      type: 'file-end',
+      id: fileId
+    });
+
+    // Also send refresh notification signal so other device refreshes automatically
+    activeConn.send({
+      type: 'refresh-signal',
+      name: file.name,
+      size: file.size,
+      timestamp: Date.now()
+    });
+
+    progressBar.style.display = 'none';
+    statusEl.textContent = `✓ Sent ${file.name} successfully!`;
+    statusEl.className = 'status ok';
+
+    p2pFiles.unshift({
+      name: file.name,
+      size: file.size,
+      direction: 'sent',
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      url: URL.createObjectURL(file)
+    });
+    renderFileList();
+
+    // Also mirror to server storage if server is running
+    tryServerUpload(file, true);
     return;
   }
 
-  const fileId = 'f_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
-  const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+  // Fallback to server upload if no P2P peer connected
+  if (await tryServerUpload(file, false)) return;
 
-  statusEl.textContent = `Sending ${file.name}… (0%)`;
-  statusEl.className = 'status';
-  progressBar.style.display = 'block';
-  progressFill.style.width = '0%';
-
-  activeConn.send({
-    type: 'file-start',
-    id: fileId,
-    name: file.name,
-    size: file.size,
-    mimeType: file.type || 'application/octet-stream',
-    totalChunks
-  });
-
-  let offset = 0;
-  let chunkIndex = 0;
-
-  while (offset < file.size) {
-    const slice = file.slice(offset, offset + CHUNK_SIZE);
-    const buffer = await slice.arrayBuffer();
-    
-    activeConn.send({
-      type: 'file-chunk',
-      id: fileId,
-      index: chunkIndex,
-      chunk: buffer
-    });
-
-    offset += CHUNK_SIZE;
-    chunkIndex++;
-
-    const pct = Math.min(100, Math.round((offset / file.size) * 100));
-    progressFill.style.width = pct + '%';
-    statusEl.textContent = `Sending ${file.name}… ${pct}%`;
-
-    if (chunkIndex % 10 === 0) {
-      await new Promise(r => setTimeout(r, 15));
-    }
-  }
-
-  activeConn.send({
-    type: 'file-end',
-    id: fileId
-  });
-
-  progressBar.style.display = 'none';
-  statusEl.textContent = `✓ Sent ${file.name} successfully!`;
-  statusEl.className = 'status ok';
-
-  transferredFiles.unshift({
-    name: file.name,
-    size: file.size,
-    direction: 'sent',
-    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    url: URL.createObjectURL(file)
-  });
-  renderFileList();
+  statusEl.textContent = '⚠️ No peer connected. Enter 4-digit code or scan QR code to pair!';
+  statusEl.className = 'status error';
 }
 
 function handleIncomingData(data) {
@@ -507,7 +862,7 @@ function handleIncomingData(data) {
     const blob = new Blob(incoming.receivedChunks, { type: incoming.mimeType });
     const url = URL.createObjectURL(blob);
 
-    transferredFiles.unshift({
+    p2pFiles.unshift({
       name: incoming.name,
       size: incoming.size,
       direction: 'received',
@@ -517,27 +872,34 @@ function handleIncomingData(data) {
 
     incomingBuffers.delete(data.id);
     renderFileList();
-    statusEl.textContent = `✓ Received ${incoming.name} (${fmt(incoming.size)})!`;
+
+    statusEl.textContent = `✓ Received ${incoming.name} (${fmt(incoming.size)})! Auto-refreshed.`;
     statusEl.className = 'status ok';
+
+    // Send acknowledgment refresh signal back
+    if (activeConn && activeConn.open) {
+      activeConn.send({ type: 'refresh-signal', timestamp: Date.now() });
+    }
+  } else if (data.type === 'refresh-signal') {
+    // Automatically refresh file list when signal is received from peer
+    statusEl.textContent = `⚡ Peer uploaded new content — auto-refreshed!`;
+    statusEl.className = 'status ok';
+    fetchServerFiles(true);
+    renderFileList();
   }
 }
 
-async function tryServerUpload(file) {
+async function tryServerUpload(file, backgroundSync = false) {
   try {
     const data = new FormData();
     data.append('file', file);
     const res = await fetch('/api/upload', { method: 'POST', body: data });
     if (res.ok) {
-      statusEl.textContent = `✓ Uploaded ${file.name} to local transfer folder`;
-      statusEl.className = 'status ok';
-      transferredFiles.unshift({
-        name: file.name,
-        size: file.size,
-        direction: 'sent',
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        url: URL.createObjectURL(file)
-      });
-      renderFileList();
+      if (!backgroundSync) {
+        statusEl.textContent = `✓ Uploaded ${file.name} (signal broadcasted to paired devices)`;
+        statusEl.className = 'status ok';
+      }
+      fetchServerFiles(true);
       return true;
     }
   } catch {}
@@ -553,6 +915,9 @@ fileInput.addEventListener('change', e => handleFiles(e.target.files));
 ['dragleave', 'drop'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.remove('drag'); }));
 drop.addEventListener('drop', e => { e.preventDefault(); handleFiles(e.dataTransfer.files); });
 
+// Initialize files, SSE events, and P2P connection on start
+fetchServerFiles();
+initServerEventStream();
 initP2P();
 </script>
 </body>

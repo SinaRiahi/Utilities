@@ -142,11 +142,14 @@ Rather than creating dozens of half-finished tools, I'd rather build a smaller c
 ---
 
 ## 📲 File Transfer
-> Fast, private PC ↔ Mobile peer-to-peer file transfer.
+> Fast, private PC ↔ Mobile peer-to-peer file transfer with live auto-synchronization.
 
 * 🌐 **GitHub Pages Ready**: Powered by WebRTC DataChannels with zero cloud storage
+* 🔢 **4-Digit Quick Code**: Pair PC to PC instantly by entering a 4-digit code
 * 📷 Scan QR code to pair phone and PC instantly
 * ⚡ Direct chunked streaming with real-time transfer progress
+* 🔄 **Instant Auto-Sync Signals**: Connected devices automatically refresh whenever an upload is completed
+* ↻ **Manual Refresh**: Quick-action refresh button to instantly fetch and verify newly uploaded content
 * 🔒 End-to-end private transfer
 
 ---

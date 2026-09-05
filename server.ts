@@ -93,7 +93,47 @@ const upload = multer({
   limits: { fileSize: MAX_UPLOAD_BYTES },
 });
 
+// SSE Event Broadcast for File Transfer synchronization across devices
+const transferEventClients = new Set<express.Response>();
+
+function broadcastTransferEvent(event: { type: string; [key: string]: any }) {
+  const payload = `data: ${JSON.stringify(event)}\n\n`;
+  for (const client of transferEventClients) {
+    try {
+      client.write(payload);
+    } catch {
+      transferEventClients.delete(client);
+    }
+  }
+}
+
 // File Transfer Endpoints
+app.get("/api/transfer-events", (req, res) => {
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache, no-transform");
+  res.setHeader("Connection", "keep-alive");
+  res.setHeader("X-Accel-Buffering", "no");
+  res.flushHeaders();
+
+  // Initial event
+  res.write(`data: ${JSON.stringify({ type: "connected", timestamp: Date.now() })}\n\n`);
+  transferEventClients.add(res);
+
+  const heartbeat = setInterval(() => {
+    try {
+      res.write(`: heartbeat\n\n`);
+    } catch {
+      clearInterval(heartbeat);
+      transferEventClients.delete(res);
+    }
+  }, 15000);
+
+  req.on("close", () => {
+    clearInterval(heartbeat);
+    transferEventClients.delete(res);
+  });
+});
+
 app.get("/api/session", (req, res) => {
   if (!validateToken(req)) {
     return res.status(403).json({ detail: "Invalid transfer token" });
@@ -146,6 +186,15 @@ app.post("/api/upload", upload.single("file"), (req, res) => {
   if (!req.file) {
     return res.status(400).json({ detail: "No file provided" });
   }
+
+  // Broadcast upload completed signal to all connected devices immediately
+  broadcastTransferEvent({
+    type: "upload_completed",
+    name: req.file.filename,
+    size: req.file.size,
+    timestamp: Date.now(),
+  });
+
   res.json({
     name: req.file.filename,
     size: req.file.size,
@@ -175,6 +224,11 @@ app.delete("/api/files/:filename", (req, res) => {
   }
   try {
     fs.unlinkSync(filePath);
+    broadcastTransferEvent({
+      type: "file_deleted",
+      name: safeName,
+      timestamp: Date.now(),
+    });
     res.json({ ok: true });
   } catch (err: any) {
     res.status(500).json({ detail: err.message });
@@ -200,6 +254,11 @@ app.post("/api/clean", (req, res) => {
         errors.push(`${file}: ${err.message}`);
       }
     }
+    broadcastTransferEvent({
+      type: "files_cleaned",
+      deleted,
+      timestamp: Date.now(),
+    });
     res.json({ ok: errors.length === 0, deleted, errors });
   } catch (err: any) {
     res.status(500).json({ detail: err.message });
