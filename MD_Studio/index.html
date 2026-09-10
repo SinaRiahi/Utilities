@@ -7,6 +7,10 @@
 
     <!-- KaTeX CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <!-- Persian & Arabic Web Fonts: Vazirmatn (Modern UI/Doc), Amiri (Naskh Serif), Noto Sans Arabic -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Noto+Sans+Arabic:wght@400;500;600;700&family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- highlight.js CSS themes — light themes only -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="hljs-theme-github" class="hljs-theme-link">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css" id="hljs-theme-atom-one-light" class="hljs-theme-link" disabled>
@@ -32,9 +36,9 @@
             --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.10), 0 2px 6px rgba(0, 0, 0, 0.06);
             --radius: 8px;
             --radius-sm: 5px;
-            --font-mono: 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', monospace;
-            --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
-            --font-serif: 'Georgia', 'Times New Roman', serif;
+            --font-mono: 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Vazirmatn', 'Consolas', 'Monaco', monospace;
+            --font-sans: 'Inter', 'Vazirmatn', 'Segoe UI', Tahoma, system-ui, -apple-system, sans-serif;
+            --font-serif: 'Georgia', 'Amiri', 'Times New Roman', serif;
             --editor-font-size: 14px;
             --preview-font-size: 15px;
             --line-height: 1.7;
@@ -409,10 +413,24 @@
             unicode-bidi: isolate;
         }
         .preview-container[dir="rtl"] .mermaid-rendered,
-        .preview-container[dir="rtl"] .mermaid,
-        .preview-container[dir="rtl"] .katex,
-        .preview-container[dir="rtl"] .katex-block {
+        .preview-container[dir="rtl"] .mermaid {
+            direction: ltr;
             unicode-bidi: isolate;
+        }
+        .preview-container[dir="rtl"] .katex {
+            direction: ltr;
+            unicode-bidi: isolate;
+            display: inline-block;
+        }
+        .preview-container[dir="rtl"] .katex-block,
+        .preview-container[dir="rtl"] .katex-display {
+            direction: ltr;
+            unicode-bidi: isolate;
+            text-align: center;
+        }
+        .preview-container[dir="rtl"] table th,
+        .preview-container[dir="rtl"] table td {
+            text-align: right;
         }
         .preview-container[dir="rtl"] .copy-code-btn {
             right: auto;
@@ -422,11 +440,13 @@
             border-left: 0;
             border-right: 4px solid var(--accent);
             border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+            padding: 8px 16px 8px 8px;
         }
         .preview-container[dir="rtl"] .md-note {
             border-left: 0;
             border-right: 5px solid #adb5bd;
             border-radius: 7px 0 0 7px;
+            text-align: right;
         }
         .preview-container[dir="rtl"] .md-note-definition { border-right-color: #2563eb; }
         .preview-container[dir="rtl"] .md-note-important { border-right-color: #7c3aed; }
@@ -450,12 +470,41 @@
             margin-right: 0;
             margin-left: 0.5em;
         }
+        .preview-container[dir="rtl"] .toc-container {
+            direction: rtl;
+            text-align: right;
+        }
         .preview-container[dir="rtl"] .toc-container ul {
             padding-left: 0;
+            padding-right: 0;
         }
         .preview-container[dir="rtl"] .toc-container ul ul {
             padding-left: 0;
             padding-right: 1.2em;
+        }
+        .preview-container[dir="rtl"] .footnotes {
+            direction: rtl;
+            text-align: right;
+        }
+        .preview-container[dir="rtl"] .footnotes ol {
+            padding-left: 0;
+            padding-right: 1.8em;
+        }
+        .preview-container[dir="rtl"] dd {
+            margin-left: 0;
+            margin-right: 2em;
+        }
+        .preview-container[dir="rtl"] .document-header {
+            direction: rtl;
+            text-align: right;
+        }
+        .editor-textarea[dir="rtl"] {
+            direction: rtl;
+            text-align: right;
+        }
+        .editor-textarea[dir="ltr"] {
+            direction: ltr;
+            text-align: left;
         }
         [data-theme="dark"] .preview-container {
             background: #1e1f23;
@@ -726,7 +775,14 @@
         }
         .preview-container img {
             max-width: 100%;
+            height: auto;
             border-radius: var(--radius-sm);
+            display: block;
+            margin: 1.2em auto;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        [data-theme="dark"] .preview-container img {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
         }
         .preview-container .task-list-item {
             list-style: none;
@@ -907,6 +963,117 @@
         }
         .modal textarea:focus {
             border-color: var(--accent);
+        }
+
+        /* ── Image drag & drop overlay on editor ───────────────── */
+        .editor-drop-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(76, 110, 245, 0.12);
+            backdrop-filter: blur(2px);
+            border: 2px dashed var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.15s ease;
+        }
+        .editor-drop-overlay.active {
+            opacity: 1;
+        }
+        .drop-overlay-box {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 22px 32px;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+            color: var(--text);
+            pointer-events: none;
+        }
+        .drop-overlay-box .drop-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+        .drop-overlay-box .drop-title {
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--accent);
+        }
+        .drop-overlay-box .drop-subtitle {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* ── Image modal dropzone & preview card ────────────────── */
+        .image-dropzone {
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 24px 16px;
+            text-align: center;
+            cursor: pointer;
+            background: var(--bg-secondary);
+            transition: all var(--transition);
+            margin: 12px 0;
+        }
+        .image-dropzone:hover,
+        .image-dropzone.dragover {
+            border-color: var(--accent);
+            background: var(--accent-light);
+        }
+        .image-preview-card {
+            margin-top: 14px;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            padding: 12px;
+            background: var(--bg-secondary);
+            display: none;
+            align-items: center;
+            gap: 14px;
+        }
+        .image-preview-card.visible {
+            display: flex;
+        }
+        .image-preview-thumb {
+            width: 72px;
+            height: 72px;
+            border-radius: 4px;
+            object-fit: cover;
+            border: 1px solid var(--border);
+            background: #fff;
+            flex-shrink: 0;
+        }
+        .image-preview-meta {
+            flex: 1;
+            overflow: hidden;
+        }
+        .image-preview-meta .meta-name {
+            font-weight: 600;
+            font-size: 13px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .image-preview-meta .meta-size {
+            font-size: 11.5px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+        .image-preview-clear {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 16px;
+            padding: 4px 8px;
+            border-radius: var(--radius-sm);
+        }
+        .image-preview-clear:hover {
+            color: #e03131;
+            background: var(--bg);
         }
 
         /* ── Toast ────────────────────── */
@@ -1203,9 +1370,11 @@
         <button onclick="App.exportDOCX()">📄 Export DOCX</button>
         <button onclick="App.copyHTML()">📋 Copy HTML</button>
         <span class="sep"></span>
+        <button onclick="App.openImageModal()" title="Insert image from computer, clipboard, or URL">🖼️ Image</button>
         <button onclick="App.toggleSettings()" title="Page & Typography Settings">⚙️ Settings</button>
         <button onclick="App.clearAll()" title="Clear editor">🗑️ Clear</button>
         <button class="prompt-btn" onclick="App.openPromptGenerator()" title="Generate AI prompt for better Markdown">🤖 Prompt</button>
+        <button id="direction-btn" onclick="App.toggleDirection()" title="Text Direction: Auto / RTL / LTR (Click to switch)">⇄ Dir: Auto</button>
         <span class="sep"></span>
         <button onclick="App.openGitHub()" title="View project on GitHub">⭐ GitHub</button>
         <button onclick="App.toggleTheme()" title="Toggle Light/Dark Mode" id="theme-btn">🌙 Dark</button>
@@ -1220,21 +1389,30 @@
             <div class="pane-header">
                 <span>📝 Markdown Editor</span>
                 <div class="pane-actions">
+                    <button onclick="App.openImageModal()" title="Insert image into editor">🖼️</button>
                     <button onclick="App.fullscreenPane('left')" title="Fullscreen editor">⛶</button>
                 </div>
             </div>
             <div class="editor-wrapper" id="editor-wrapper">
                 <div class="line-numbers" id="line-numbers">1</div>
                 <textarea class="editor-textarea" id="editor" placeholder="# Start writing Markdown here...
-Or drag & drop a .md file...
+Or drag & drop .md or image files (PNG, JPG, SVG, WebP, GIF)...
 
 ## Features
 - **Live preview** on the right
 - Syntax highlighting
+- Drag & drop or paste images (Ctrl+V)
 - LaTeX math: $E = mc^2$
 - Mermaid diagrams
 - Table of contents
 - Export to PDF, HTML, DOCX"></textarea>
+                <div class="editor-drop-overlay" id="editor-drop-overlay">
+                    <div class="drop-overlay-box">
+                        <div class="drop-icon">🖼️</div>
+                        <div class="drop-title">Drop images or files here</div>
+                        <div class="drop-subtitle">Images will be embedded into your Markdown & PDF</div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1279,14 +1457,31 @@ Or drag & drop a .md file...
             <h4>🎨 Typography</h4>
             <label>Font Family</label>
             <select id="setting-font-family">
-                <option value="Georgia, 'Times New Roman', serif">Georgia (Serif)</option>
-                <option value="'Inter', 'Segoe UI', system-ui, sans-serif">Inter (Sans)</option>
-                <option value="'SF Mono', 'Consolas', 'Monaco', monospace">Monospace</option>
+                <option value="'Vazirmatn', 'Inter', system-ui, sans-serif">Vazirmatn (Modern Persian / Arabic & Latin)</option>
+                <option value="'Amiri', 'Georgia', serif">Amiri (Classical Persian / Arabic Serif)</option>
+                <option value="'Noto Sans Arabic', system-ui, sans-serif">Noto Sans Arabic (Clean Sans)</option>
+                <option value="'Inter', 'Vazirmatn', 'Segoe UI', system-ui, sans-serif">Inter (Sans)</option>
+                <option value="Georgia, 'Amiri', 'Times New Roman', serif">Georgia (Serif)</option>
+                <option value="'SF Mono', 'Vazirmatn', 'Consolas', 'Monaco', monospace">Monospace</option>
             </select>
             <label>Font Size (pt)</label>
             <input type="number" id="setting-font-size" value="11" min="8" max="18" />
             <label>Line Height</label>
             <input type="number" id="setting-line-height" value="1.6" min="1.2" max="2.5" step="0.05" />
+            <h4>🌐 Language & Text Direction</h4>
+            <label>Document Direction</label>
+            <select id="setting-direction-mode">
+                <option value="auto">Auto-detect (Recommended)</option>
+                <option value="rtl">Right-to-Left (RTL — Persian / Arabic)</option>
+                <option value="ltr">Left-to-Right (LTR — English / Latin)</option>
+            </select>
+            <label>Document Language</label>
+            <select id="setting-language-mode">
+                <option value="auto">Auto-detect (Persian / Arabic / English)</option>
+                <option value="fa">Persian / فارسی (fa)</option>
+                <option value="ar">Arabic / العربية (ar)</option>
+                <option value="en">English (en)</option>
+            </select>
             <h4>💻 Code Theme</h4>
             <label>Syntax Highlighting Theme (light themes)</label>
             <select id="setting-code-theme">
@@ -1367,8 +1562,55 @@ Or drag & drop a .md file...
         </div>
     </div>
 
+    <!-- Image Insertion Modal -->
+    <div class="modal-overlay" id="image-modal">
+        <div class="modal" style="max-width:540px;">
+            <h3>🖼️ Insert Image</h3>
+            <p style="font-size:13px;color:var(--text-secondary);margin-bottom:14px;line-height:1.5;">
+                Drop or select an image from your computer, paste from clipboard (<kbd>Ctrl+V</kbd>), or insert from a web URL. Images are embedded directly into your Markdown document and exported PDF.
+            </p>
+
+            <div class="image-dropzone" id="modal-image-dropzone" onclick="document.getElementById('image-file-input').click()">
+                <div style="font-size:28px;margin-bottom:6px;">📁</div>
+                <div style="font-weight:600;font-size:13.5px;color:var(--text);">Click to browse or drop image here</div>
+                <div style="font-size:11.5px;color:var(--text-muted);margin-top:4px;">Supports PNG, JPG, GIF, WebP, SVG (embedded in PDF & HTML)</div>
+            </div>
+
+            <div class="image-preview-card" id="image-preview-card">
+                <img class="image-preview-thumb" id="image-preview-thumb" alt="Preview" />
+                <div class="image-preview-meta">
+                    <div class="meta-name" id="image-preview-name">image.png</div>
+                    <div class="meta-size" id="image-preview-size">0 KB</div>
+                </div>
+                <button type="button" class="image-preview-clear" onclick="App.clearModalImage()" title="Remove selected image">✕</button>
+            </div>
+
+            <label for="image-alt-input">Image Description / Alt Text</label>
+            <input type="text" id="image-alt-input" placeholder="e.g., System Architecture Diagram" />
+
+            <div style="display:flex;align-items:center;margin:16px 0 10px;gap:12px;">
+                <div style="flex:1;height:1px;background:var(--border-light);"></div>
+                <span style="font-size:11.5px;color:var(--text-muted);font-weight:600;letter-spacing:0.04em;">OR INSERT FROM WEB URL</span>
+                <div style="flex:1;height:1px;background:var(--border-light);"></div>
+            </div>
+
+            <label for="image-url-input">Image URL</label>
+            <input type="text" id="image-url-input" placeholder="https://example.com/diagram.png" />
+
+            <div style="font-size:11.5px;color:var(--text-muted);margin-top:12px;line-height:1.5;">
+                💡 <strong>Tip:</strong> You can also drag & drop image files directly onto the editor or paste screenshots directly with <kbd>Ctrl+V</kbd>.
+            </div>
+
+            <div class="modal-actions">
+                <button onclick="App.closeImageModal()">Cancel</button>
+                <button class="accent" onclick="App.insertImageFromModal()">Insert Image</button>
+            </div>
+        </div>
+    </div>
+
     <div class="toast" id="toast"></div>
     <input type="file" id="file-input" accept=".md,.markdown,.txt" style="display:none;" />
+    <input type="file" id="image-file-input" accept="image/*" multiple style="display:none;" />
 
     <script src="https://cdn.jsdelivr.net/npm/markdown-it@14.1.0/dist/markdown-it.min.js">
     </script>
@@ -2669,6 +2911,101 @@ Callout bodies should remain normal dark text. Do not manually specify HTML/CSS 
 
 # Mermaid PDF Layout Guidance
 When using Mermaid, prefer focused diagrams. If a concept would create an extremely large or tall diagram, split it into multiple focused diagrams rather than one giant diagram. Keep labels concise and avoid unnecessary nesting. The renderer measures the configured paper size, orientation, and margins and scales each Mermaid diagram proportionally to the printable page area, so do not manually page-break inside diagrams.`
+    },
+    {
+        id: 'persian-technical-doc',
+        label: '🇮🇷 مستندات و مقالات فنی به زبان فارسی (Persian Technical Document)',
+        prompt: `شما یک متخصص برجسته در نگارش مستندات فنی و مقالات تخصصی به زبان فارسی هستید. وظیفه شما تولید یک سند استاندارد، دقیق و با ساختار حرفه‌ای در قالب GitHub Flavored Markdown (GFM) است که مستقیماً در MD Studio به یک PDF تمیز و خوانا تبدیل شود.
+
+# قواعد ساختاری و سرفصل‌ها
+- از سرتیتر سطح یک (#) فقط برای عنوان سند یا فصول اصلی استفاده کنید.
+- از سرتیتر سطح دو (##) برای بخش‌های اصلی و (###) برای زیربخش‌ها استفاده نمایید.
+- سلسله‌مراتب تیترها را به دقت رعایت کنید.
+
+# اصول نگارش و ویرایش زبان فارسی
+- در نوشتن کلمات مرکب و پیشوند/پسوندها حتماً از نیم‌فاصله (Zero-Width Non-Joiner) استفاده کنید (مثال: «می‌شود»، «برنامه‌نویسی»، «مؤلفه‌ها»، «سیستم‌ها»).
+- از علائم نگارشی استاندارد فارسی استفاده کنید: ویرگول فارسی (،)، نقطه ویرگول (؛)، گیومه « » و علامت سوال فارسی (؟).
+- برای جداول، داده‌ها را به طور منظم در ساختار جدول مارک‌داون قرار دهید (جهت راست‌به‌چپ به طور خودکار اعمال می‌شود).
+
+# بلوک‌های راهنما و جعبه‌های پیام (Semantic Callouts)
+استودیو MD از جعبه‌های پیام دلالت‌گر با رنگ‌بندی استاندارد پشتیبانی می‌کند:
+[definition]
+تعریف دقیق مفاهیم، اصطلاحات یا واژگان کلیدی
+[/definition]
+
+[important]
+نکات حیاتی، نتایج کلیدی و اصول غیرقابل چشم‌پوشی
+[/important]
+
+[example]
+مثال‌های کاربردی، سناریوها یا نمونه خروجی‌ها
+[/example]
+
+[tip]
+ترفندها، مدل‌های ذهنی و توصیه‌های تجربی سودمند
+[/tip]
+
+[warning]
+خطاهای متداول، بن‌بست‌ها و هشدارهای مهم
+[/warning]
+
+[note]
+توضیحات تکمیلی یا پانویس‌های متنی
+[/note]
+
+# کدها و فرمول‌های ریاضی
+- کدهای برنامه‌نویسی را در بلوک‌های کد با ذکر نام زبان مشخص کنید (جهت کدها همواره چپ‌به‌راست و با فونت مونو باقی می‌ماند).
+- برای فرمول‌های ریاضی از گرامر KaTeX استفاده کنید: $x^2 + y^2 = z^2$ درون‌خطی و $$...$$ برای معادلات مستقل.
+
+# خروجی
+تنها و تنها متن Markdown بدون هیچ مقدمه یا موخره محاوره‌ای چت‌بات تولید کنید.`
+    },
+    {
+        id: 'arabic-professional-doc',
+        label: '🇸🇦 وثيقة تقنية ومهنية باللغة العربية (Arabic Professional Document)',
+        prompt: `أنت خبير محترف في إعداد الوثائق التقنية والأكاديمية باللغة العربية. مهمتك كتابة وثيقة واضحة، دقيقة ومفصلة بتنسيق GitHub Flavored Markdown (GFM) مهيأة ومصممة للتصدير كملف PDF عالي الجودة في MD Studio.
+
+# هيكلية الوثيقة والعناوين
+- استخدم العنوان الرئيسي (#) لعنوان الوثيقة أو الفصول الأساسية.
+- استخدم (##) للأقسام الرئيسية و (###) للتفريعات الداخلية.
+- حافظ على تسلسل منطقي وسليم لمستويات العناوين.
+
+# قواعد اللغة العربية والترقيم
+- اكتب بلغة عربية فصحى رصينة وسليمة، خالية من الحشو.
+- استخدم علامات الترقيم العربية الصحيحة: الفاصلة العربية (،)، الفاصلة المنقوطة (؛)، علامة الاستفهام (؟)، وأقواس الاقتباس « ».
+
+# الصناديق والملاحظات الدلالية (Semantic Callouts)
+يدعم البرنامج صناديق ملونة ذات دلالة واضحة ومظهر أنيق:
+[definition]
+المفاهيم والتعريفات والمصطلحات الأساسية
+[/definition]
+
+[important]
+النقاط الهامة والاستنتاجات الجوهرية
+[/important]
+
+[example]
+أمثلة توضيحية وتطبيقات عملية
+[/example]
+
+[tip]
+نصائح وإرشادات وتوجيهات عملية
+[/tip]
+
+[warning]
+أخطاء شائعة وتحذيرات هامة يجب الحذر منها
+[/warning]
+
+[note]
+ملاحظات إضافية وسياق توضيحي
+[/note]
+
+# الأكواد والمعادلات الرياضية
+- ضع الأكواد البرمجية داخل كتل كود مع تحديد اللغة (تبقى اتجاه الأكواد من اليسار إلى اليمين LTR دائماً).
+- استخدم KaTeX للرموز والمعادلات الرياضية: $...$ للرموز المضمنة و $$...$$ للمعادلات المنفصلة.
+
+# المخرجات
+يرجى إخراج محتوى Markdown فقط بدون أي نصوص محادثة أو تحيات في البداية أو النهاية.`
     }
 ];
 
@@ -2718,6 +3055,7 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
             }
 
             const editorEl = document.getElementById('editor');
+            const editorWrapperEl = document.getElementById('editor-wrapper');
             const previewEl = document.getElementById('preview');
             const lineNumbersEl = document.getElementById('line-numbers');
             const dividerEl = document.getElementById('divider');
@@ -2728,8 +3066,10 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
             const readTimeBadge = document.getElementById('read-time-badge');
             const settingsModal = document.getElementById('settings-modal');
             const promptModal = document.getElementById('prompt-modal');
+            const imageModal = document.getElementById('image-modal');
             const toastEl = document.getElementById('toast');
             const fileInput = document.getElementById('file-input');
+            const imageFileInput = document.getElementById('image-file-input');
             const themeBtn = document.getElementById('theme-btn');
 
             let toastTimer;
@@ -2760,7 +3100,7 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
             function updateStats() {
                 const text = editorEl.value;
                 const chars = text.length;
-                const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+                const words = (text.match(/[\p{L}\p{N}\u200C_'-]+/gu) || []).length;
                 const readTime = Math.max(1, Math.ceil(words / 200));
                 wordCountBadge.textContent = 'Words: ' + words.toLocaleString();
                 charCountBadge.textContent = 'Chars: ' + chars.toLocaleString();
@@ -2801,7 +3141,7 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
                 headings.forEach((h, idx) => {
                     if (!h.id) {
                         let baseId = 'toc-heading-' + idx;
-                        const text = h.textContent.trim().toLowerCase().replace(/[^\w]+/g, '-').replace(
+                        const text = h.textContent.trim().toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '-').replace(
                             /^-+|-+$/g, '');
                         if (text && text.length > 1) baseId = text;
                         let candidate = baseId;
@@ -2826,9 +3166,13 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
                 if (headings.length === 0) return null;
 
                 // Build flat TOC list with indentation based on heading level
+                const isFa = state.settings.documentLanguage === 'fa';
+                const isAr = state.settings.documentLanguage === 'ar';
+                const tocTitle = isFa ? '📑 فهرست مطالب' : (isAr ? '📑 جدول المحتويات' : '📑 Table of Contents');
+
                 const tocContainer = document.createElement('div');
                 tocContainer.className = 'toc-container';
-                tocContainer.innerHTML = '<h3>📑 Table of Contents</h3>';
+                tocContainer.innerHTML = '<h3>' + tocTitle + '</h3>';
                 const ul = document.createElement('ul');
                 ul.style.listStyle = 'none';
                 ul.style.paddingLeft = '0';
@@ -2867,19 +3211,27 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
             function buildCoverPage() {
                 const s = state.settings;
                 if (!s.coverEnabled) return null;
+                const isFa = state.settings.documentLanguage === 'fa';
+                const isAr = state.settings.documentLanguage === 'ar';
+                const authorLabel = isFa ? 'نویسنده:' : (isAr ? 'المؤلف:' : 'Author:');
+                const dateLabel = isFa ? 'تاریخ:' : (isAr ? 'التاريخ:' : 'Date:');
+                const placeholderLabel = isFa ? '(تنظیمات صفحه جلد را در بخش تنظیمات وارد کنید)' :
+                                         isAr ? '(قم بإعداد تفاصيل صفحة الغلاف في الإعدادات)' :
+                                         '(Configure cover page details in Settings)';
+
                 const cover = document.createElement('div');
                 cover.className = 'cover-page';
                 let html = '';
                 if (s.coverTitle) html += '<h1 class="cover-title">' + escapeHTML(s.coverTitle) + '</h1>';
                 if (s.coverSubtitle) html += '<p class="cover-subtitle">' + escapeHTML(s.coverSubtitle) + '</p>';
                 html += '<div class="cover-divider"></div>';
-                if (s.coverAuthor) html += '<p class="cover-meta"><strong>Author:</strong> ' + escapeHTML(s
+                if (s.coverAuthor) html += '<p class="cover-meta"><strong>' + authorLabel + '</strong> ' + escapeHTML(s
                     .coverAuthor) + '</p>';
-                if (s.coverDate) html += '<p class="cover-meta"><strong>Date:</strong> ' + escapeHTML(s.coverDate) +
+                if (s.coverDate) html += '<p class="cover-meta"><strong>' + dateLabel + '</strong> ' + escapeHTML(s.coverDate) +
                     '</p>';
                 if (!s.coverTitle && !s.coverSubtitle && !s.coverAuthor && !s.coverDate) {
                     html +=
-                        '<p class="cover-meta" style="color:var(--text-muted);">(Configure cover page details in Settings)</p>';
+                        '<p class="cover-meta" style="color:var(--text-muted);">' + placeholderLabel + '</p>';
                 }
                 cover.innerHTML = html;
                 return cover;
@@ -3072,6 +3424,32 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
                 }
 
                 if (start < 0 || end <= start) {
+                    const img = event.target.closest('img');
+                    if (img) {
+                        const alt = img.getAttribute('alt') || '';
+                        const src = img.getAttribute('src') || '';
+                        if (alt) {
+                            const altPattern = '![' + alt + ']';
+                            const idx = editorEl.value.indexOf(altPattern);
+                            if (idx !== -1) {
+                                start = idx;
+                                const endParen = editorEl.value.indexOf(')', idx);
+                                end = endParen !== -1 ? endParen + 1 : idx + altPattern.length;
+                            }
+                        }
+                        if (start < 0 && src) {
+                            const snippet = src.length > 40 ? src.slice(0, 40) : src;
+                            const idx = editorEl.value.indexOf(snippet);
+                            if (idx !== -1) {
+                                start = Math.max(0, editorEl.value.lastIndexOf('![', idx));
+                                const endParen = editorEl.value.indexOf(')', idx);
+                                end = endParen !== -1 ? endParen + 1 : idx + snippet.length;
+                            }
+                        }
+                    }
+                }
+
+                if (start < 0 || end <= start) {
                     const block = event.target.closest('h1, h2, h3, h4, h5, h6, p, li, blockquote, .callout-box');
                     if (block) {
                         const text = block.textContent.trim().slice(0, 40);
@@ -3172,7 +3550,7 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
             function scrollPreviewToElement(targetEl) {
                 if (!targetEl || !previewEl) return;
 
-                const blockEl = targetEl.closest('h1, h2, h3, h4, h5, h6, p, li, tr, blockquote, pre, .callout-box, .katex-block, .mermaid') || targetEl;
+                const blockEl = targetEl.closest('h1, h2, h3, h4, h5, h6, p, li, tr, blockquote, pre, img, .callout-box, .katex-block, .mermaid') || targetEl;
 
                 const previewRect = previewEl.getBoundingClientRect();
                 const blockRect = blockEl.getBoundingClientRect();
@@ -3203,33 +3581,102 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
             // prompt content. This lets Persian/Arabic documents render RTL
             // automatically while mixed technical documents keep code/math LTR.
             function detectDocumentLanguageAndDirection(markdown) {
-                const rtlChars = markdown.match(/[\u0590-\u05FF\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB1D-\uFDFF\uFE70-\uFEFF]/g) || [];
+                // Arabic & Persian character ranges:
+                // Arabic: \u0600-\u06FF, Supplement: \u0750-\u077F, Extended: \u08A0-\u08FF, Forms: \uFB50-\uFDFF, \uFE70-\uFEFF
+                const rtlChars = markdown.match(/[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/g) || [];
                 const ltrChars = markdown.match(/[A-Za-z\u00C0-\u02AF\u0370-\u052F\u1E00-\u1EFF]/g) || [];
                 const rtlCount = rtlChars.length;
                 const ltrCount = ltrChars.length;
 
                 let direction = 'ltr';
-                if (rtlCount > 0 && (ltrCount === 0 || rtlCount >= Math.max(3, ltrCount * 0.35))) {
+                if (rtlCount > 0 && (ltrCount === 0 || rtlCount >= Math.max(3, ltrCount * 0.25))) {
                     direction = 'rtl';
                 }
 
-                // Persian has letters that do not normally occur in Arabic.
-                // Prefer fa when those characters are present; otherwise use ar
-                // for Arabic-script RTL documents.
-                const isPersian = /[\u067E\u0686\u0698\u06AF\u06A9\u06CC\u06C0\u06C1]/.test(markdown);
-                const language = direction === 'rtl' ? (isPersian ? 'fa' : 'ar') : 'en';
+                // Persian specific characters:
+                // پ چ ژ گ (\u067E, \u0686, \u0698, \u06AF), Persian Kaf \u06A9, Persian Yeh \u06CC,
+                // Persian numbers \u06F0-\u06F9 (۰۱۲۳۴۵۶۷۸۹), ZWNJ \u200C (نیم‌فاصله)
+                const hasPersianChars = /[\u067E\u0686\u0698\u06AF\u06A9\u06CC\u06F0-\u06F9\u200C]/.test(markdown);
+                const hasPersianWords = /(?:^|[\s«"'(])(?:این|آن|است|در|به|با|برای|که|یک|از|شد|می|یا|رو|ها|های|هایش|بود|شود|دارد|گفت|کند|باشند|سلام|فارسی)(?:[\s»"')!؟.,؛]|$)/.test(markdown);
+
+                // Arabic specific characters:
+                // ة (\u0629), ك (\u0643), ي (\u064A), ى (\u0649), ؤ (\u0624), ئ (\u0626),
+                // Arabic numbers \u0660-\u0669 (٠١٢٣٤٥٦٧٨٩), Tashkeel \u064B-\u0652
+                const hasArabicChars = /[\u0629\u0643\u064A\u0649\u0624\u0626\u0660-\u0669\u064B-\u0652]/.test(markdown);
+                const hasArabicWords = /(?:^|[\s«"'(])(?:في|من|على|إلى|أن|هذا|هذه|التي|الذي|تم|كان|عن|ما|لا|هو|هي|مع|أو|كل|لقد|العربية)(?:[\s»"')!؟.,؛]|$)/.test(markdown);
+
+                let language = 'en';
+                if (direction === 'rtl') {
+                    if (hasPersianChars || hasPersianWords) {
+                        language = 'fa';
+                    } else if (hasArabicChars || hasArabicWords) {
+                        language = 'ar';
+                    } else {
+                        language = 'fa';
+                    }
+                }
                 return { direction, language };
+            }
+
+            function updateDirectionButtonLabel() {
+                const dirBtn = document.getElementById('direction-btn');
+                if (!dirBtn) return;
+                const mode = state.settings.directionMode || 'auto';
+                const effDir = state.settings.documentDirection || 'ltr';
+                const effLang = state.settings.documentLanguage || 'en';
+                const langLabel = effLang === 'fa' ? 'فارسی' : (effLang === 'ar' ? 'العربية' : 'EN');
+                if (mode === 'auto') {
+                    dirBtn.textContent = '⇄ Dir: Auto (' + effDir.toUpperCase() + '·' + langLabel + ')';
+                    dirBtn.title = 'Text Direction: Auto-detected as ' + effDir.toUpperCase() + ' (' + langLabel + ') — click to toggle';
+                } else if (mode === 'rtl') {
+                    dirBtn.textContent = '⇄ Dir: RTL (' + langLabel + ')';
+                    dirBtn.title = 'Text Direction: Fixed RTL (' + langLabel + ') — click to toggle';
+                } else {
+                    dirBtn.textContent = '⇄ Dir: LTR (LTR)';
+                    dirBtn.title = 'Text Direction: Fixed LTR — click to toggle';
+                }
             }
 
             function applyDocumentDirection(markdown) {
                 const detected = detectDocumentLanguageAndDirection(markdown);
-                state.settings.documentDirection = detected.direction;
-                state.settings.documentLanguage = detected.language;
+                const dirMode = state.settings.directionMode || 'auto';
+                const langMode = state.settings.languageMode || 'auto';
 
-                previewEl.setAttribute('dir', detected.direction);
-                previewEl.setAttribute('lang', detected.language);
-                editorEl.setAttribute('dir', detected.direction);
-                editorEl.setAttribute('lang', detected.language);
+                const effectiveDir = dirMode !== 'auto' ? dirMode : detected.direction;
+                const effectiveLang = langMode !== 'auto' ? langMode : (effectiveDir === 'rtl' ? detected.language : 'en');
+
+                state.settings.documentDirection = effectiveDir;
+                state.settings.documentLanguage = effectiveLang;
+
+                previewEl.setAttribute('dir', effectiveDir);
+                previewEl.setAttribute('lang', effectiveLang);
+
+                editorEl.setAttribute('dir', dirMode === 'auto' ? 'auto' : dirMode);
+                editorEl.setAttribute('lang', effectiveLang);
+
+                updateDirectionButtonLabel();
+            }
+
+            function toggleDirection() {
+                const current = state.settings.directionMode || 'auto';
+                let next = 'rtl';
+                if (current === 'auto') next = 'rtl';
+                else if (current === 'rtl') next = 'ltr';
+                else if (current === 'ltr') next = 'auto';
+
+                state.settings.directionMode = next;
+                saveSettings();
+                applyDocumentDirection(editorEl.value);
+                updatePrintStyles();
+                state.lastRendered = '';
+                renderPreview();
+
+                const msgs = {
+                    rtl: '⇄ Direction set to Right-to-Left (Persian / Arabic)',
+                    ltr: '⇄ Direction set to Left-to-Right (LTR)',
+                    auto: '⇄ Direction set to Auto-detect'
+                };
+                showToast(msgs[next]);
             }
 
             // ── Render preview ─────────────────────
@@ -3267,8 +3714,9 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
                     // not arbitrary user HTML.
                     ADD_TAGS: ['foreignObject'],
                     ADD_ATTR: ['xmlns', 'dominant-baseline', 'alignment-baseline', 'marker-end',
-                        'marker-start', 'marker-mid'
+                        'marker-start', 'marker-mid', 'loading', 'alt', 'title', 'width', 'height'
                     ],
+                    ADD_DATA_URI_TAGS: ['img'],
                 });
 
                 previewEl.innerHTML = html;
@@ -3665,6 +4113,44 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
             right: auto !important;
             left: 8px !important;
           }
+          .preview-container[dir="rtl"] table th,
+          .preview-container[dir="rtl"] table td {
+            text-align: right !important;
+          }
+          .preview-container[dir="rtl"] .katex {
+            direction: ltr !important;
+            unicode-bidi: isolate !important;
+            display: inline-block !important;
+          }
+          .preview-container[dir="rtl"] .katex-display {
+            direction: ltr !important;
+            text-align: center !important;
+          }
+          .preview-container[dir="rtl"] ul,
+          .preview-container[dir="rtl"] ol {
+            padding-left: 0 !important;
+            padding-right: 1.8em !important;
+          }
+          .preview-container[dir="rtl"] .toc-container {
+            direction: rtl !important;
+            text-align: right !important;
+          }
+          .preview-container[dir="rtl"] .toc-container ul {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+          }
+          .preview-container[dir="rtl"] .toc-container ul ul {
+            padding-left: 0 !important;
+            padding-right: 1.2em !important;
+          }
+          .preview-container[dir="rtl"] .footnotes {
+            direction: rtl !important;
+            text-align: right !important;
+          }
+          .preview-container[dir="rtl"] .footnotes ol {
+            padding-left: 0 !important;
+            padding-right: 1.8em !important;
+          }
           .preview-container .mermaid-rendered,
           .preview-container .mermaid {
             width: 100% !important;
@@ -3688,6 +4174,16 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
             break-inside: avoid !important;
             page-break-inside: avoid !important;
           }
+          .preview-container img {
+            max-width: 100% !important;
+            max-height: ${box.height}px !important;
+            object-fit: contain !important;
+            display: block !important;
+            margin: 1.2em auto !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+            box-shadow: none !important;
+          }
         }`;
             }
 
@@ -3701,6 +4197,8 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
                 document.getElementById('setting-font-family').value = s.fontFamily;
                 document.getElementById('setting-font-size').value = s.fontSize;
                 document.getElementById('setting-line-height').value = s.lineHeight;
+                document.getElementById('setting-direction-mode').value = s.directionMode || 'auto';
+                document.getElementById('setting-language-mode').value = s.languageMode || 'auto';
                 document.getElementById('setting-code-theme').value = s.codeTheme;
                 document.getElementById('setting-mermaid-theme').value = s.mermaidTheme || 'default';
                 document.getElementById('setting-toc').value = s.tocEnabled ? 'enabled' : 'disabled';
@@ -3727,6 +4225,8 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
                 state.settings.fontFamily = document.getElementById('setting-font-family').value;
                 state.settings.fontSize = parseInt(document.getElementById('setting-font-size').value) || 11;
                 state.settings.lineHeight = parseFloat(document.getElementById('setting-line-height').value) || 1.6;
+                state.settings.directionMode = document.getElementById('setting-direction-mode').value;
+                state.settings.languageMode = document.getElementById('setting-language-mode').value;
                 state.settings.codeTheme = document.getElementById('setting-code-theme').value;
                 state.settings.mermaidTheme = document.getElementById('setting-mermaid-theme').value;
                 state.settings.tocEnabled = document.getElementById('setting-toc').value === 'enabled';
@@ -3739,6 +4239,7 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
                 state.settings.headerText = document.getElementById('setting-header-text').value.trim();
                 saveSettings();
                 applyPreviewSettings();
+                applyDocumentDirection(editorEl.value);
                 updatePrintStyles();
                 requestAnimationFrame(() => fitAllMermaidDiagramsToPrintPage());
                 state.lastRendered = '';
@@ -3750,10 +4251,18 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
             // ── Export functions ────────────────────
             function exportPDF() {
                 const unrenderedMermaids = previewEl.querySelectorAll('pre.mermaid-source:not([data-mermaid-rendered="true"])');
-                if (unrenderedMermaids.length > 0 || mermaidRenderPromise) {
-                    showToast('⏳ Rendering diagrams… Please wait and try again.');
+                const uncompletedImgs = Array.from(previewEl.querySelectorAll('img')).filter(img => !img.complete);
+
+                if (unrenderedMermaids.length > 0 || mermaidRenderPromise || uncompletedImgs.length > 0) {
+                    showToast('⏳ Preparing document & images…');
                     renderMermaidDiagrams();
-                    Promise.resolve(mermaidRenderPromise).finally(() => window.print());
+                    const imgPromises = uncompletedImgs.map(img => new Promise(res => {
+                        img.onload = res;
+                        img.onerror = res;
+                    }));
+                    Promise.all([Promise.resolve(mermaidRenderPromise), ...imgPromises]).finally(() => {
+                        window.print();
+                    });
                 } else {
                     window.print();
                 }
@@ -3762,34 +4271,33 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
             function exportHTML() {
                 const htmlContent = previewEl.innerHTML;
                 const documentDir = state.settings.documentDirection === 'rtl' ? 'rtl' : 'ltr';
-                const documentLang = state.settings.documentLanguage || (documentDir === 'rtl' ? 'ar' : 'en');
+                const documentLang = state.settings.documentLanguage || (documentDir === 'rtl' ? 'fa' : 'en');
                 const fullHTML = `<!DOCTYPE html>
         <html lang="${documentLang}" dir="${documentDir}">
         <head><meta charset="UTF-8"><title>Exported Document</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Noto+Sans+Arabic:wght@400;500;600;700&family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
         <style>
         body { font-family: ${state.settings.fontFamily}; font-size: ${state.settings.fontSize}pt; line-height: ${state.settings.lineHeight}; max-width: 800px; margin: 40px auto; padding: 0 20px; color: #1a1a2e; direction: ${documentDir}; text-align: ${documentDir === 'rtl' ? 'right' : 'left'}; }
         pre, code { direction: ltr; text-align: left; unicode-bidi: isolate; }
         pre { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 16px; overflow-x: auto; }
         code { font-family: 'SF Mono','Consolas','Monaco',monospace; font-size: 0.88em; }
-        table { border-collapse: collapse; width: 100%; } table th, table td { border: 1px solid #dee2e6; padding: 8px 12px; text-align: start; } table th { background: #f1f3f5; }
+        img { max-width: 100%; height: auto; display: block; margin: 1.2em auto; border-radius: 6px; page-break-inside: avoid; }
+        table { border-collapse: collapse; width: 100%; } table th, table td { border: 1px solid #dee2e6; padding: 8px 12px; text-align: ${documentDir === 'rtl' ? 'right' : 'start'}; } table th { background: #f1f3f5; }
         a { color: #4c6ef5; } .toc-container { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 16px 20px; margin: 1em 0; page-break-after:always; }
         .cover-page { text-align:center; padding:60px 20px; border-bottom:3px double #ccc; margin-bottom:2em; page-break-after:always; }
-        .document-header { display:block; width:100%; box-sizing:border-box; margin:0 0 1.4em 0; padding:0 0 7px 0; border-bottom:1px solid #dee2e6; color:#495057; font-family:Arial,sans-serif; font-size:.82em; font-weight:600; letter-spacing:.02em; }
+        .document-header { display:block; width:100%; box-sizing:border-box; margin:0 0 1.4em 0; padding:0 0 7px 0; border-bottom:1px solid #dee2e6; color:#495057; font-size:.82em; font-weight:600; }
         .cover-page .cover-title { font-size:2.4em; font-weight:700; } .cover-page .cover-subtitle { font-size:1.3em; color:#495057; font-style:italic; }
         .pagebreak-marker { page-break-after:always; border-top:2px dashed #dee2e6; margin:2em 0; text-align:center; color:#adb5bd; }
         h1, h2, h3, h4 { page-break-after:avoid; }
         .md-note { margin:1em 0; padding:.8em 1em; border-left:5px solid #adb5bd; background:#f8f9fa; border-radius:0 7px 7px 0; break-inside:avoid; page-break-inside:avoid; color:#1a1a2e; }
-        body[dir="rtl"] .md-note { border-left:0; border-right:5px solid #adb5bd; border-radius:7px 0 0 7px; }
-        body[dir="rtl"] blockquote { border-left:0; border-right:4px solid #4c6ef5; border-radius:5px 0 0 5px; padding:8px 16px; }
-        body[dir="rtl"] .md-note-definition { border-right-color:#2563eb; }
-        body[dir="rtl"] .md-note-important { border-right-color:#7c3aed; }
-        body[dir="rtl"] .md-note-example { border-right-color:#16a34a; }
-        body[dir="rtl"] .md-note-tip { border-right-color:#ea580c; }
-        body[dir="rtl"] .md-note-warning { border-right-color:#dc2626; }
-        body[dir="rtl"] .md-note-note { border-right-color:#0891b2; }
-        body[dir="rtl"] .md-note-exam { border-right-color:#db2777; }
-        body[dir="rtl"] .md-note-reminder { border-right-color:#ca8a04; }
-        body[dir="rtl"] .md-note-secondary { border-right-color:#6b7280; }
+        body[dir="rtl"] .md-note { border-left:0; border-right:5px solid #adb5bd; border-radius:7px 0 0 7px; text-align:right; }
+        body[dir="rtl"] blockquote { border-left:0; border-right:4px solid #4c6ef5; border-radius:5px 0 0 5px; padding:8px 16px 8px 8px; }
+        body[dir="rtl"] ul, body[dir="rtl"] ol { padding-left:0; padding-right:1.8em; }
+        body[dir="rtl"] .katex { direction:ltr; unicode-bidi:isolate; display:inline-block; }
+        body[dir="rtl"] .katex-display { direction:ltr; text-align:center; }
         .md-note-definition { border-left-color:#2563eb; background:#eff6ff; }
         .md-note-important { border-left-color:#7c3aed; background:#f5f3ff; }
         .md-note-example { border-left-color:#16a34a; background:#f0fdf4; }
@@ -3799,7 +4307,16 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
         .md-note-exam { border-left-color:#db2777; background:#fdf2f8; }
         .md-note-reminder { border-left-color:#ca8a04; background:#fefce8; }
         .md-note-secondary { border-left-color:#6b7280; background:#f8fafc; }
-        .mermaid-rendered, .mermaid { max-width:100%; overflow:hidden; text-align:center; page-break-inside:avoid; }
+        body[dir="rtl"] .md-note-definition { border-right-color:#2563eb; }
+        body[dir="rtl"] .md-note-important { border-right-color:#7c3aed; }
+        body[dir="rtl"] .md-note-example { border-right-color:#16a34a; }
+        body[dir="rtl"] .md-note-tip { border-right-color:#ea580c; }
+        body[dir="rtl"] .md-note-warning { border-right-color:#dc2626; }
+        body[dir="rtl"] .md-note-note { border-right-color:#0891b2; }
+        body[dir="rtl"] .md-note-exam { border-right-color:#db2777; }
+        body[dir="rtl"] .md-note-reminder { border-right-color:#ca8a04; }
+        body[dir="rtl"] .md-note-secondary { border-right-color:#6b7280; }
+        .mermaid-rendered, .mermaid { max-width:100%; overflow:hidden; text-align:center; page-break-inside:avoid; direction:ltr; }
         .mermaid-rendered svg, .mermaid svg { max-width:100% !important; height:auto !important; }
 </style></head><body dir="${documentDir}" lang="${documentLang}">${htmlContent}</body></html>`;
 const blob = new Blob([fullHTML], { type: 'text/html;charset=utf-8' });
@@ -3811,18 +4328,20 @@ URL.revokeObjectURL(url); showToast('✅ HTML exported');
 function exportDOCX() {
 const htmlContent = previewEl.innerHTML;
 const documentDir = state.settings.documentDirection === 'rtl' ? 'rtl' : 'ltr';
-const documentLang = state.settings.documentLanguage || (documentDir === 'rtl' ? 'ar' : 'en');
+const documentLang = state.settings.documentLanguage || (documentDir === 'rtl' ? 'fa' : 'en');
 const docHTML = `<!DOCTYPE html>
 <html lang="${documentLang}" dir="${documentDir}"><head><meta charset="UTF-8"><style>
 body { font-family: ${state.settings.fontFamily}; font-size: ${state.settings.fontSize}pt; line-height: ${state.settings.lineHeight}; direction: ${documentDir}; text-align: ${documentDir === 'rtl' ? 'right' : 'left'}; }
 pre, code { direction: ltr; text-align: left; unicode-bidi: isolate; }
 pre { background: #f8f9fa; border: 1px solid #e9ecef; padding: 12px; } table { border-collapse: collapse; width: 100%; }
-table th, table td { border: 1px solid #000; padding: 6px 10px; text-align: start; } .toc-container { background: #f8f9fa; border: 1px solid #e9ecef; padding: 12px 16px; page-break-after:always; }
+img { max-width: 100%; height: auto; display: block; margin: 1.2em auto; }
+table th, table td { border: 1px solid #000; padding: 6px 10px; text-align: ${documentDir === 'rtl' ? 'right' : 'start'}; } .toc-container { background: #f8f9fa; border: 1px solid #e9ecef; padding: 12px 16px; page-break-after:always; }
 .cover-page { text-align:center; padding:60px 20px; border-bottom:3px double #ccc; margin-bottom:2em; page-break-after:always; }
 .pagebreak-marker { page-break-after:always; } h1, h2, h3, h4 { page-break-after:avoid; }
 .md-note { margin:1em 0; padding:.8em 1em; border-left:5px solid #adb5bd; background:#f8f9fa; border-radius:0 7px 7px 0; break-inside:avoid; page-break-inside:avoid; color:#1a1a2e; }
-body[dir="rtl"] .md-note { border-left:0; border-right:5px solid #adb5bd; border-radius:7px 0 0 7px; }
-body[dir="rtl"] blockquote { border-left:0; border-right:4px solid #4c6ef5; border-radius:5px 0 0 5px; padding:8px 16px; }
+body[dir="rtl"] .md-note { border-left:0; border-right:5px solid #adb5bd; border-radius:7px 0 0 7px; text-align:right; }
+body[dir="rtl"] blockquote { border-left:0; border-right:4px solid #4c6ef5; border-radius:5px 0 0 5px; padding:8px 16px 8px 8px; }
+body[dir="rtl"] ul, body[dir="rtl"] ol { padding-left:0; padding-right:1.8em; }
 body[dir="rtl"] .md-note-definition { border-right-color:#2563eb; }
 body[dir="rtl"] .md-note-important { border-right-color:#7c3aed; }
 body[dir="rtl"] .md-note-example { border-right-color:#16a34a; }
@@ -3841,7 +4360,7 @@ body[dir="rtl"] .md-note-secondary { border-right-color:#6b7280; }
 .md-note-exam { border-left-color:#db2777; background:#fdf2f8; }
 .md-note-reminder { border-left-color:#ca8a04; background:#fefce8; }
 .md-note-secondary { border-left-color:#6b7280; background:#f8fafc; }
-.mermaid-rendered, .mermaid { max-width:100%; overflow:hidden; text-align:center; page-break-inside:avoid; }
+.mermaid-rendered, .mermaid { max-width:100%; overflow:hidden; text-align:center; page-break-inside:avoid; direction:ltr; }
 .mermaid-rendered svg, .mermaid svg { max-width:100% !important; height:auto !important; }
 </style></head><body dir="${documentDir}" lang="${documentLang}">${htmlContent}</body></html>`;
 const blob = new Blob([docHTML], { type: 'application/msword;charset=utf-8' });
@@ -4021,30 +4540,266 @@ showToast('⚠️ Please press Ctrl+C to copy the selected prompt');
 }
 }
 
-// ── Drag & drop ──────────────────────────
-function setupDragDrop() {
-document.addEventListener('dragover', e => e.preventDefault());
-document.addEventListener('drop', e => {
-e.preventDefault();
-const file = e.dataTransfer.files[0];
-if (file && (file.name.endsWith('.md') || file.name.endsWith('.markdown') || file.name.endsWith('.txt'))) {
-const reader = new FileReader();
-reader.onload = ev => { editorEl.value = ev.target.result;
-state.lastRendered = ''; renderPreview();
-showToast('📂 File dropped: ' + file.name); };
-reader.readAsText(file);
-}
-});
-editorEl.addEventListener('dragover', e => { e.preventDefault();
-editorEl.style.boxShadow = 'inset 0 0 0 3px var(--accent)'; });
-editorEl.addEventListener('dragleave', () => { editorEl.style.boxShadow = ''; });
-editorEl.addEventListener('drop', e => { e.preventDefault();
-editorEl.style.boxShadow = ''; const file = e.dataTransfer.files[0]; if (file) { const reader = new FileReader();
-reader.onload = ev => { editorEl.value = ev.target.result;
-state.lastRendered = ''; renderPreview();
-showToast('📂 File dropped: ' + file.name); };
-reader.readAsText(file); } });
-}
+            // ── Image Handling & Modal ────────────────
+            let pendingImageFile = null;
+            let pendingImageDataUrl = null;
+
+            function isImageFile(file) {
+                if (!file) return false;
+                return file.type.startsWith('image/') || /\.(png|jpe?g|gif|webp|svg|bmp|ico)$/i.test(file.name);
+            }
+
+            function isMarkdownFile(file) {
+                if (!file) return false;
+                return /\.(md|markdown|txt)$/i.test(file.name);
+            }
+
+            function cleanImageName(name) {
+                if (!name) return 'Image';
+                return name.replace(/\.[^/.]+$/, '').replace(/[-_]+/g, ' ').trim();
+            }
+
+            function readFileAsDataURL(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            function insertTextAtCursor(text) {
+                const start = editorEl.selectionStart ?? editorEl.value.length;
+                const end = editorEl.selectionEnd ?? editorEl.value.length;
+                const before = editorEl.value.substring(0, start);
+                const after = editorEl.value.substring(end);
+
+                let prefix = '';
+                if (before.length > 0 && !before.endsWith('\n\n')) {
+                    prefix = before.endsWith('\n') ? '\n' : '\n\n';
+                }
+                let suffix = '';
+                if (after.length > 0 && !after.startsWith('\n')) {
+                    suffix = '\n\n';
+                }
+
+                const inserted = prefix + text + suffix;
+                editorEl.value = before + inserted + after;
+                const newPos = start + inserted.length;
+                editorEl.selectionStart = newPos;
+                editorEl.selectionEnd = newPos;
+                editorEl.focus();
+
+                state.lastRendered = '';
+                renderPreview();
+                updateLineNumbers();
+                updateStats();
+                saveDocument(editorEl.value);
+            }
+
+            async function insertImagesIntoEditor(imageFiles) {
+                if (!imageFiles || imageFiles.length === 0) return;
+                showToast(`⏳ Processing ${imageFiles.length} image${imageFiles.length > 1 ? 's' : ''}…`);
+                try {
+                    const snippets = [];
+                    for (const file of imageFiles) {
+                        const dataUrl = await readFileAsDataURL(file);
+                        const alt = cleanImageName(file.name);
+                        snippets.push(`![${alt}](${dataUrl})`);
+                    }
+                    insertTextAtCursor(snippets.join('\n\n'));
+                    showToast(`🖼️ ${imageFiles.length} image${imageFiles.length > 1 ? 's' : ''} inserted`);
+                } catch (err) {
+                    console.error('Error inserting images:', err);
+                    showToast('⚠️ Failed to load image');
+                }
+            }
+
+            function openImageModal() {
+                clearModalImage();
+                document.getElementById('image-alt-input').value = '';
+                document.getElementById('image-url-input').value = '';
+                imageModal.classList.add('active');
+            }
+
+            function closeImageModal() {
+                imageModal.classList.remove('active');
+                clearModalImage();
+            }
+
+            function clearModalImage() {
+                pendingImageFile = null;
+                pendingImageDataUrl = null;
+                const card = document.getElementById('image-preview-card');
+                if (card) card.classList.remove('visible');
+                const thumb = document.getElementById('image-preview-thumb');
+                if (thumb) thumb.src = '';
+                if (imageFileInput) imageFileInput.value = '';
+            }
+
+            async function setModalImage(file) {
+                if (!isImageFile(file)) {
+                    showToast('⚠️ Please select a valid image file');
+                    return;
+                }
+                try {
+                    pendingImageFile = file;
+                    pendingImageDataUrl = await readFileAsDataURL(file);
+                    const thumb = document.getElementById('image-preview-thumb');
+                    const name = document.getElementById('image-preview-name');
+                    const size = document.getElementById('image-preview-size');
+                    const card = document.getElementById('image-preview-card');
+                    const altInput = document.getElementById('image-alt-input');
+
+                    if (thumb) thumb.src = pendingImageDataUrl;
+                    if (name) name.textContent = file.name;
+                    if (size) size.textContent = `${(file.size / 1024).toFixed(1)} KB`;
+                    if (card) card.classList.add('visible');
+                    if (altInput && !altInput.value.trim()) {
+                        altInput.value = cleanImageName(file.name);
+                    }
+                } catch (err) {
+                    showToast('⚠️ Could not preview image');
+                }
+            }
+
+            function handleImageFileInputChange(e) {
+                const files = e.target.files;
+                if (files && files.length > 0) {
+                    if (files.length === 1) {
+                        setModalImage(files[0]);
+                    } else {
+                        insertImagesIntoEditor(Array.from(files));
+                        closeImageModal();
+                    }
+                }
+            }
+
+            function insertImageFromModal() {
+                const altInput = document.getElementById('image-alt-input');
+                const urlInput = document.getElementById('image-url-input');
+                const altText = altInput?.value?.trim() || (pendingImageFile ? cleanImageName(pendingImageFile.name) : 'Image');
+                const webUrl = urlInput?.value?.trim();
+
+                if (pendingImageDataUrl) {
+                    insertTextAtCursor(`![${altText}](${pendingImageDataUrl})`);
+                    closeImageModal();
+                    showToast('🖼️ Image inserted');
+                } else if (webUrl) {
+                    insertTextAtCursor(`![${altText}](${webUrl})`);
+                    closeImageModal();
+                    showToast('🖼️ Image link inserted');
+                } else {
+                    showToast('⚠️ Select an image or provide an image URL');
+                }
+            }
+
+            function triggerImageUpload() {
+                if (imageFileInput) imageFileInput.click();
+            }
+
+            // ── Drag & drop and Clipboard Paste ───────
+            function setupDragDrop() {
+                const overlay = document.getElementById('editor-drop-overlay');
+
+                document.addEventListener('dragover', e => e.preventDefault());
+                document.addEventListener('drop', e => e.preventDefault());
+
+                let dragCounter = 0;
+                function showOverlay() {
+                    dragCounter++;
+                    if (overlay) overlay.classList.add('active');
+                    if (editorEl) editorEl.style.boxShadow = 'inset 0 0 0 3px var(--accent)';
+                }
+                function hideOverlay() {
+                    dragCounter = Math.max(0, dragCounter - 1);
+                    if (dragCounter === 0) {
+                        if (overlay) overlay.classList.remove('active');
+                        if (editorEl) editorEl.style.boxShadow = '';
+                    }
+                }
+
+                if (editorWrapperEl) {
+                    editorWrapperEl.addEventListener('dragenter', e => {
+                        e.preventDefault();
+                        showOverlay();
+                    });
+                    editorWrapperEl.addEventListener('dragover', e => {
+                        e.preventDefault();
+                    });
+                    editorWrapperEl.addEventListener('dragleave', e => {
+                        e.preventDefault();
+                        hideOverlay();
+                    });
+                    editorWrapperEl.addEventListener('drop', e => {
+                        e.preventDefault();
+                        dragCounter = 0;
+                        if (overlay) overlay.classList.remove('active');
+                        if (editorEl) editorEl.style.boxShadow = '';
+
+                        const files = Array.from(e.dataTransfer?.files || []);
+                        if (files.length === 0) return;
+
+                        const images = files.filter(isImageFile);
+                        const docs = files.filter(isMarkdownFile);
+
+                        if (images.length > 0) {
+                            insertImagesIntoEditor(images);
+                        } else if (docs.length > 0) {
+                            const reader = new FileReader();
+                            reader.onload = ev => {
+                                editorEl.value = ev.target.result;
+                                state.lastRendered = '';
+                                renderPreview();
+                                updateLineNumbers();
+                                updateStats();
+                                saveDocument(editorEl.value);
+                                showToast('📂 File loaded: ' + docs[0].name);
+                            };
+                            reader.readAsText(docs[0]);
+                        } else {
+                            showToast('⚠️ Unsupported file type (use Markdown or Images)');
+                        }
+                    });
+                }
+
+                // Support dropping directly on preview pane
+                previewEl.addEventListener('dragover', e => {
+                    e.preventDefault();
+                });
+                previewEl.addEventListener('drop', e => {
+                    e.preventDefault();
+                    const files = Array.from(e.dataTransfer?.files || []);
+                    const images = files.filter(isImageFile);
+                    if (images.length > 0) {
+                        insertImagesIntoEditor(images);
+                    }
+                });
+
+                // Clipboard paste support (screenshots, copied images, files)
+                editorEl.addEventListener('paste', e => {
+                    const items = e.clipboardData?.items;
+                    if (!items || items.length === 0) return;
+
+                    const imageFiles = [];
+                    for (let i = 0; i < items.length; i++) {
+                        const item = items[i];
+                        if (item.type && item.type.indexOf('image') !== -1) {
+                            const blob = item.getAsFile();
+                            if (blob) {
+                                const ext = blob.type.split('/')[1] || 'png';
+                                const file = new File([blob], `pasted_image_${Date.now()}.${ext}`, { type: blob.type });
+                                imageFiles.push(file);
+                            }
+                        }
+                    }
+
+                    if (imageFiles.length > 0) {
+                        e.preventDefault();
+                        insertImagesIntoEditor(imageFiles);
+                    }
+                });
+            }
 
 // ── Draggable divider ────────────────────
 function setupDivider() {
@@ -4097,6 +4852,28 @@ document.getElementById('cover-fields-group').classList.toggle('visible', this.v
 });
 settingsModal.addEventListener('click', e => { if (e.target === settingsModal) closeSettingsModal(); });
 promptModal.addEventListener('click', e => { if (e.target === promptModal) closePromptGenerator(); });
+if (imageModal) {
+    imageModal.addEventListener('click', e => { if (e.target === imageModal) closeImageModal(); });
+}
+if (imageFileInput) {
+    imageFileInput.addEventListener('change', handleImageFileInputChange);
+}
+const modalDropzone = document.getElementById('modal-image-dropzone');
+if (modalDropzone) {
+    modalDropzone.addEventListener('dragover', e => {
+        e.preventDefault();
+        modalDropzone.classList.add('dragover');
+    });
+    modalDropzone.addEventListener('dragleave', () => {
+        modalDropzone.classList.remove('dragover');
+    });
+    modalDropzone.addEventListener('drop', e => {
+        e.preventDefault();
+        modalDropzone.classList.remove('dragover');
+        const file = e.dataTransfer?.files?.[0];
+        if (file) setModalImage(file);
+    });
+}
 // Prompt dropdown change
 const promptSelect = document.getElementById('prompt-select');
 if (promptSelect) {
@@ -4358,6 +5135,7 @@ You can also copy rendered HTML or copy individual code blocks.
 - [x] Configurable paper size and orientation
 - [x] Configurable margins and typography
 - [x] Optional cover page
+- [x] Embedded images (drag & drop, paste, or local upload)
 - [x] PDF, HTML, DOC, and Markdown export
 
 [reminder]
@@ -4403,6 +5181,7 @@ copyCodeBlock,
 clearAll,
 openGitHub,
 toggleTheme,
+toggleDirection,
 toggleSettings: openSettingsModal,
 closeSettings: closeSettingsModal,
 applySettings: applySettingsFromModal,
@@ -4410,6 +5189,11 @@ fullscreenPane,
 openPromptGenerator,
 closePromptGenerator,
 copyPrompt,
+openImageModal,
+closeImageModal,
+insertImageFromModal,
+clearModalImage,
+triggerImageUpload,
 };
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

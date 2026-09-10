@@ -57,6 +57,8 @@ Rather than creating dozens of half-finished tools, I'd rather build a smaller c
 > A modern Markdown editor focused on creating beautiful documents.
 
 * ✍️ Live Markdown editor & real-time preview
+* 🖼️ Seamless image support: drag & drop into editor, direct clipboard paste (<kbd>Ctrl+V</kbd>), or insert modal (embedded into PDF & HTML)
+* 🌐 Native Persian & Arabic support (Vazirmatn, Amiri, Noto Sans Arabic fonts & smart RTL detection)
 * 📄 Export to PDF, HTML, and DOCX
 * 🧮 KaTeX math & 📊 Mermaid diagram support
 * 🎨 Syntax highlighting & automatic Table of Contents

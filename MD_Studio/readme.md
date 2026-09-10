@@ -9,6 +9,9 @@ A modern browser-based Markdown editor with live preview and professional docume
 - 📝 Live Markdown editor
 - 👀 Real-time preview
 - 🔄 Bi-directional double-click sync (navigate seamlessly between editor and preview)
+- 🖼️ Seamless image support: drag & drop images into editor, paste screenshots directly (<kbd>Ctrl+V</kbd>), or insert via modal / URL (embedded into PDF, HTML & Markdown)
+- 🌐 Native Persian & Arabic support with RTL typography (Vazirmatn, Amiri, Noto Sans Arabic)
+- ⇄ Intelligent auto-direction detection & quick toolbar toggle (Auto / RTL / LTR)
 - 📄 Export to PDF
 - 🌐 Export to HTML
 - 📄 Export to DOCX
@@ -16,7 +19,7 @@ A modern browser-based Markdown editor with live preview and professional docume
 - 📊 Mermaid diagrams
 - 🎨 Light & Dark themes
 - 🔍 Search & Replace
-- 📑 Automatic Table of Contents
+- 📑 Automatic Table of Contents with Unicode anchors & localized titles
 - 💻 Syntax highlighting
 - 📱 Responsive design
 
