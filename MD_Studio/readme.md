@@ -10,11 +10,11 @@ A modern browser-based Markdown editor with live preview and professional docume
 - 👀 Real-time preview
 - 🔄 Bi-directional double-click sync (navigate seamlessly between editor and preview)
 - 🖼️ Seamless image support: drag & drop images into editor, paste screenshots directly (<kbd>Ctrl+V</kbd>), or insert via modal / URL (embedded into PDF, HTML & Markdown)
-- 🌐 Native Persian & Arabic support with RTL typography (Vazirmatn, Amiri, Noto Sans Arabic)
-- ⇄ Intelligent auto-direction detection & quick toolbar toggle (Auto / RTL / LTR)
-- 📄 Export to PDF
-- 🌐 Export to HTML
-- 📄 Export to DOCX
+- 📤 Unified Export Hub: streamlined dropdown for PDF, Markdown (.md), HTML (.html), and Word (.doc)
+- ⌨️ Intuitive shortcuts: <kbd>Ctrl+S</kbd> to save Markdown, <kbd>Ctrl+P</kbd> to print/export PDF, <kbd>Ctrl+O</kbd> to open files
+- 🎨 Multiple Cover Page Designs: Classic Minimalist, Modern Accent, Academic Formal, Executive Framed, and Technical Specification
+- 🔤 Comprehensive Typography: Extended Google Fonts selection (Inter, Plus Jakarta Sans, Outfit, Merriweather, Lora, EB Garamond, JetBrains Mono, Fira Code, and specialized RTL fonts)
+- 🌐 Persian & Arabic RTL support with smart auto-detection & typography
 - 📐 KaTeX math rendering
 - 📊 Mermaid diagrams
 - 🎨 Light & Dark themes

@@ -7,10 +7,10 @@
 
     <!-- KaTeX CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-    <!-- Persian & Arabic Web Fonts: Vazirmatn (Modern UI/Doc), Amiri (Naskh Serif), Noto Sans Arabic -->
+    <!-- Web Fonts: English (Sans, Serif, Monospace) & Persian/Arabic -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Noto+Sans+Arabic:wght@400;500;600;700&family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Lato:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400;0,600;1,400&family=Merriweather:ital,wght@0,400;0,700;1,400&family=Montserrat:ital,wght@0,400;0,600;0,700;1,400&family=Open+Sans:ital,wght@0,400;0,600;1,400&family=Outfit:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Roboto:ital,wght@0,400;0,500;0,700;1,400&family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;600;700&family=Noto+Sans+Arabic:wght@400;500;600;700&family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- highlight.js CSS themes — light themes only -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" id="hljs-theme-github" class="hljs-theme-link">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css" id="hljs-theme-atom-one-light" class="hljs-theme-link" disabled>
@@ -147,10 +147,13 @@
             background: var(--bg);
             color: var(--text);
             transition: background var(--transition), color var(--transition);
+            display: flex;
+            flex-direction: column;
         }
 
         /* ── Toolbar ───────────────────── */
         .toolbar {
+            position: relative;
             height: var(--toolbar-height);
             display: flex;
             align-items: center;
@@ -161,8 +164,7 @@
             z-index: 100;
             flex-shrink: 0;
             flex-wrap: nowrap;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
+            overflow: visible;
         }
         .toolbar::-webkit-scrollbar {
             height: 3px;
@@ -256,12 +258,112 @@
             font-weight: 500;
         }
 
+        /* ── Export Dropdown ───────────────── */
+        .dropdown-wrapper {
+            position: relative;
+            display: inline-flex;
+            flex-shrink: 0;
+            z-index: 105;
+        }
+        .dropdown-trigger {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .dropdown-caret {
+            font-size: 10px;
+            transition: transform var(--transition);
+        }
+        .dropdown-wrapper.open .dropdown-caret {
+            transform: rotate(180deg);
+        }
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            z-index: 1000;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16), 0 2px 6px rgba(0, 0, 0, 0.08);
+            min-width: 220px;
+            padding: 6px;
+            display: none;
+            flex-direction: column;
+            gap: 2px;
+            animation: dropdownFadeIn 0.15s ease-out;
+            pointer-events: auto;
+        }
+        [data-theme="dark"] .dropdown-menu {
+            box-shadow: 0 14px 36px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.25);
+            background: var(--bg-secondary);
+        }
+        .dropdown-wrapper.open .dropdown-menu {
+            display: flex;
+        }
+        @keyframes dropdownFadeIn {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .dropdown-item {
+            display: flex !important;
+            align-items: center !important;
+            gap: 10px !important;
+            padding: 8px 12px !important;
+            border: none !important;
+            border-radius: 4px !important;
+            background: transparent !important;
+            color: var(--text) !important;
+            font-size: 12.5px !important;
+            font-family: var(--font-sans) !important;
+            text-align: left !important;
+            cursor: pointer;
+            width: 100%;
+            box-sizing: border-box;
+            transition: background var(--transition);
+        }
+        .dropdown-item:hover {
+            background: var(--bg-tertiary) !important;
+            color: var(--accent) !important;
+        }
+        .dropdown-item-icon {
+            font-size: 15px;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+        .dropdown-item-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex: 1;
+            gap: 12px;
+        }
+        .dropdown-item-title {
+            font-weight: 500;
+        }
+        .dropdown-item-shortcut {
+            font-size: 10.5px;
+            color: var(--text-muted);
+            background: var(--bg-tertiary);
+            padding: 2px 6px;
+            border-radius: 3px;
+            border: 1px solid var(--border);
+            font-family: var(--font-mono);
+        }
+        .dropdown-divider {
+            height: 1px;
+            background: var(--border);
+            margin: 4px 0;
+        }
+
         /* ── Main layout ──────────────── */
         .main-container {
             display: flex;
-            height: calc(100% - var(--toolbar-height));
+            flex: 1;
+            min-height: 0;
             position: relative;
             overflow: hidden;
+            z-index: 1;
         }
         .pane {
             overflow: hidden;
@@ -554,46 +656,305 @@
             overflow-y: visible;
         }
 
-        /* ── Cover Page ───────────────── */
+        /* ── Cover Page Designs ───────────────── */
         .cover-page {
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            position: relative;
+            box-sizing: border-box;
             min-height: 80vh;
-            text-align: center;
-            padding: 40px 20px;
+            padding: 48px 36px;
             page-break-after: always;
-            border-bottom: 3px double #dee2e6;
+            break-after: page;
             margin-bottom: 2em;
             font-family: var(--font-sans);
         }
         .cover-page .cover-title {
-            font-size: 2.4em;
+            font-size: 2.5em;
             font-weight: 700;
-            margin-bottom: 0.4em;
+            margin: 0 0 0.4em 0;
             color: var(--text);
+            line-height: 1.25;
             letter-spacing: -0.02em;
         }
         .cover-page .cover-subtitle {
-            font-size: 1.3em;
+            font-size: 1.25em;
             font-weight: 400;
             color: var(--text-secondary);
-            margin-bottom: 1.2em;
+            margin: 0 0 1.2em 0;
+            line-height: 1.45;
+        }
+
+        /* 1. Classic Minimal Style */
+        .cover-style-classic {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            border-bottom: 3px double var(--border);
+        }
+        .cover-style-classic .cover-subtitle {
             font-style: italic;
         }
-        .cover-page .cover-meta {
-            font-size: 1em;
+        .cover-style-classic .cover-divider {
+            width: 80px;
+            height: 2px;
+            background: var(--accent);
+            margin: 1.2em auto;
+        }
+        .cover-style-classic .cover-meta {
+            font-size: 0.95em;
             color: var(--text-muted);
             margin-top: 1.5em;
             line-height: 1.8;
         }
-        .cover-page .cover-divider {
-            width: 80px;
-            height: 2px;
-            background: var(--accent);
-            margin: 1em auto;
+
+        /* 2. Modern Editorial Style */
+        .cover-style-modern {
+            justify-content: center;
+            align-items: stretch;
+            text-align: left;
+            background: var(--bg-secondary);
+            border-left: 6px solid var(--accent);
+            border-bottom: 1px solid var(--border);
+            border-radius: 0 var(--radius) var(--radius) 0;
         }
+        body[dir="rtl"] .cover-style-modern,
+        .preview-container[dir="rtl"] .cover-style-modern {
+            text-align: right;
+            border-left: none;
+            border-right: 6px solid var(--accent);
+            border-radius: var(--radius) 0 0 var(--radius);
+        }
+        .cover-modern-inner {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            justify-content: center;
+        }
+        .cover-modern-tag {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            color: var(--accent);
+            text-transform: uppercase;
+            margin-bottom: 18px;
+            display: inline-block;
+        }
+        .cover-modern-spacer {
+            height: 48px;
+        }
+        .cover-modern-footer {
+            display: flex;
+            gap: 28px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+        .cover-meta-item {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        .cover-meta-label {
+            font-size: 10.5px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+        .cover-meta-value {
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        /* 3. Academic / Formal Report Style */
+        .cover-style-academic {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            border-bottom: 2px solid var(--border);
+            background: var(--bg);
+        }
+        .cover-academic-inner {
+            max-width: 680px;
+            width: 100%;
+        }
+        .cover-academic-eyebrow {
+            font-size: 11px;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+        .cover-academic-rule-top {
+            width: 100%;
+            height: 1px;
+            background: var(--border);
+            margin: 0 auto 28px;
+        }
+        .cover-style-academic .cover-title {
+            font-family: 'Merriweather', 'EB Garamond', Georgia, serif;
+            font-size: 2.6em;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        .cover-style-academic .cover-subtitle {
+            font-family: 'Merriweather', Georgia, serif;
+            font-size: 1.2em;
+            font-style: italic;
+            color: var(--text-secondary);
+            margin-bottom: 28px;
+        }
+        .cover-academic-rule-bottom {
+            width: 100%;
+            height: 2px;
+            background: var(--text);
+            margin: 0 auto 32px;
+        }
+        .cover-academic-meta {
+            font-family: 'Merriweather', Georgia, serif;
+            font-size: 13px;
+            line-height: 1.9;
+            color: var(--text-secondary);
+        }
+
+        /* 4. Executive Brief Style */
+        .cover-style-executive {
+            justify-content: center;
+            align-items: stretch;
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+        .cover-executive-frame {
+            border: 2px solid var(--border);
+            padding: 44px;
+            border-radius: var(--radius);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 68vh;
+            background: var(--bg);
+            box-shadow: inset 0 0 0 4px var(--bg), inset 0 0 0 5px rgba(76, 110, 245, 0.25);
+        }
+        .cover-executive-header {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            color: var(--accent);
+            text-transform: uppercase;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        .cover-executive-body {
+            margin: 36px 0;
+        }
+        .cover-style-executive .cover-title {
+            font-size: 2.7em;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+        }
+        .cover-executive-footer {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 16px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+        }
+        .cover-meta-card {
+            background: var(--bg-secondary);
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .cover-meta-card strong {
+            font-size: 13px;
+            color: var(--text);
+        }
+
+        /* 5. Technical Specification Style */
+        .cover-style-technical {
+            justify-content: center;
+            align-items: stretch;
+            border-bottom: 1px solid var(--border);
+        }
+        .cover-technical-inner {
+            width: 100%;
+            border: 1px solid var(--border);
+            padding: 36px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-secondary);
+        }
+        .cover-technical-badge {
+            font-size: 11px;
+            font-family: var(--font-mono);
+            color: var(--accent);
+            background: var(--accent-light);
+            display: inline-block;
+            padding: 3px 9px;
+            border-radius: 3px;
+            margin-bottom: 24px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+        }
+        [data-theme="dark"] .cover-technical-badge {
+            background: rgba(76, 110, 245, 0.2);
+        }
+        .cover-style-technical .cover-title {
+            font-size: 2.4em;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .cover-style-technical .cover-subtitle {
+            font-size: 1.15em;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+        }
+        .cover-technical-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+            background: var(--bg);
+        }
+        .cover-tech-cell {
+            padding: 10px 14px;
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        .cover-tech-cell:last-child {
+            border-right: none;
+        }
+        body[dir="rtl"] .cover-tech-cell,
+        .preview-container[dir="rtl"] .cover-tech-cell {
+            border-right: none;
+            border-left: 1px solid var(--border);
+        }
+        body[dir="rtl"] .cover-tech-cell:last-child,
+        .preview-container[dir="rtl"] .cover-tech-cell:last-child {
+            border-left: none;
+        }
+        .cover-tech-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+            font-family: var(--font-mono);
+        }
+        .cover-tech-val {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--text);
+            font-family: var(--font-mono);
+        }
+
         [data-theme="dark"] .cover-page {
             border-bottom-color: #3a3c42;
         }
@@ -1363,18 +1724,55 @@
         <button onclick="location.href='../'">🏠 Home</button>
         <span class="sep"></span>
         <button onclick="App.openFile()" title="Open Markdown file (Ctrl+O)">📂 Open</button>
-        <button onclick="App.saveMarkdown()" title="Save Markdown file (Ctrl+S)">💾 Save</button>
-        <span class="sep"></span>
-        <button class="accent" onclick="App.exportPDF()" title="Export PDF (Ctrl+P)">🖨️ Export PDF</button>
-        <button onclick="App.exportHTML()">🌐 Export HTML</button>
-        <button onclick="App.exportDOCX()">📄 Export DOCX</button>
-        <button onclick="App.copyHTML()">📋 Copy HTML</button>
+        <div class="dropdown-wrapper" id="export-dropdown-wrapper">
+            <button class="accent dropdown-trigger" id="export-dropdown-btn" onclick="App.toggleExportDropdown(event)" title="Export document (PDF, Markdown, HTML, Word)">
+                <span>📤 Export</span>
+                <span class="dropdown-caret">▾</span>
+            </button>
+            <div class="dropdown-menu" id="export-dropdown-menu">
+                <button class="dropdown-item" onclick="App.exportPDF(); App.closeExportDropdown();" title="Export as PDF document (Ctrl+P)">
+                    <span class="dropdown-item-icon">🖨️</span>
+                    <div class="dropdown-item-content">
+                        <span class="dropdown-item-title">PDF Document</span>
+                        <span class="dropdown-item-shortcut">Ctrl+P</span>
+                    </div>
+                </button>
+                <button class="dropdown-item" onclick="App.saveMarkdown(); App.closeExportDropdown();" title="Save Markdown file (Ctrl+S)">
+                    <span class="dropdown-item-icon">💾</span>
+                    <div class="dropdown-item-content">
+                        <span class="dropdown-item-title">Markdown Source</span>
+                        <span class="dropdown-item-shortcut">Ctrl+S</span>
+                    </div>
+                </button>
+                <button class="dropdown-item" onclick="App.exportHTML(); App.closeExportDropdown();" title="Export as standalone HTML webpage">
+                    <span class="dropdown-item-icon">🌐</span>
+                    <div class="dropdown-item-content">
+                        <span class="dropdown-item-title">HTML Webpage</span>
+                        <span class="dropdown-item-shortcut">.html</span>
+                    </div>
+                </button>
+                <button class="dropdown-item" onclick="App.exportDOCX(); App.closeExportDropdown();" title="Export as Microsoft Word document">
+                    <span class="dropdown-item-icon">📄</span>
+                    <div class="dropdown-item-content">
+                        <span class="dropdown-item-title">Word Document</span>
+                        <span class="dropdown-item-shortcut">.docx</span>
+                    </div>
+                </button>
+                <div class="dropdown-divider"></div>
+                <button class="dropdown-item" onclick="App.copyHTML(); App.closeExportDropdown();" title="Copy rendered HTML to clipboard">
+                    <span class="dropdown-item-icon">📋</span>
+                    <div class="dropdown-item-content">
+                        <span class="dropdown-item-title">Copy HTML</span>
+                        <span class="dropdown-item-shortcut">Clipboard</span>
+                    </div>
+                </button>
+            </div>
+        </div>
         <span class="sep"></span>
         <button onclick="App.openImageModal()" title="Insert image from computer, clipboard, or URL">🖼️ Image</button>
         <button onclick="App.toggleSettings()" title="Page & Typography Settings">⚙️ Settings</button>
         <button onclick="App.clearAll()" title="Clear editor">🗑️ Clear</button>
         <button class="prompt-btn" onclick="App.openPromptGenerator()" title="Generate AI prompt for better Markdown">🤖 Prompt</button>
-        <button id="direction-btn" onclick="App.toggleDirection()" title="Text Direction: Auto / RTL / LTR (Click to switch)">⇄ Dir: Auto</button>
         <span class="sep"></span>
         <button onclick="App.openGitHub()" title="View project on GitHub">⭐ GitHub</button>
         <button onclick="App.toggleTheme()" title="Toggle Light/Dark Mode" id="theme-btn">🌙 Dark</button>
@@ -1457,12 +1855,34 @@ Or drag & drop .md or image files (PNG, JPG, SVG, WebP, GIF)...
             <h4>🎨 Typography</h4>
             <label>Font Family</label>
             <select id="setting-font-family">
-                <option value="'Vazirmatn', 'Inter', system-ui, sans-serif">Vazirmatn (Modern Persian / Arabic & Latin)</option>
-                <option value="'Amiri', 'Georgia', serif">Amiri (Classical Persian / Arabic Serif)</option>
-                <option value="'Noto Sans Arabic', system-ui, sans-serif">Noto Sans Arabic (Clean Sans)</option>
-                <option value="'Inter', 'Vazirmatn', 'Segoe UI', system-ui, sans-serif">Inter (Sans)</option>
-                <option value="Georgia, 'Amiri', 'Times New Roman', serif">Georgia (Serif)</option>
-                <option value="'SF Mono', 'Vazirmatn', 'Consolas', 'Monaco', monospace">Monospace</option>
+                <optgroup label="── English / Latin Sans-Serif ──">
+                    <option value="'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">Inter (Modern & Clean Sans)</option>
+                    <option value="'Plus Jakarta Sans', -apple-system, 'Segoe UI', sans-serif">Plus Jakarta Sans (Crisp Geometric Sans)</option>
+                    <option value="'Roboto', -apple-system, BlinkMacSystemFont, sans-serif">Roboto (Balanced Workhorse Sans)</option>
+                    <option value="'Outfit', -apple-system, sans-serif">Outfit (Contemporary Display Sans)</option>
+                    <option value="'Open Sans', -apple-system, sans-serif">Open Sans (High Legibility)</option>
+                    <option value="'Lato', -apple-system, sans-serif">Lato (Warm & Professional Sans)</option>
+                    <option value="'Montserrat', -apple-system, sans-serif">Montserrat (Geometric Urban Sans)</option>
+                    <option value="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">System UI (Native OS Font)</option>
+                </optgroup>
+                <optgroup label="── English / Latin Serif ──">
+                    <option value="'Merriweather', Georgia, serif">Merriweather (Editorial Book Serif)</option>
+                    <option value="'Lora', Georgia, 'Times New Roman', serif">Lora (Contemporary Calligraphic Serif)</option>
+                    <option value="'Playfair Display', Georgia, serif">Playfair Display (High-Contrast Display Serif)</option>
+                    <option value="'EB Garamond', Garamond, Georgia, serif">EB Garamond (Classical Renaissance Serif)</option>
+                    <option value="Georgia, 'Times New Roman', Times, serif">Georgia (Standard Screen Serif)</option>
+                </optgroup>
+                <optgroup label="── English / Latin Monospace ──">
+                    <option value="'JetBrains Mono', 'SF Mono', Consolas, monospace">JetBrains Mono (Developer Monospace)</option>
+                    <option value="'Fira Code', 'SF Mono', Consolas, monospace">Fira Code (Ligatures Monospace)</option>
+                    <option value="'SF Mono', 'Segoe UI Mono', Consolas, Monaco, monospace">SF Mono / Consolas (System Monospace)</option>
+                </optgroup>
+                <optgroup label="── Arabic & Persian (فارسی و عربی) ──">
+                    <option value="'Vazirmatn', system-ui, sans-serif">Vazirmatn / وزیرمتن (Modern Sans)</option>
+                    <option value="'Amiri', 'Georgia', serif">Amiri / امیری (Classical Naskh Serif)</option>
+                    <option value="'Noto Sans Arabic', system-ui, sans-serif">Noto Sans Arabic / نوتو سنس (Clean Sans)</option>
+                    <option value="'Cairo', system-ui, sans-serif">Cairo / قاهرة (Geometric Sans)</option>
+                </optgroup>
             </select>
             <label>Font Size (pt)</label>
             <input type="number" id="setting-font-size" value="11" min="8" max="18" />
@@ -1472,15 +1892,15 @@ Or drag & drop .md or image files (PNG, JPG, SVG, WebP, GIF)...
             <label>Document Direction</label>
             <select id="setting-direction-mode">
                 <option value="auto">Auto-detect (Recommended)</option>
-                <option value="rtl">Right-to-Left (RTL — Persian / Arabic)</option>
                 <option value="ltr">Left-to-Right (LTR — English / Latin)</option>
+                <option value="rtl">Right-to-Left (RTL — Persian / Arabic)</option>
             </select>
             <label>Document Language</label>
             <select id="setting-language-mode">
-                <option value="auto">Auto-detect (Persian / Arabic / English)</option>
+                <option value="auto">Auto-detect (English / Persian / Arabic)</option>
+                <option value="en">English (en)</option>
                 <option value="fa">Persian / فارسی (fa)</option>
                 <option value="ar">Arabic / العربية (ar)</option>
-                <option value="en">English (en)</option>
             </select>
             <h4>💻 Code Theme</h4>
             <label>Syntax Highlighting Theme (light themes)</label>
@@ -1519,6 +1939,14 @@ Or drag & drop .md or image files (PNG, JPG, SVG, WebP, GIF)...
                 <option value="disabled">Disabled</option><option value="enabled">Enabled</option>
             </select>
             <div class="cover-fields" id="cover-fields-group">
+                <label>Cover Design Style</label>
+                <select id="setting-cover-style">
+                    <option value="classic">Classic Minimal (Centered with accent divider)</option>
+                    <option value="modern">Modern Editorial (Leading accent bar & display type)</option>
+                    <option value="academic">Academic / Formal Report (Framed with double rule)</option>
+                    <option value="executive">Executive Brief (Border frame & author card)</option>
+                    <option value="technical">Technical Specification (Engineering spec sheet)</option>
+                </select>
                 <label>Cover Title</label>
                 <input type="text" id="setting-cover-title" placeholder="Document Title" />
                 <label>Subtitle (optional)</label>
@@ -1900,7 +2328,7 @@ Or drag & drop .md or image files (PNG, JPG, SVG, WebP, GIF)...
                     orientation: 'portrait',
                     margins: 'medium',
                     customMargin: 20,
-                    fontFamily: "Georgia, 'Times New Roman', serif",
+                    fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
                     fontSize: 11,
                     lineHeight: 1.6,
                     codeTheme: 'github',
@@ -1908,6 +2336,7 @@ Or drag & drop .md or image files (PNG, JPG, SVG, WebP, GIF)...
                     tocEnabled: true,
                     tocDepth: 3,
                     coverEnabled: false,
+                    coverStyle: 'classic',
                     coverTitle: '',
                     coverSubtitle: '',
                     coverAuthor: '',
@@ -3020,6 +3449,11 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
                     state.settings.theme = sharedTheme;
                 }
 
+                const validCoverStyles = new Set(['classic', 'modern', 'academic', 'executive', 'technical']);
+                if (!validCoverStyles.has(state.settings.coverStyle)) {
+                    state.settings.coverStyle = 'classic';
+                }
+
                 // Migrate settings from older versions that offered dark code themes.
                 const lightCodeThemes = new Set([
                     'github',
@@ -3211,6 +3645,7 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
             function buildCoverPage() {
                 const s = state.settings;
                 if (!s.coverEnabled) return null;
+                const style = s.coverStyle || 'classic';
                 const isFa = state.settings.documentLanguage === 'fa';
                 const isAr = state.settings.documentLanguage === 'ar';
                 const authorLabel = isFa ? 'نویسنده:' : (isAr ? 'المؤلف:' : 'Author:');
@@ -3219,21 +3654,91 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
                                          isAr ? '(قم بإعداد تفاصيل صفحة الغلاف في الإعدادات)' :
                                          '(Configure cover page details in Settings)';
 
+                const title = s.coverTitle || (isFa ? 'عنوان سند' : isAr ? 'عنوان الوثيقة' : 'Document Title');
+                const subtitle = s.coverSubtitle || '';
+                const author = s.coverAuthor || '';
+                const date = s.coverDate || '';
+
                 const cover = document.createElement('div');
-                cover.className = 'cover-page';
-                let html = '';
-                if (s.coverTitle) html += '<h1 class="cover-title">' + escapeHTML(s.coverTitle) + '</h1>';
-                if (s.coverSubtitle) html += '<p class="cover-subtitle">' + escapeHTML(s.coverSubtitle) + '</p>';
-                html += '<div class="cover-divider"></div>';
-                if (s.coverAuthor) html += '<p class="cover-meta"><strong>' + authorLabel + '</strong> ' + escapeHTML(s
-                    .coverAuthor) + '</p>';
-                if (s.coverDate) html += '<p class="cover-meta"><strong>' + dateLabel + '</strong> ' + escapeHTML(s.coverDate) +
-                    '</p>';
-                if (!s.coverTitle && !s.coverSubtitle && !s.coverAuthor && !s.coverDate) {
-                    html +=
-                        '<p class="cover-meta" style="color:var(--text-muted);">' + placeholderLabel + '</p>';
+                cover.className = `cover-page cover-style-${style}`;
+
+                if (style === 'modern') {
+                    cover.innerHTML = `
+                        <div class="cover-modern-inner">
+                            <div class="cover-modern-tag">DOCUMENTATION &bull; REPORT</div>
+                            <h1 class="cover-title">${escapeHTML(title)}</h1>
+                            ${subtitle ? `<p class="cover-subtitle">${escapeHTML(subtitle)}</p>` : ''}
+                            <div class="cover-modern-spacer"></div>
+                            <div class="cover-modern-footer">
+                                ${author ? `<div class="cover-meta-item"><span class="cover-meta-label">${authorLabel}</span><span class="cover-meta-value">${escapeHTML(author)}</span></div>` : ''}
+                                ${date ? `<div class="cover-meta-item"><span class="cover-meta-label">${dateLabel}</span><span class="cover-meta-value">${escapeHTML(date)}</span></div>` : ''}
+                            </div>
+                        </div>
+                    `;
+                } else if (style === 'academic') {
+                    cover.innerHTML = `
+                        <div class="cover-academic-inner">
+                            <div class="cover-academic-eyebrow">FORMAL REPORT &bull; ACADEMIC PUBLICATION</div>
+                            <div class="cover-academic-rule-top"></div>
+                            <h1 class="cover-title">${escapeHTML(title)}</h1>
+                            ${subtitle ? `<p class="cover-subtitle">${escapeHTML(subtitle)}</p>` : ''}
+                            <div class="cover-academic-rule-bottom"></div>
+                            <div class="cover-academic-meta">
+                                ${author ? `<p class="cover-meta-line"><strong>${authorLabel}</strong> ${escapeHTML(author)}</p>` : ''}
+                                ${date ? `<p class="cover-meta-line"><strong>${dateLabel}</strong> ${escapeHTML(date)}</p>` : ''}
+                            </div>
+                        </div>
+                    `;
+                } else if (style === 'executive') {
+                    cover.innerHTML = `
+                        <div class="cover-executive-frame">
+                            <div class="cover-executive-header">EXECUTIVE BRIEF &bull; CONFIDENTIAL</div>
+                            <div class="cover-executive-body">
+                                <h1 class="cover-title">${escapeHTML(title)}</h1>
+                                ${subtitle ? `<p class="cover-subtitle">${escapeHTML(subtitle)}</p>` : ''}
+                            </div>
+                            <div class="cover-executive-footer">
+                                ${author ? `<div class="cover-meta-card"><span class="cover-meta-label">${authorLabel}</span><strong>${escapeHTML(author)}</strong></div>` : ''}
+                                ${date ? `<div class="cover-meta-card"><span class="cover-meta-label">${dateLabel}</span><strong>${escapeHTML(date)}</strong></div>` : ''}
+                            </div>
+                        </div>
+                    `;
+                } else if (style === 'technical') {
+                    cover.innerHTML = `
+                        <div class="cover-technical-inner">
+                            <div class="cover-technical-badge">TECHNICAL SPECIFICATION // V1.0</div>
+                            <h1 class="cover-title">${escapeHTML(title)}</h1>
+                            ${subtitle ? `<p class="cover-subtitle">${escapeHTML(subtitle)}</p>` : ''}
+                            <div class="cover-technical-grid">
+                                <div class="cover-tech-cell">
+                                    <span class="cover-tech-label">${authorLabel}</span>
+                                    <span class="cover-tech-val">${escapeHTML(author || 'Engineering Team')}</span>
+                                </div>
+                                <div class="cover-tech-cell">
+                                    <span class="cover-tech-label">${dateLabel}</span>
+                                    <span class="cover-tech-val">${escapeHTML(date || new Date().toISOString().slice(0, 10))}</span>
+                                </div>
+                                <div class="cover-tech-cell">
+                                    <span class="cover-tech-label">Status</span>
+                                    <span class="cover-tech-val">Approved</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // Classic Minimal Style (default)
+                    let html = '';
+                    if (title) html += '<h1 class="cover-title">' + escapeHTML(title) + '</h1>';
+                    if (subtitle) html += '<p class="cover-subtitle">' + escapeHTML(subtitle) + '</p>';
+                    html += '<div class="cover-divider"></div>';
+                    if (author) html += '<p class="cover-meta"><strong>' + authorLabel + '</strong> ' + escapeHTML(author) + '</p>';
+                    if (date) html += '<p class="cover-meta"><strong>' + dateLabel + '</strong> ' + escapeHTML(date) + '</p>';
+                    if (!s.coverTitle && !s.coverSubtitle && !s.coverAuthor && !s.coverDate) {
+                        html += '<p class="cover-meta" style="color:var(--text-muted);">' + placeholderLabel + '</p>';
+                    }
+                    cover.innerHTML = html;
                 }
-                cover.innerHTML = html;
+
                 return cover;
             }
 
@@ -4204,6 +4709,8 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
                 document.getElementById('setting-toc').value = s.tocEnabled ? 'enabled' : 'disabled';
                 document.getElementById('setting-toc-depth').value = s.tocDepth;
                 document.getElementById('setting-cover-enabled').value = s.coverEnabled ? 'enabled' : 'disabled';
+                const coverStyleEl = document.getElementById('setting-cover-style');
+                if (coverStyleEl) coverStyleEl.value = s.coverStyle || 'classic';
                 document.getElementById('setting-cover-title').value = s.coverTitle;
                 document.getElementById('setting-cover-subtitle').value = s.coverSubtitle;
                 document.getElementById('setting-cover-author').value = s.coverAuthor;
@@ -4232,6 +4739,8 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
                 state.settings.tocEnabled = document.getElementById('setting-toc').value === 'enabled';
                 state.settings.tocDepth = parseInt(document.getElementById('setting-toc-depth').value) || 3;
                 state.settings.coverEnabled = document.getElementById('setting-cover-enabled').value === 'enabled';
+                const styleInput = document.getElementById('setting-cover-style');
+                state.settings.coverStyle = styleInput ? styleInput.value : 'classic';
                 state.settings.coverTitle = document.getElementById('setting-cover-title').value.trim();
                 state.settings.coverSubtitle = document.getElementById('setting-cover-subtitle').value.trim();
                 state.settings.coverAuthor = document.getElementById('setting-cover-author').value.trim();
@@ -4277,7 +4786,7 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
         <head><meta charset="UTF-8"><title>Exported Document</title>
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Noto+Sans+Arabic:wght@400;500;600;700&family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Lato:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400;0,600;1,400&family=Merriweather:ital,wght@0,400;0,700;1,400&family=Montserrat:ital,wght@0,400;0,600;0,700;1,400&family=Open+Sans:ital,wght@0,400;0,600;1,400&family=Outfit:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Roboto:ital,wght@0,400;0,500;0,700;1,400&family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;600;700&family=Noto+Sans+Arabic:wght@400;500;600;700&family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
         <style>
         body { font-family: ${state.settings.fontFamily}; font-size: ${state.settings.fontSize}pt; line-height: ${state.settings.lineHeight}; max-width: 800px; margin: 40px auto; padding: 0 20px; color: #1a1a2e; direction: ${documentDir}; text-align: ${documentDir === 'rtl' ? 'right' : 'left'}; }
@@ -4287,9 +4796,40 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
         img { max-width: 100%; height: auto; display: block; margin: 1.2em auto; border-radius: 6px; page-break-inside: avoid; }
         table { border-collapse: collapse; width: 100%; } table th, table td { border: 1px solid #dee2e6; padding: 8px 12px; text-align: ${documentDir === 'rtl' ? 'right' : 'start'}; } table th { background: #f1f3f5; }
         a { color: #4c6ef5; } .toc-container { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 16px 20px; margin: 1em 0; page-break-after:always; }
-        .cover-page { text-align:center; padding:60px 20px; border-bottom:3px double #ccc; margin-bottom:2em; page-break-after:always; }
         .document-header { display:block; width:100%; box-sizing:border-box; margin:0 0 1.4em 0; padding:0 0 7px 0; border-bottom:1px solid #dee2e6; color:#495057; font-size:.82em; font-weight:600; }
-        .cover-page .cover-title { font-size:2.4em; font-weight:700; } .cover-page .cover-subtitle { font-size:1.3em; color:#495057; font-style:italic; }
+        .cover-page { display:flex; flex-direction:column; box-sizing:border-box; min-height:80vh; padding:48px 36px; margin-bottom:2em; page-break-after:always; }
+        .cover-page .cover-title { font-size:2.5em; font-weight:700; margin:0 0 0.4em 0; line-height:1.25; }
+        .cover-page .cover-subtitle { font-size:1.25em; font-weight:400; color:#495057; margin:0 0 1.2em 0; }
+        .cover-style-classic { justify-content:center; align-items:center; text-align:center; border-bottom:3px double #dee2e6; }
+        .cover-style-classic .cover-subtitle { font-style:italic; }
+        .cover-style-classic .cover-divider { width:80px; height:2px; background:#4c6ef5; margin:1.2em auto; }
+        .cover-style-classic .cover-meta { font-size:0.95em; color:#6c757d; margin-top:1.5em; line-height:1.8; }
+        .cover-style-modern { justify-content:center; background:#f8f9fa; border-left:6px solid #4c6ef5; border-bottom:1px solid #dee2e6; border-radius:0 8px 8px 0; }
+        body[dir="rtl"] .cover-style-modern { border-left:none; border-right:6px solid #4c6ef5; border-radius:8px 0 0 8px; }
+        .cover-modern-tag { font-size:11px; font-weight:700; letter-spacing:0.16em; color:#4c6ef5; text-transform:uppercase; margin-bottom:18px; }
+        .cover-modern-spacer { height:48px; }
+        .cover-modern-footer { display:flex; gap:28px; padding-top:24px; border-top:1px solid #dee2e6; flex-wrap:wrap; }
+        .cover-meta-item { display:flex; flex-direction:column; gap:3px; }
+        .cover-meta-label { font-size:10.5px; text-transform:uppercase; letter-spacing:0.06em; color:#6c757d; font-weight:600; }
+        .cover-meta-value { font-size:13.5px; font-weight:600; color:#212529; }
+        .cover-style-academic { justify-content:center; align-items:center; text-align:center; border-bottom:2px solid #dee2e6; }
+        .cover-academic-eyebrow { font-size:11px; letter-spacing:0.22em; text-transform:uppercase; color:#6c757d; font-weight:600; margin-bottom:24px; }
+        .cover-academic-rule-top { width:100%; height:1px; background:#dee2e6; margin:0 auto 28px; }
+        .cover-academic-rule-bottom { width:100%; height:2px; background:#212529; margin:0 auto 32px; }
+        .cover-academic-meta { font-size:13px; line-height:1.9; color:#495057; }
+        .cover-style-executive { justify-content:center; padding:24px; border-bottom:1px solid #dee2e6; }
+        .cover-executive-frame { border:2px solid #dee2e6; padding:44px; border-radius:8px; display:flex; flex-direction:column; justify-content:space-between; min-height:68vh; box-shadow:inset 0 0 0 4px #fff, inset 0 0 0 5px rgba(76,110,245,0.25); }
+        .cover-executive-header { font-size:11px; font-weight:700; letter-spacing:0.2em; color:#4c6ef5; text-transform:uppercase; padding-bottom:16px; border-bottom:1px solid #dee2e6; }
+        .cover-executive-footer { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:16px; padding-top:24px; border-top:1px solid #dee2e6; }
+        .cover-meta-card { background:#f8f9fa; padding:10px 14px; border-radius:4px; border:1px solid #dee2e6; display:flex; flex-direction:column; gap:4px; }
+        .cover-style-technical { justify-content:center; border-bottom:1px solid #dee2e6; }
+        .cover-technical-inner { border:1px solid #dee2e6; padding:36px; border-radius:4px; background:#f8f9fa; }
+        .cover-technical-badge { font-size:11px; font-family:monospace; color:#4c6ef5; background:#e7f5ff; display:inline-block; padding:3px 9px; border-radius:3px; margin-bottom:24px; font-weight:600; }
+        .cover-technical-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); border:1px solid #dee2e6; border-radius:4px; overflow:hidden; background:#fff; }
+        .cover-tech-cell { padding:10px 14px; border-right:1px solid #dee2e6; display:flex; flex-direction:column; gap:3px; }
+        .cover-tech-cell:last-child { border-right:none; }
+        .cover-tech-label { font-size:10px; text-transform:uppercase; color:#6c757d; font-family:monospace; }
+        .cover-tech-val { font-size:12.5px; font-weight:600; color:#212529; font-family:monospace; }
         .pagebreak-marker { page-break-after:always; border-top:2px dashed #dee2e6; margin:2em 0; text-align:center; color:#adb5bd; }
         h1, h2, h3, h4 { page-break-after:avoid; }
         .md-note { margin:1em 0; padding:.8em 1em; border-left:5px solid #adb5bd; background:#f8f9fa; border-radius:0 7px 7px 0; break-inside:avoid; page-break-inside:avoid; color:#1a1a2e; }
@@ -4336,7 +4876,14 @@ pre, code { direction: ltr; text-align: left; unicode-bidi: isolate; }
 pre { background: #f8f9fa; border: 1px solid #e9ecef; padding: 12px; } table { border-collapse: collapse; width: 100%; }
 img { max-width: 100%; height: auto; display: block; margin: 1.2em auto; }
 table th, table td { border: 1px solid #000; padding: 6px 10px; text-align: ${documentDir === 'rtl' ? 'right' : 'start'}; } .toc-container { background: #f8f9fa; border: 1px solid #e9ecef; padding: 12px 16px; page-break-after:always; }
-.cover-page { text-align:center; padding:60px 20px; border-bottom:3px double #ccc; margin-bottom:2em; page-break-after:always; }
+.cover-page { display:flex; flex-direction:column; padding:40px 20px; border-bottom:3px double #ccc; margin-bottom:2em; page-break-after:always; }
+.cover-page .cover-title { font-size:2.4em; font-weight:700; margin:0 0 0.4em 0; }
+.cover-page .cover-subtitle { font-size:1.25em; color:#495057; margin:0 0 1em 0; }
+.cover-style-classic { text-align:center; align-items:center; }
+.cover-style-modern { background:#f8f9fa; border-left:6px solid #4c6ef5; padding:30px; }
+.cover-style-academic { text-align:center; border-bottom:2px solid #333; }
+.cover-style-executive { border:2px solid #dee2e6; padding:30px; }
+.cover-style-technical { background:#f8f9fa; border:1px solid #dee2e6; padding:30px; }
 .pagebreak-marker { page-break-after:always; } h1, h2, h3, h4 { page-break-after:avoid; }
 .md-note { margin:1em 0; padding:.8em 1em; border-left:5px solid #adb5bd; background:#f8f9fa; border-radius:0 7px 7px 0; break-inside:avoid; page-break-inside:avoid; color:#1a1a2e; }
 body[dir="rtl"] .md-note { border-left:0; border-right:5px solid #adb5bd; border-radius:7px 0 0 7px; text-align:right; }
@@ -4825,21 +5372,69 @@ document.addEventListener('touchend', () => { if (isDragging) { isDragging = fal
 'active'); } });
 }
 
+// ── Export Dropdown ──────────────────────
+function toggleExportDropdown(e) {
+    if (e) {
+        e.stopPropagation();
+        e.preventDefault();
+    }
+    const wrapper = document.getElementById('export-dropdown-wrapper');
+    const menu = document.getElementById('export-dropdown-menu');
+    if (wrapper) {
+        const willOpen = !wrapper.classList.contains('open');
+        wrapper.classList.toggle('open', willOpen);
+        if (willOpen && menu) {
+            const rect = wrapper.getBoundingClientRect();
+            if (rect.left + 230 > window.innerWidth - 8) {
+                menu.style.left = 'auto';
+                menu.style.right = '0';
+            } else {
+                menu.style.left = '0';
+                menu.style.right = 'auto';
+            }
+        }
+    }
+}
+
+function closeExportDropdown() {
+    const wrapper = document.getElementById('export-dropdown-wrapper');
+    if (wrapper) {
+        wrapper.classList.remove('open');
+    }
+}
+
 // ── Keyboard shortcuts ───────────────────
 function setupKeyboardShortcuts() {
-document.addEventListener('keydown', e => {
-const ctrl = e.ctrlKey || e.metaKey;
-if (ctrl && e.key === 's') { e.preventDefault();
-saveMarkdown(); }
-if (ctrl && e.key === 'o') { e.preventDefault();
-openFile(); }
-if (ctrl && e.key === 'p') { e.preventDefault();
-exportPDF(); }
-if (e.key === 'Escape') { const fp = document.querySelector('.pane.fullscreen'); if (fp) { fp
-.classList.remove('fullscreen');
-fp.style.width = ''; fp.style.flex = ''; dividerEl.style.display = ''; paneLeftEl.style.display =
-''; paneRightEl.style.display = ''; } }
-});
+    document.addEventListener('keydown', e => {
+        const ctrl = e.ctrlKey || e.metaKey;
+        if (ctrl && (e.key === 's' || e.key === 'S')) {
+            e.preventDefault();
+            closeExportDropdown();
+            saveMarkdown();
+        }
+        if (ctrl && (e.key === 'o' || e.key === 'O')) {
+            e.preventDefault();
+            closeExportDropdown();
+            openFile();
+        }
+        if (ctrl && (e.key === 'p' || e.key === 'P')) {
+            e.preventDefault();
+            closeExportDropdown();
+            exportPDF();
+        }
+        if (e.key === 'Escape') {
+            closeExportDropdown();
+            const fp = document.querySelector('.pane.fullscreen');
+            if (fp) {
+                fp.classList.remove('fullscreen');
+                fp.style.width = '';
+                fp.style.flex = '';
+                dividerEl.style.display = '';
+                paneLeftEl.style.display = '';
+                paneRightEl.style.display = '';
+            }
+        }
+    }, true);
 }
 
 // ── Settings listeners ───────────────────
@@ -4879,6 +5474,16 @@ const promptSelect = document.getElementById('prompt-select');
 if (promptSelect) {
     promptSelect.addEventListener('change', onPromptSelectChange);
 }
+
+// Close export dropdown when clicking outside
+document.addEventListener('click', e => {
+    const wrapper = document.getElementById('export-dropdown-wrapper');
+    if (wrapper && wrapper.classList.contains('open')) {
+        if (!wrapper.contains(e.target)) {
+            closeExportDropdown();
+        }
+    }
+});
 }
 
 editorEl.addEventListener('scroll', () => { lineNumbersEl.scrollTop = editorEl.scrollTop; });
@@ -5176,6 +5781,8 @@ saveMarkdown,
 exportPDF,
 exportHTML,
 exportDOCX,
+toggleExportDropdown,
+closeExportDropdown,
 copyHTML,
 copyCodeBlock,
 clearAll,
