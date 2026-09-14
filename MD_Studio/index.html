@@ -689,7 +689,7 @@
             page-break-after: always;
             break-after: page;
             margin-bottom: 2em;
-            font-family: var(--font-sans);
+            font-family: inherit;
         }
         .cover-page .cover-title {
             font-size: 2.5em;
@@ -991,7 +991,7 @@
             padding: 0 0 7px 0;
             border-bottom: 1px solid #dee2e6;
             color: #495057;
-            font-family: var(--font-sans);
+            font-family: inherit;
             font-size: 0.82em;
             font-weight: 600;
             letter-spacing: 0.02em;
@@ -1008,7 +1008,7 @@
         .preview-container h4,
         .preview-container h5,
         .preview-container h6 {
-            font-family: var(--font-sans);
+            font-family: inherit;
             margin-top: 1.6em;
             margin-bottom: 0.5em;
             font-weight: 700;
@@ -1122,7 +1122,7 @@
         .preview-container table th {
             background: #f1f3f5;
             font-weight: 600;
-            font-family: var(--font-sans);
+            font-family: inherit;
         }
         .preview-container table tr:nth-child(even) td {
             background: #fafbfc;
@@ -1210,7 +1210,7 @@
         }
         .preview-container .toc-container a {
             color: var(--text-secondary);
-            font-family: var(--font-sans);
+            font-family: inherit;
             font-size: 0.9em;
         }
         .pagebreak-marker {
@@ -4611,6 +4611,14 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
             color: #000 !important;
             direction: ${s.documentDirection === 'rtl' ? 'rtl' : 'ltr'} !important;
             text-align: ${s.documentDirection === 'rtl' ? 'right' : 'left'} !important;
+          }
+          .preview-container h1,
+          .preview-container h2,
+          .preview-container h3,
+          .preview-container h4,
+          .preview-container h5,
+          .preview-container h6 {
+            font-family: inherit !important;
           }
           .preview-container[dir="rtl"] pre,
           .preview-container[dir="rtl"] code {
