@@ -20,6 +20,28 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/arduino-light.min.css" id="hljs-theme-arduino-light" class="hljs-theme-link" disabled>
 
     <style>
+        /* ── B Nazanin Font (Native Persian numerals & classic Persian Naskh) ── */
+        @font-face {
+            font-family: 'B Nazanin';
+            src: local('B Nazanin'),
+                 local('BNazanin'),
+                 url('https://cdn.jsdelivr.net/gh/intuxicated/css-persian/fonts/BNazanin.woff') format('woff'),
+                 url('https://cdn.jsdelivr.net/gh/intuxicated/css-persian/fonts/BNazanin.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+        @font-face {
+            font-family: 'BNazanin';
+            src: local('B Nazanin'),
+                 local('BNazanin'),
+                 url('https://cdn.jsdelivr.net/gh/intuxicated/css-persian/fonts/BNazanin.woff') format('woff'),
+                 url('https://cdn.jsdelivr.net/gh/intuxicated/css-persian/fonts/BNazanin.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+
         :root {
             --bg: #ffffff;
             --bg-secondary: #f8f9fa;
@@ -1878,6 +1900,7 @@ Or drag & drop .md or image files (PNG, JPG, SVG, WebP, GIF)...
                     <option value="'SF Mono', 'Segoe UI Mono', Consolas, Monaco, monospace">SF Mono / Consolas (System Monospace)</option>
                 </optgroup>
                 <optgroup label="── Arabic & Persian (فارسی و عربی) ──">
+                    <option value="'B Nazanin', 'BNazanin', 'Vazirmatn', Tahoma, sans-serif">B Nazanin / بی نازنین (Classic Naskh & Persian Digits)</option>
                     <option value="'Vazirmatn', system-ui, sans-serif">Vazirmatn / وزیرمتن (Modern Sans)</option>
                     <option value="'Amiri', 'Georgia', serif">Amiri / امیری (Classical Naskh Serif)</option>
                     <option value="'Noto Sans Arabic', system-ui, sans-serif">Noto Sans Arabic / نوتو سنس (Clean Sans)</option>
@@ -4789,6 +4812,21 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
         <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Lato:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400;0,600;1,400&family=Merriweather:ital,wght@0,400;0,700;1,400&family=Montserrat:ital,wght@0,400;0,600;0,700;1,400&family=Open+Sans:ital,wght@0,400;0,600;1,400&family=Outfit:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Roboto:ital,wght@0,400;0,500;0,700;1,400&family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;600;700&family=Noto+Sans+Arabic:wght@400;500;600;700&family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
         <style>
+        /* ── B Nazanin Font ── */
+        @font-face {
+            font-family: 'B Nazanin';
+            src: local('B Nazanin'), local('BNazanin'),
+                 url('https://cdn.jsdelivr.net/gh/intuxicated/css-persian/fonts/BNazanin.woff') format('woff'),
+                 url('https://cdn.jsdelivr.net/gh/intuxicated/css-persian/fonts/BNazanin.ttf') format('truetype');
+            font-weight: normal; font-style: normal; font-display: swap;
+        }
+        @font-face {
+            font-family: 'BNazanin';
+            src: local('B Nazanin'), local('BNazanin'),
+                 url('https://cdn.jsdelivr.net/gh/intuxicated/css-persian/fonts/BNazanin.woff') format('woff'),
+                 url('https://cdn.jsdelivr.net/gh/intuxicated/css-persian/fonts/BNazanin.ttf') format('truetype');
+            font-weight: normal; font-style: normal; font-display: swap;
+        }
         body { font-family: ${state.settings.fontFamily}; font-size: ${state.settings.fontSize}pt; line-height: ${state.settings.lineHeight}; max-width: 800px; margin: 40px auto; padding: 0 20px; color: #1a1a2e; direction: ${documentDir}; text-align: ${documentDir === 'rtl' ? 'right' : 'left'}; }
         pre, code { direction: ltr; text-align: left; unicode-bidi: isolate; }
         pre { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 16px; overflow-x: auto; }

@@ -62,7 +62,7 @@ Rather than creating dozens of half-finished tools, I'd rather build a smaller c
 * 🎨 5 professional cover page designs (Classic, Modern, Academic, Executive, Technical)
 * 🔤 Rich typography with expanded Google Fonts and grouped categories
 * 🖼️ Seamless image support: drag & drop into editor, direct clipboard paste (<kbd>Ctrl+V</kbd>), or insert modal (embedded into PDF & HTML)
-* 🌐 Persian & Arabic support (Vazirmatn, Amiri, Noto Sans Arabic fonts & smart RTL detection)
+* 🌐 Persian & Arabic support (B Nazanin with Persian digits, Vazirmatn, Amiri, Cairo, Noto Sans Arabic & smart RTL detection)
 * 🧮 KaTeX math & 📊 Mermaid diagram support
 * 🎨 Syntax highlighting & automatic Table of Contents
 * 🌙 Light & Dark mode

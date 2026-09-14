@@ -13,8 +13,8 @@ A modern browser-based Markdown editor with live preview and professional docume
 - 📤 Unified Export Hub: streamlined dropdown for PDF, Markdown (.md), HTML (.html), and Word (.doc)
 - ⌨️ Intuitive shortcuts: <kbd>Ctrl+S</kbd> to save Markdown, <kbd>Ctrl+P</kbd> to print/export PDF, <kbd>Ctrl+O</kbd> to open files
 - 🎨 Multiple Cover Page Designs: Classic Minimalist, Modern Accent, Academic Formal, Executive Framed, and Technical Specification
-- 🔤 Comprehensive Typography: Extended Google Fonts selection (Inter, Plus Jakarta Sans, Outfit, Merriweather, Lora, EB Garamond, JetBrains Mono, Fira Code, and specialized RTL fonts)
-- 🌐 Persian & Arabic RTL support with smart auto-detection & typography
+- 🔤 Comprehensive Typography: Extended Google Fonts selection (Inter, Plus Jakarta Sans, Outfit, Merriweather, Lora, EB Garamond, JetBrains Mono, Fira Code, and specialized RTL fonts including B Nazanin)
+- 🌐 Persian & Arabic RTL support with smart auto-detection & typography (Vazirmatn, Amiri, Cairo, Noto Sans Arabic, and B Nazanin with native Persian numerals)
 - 📐 KaTeX math rendering
 - 📊 Mermaid diagrams
 - 🎨 Light & Dark themes
