@@ -1133,6 +1133,10 @@
             </div>
 
             <div style="margin-top:14px;font-size:11px;color:var(--text-muted);line-height:1.4;">
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;margin-bottom:8px;color:var(--text);font-weight:600;">
+                    <input type="checkbox" id="metaBatchApply" style="accent-color:var(--accent);width:16px;height:16px;">
+                    Apply Album, Artist, Year, Genre, and Cover Art to ALL tracks in queue
+                </label>
                 💡 <em>Tags are preserved and embedded into MP3 downloads via pure client-side ID3v2.3 tags.</em>
             </div>
 
@@ -1167,6 +1171,7 @@
     let currentBuffer = null;         // Current active AudioBuffer
     let currentFileName = "audio.wav";
     let currentFileBlob = null;
+    let currentQueueIdx = -1;
     let currentMetadata = {
         title: "",
         artist: "",
@@ -1293,7 +1298,8 @@
                     size: file.size,
                     buffer: decoded,
                     file: file,
-                    type: file.type || 'audio/' + file.name.split('.').pop()
+                    type: file.type || 'audio/' + file.name.split('.').pop(),
+                    metadata: { title: file.name.replace(/\.[^/.]+$/, "") }
                 });
                 log(`✓ Decoded ${file.name} successfully (${decoded.numberOfChannels}ch, ${decoded.sampleRate}Hz, ${decoded.duration.toFixed(1)}s)`, 'success');
             } catch (err) {
@@ -1313,23 +1319,23 @@
         stopPlayback();
         pushHistoryState();
 
+        currentQueueIdx = idx;
         currentBuffer = item.buffer;
         currentFileName = item.name;
         currentFileBlob = item.file || null;
+        currentMetadata = item.metadata || {
+            title: currentFileName.replace(/\.[^/.]+$/, ""),
+            artist: "", album: "", year: "", genre: "", track: "", coverBlob: null, coverType: ""
+        };
         trimStart = 0;
         trimEnd = currentBuffer.duration;
         isReversed = false;
         document.getElementById('reverseAudioCheck').checked = false;
 
-        // Auto-populate Title from file name if not already set
-        if (!currentMetadata.title || currentMetadata.title === "") {
-            currentMetadata.title = currentFileName.replace(/\.[^/.]+$/, "");
-        }
-
         dropZone.style.display = 'none';
         editorStage.style.display = 'flex';
 
-        document.getElementById('trackTitleDisplay').textContent = currentFileName;
+        document.getElementById('trackTitleDisplay').textContent = currentMetadata.title || currentFileName;
         document.getElementById('trackDurationTag').textContent = formatTime(currentBuffer.duration);
         document.getElementById('trackSampleRateTag').textContent = (currentBuffer.sampleRate / 1000).toFixed(1) + ' kHz';
         document.getElementById('trackChannelsTag').textContent = currentBuffer.numberOfChannels === 1 ? 'Mono' : 'Stereo';
@@ -2381,7 +2387,7 @@
         }
     }
 
-    async function encodeMP3(audioBuffer, kbps = 320) {
+    async function encodeMP3(audioBuffer, kbps = 320, metadataOverride = null) {
         if (typeof lamejs === 'undefined') {
             log('Notice: lamejs not loaded, falling back to 16-bit WAV.', 'info');
             return encodeWAV(audioBuffer, 16);
@@ -2417,21 +2423,23 @@
 
         let mp3Blob = new Blob(mp3Data, { type: 'audio/mp3' });
 
+        const meta = metadataOverride || currentMetadata;
+
         // Embed ID3v2 Tags & Cover Art if ID3Writer is available and tags are populated
-        if (typeof ID3Writer !== 'undefined' && (currentMetadata.title || currentMetadata.artist || currentMetadata.album || currentMetadata.coverBlob)) {
+        if (typeof ID3Writer !== 'undefined' && (meta.title || meta.artist || meta.album || meta.coverBlob)) {
             try {
                 const mp3ArrayBuffer = await mp3Blob.arrayBuffer();
                 const writer = new ID3Writer(mp3ArrayBuffer);
 
-                if (currentMetadata.title) writer.setFrame('TIT2', currentMetadata.title);
-                if (currentMetadata.artist) writer.setFrame('TPE1', [currentMetadata.artist]);
-                if (currentMetadata.album) writer.setFrame('TALB', currentMetadata.album);
-                if (currentMetadata.year) writer.setFrame('TYER', parseInt(currentMetadata.year) || 2026);
-                if (currentMetadata.genre) writer.setFrame('TCON', [currentMetadata.genre]);
-                if (currentMetadata.track) writer.setFrame('TRCK', currentMetadata.track);
+                if (meta.title) writer.setFrame('TIT2', meta.title);
+                if (meta.artist) writer.setFrame('TPE1', [meta.artist]);
+                if (meta.album) writer.setFrame('TALB', meta.album);
+                if (meta.year) writer.setFrame('TYER', parseInt(meta.year) || 2026);
+                if (meta.genre) writer.setFrame('TCON', [meta.genre]);
+                if (meta.track) writer.setFrame('TRCK', meta.track);
 
-                if (currentMetadata.coverBlob) {
-                    const coverBuffer = await currentMetadata.coverBlob.arrayBuffer();
+                if (meta.coverBlob) {
+                    const coverBuffer = await meta.coverBlob.arrayBuffer();
                     writer.setFrame('APIC', {
                         type: 3, // Front cover
                         data: coverBuffer,
@@ -2523,9 +2531,26 @@
                 const item = audioQueue[i];
                 log(`Encoding [${i + 1}/${audioQueue.length}] ${item.name}…`, 'info');
                 const rendered = await renderProcessedAudioBuffer(item.buffer);
-                const wavBlob = encodeWAV(rendered, 16);
-                const cleanName = item.name.replace(/\.[^/.]+$/, "") + ".wav";
-                zip.file(cleanName, wavBlob);
+                let blob = null;
+                let extension = 'wav';
+
+                if (format === 'wav-16') {
+                    blob = encodeWAV(rendered, 16);
+                } else if (format === 'wav-24') {
+                    blob = encodeWAV(rendered, 24);
+                } else if (format === 'wav-32') {
+                    blob = encodeWAV(rendered, 32);
+                } else if (format === 'mp3' || format === 'ringtone') {
+                    const bitrate = parseInt(document.getElementById('bitrateSelect').value) || 320;
+                    blob = await encodeMP3(rendered, bitrate, item.metadata);
+                    extension = format === 'ringtone' ? 'm4r' : 'mp3';
+                } else if (format === 'webm' || format === 'ogg') {
+                    blob = await encodeMediaRecorderAudio(rendered, format);
+                    extension = format;
+                }
+
+                const cleanName = item.name.replace(/\.[^/.]+$/, "") + "." + extension;
+                zip.file(cleanName, blob);
             }
 
             log('Generating ZIP bundle…', 'info');
@@ -2772,6 +2797,30 @@
         currentMetadata.year = document.getElementById('metaYear').value.trim();
         currentMetadata.genre = document.getElementById('metaGenre').value.trim();
         currentMetadata.track = document.getElementById('metaTrack').value.trim();
+
+        if (currentQueueIdx !== -1 && audioQueue[currentQueueIdx]) {
+            audioQueue[currentQueueIdx].metadata = currentMetadata;
+        }
+
+        const applyBatch = document.getElementById('metaBatchApply').checked;
+        if (applyBatch && audioQueue.length > 1) {
+            for (let i = 0; i < audioQueue.length; i++) {
+                if (i === currentQueueIdx) continue;
+                if (!audioQueue[i].metadata) {
+                    audioQueue[i].metadata = {
+                        title: audioQueue[i].name.replace(/\.[^/.]+$/, ""),
+                        artist: "", album: "", year: "", genre: "", track: "", coverBlob: null, coverType: ""
+                    };
+                }
+                audioQueue[i].metadata.artist = currentMetadata.artist;
+                audioQueue[i].metadata.album = currentMetadata.album;
+                audioQueue[i].metadata.year = currentMetadata.year;
+                audioQueue[i].metadata.genre = currentMetadata.genre;
+                audioQueue[i].metadata.coverBlob = currentMetadata.coverBlob;
+                audioQueue[i].metadata.coverType = currentMetadata.coverType;
+            }
+            log(`Applied Artist, Album, Year, Genre, and Cover Art to ${audioQueue.length} tracks.`, 'info');
+        }
 
         if (currentMetadata.title) {
             document.getElementById('trackTitleDisplay').textContent = currentMetadata.title;
