@@ -582,6 +582,7 @@ app.use("/File_transfer/static", express.static(path.join(ROOT_DIR, "File_transf
 app.use("/File_transfer", express.static(path.join(ROOT_DIR, "File_transfer")));
 app.use("/WebScope/templates", express.static(path.join(ROOT_DIR, "WebScope", "templates")));
 app.use("/WebScope", express.static(path.join(ROOT_DIR, "WebScope")));
+app.use("/Secret_Lab", express.static(path.join(ROOT_DIR, "Secret_Lab")));
 app.use("/images", express.static(path.join(ROOT_DIR, "images")));
 app.use("/Chrome_Extensions", express.static(path.join(ROOT_DIR, "Chrome_Extensions")));
 

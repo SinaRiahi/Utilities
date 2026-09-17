@@ -168,6 +168,38 @@ Rather than creating dozens of half-finished tools, I'd rather build a smaller c
 
 ---
 
+## 🧰 Secret Lab
+> Developer security, token analysis, cryptography, and encoder studio — 100% client-side with zero data leakage.
+
+* 🔑 **JWT Inspector**:
+  * Color-coded header, payload, and signature breakdown
+  * Live token lifecycle analysis: human-readable expiration countdown (`exp`), issued-at (`iat`), and not-before (`nbf`) claims
+  * Local HMAC-SHA256 signature verification with custom secret keys (zero external network requests)
+* ⚡ **Hash & HMAC Studio**:
+  * Real-time calculation of SHA-256, SHA-512, MD5, and SHA-1 digests
+  * Dual-mode input: live UTF-8 text string and drag-and-drop file hasher
+  * HMAC-SHA256 and HMAC-SHA512 calculation with secret key
+  * Instant hash comparator to verify expected file checksums
+* 🔄 **Universal Codec & Encoder**:
+  * UTF-8 safe Base64, Base64URL (RFC 4648), Hexadecimal, URL component encoding, HTML entities, 8-bit Binary, and ROT13
+  * 1-click bidirectional input/output swap with validation error handling
+* 🎲 **Cryptographic Key & UUID Generator**:
+  * RFC-compliant UUIDv4 and timestamp-ordered UUIDv7 (Unix Epoch)
+  * NanoID (21 URL-safe chars), API keys with custom prefixes (`sk_live_...`), and raw cryptographic hex secrets (32 bytes)
+  * High-entropy Diceware multi-word passphrases with custom separators and capitalization
+  * Batch generation with 1-click "Copy All" and `.txt` download
+* 🧪 **Interactive Regex Playground**:
+  * Pattern testing with real-time colored match highlighting and match counters
+  * Capture groups breakdown table ($1, $2, …) with indices
+  * Live substitution / replace output preview
+  * Built-in cheat sheet presets: Email, URL, IPv4, ISO Date, Hex Color, Slug, and SemVer
+* 🔐 **Client-Side AES-GCM-256 Vault**:
+  * In-browser symmetric encryption with PBKDF2 key derivation (100,000 iterations, SHA-256)
+  * Random 16-byte salt and 12-byte IV for military-grade protection
+  * Formatted JSON encrypted payload export and instant decrypt verification
+
+---
+
 ## 🎯 AutoScope — Automation & Site Intelligence (Chrome Extension v2.0)
 > Advanced in-browser automation inspector and reconnaissance studio for Playwright, Puppeteer, Selenium, and Python bots.
 
