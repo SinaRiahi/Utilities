@@ -137,6 +137,49 @@ Rather than creating dozens of half-finished tools, I'd rather build a smaller c
 
 ---
 
+## 🔳 QR Forge
+> Complete QR code design studio, batch generator, and live scanner — 100% client-side with zero data leakage.
+
+* 🎨 **Designer & Customization Engine**:
+  * 6 Dot patterns: Classic Square, Smooth Dots, Rounded, Extra-Rounded, Classy, Classy-Rounded
+  * Independent Finder Eye patterns: Square, Circle, and Extra-Rounded corner frames and dots
+  * Color options: Solid foreground, Linear and Radial gradients with custom angles, and independent corner colors
+  * Transparent background support for graphic design and print overlay
+  * 8 curated designer palettes (Classic, Tech Indigo, Cyber Emerald, Sunset, Midnight, Deep Purple, Slate, Ocean)
+* 🏷️ **CTA Frames & Badges**:
+  * Customizable "SCAN ME", "CONNECT TO WI-FI", or custom text banners
+  * Top and bottom banner frames, phone mockup card frame, and ticket borders with customizable colors and typography
+* 🖼️ **Logo & Icon Embedding**:
+  * Built-in vector icons: Wi-Fi, Globe, GitHub, Twitter/X, Instagram, YouTube, LinkedIn, WhatsApp, Email, Phone, Bitcoin, Shield, Star, Heart
+  * Custom logo upload (PNG, JPG, SVG) with adjustable size, padding, and background clear-out
+  * Automatic Error Correction Level bump to High (`H` 30%) when logos are added to guarantee 100% scannability
+* 📋 **12 Data Type Templates**:
+  * **URL & Web**: with integrated UTM campaign parameters builder
+  * **Wi-Fi Network**: WPA/WPA2/WPA3, WEP, or Open network with SSID and password (instant 1-tap connection)
+  * **vCard 3.0 Contact**: Full name, company, job title, phone numbers, email, address, and notes
+  * **WhatsApp & SMS**: Phone number with prefilled message
+  * **Email & Phone**: `mailto:` with subject/body and direct dial `tel:`
+  * **iCal Calendar Event**: Title, dates, location, and description for instant calendar import
+  * **Geo / Maps**: Coordinates with "Use My Location" GPS integration
+  * **Crypto**: Bitcoin, Ethereum, Solana, USDT, Dogecoin with addresses and amounts
+  * **Social**: Presets for Instagram, Twitter/X, GitHub, YouTube, LinkedIn, Telegram, TikTok
+  * **Plain Text**: Arbitrary notes, markdown, and JSON payloads
+* 📦 **Batch QR Generator**:
+  * Bulk generate up to 500 QR codes from multi-line text or uploaded `.csv` / `.txt` files
+  * Live batch preview gallery with individual downloads
+  * One-click "Download All as ZIP" archive powered by JSZip
+* 📷 **QR Code Scanner & Decoder**:
+  * Live webcam / camera scanning with viewfinder reticle and camera switcher
+  * Drag-and-drop / paste (`Ctrl+V`) image decoder powered by `jsQR`
+  * Actionable result inspector (open links, connect to Wi-Fi, download `.vcf` contact card, or copy text)
+  * "Load into Designer" button to instantly restyle scanned QR codes
+* 📤 **Multi-Format High-Res Exports**:
+  * PNG at 512px, 1024px, 2048px, or 4096px print-ready resolution
+  * Pure vector SVG export for Figma, Illustrator, and laser engraving
+  * Direct 1-click clipboard copy (`image/png` blob) and clean print view
+
+---
+
 ## 🗂️ File Forge
 > Batch file renaming, organization, and asset manager.
 

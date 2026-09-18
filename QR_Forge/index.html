@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Forge — Advanced QR Code Studio</title>
+    <meta name="description" content="Complete client-side QR code studio with custom shapes, color gradients, logos, CTA frames, 12 data templates, batch generator, and live scanner." />
+
+    <!-- Google Fonts (Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+
+    <!-- QR Code Styling, JSZip, and jsQR -->
+    <script src="https://cdn.jsdelivr.net/npm/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- ── Top Toolbar ────────────────────────────────────────── -->
+    <header class="toolbar" id="appToolbar">
+        <div class="toolbar-left">
+            <a href="../index.html" class="btn-back" title="Back to Utilities Hub">
+                <span>←</span>
+                <span>Utilities</span>
+            </a>
+            <div class="brand-title">
+                <span>🔳</span>
+                <span>QR Forge</span>
+            </div>
+            <span class="badge-tag">Studio</span>
+        </div>
+
+        <div class="toolbar-center">
+            <nav class="nav-tabs">
+                <button class="nav-tab active" data-view="studio" id="tabStudio">
+                    <span>🎨</span>
+                    <span>Designer</span>
+                </button>
+                <button class="nav-tab" data-view="batch" id="tabBatch">
+                    <span>📦</span>
+                    <span>Batch Generator</span>
+                </button>
+                <button class="nav-tab" data-view="scanner" id="tabScanner">
+                    <span>📷</span>
+                    <span>Scanner & Reader</span>
+                </button>
+                <button class="nav-tab" data-view="saved" id="tabSaved">
+                    <span>⭐</span>
+                    <span>Saved Templates</span>
+                </button>
+            </nav>
+        </div>
+
+        <div class="toolbar-right">
+            <button class="btn-tool" id="btnThemeToggle" title="Toggle Theme (Light / Dark)">
+                <span id="themeIcon">🌓</span>
+                <span id="themeLabel">Theme</span>
+            </button>
+            <button class="btn-tool" id="btnResetAll" title="Reset all settings to default">
+                <span>↻</span>
+                <span>Reset</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- ── Main App Container ─────────────────────────────────── -->
+    <main class="app-container">
+
+        <!-- ═══════════════════════════════════════════════════════════
+             VIEW 1: SINGLE QR DESIGNER STUDIO
+             ═══════════════════════════════════════════════════════════ -->
+        <section class="view-section active" id="viewStudio">
+            <div class="studio-layout">
+
+                <!-- Left Column: Settings & Configuration -->
+                <div class="controls-column">
+                    <div class="panel">
+                        <div class="panel-header">
+                            <span class="panel-title">
+                                <span>📋</span>
+                                <span>1. Content & Template</span>
+                            </span>
+                            <span class="text-muted" id="charCountBadge">0 characters</span>
+                        </div>
+                        <div class="panel-body">
+                            <!-- Type Selector Pills -->
+                            <div class="type-selector" id="typeSelector">
+                                <button type="button" class="type-pill active" data-type="url">🌐 URL</button>
+                                <button type="button" class="type-pill" data-type="wifi">📶 Wi-Fi</button>
+                                <button type="button" class="type-pill" data-type="vcard">👤 vCard</button>
+                                <button type="button" class="type-pill" data-type="whatsapp">💬 WhatsApp</button>
+                                <button type="button" class="type-pill" data-type="email">✉️ Email</button>
+                                <button type="button" class="type-pill" data-type="phone">📱 Phone</button>
+                                <button type="button" class="type-pill" data-type="sms">💬 SMS</button>
+                                <button type="button" class="type-pill" data-type="event">📅 Event</button>
+                                <button type="button" class="type-pill" data-type="geo">📍 Geo / Map</button>
+                                <button type="button" class="type-pill" data-type="crypto">₿ Crypto</button>
+                                <button type="button" class="type-pill" data-type="social">🔗 Social</button>
+                                <button type="button" class="type-pill" data-type="text">📝 Text</button>
+                            </div>
+
+                            <!-- Template Forms -->
+                            <div id="templateForms">
+                                <!-- URL Form -->
+                                <div class="template-form active" id="form-url">
+                                    <div class="form-group">
+                                        <label class="form-label" for="urlInput">Target URL / Link</label>
+                                        <input type="url" id="urlInput" class="form-control" placeholder="https://example.com" value="https://github.com">
+                                    </div>
+                                    <details class="accordion-item" style="margin-top: 8px;">
+                                        <summary class="accordion-header">
+                                            <span class="acc-title">🎯 Campaign UTM Builder (Optional)</span>
+                                            <span class="acc-chevron">▼</span>
+                                        </summary>
+                                        <div class="accordion-content">
+                                            <div class="form-row">
+                                                <div>
+                                                    <label class="form-label" for="utmSource">Campaign Source</label>
+                                                    <input type="text" id="utmSource" class="form-control" placeholder="e.g. qr_code, poster">
+                                                </div>
+                                                <div>
+                                                    <label class="form-label" for="utmMedium">Campaign Medium</label>
+                                                    <input type="text" id="utmMedium" class="form-control" placeholder="e.g. print, offline">
+                                                </div>
+                                            </div>
+                                            <div class="form-row">
+                                                <div>
+                                                    <label class="form-label" for="utmCampaign">Campaign Name</label>
+                                                    <input type="text" id="utmCampaign" class="form-control" placeholder="e.g. spring_launch">
+                                                </div>
+                                                <div>
+                                                    <label class="form-label" for="utmContent">Campaign Content</label>
+                                                    <input type="text" id="utmContent" class="form-control" placeholder="e.g. banner_top">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </details>
+                                </div>
+
+                                <!-- Wi-Fi Form -->
+                                <div class="template-form hidden" id="form-wifi">
+                                    <div class="form-group">
+                                        <label class="form-label" for="wifiSsid">Network Name (SSID)</label>
+                                        <input type="text" id="wifiSsid" class="form-control" placeholder="Office-Guest-5G" value="MyHomeWiFi">
+                                    </div>
+                                    <div class="form-row">
+                                        <div>
+                                            <label class="form-label" for="wifiEncryption">Security Type</label>
+                                            <select id="wifiEncryption" class="form-select">
+                                                <option value="WPA" selected>WPA / WPA2 / WPA3</option>
+                                                <option value="WEP">WEP</option>
+                                                <option value="nopass">None (Open)</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="form-label" for="wifiPassword">Password</label>
+                                            <input type="text" id="wifiPassword" class="form-control" placeholder="Network password" value="SuperSecretPass123">
+                                        </div>
+                                    </div>
+                                    <div class="form-group" style="margin-top: 4px;">
+                                        <label style="display: flex; align-items: center; gap: 8px; font-size: 12.5px; cursor: pointer;">
+                                            <input type="checkbox" id="wifiHidden">
+                                            <span>Hidden Network (SSID is not broadcasted)</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- vCard Form -->
+                                <div class="template-form hidden" id="form-vcard">
+                                    <div class="form-row">
+                                        <div>
+                                            <label class="form-label" for="vcardFirst">First Name</label>
+                                            <input type="text" id="vcardFirst" class="form-control" placeholder="Jane" value="Alex">
+                                        </div>
+                                        <div>
+                                            <label class="form-label" for="vcardLast">Last Name</label>
+                                            <input type="text" id="vcardLast" class="form-control" placeholder="Doe" value="Rivera">
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div>
+                                            <label class="form-label" for="vcardOrg">Organization / Company</label>
+                                            <input type="text" id="vcardOrg" class="form-control" placeholder="Acme Inc." value="TechForge Labs">
+                                        </div>
+                                        <div>
+                                            <label class="form-label" for="vcardTitle">Job Title</label>
+                                            <input type="text" id="vcardTitle" class="form-control" placeholder="Product Engineer" value="Software Architect">
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div>
+                                            <label class="form-label" for="vcardPhone">Mobile Phone</label>
+                                            <input type="tel" id="vcardPhone" class="form-control" placeholder="+1 555 019 2834" value="+1 (555) 234-5678">
+                                        </div>
+                                        <div>
+                                            <label class="form-label" for="vcardEmail">Email Address</label>
+                                            <input type="email" id="vcardEmail" class="form-control" placeholder="alex@example.com" value="alex@techforge.dev">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" for="vcardUrl">Personal Website / Portfolio</label>
+                                        <input type="url" id="vcardUrl" class="form-control" placeholder="https://alexrivera.dev" value="https://techforge.dev">
+                                    </div>
+                                </div>
+
+                                <!-- WhatsApp Form -->
+                                <div class="template-form hidden" id="form-whatsapp">
+                                    <div class="form-group">
+                                        <label class="form-label" for="waPhone">WhatsApp Phone Number (with Country Code)</label>
+                                        <input type="tel" id="waPhone" class="form-control" placeholder="+15551234567" value="+15551234567">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" for="waMsg">Pre-filled Message</label>
+                                        <textarea id="waMsg" class="form-control" rows="2" placeholder="Hi! I scanned your QR code and want to connect.">Hello! I scanned your QR code to connect.</textarea>
+                                    </div>
+                                </div>
+
+                                <!-- Email Form -->
+                                <div class="template-form hidden" id="form-email">
+                                    <div class="form-group">
+                                        <label class="form-label" for="emailTarget">Recipient Email</label>
+                                        <input type="email" id="emailTarget" class="form-control" placeholder="contact@domain.com" value="hello@example.com">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" for="emailSubject">Subject</label>
+                                        <input type="text" id="emailSubject" class="form-control" placeholder="Inquiry from QR" value="Quick Inquiry">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" for="emailBody">Message Body</label>
+                                        <textarea id="emailBody" class="form-control" rows="2" placeholder="Your prefilled message here...">Hi there! I would love to learn more about your services.</textarea>
+                                    </div>
+                                </div>
+
+                                <!-- Phone Form -->
+                                <div class="template-form hidden" id="form-phone">
+                                    <div class="form-group">
+                                        <label class="form-label" for="phoneTarget">Phone Number to Call</label>
+                                        <input type="tel" id="phoneTarget" class="form-control" placeholder="+1 (555) 123-4567" value="+15551234567">
+                                    </div>
+                                </div>
+
+                                <!-- SMS Form -->
+                                <div class="template-form hidden" id="form-sms">
+                                    <div class="form-group">
+                                        <label class="form-label" for="smsTarget">Phone Number</label>
+                                        <input type="tel" id="smsTarget" class="form-control" placeholder="+1 (555) 123-4567" value="+15551234567">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" for="smsMsg">SMS Message Body</label>
+                                        <textarea id="smsMsg" class="form-control" rows="2" placeholder="Text message...">Send promo code DISCOUNT20</textarea>
+                                    </div>
+                                </div>
+
+                                <!-- Event Form -->
+                                <div class="template-form hidden" id="form-event">
+                                    <div class="form-group">
+                                        <label class="form-label" for="eventTitle">Event Title</label>
+                                        <input type="text" id="eventTitle" class="form-control" placeholder="Developer Conference 2026" value="Annual Tech Keynote 2026">
+                                    </div>
+                                    <div class="form-row">
+                                        <div>
+                                            <label class="form-label" for="eventStart">Start Date & Time</label>
+                                            <input type="datetime-local" id="eventStart" class="form-control">
+                                        </div>
+                                        <div>
+                                            <label class="form-label" for="eventEnd">End Date & Time</label>
+                                            <input type="datetime-local" id="eventEnd" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" for="eventLocation">Location</label>
+                                        <input type="text" id="eventLocation" class="form-control" placeholder="Convention Center, Hall A / Online" value="Moscone Center, San Francisco">
+                                    </div>
+                                </div>
+
+                                <!-- Geo Form -->
+                                <div class="template-form hidden" id="form-geo">
+                                    <div class="form-row">
+                                        <div>
+                                            <label class="form-label" for="geoLat">Latitude</label>
+                                            <input type="number" step="any" id="geoLat" class="form-control" placeholder="37.7749" value="37.7749">
+                                        </div>
+                                        <div>
+                                            <label class="form-label" for="geoLng">Longitude</label>
+                                            <input type="number" step="any" id="geoLng" class="form-control" placeholder="-122.4194" value="-122.4194">
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn-tool" id="btnUseCurrentLocation" style="width: 100%; justify-content: center;">
+                                        <span>📍</span>
+                                        <span>Use My Current Device GPS Location</span>
+                                    </button>
+                                </div>
+
+                                <!-- Crypto Form -->
+                                <div class="template-form hidden" id="form-crypto">
+                                    <div class="form-row">
+                                        <div>
+                                            <label class="form-label" for="cryptoCurrency">Cryptocurrency</label>
+                                            <select id="cryptoCurrency" class="form-select">
+                                                <option value="bitcoin" selected>Bitcoin (BTC)</option>
+                                                <option value="ethereum">Ethereum (ETH)</option>
+                                                <option value="solana">Solana (SOL)</option>
+                                                <option value="usdt">USDT (Tether)</option>
+                                                <option value="dogecoin">Dogecoin (DOGE)</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="form-label" for="cryptoAmount">Amount (Optional)</label>
+                                            <input type="number" step="any" id="cryptoAmount" class="form-control" placeholder="0.05">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label" for="cryptoAddress">Wallet Address</label>
+                                        <input type="text" id="cryptoAddress" class="form-control" placeholder="bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh" value="bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh">
+                                    </div>
+                                </div>
+
+                                <!-- Social Form -->
+                                <div class="template-form hidden" id="form-social">
+                                    <div class="form-row">
+                                        <div>
+                                            <label class="form-label" for="socialPlatform">Platform</label>
+                                            <select id="socialPlatform" class="form-select">
+                                                <option value="github" selected>GitHub</option>
+                                                <option value="twitter">X / Twitter</option>
+                                                <option value="instagram">Instagram</option>
+                                                <option value="linkedin">LinkedIn</option>
+                                                <option value="youtube">YouTube</option>
+                                                <option value="telegram">Telegram</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="form-label" for="socialHandle">Username / Handle</label>
+                                            <input type="text" id="socialHandle" class="form-control" placeholder="username" value="torvalds">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Plain Text Form -->
+                                <div class="template-form hidden" id="form-text">
+                                    <div class="form-group">
+                                        <label class="form-label" for="textInput">Raw Text / Notes / Code</label>
+                                        <textarea id="textInput" class="form-control" rows="3" placeholder="Enter any arbitrary text...">Quick developer note or serial #SN-92841-A</textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Accordion 2: Patterns & Shapes -->
+                    <div class="accordion-item open mt-3" id="accShapes">
+                        <div class="accordion-header">
+                            <span class="acc-title">
+                                <span>✨</span>
+                                <span>2. Patterns & Shapes</span>
+                            </span>
+                            <span class="acc-chevron">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <!-- Body Dot Style -->
+                            <label class="form-label">Body Module Style</label>
+                            <div class="options-grid" id="dotTypeGrid">
+                                <button type="button" class="option-card active" data-val="square">Square</button>
+                                <button type="button" class="option-card" data-val="dots">Dots</button>
+                                <button type="button" class="option-card" data-val="rounded">Rounded</button>
+                                <button type="button" class="option-card" data-val="extra-rounded">Smooth</button>
+                                <button type="button" class="option-card" data-val="classy">Classy</button>
+                                <button type="button" class="option-card" data-val="classy-rounded">Classy Rd</button>
+                            </div>
+
+                            <!-- Corner Square Outer -->
+                            <div class="form-row mt-2">
+                                <div>
+                                    <label class="form-label">Corner Frame (Eye Outer)</label>
+                                    <div class="options-grid" style="grid-template-columns: 1fr 1fr 1fr;" id="cornerSquareGrid">
+                                        <button type="button" class="option-card active" data-val="square">Square</button>
+                                        <button type="button" class="option-card" data-val="extra-rounded">Rounded</button>
+                                        <button type="button" class="option-card" data-val="dot">Circle</button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="form-label">Corner Dot (Eye Inner)</label>
+                                    <div class="options-grid" style="grid-template-columns: 1fr 1fr;" id="cornerDotGrid">
+                                        <button type="button" class="option-card active" data-val="square">Square</button>
+                                        <button type="button" class="option-card" data-val="dot">Dot</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Accordion 3: Colors & Gradients -->
+                    <div class="accordion-item open mt-3" id="accColors">
+                        <div class="accordion-header">
+                            <span class="acc-title">
+                                <span>🎨</span>
+                                <span>3. Colors & Gradients</span>
+                            </span>
+                            <span class="acc-chevron">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <!-- Quick Preset Palettes -->
+                            <label class="form-label">Designer Palettes</label>
+                            <div class="palettes-container" id="palettesContainer">
+                                <div class="palette-chip" data-p="classic">
+                                    <div class="palette-dots">
+                                        <span class="palette-dot" style="background: #1a1a2e;"></span>
+                                        <span class="palette-dot" style="background: #ffffff;"></span>
+                                    </div>
+                                    <span>Classic</span>
+                                </div>
+                                <div class="palette-chip" data-p="indigo">
+                                    <div class="palette-dots">
+                                        <span class="palette-dot" style="background: #4c6ef5;"></span>
+                                        <span class="palette-dot" style="background: #15aabf;"></span>
+                                    </div>
+                                    <span>Tech Indigo</span>
+                                </div>
+                                <div class="palette-chip" data-p="emerald">
+                                    <div class="palette-dots">
+                                        <span class="palette-dot" style="background: #099268;"></span>
+                                        <span class="palette-dot" style="background: #20c997;"></span>
+                                    </div>
+                                    <span>Cyber Emerald</span>
+                                </div>
+                                <div class="palette-chip" data-p="sunset">
+                                    <div class="palette-dots">
+                                        <span class="palette-dot" style="background: #e03131;"></span>
+                                        <span class="palette-dot" style="background: #f76707;"></span>
+                                    </div>
+                                    <span>Sunset Red</span>
+                                </div>
+                                <div class="palette-chip" data-p="midnight">
+                                    <div class="palette-dots">
+                                        <span class="palette-dot" style="background: #1864ab;"></span>
+                                        <span class="palette-dot" style="background: #fcc419;"></span>
+                                    </div>
+                                    <span>Midnight Gold</span>
+                                </div>
+                                <div class="palette-chip" data-p="purple">
+                                    <div class="palette-dots">
+                                        <span class="palette-dot" style="background: #7950f2;"></span>
+                                        <span class="palette-dot" style="background: #be4bdb;"></span>
+                                    </div>
+                                    <span>Royal Violet</span>
+                                </div>
+                            </div>
+
+                            <!-- Fill Style Mode -->
+                            <div class="form-row">
+                                <div>
+                                    <label class="form-label" for="colorMode">Foreground Type</label>
+                                    <select id="colorMode" class="form-select">
+                                        <option value="solid" selected>Solid Single Color</option>
+                                        <option value="linear">Linear Gradient</option>
+                                        <option value="radial">Radial Gradient</option>
+                                    </select>
+                                </div>
+                                <div id="gradientAngleCol" class="hidden">
+                                    <label class="form-label" for="gradientAngle">Angle: <span id="angleVal">0°</span></label>
+                                    <input type="range" id="gradientAngle" min="0" max="360" value="45" style="width: 100%;">
+                                </div>
+                            </div>
+
+                            <!-- Color Pickers Row -->
+                            <div class="form-row mt-2">
+                                <div>
+                                    <label class="form-label">Primary Color</label>
+                                    <div class="color-row">
+                                        <div class="color-picker-wrapper">
+                                            <input type="color" id="primaryColor" value="#1a1a2e">
+                                        </div>
+                                        <input type="text" id="primaryColorHex" class="color-hex-input" value="#1a1a2e">
+                                    </div>
+                                </div>
+                                <div id="secondaryColorCol" class="hidden">
+                                    <label class="form-label">Gradient Color 2</label>
+                                    <div class="color-row">
+                                        <div class="color-picker-wrapper">
+                                            <input type="color" id="secondaryColor" value="#4c6ef5">
+                                        </div>
+                                        <input type="text" id="secondaryColorHex" class="color-hex-input" value="#4c6ef5">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="form-label">Background</label>
+                                    <div class="color-row">
+                                        <div class="color-picker-wrapper">
+                                            <input type="color" id="bgColor" value="#ffffff">
+                                        </div>
+                                        <input type="text" id="bgColorHex" class="color-hex-input" value="#ffffff">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Transparent Background Toggle -->
+                            <div class="form-group mt-2">
+                                <label style="display: flex; align-items: center; gap: 8px; font-size: 12.5px; cursor: pointer;">
+                                    <input type="checkbox" id="transparentBg">
+                                    <span>Transparent Background (for print and graphic overlays)</span>
+                                </label>
+                            </div>
+
+                            <!-- Custom Corner Colors -->
+                            <details class="accordion-item mt-2">
+                                <summary class="accordion-header">
+                                    <span class="acc-title">👁️ Custom Corner Eye Colors</span>
+                                    <span class="acc-chevron">▼</span>
+                                </summary>
+                                <div class="accordion-content">
+                                    <div class="form-group">
+                                        <label style="display: flex; align-items: center; gap: 8px; font-size: 12.5px; cursor: pointer;">
+                                            <input type="checkbox" id="customCornerColors">
+                                            <span>Customize corner eye colors separately</span>
+                                        </label>
+                                    </div>
+                                    <div id="cornerColorsWrap" class="form-row hidden">
+                                        <div>
+                                            <label class="form-label">Corner Frame Color</label>
+                                            <div class="color-row">
+                                                <div class="color-picker-wrapper">
+                                                    <input type="color" id="cornerSquareColor" value="#4c6ef5">
+                                                </div>
+                                                <input type="text" id="cornerSquareColorHex" class="color-hex-input" value="#4c6ef5">
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="form-label">Corner Dot Color</label>
+                                            <div class="color-row">
+                                                <div class="color-picker-wrapper">
+                                                    <input type="color" id="cornerDotColor" value="#1a1a2e">
+                                                </div>
+                                                <input type="text" id="cornerDotColorHex" class="color-hex-input" value="#1a1a2e">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </details>
+                        </div>
+                    </div>
+
+                    <!-- Accordion 4: Logo & Watermark -->
+                    <div class="accordion-item open mt-3" id="accLogo">
+                        <div class="accordion-header">
+                            <span class="acc-title">
+                                <span>🖼️</span>
+                                <span>4. Center Logo & Watermark</span>
+                            </span>
+                            <span class="acc-chevron">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <!-- Preset Icons -->
+                            <label class="form-label">Preset Icons</label>
+                            <div class="icon-presets-grid" id="iconPresetsGrid">
+                                <button type="button" class="icon-preset-btn active" data-icon="none">
+                                    <span class="emoji">🚫</span>
+                                    <span>None</span>
+                                </button>
+                                <button type="button" class="icon-preset-btn" data-icon="globe">
+                                    <span class="emoji">🌐</span>
+                                    <span>Web</span>
+                                </button>
+                                <button type="button" class="icon-preset-btn" data-icon="wifi">
+                                    <span class="emoji">📶</span>
+                                    <span>Wi-Fi</span>
+                                </button>
+                                <button type="button" class="icon-preset-btn" data-icon="github">
+                                    <span class="emoji">🐙</span>
+                                    <span>GitHub</span>
+                                </button>
+                                <button type="button" class="icon-preset-btn" data-icon="twitter">
+                                    <span class="emoji">🐦</span>
+                                    <span>X</span>
+                                </button>
+                                <button type="button" class="icon-preset-btn" data-icon="instagram">
+                                    <span class="emoji">📷</span>
+                                    <span>Insta</span>
+                                </button>
+                                <button type="button" class="icon-preset-btn" data-icon="youtube">
+                                    <span class="emoji">▶️</span>
+                                    <span>YouTube</span>
+                                </button>
+                                <button type="button" class="icon-preset-btn" data-icon="whatsapp">
+                                    <span class="emoji">💬</span>
+                                    <span>WhatsApp</span>
+                                </button>
+                                <button type="button" class="icon-preset-btn" data-icon="email">
+                                    <span class="emoji">✉️</span>
+                                    <span>Mail</span>
+                                </button>
+                                <button type="button" class="icon-preset-btn" data-icon="bitcoin">
+                                    <span class="emoji">₿</span>
+                                    <span>Bitcoin</span>
+                                </button>
+                                <button type="button" class="icon-preset-btn" data-icon="shield">
+                                    <span class="emoji">🛡️</span>
+                                    <span>Shield</span>
+                                </button>
+                                <button type="button" class="icon-preset-btn" data-icon="star">
+                                    <span class="emoji">⭐</span>
+                                    <span>Star</span>
+                                </button>
+                            </div>
+
+                            <!-- Custom Upload -->
+                            <div class="form-group mt-2">
+                                <label class="form-label">Or Upload Custom Logo (PNG, SVG, JPG)</label>
+                                <input type="file" id="logoUploadInput" accept="image/png,image/jpeg,image/svg+xml" class="form-control">
+                            </div>
+
+                            <div id="logoControlsWrap" class="hidden">
+                                <div class="form-row">
+                                    <div>
+                                        <label class="form-label" for="logoSize">Logo Size: <span id="logoSizeVal">30%</span></label>
+                                        <input type="range" id="logoSize" min="15" max="38" value="30" style="width: 100%;">
+                                    </div>
+                                    <div>
+                                        <label class="form-label" for="logoMargin">Logo Margin: <span id="logoMarginVal">4px</span></label>
+                                        <input type="range" id="logoMargin" min="0" max="15" value="4" style="width: 100%;">
+                                    </div>
+                                </div>
+                                <div class="flex-between mt-2">
+                                    <label style="display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer;">
+                                        <input type="checkbox" id="logoClearBg" checked>
+                                        <span>Clear dots behind logo</span>
+                                    </label>
+                                    <button type="button" class="btn-tool" id="btnRemoveLogo" style="font-size: 11px; padding: 3px 8px;">Remove Logo</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Accordion 5: CTA Frames & Borders -->
+                    <div class="accordion-item open mt-3" id="accFrame">
+                        <div class="accordion-header">
+                            <span class="acc-title">
+                                <span>🏷️</span>
+                                <span>5. Call-to-Action (CTA) Frame</span>
+                            </span>
+                            <span class="acc-chevron">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <label class="form-label">Frame Style</label>
+                            <div class="options-grid" style="grid-template-columns: repeat(4, 1fr);" id="frameStyleGrid">
+                                <button type="button" class="option-card active" data-val="none">None</button>
+                                <button type="button" class="option-card" data-val="bottom-badge">Bottom</button>
+                                <button type="button" class="option-card" data-val="top-badge">Top</button>
+                                <button type="button" class="option-card" data-val="box-border">Border</button>
+                            </div>
+
+                            <div id="frameControlsWrap" class="hidden mt-2">
+                                <div class="form-group">
+                                    <label class="form-label" for="frameText">Frame Banner Text</label>
+                                    <input type="text" id="frameText" class="form-control" value="SCAN ME" maxlength="28">
+                                </div>
+                                <div class="form-row">
+                                    <div>
+                                        <label class="form-label">Frame Background</label>
+                                        <div class="color-row">
+                                            <div class="color-picker-wrapper">
+                                                <input type="color" id="frameBgColor" value="#4c6ef5">
+                                            </div>
+                                            <input type="text" id="frameBgColorHex" class="color-hex-input" value="#4c6ef5">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Frame Text Color</label>
+                                        <div class="color-row">
+                                            <div class="color-picker-wrapper">
+                                                <input type="color" id="frameTextColor" value="#ffffff">
+                                            </div>
+                                            <input type="text" id="frameTextColorHex" class="color-hex-input" value="#ffffff">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Accordion 6: Precision Technical Tuning -->
+                    <details class="accordion-item mt-3">
+                        <summary class="accordion-header">
+                            <span class="acc-title">
+                                <span>⚙️</span>
+                                <span>6. Technical Precision & Margin</span>
+                            </span>
+                            <span class="acc-chevron">▼</span>
+                        </summary>
+                        <div class="accordion-content">
+                            <div class="form-row">
+                                <div>
+                                    <label class="form-label" for="eccLevel">Error Correction (ECC)</label>
+                                    <select id="eccLevel" class="form-select">
+                                        <option value="L">L — 7% Recovery</option>
+                                        <option value="M">M — 15% Recovery</option>
+                                        <option value="Q" selected>Q — 25% Recovery</option>
+                                        <option value="H">H — 30% (Best with Logos)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="form-label" for="qrMargin">Quiet Zone / Margin</label>
+                                    <input type="range" id="qrMargin" min="0" max="30" value="10" style="width: 100%;">
+                                    <span class="text-muted" id="marginVal">10px</span>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+
+                <!-- Right Column: Sticky Live Preview & Action Deck -->
+                <div class="preview-column">
+                    <div class="preview-card">
+                        <div class="scan-status-badge" id="scannabilityBadge">
+                            <span>✓</span>
+                            <span>Optimal Scannability (ECC: Q)</span>
+                        </div>
+
+                        <!-- Live QR Render Box -->
+                        <div class="qr-canvas-holder" id="qrHolder">
+                            <!-- qr-code-styling or frame compositor will render here -->
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="form-group" style="text-align: left;">
+                            <label class="form-label" for="exportResolution">Export Resolution</label>
+                            <select id="exportResolution" class="form-select">
+                                <option value="512">512 × 512 px (Standard Web)</option>
+                                <option value="1024" selected>1024 × 1024 px (HD Social & Print)</option>
+                                <option value="2048">2048 × 2048 px (Ultra HD Posters)</option>
+                                <option value="4096">4096 × 4096 px (Billboard Master)</option>
+                            </select>
+                        </div>
+
+                        <div class="actions-grid">
+                            <button type="button" class="btn-action primary" id="btnDownloadPng">
+                                <span>📥</span>
+                                <span>Download PNG</span>
+                            </button>
+                            <button type="button" class="btn-action" id="btnDownloadSvg">
+                                <span>📐</span>
+                                <span>Download SVG</span>
+                            </button>
+                            <button type="button" class="btn-action" id="btnCopyClipboard">
+                                <span>📋</span>
+                                <span>Copy to Clipboard</span>
+                            </button>
+                            <button type="button" class="btn-action" id="btnPrint">
+                                <span>🖨️</span>
+                                <span>Print</span>
+                            </button>
+                            <button type="button" class="btn-action full-width" id="btnSaveTemplate">
+                                <span>⭐</span>
+                                <span>Save to Templates</span>
+                            </button>
+                        </div>
+
+                        <!-- Raw Payload Inspector -->
+                        <details class="payload-inspect">
+                            <summary>Inspect Encoded Payload</summary>
+                            <div class="payload-code" id="payloadInspectCode">https://github.com</div>
+                            <div class="mt-2" style="text-align: right;">
+                                <button type="button" class="btn-tool" id="btnCopyPayload" style="font-size: 11px; padding: 3px 8px;">Copy String</button>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════════════
+             VIEW 2: BATCH QR GENERATOR
+             ═══════════════════════════════════════════════════════════ -->
+        <section class="view-section" id="viewBatch">
+            <div class="batch-container">
+                <div class="flex-between mb-3">
+                    <div>
+                        <h2 style="font-size: 16px; font-weight: 700;">📦 Bulk & Batch QR Generator</h2>
+                        <p class="text-muted">Generate up to 500 QR codes at once from lists or CSV files and export them in a single ZIP archive.</p>
+                    </div>
+                    <div class="flex-center gap-2">
+                        <button type="button" class="btn-tool" id="btnLoadBatchSample">
+                            <span>📄</span>
+                            <span>Load Sample Data</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Batch Input Options -->
+                <div class="dropzone" id="batchDropzone">
+                    <div class="dropzone-icon">📂</div>
+                    <div style="font-weight: 600; margin-bottom: 4px;">Drag and drop a CSV or TXT file here</div>
+                    <div class="text-muted">Or click to select a file from your computer (one URL or text entry per line)</div>
+                    <input type="file" id="batchFileInput" accept=".csv,.txt" style="display: none;">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="batchTextarea">Or Paste Entries (One per line)</label>
+                    <textarea id="batchTextarea" class="form-control" rows="6" placeholder="https://example.com/item-1
+https://example.com/item-2
+https://example.com/item-3"></textarea>
+                </div>
+
+                <div class="form-row" style="align-items: center;">
+                    <div>
+                        <label class="form-label" for="batchStyleMode">Styling Engine</label>
+                        <select id="batchStyleMode" class="form-select">
+                            <option value="designer" selected>Apply Current Designer Styling (Colors, Shapes, Logo)</option>
+                            <option value="classic">Classic High-Contrast Black & White</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label" for="batchPrefix">Prefix (Optional)</label>
+                        <input type="text" id="batchPrefix" class="form-control" placeholder="e.g. https://domain.com/id/">
+                    </div>
+                </div>
+
+                <div class="flex-between mt-3">
+                    <button type="button" class="btn-action primary" id="btnRunBatch">
+                        <span>⚡</span>
+                        <span>Generate Batch</span>
+                    </button>
+                    <button type="button" class="btn-action" id="btnDownloadZip" disabled>
+                        <span>📦</span>
+                        <span>Download All as ZIP</span>
+                    </button>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="progress-bar-wrap" id="batchProgressWrap">
+                    <div class="progress-bar-fill" id="batchProgressFill"></div>
+                </div>
+                <div class="text-muted mt-2" id="batchStatusText" style="display: none;">Processing...</div>
+
+                <!-- Batch Preview Grid -->
+                <div class="batch-grid" id="batchGallery"></div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════════════
+             VIEW 3: QR CODE SCANNER & DECODER
+             ═══════════════════════════════════════════════════════════ -->
+        <section class="view-section" id="viewScanner">
+            <div class="scanner-layout">
+                <!-- Left: Scanner input (Camera or Image Upload) -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <span class="panel-title">
+                            <span>📷</span>
+                            <span>Camera Scanner & Image Upload</span>
+                        </span>
+                        <div class="flex-center gap-2">
+                            <button type="button" class="btn-tool" id="btnToggleCamera">
+                                <span id="camBtnIcon">🎥</span>
+                                <span id="camBtnLabel">Start Camera</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        <!-- Camera Viewport -->
+                        <div class="camera-box" id="cameraBox">
+                            <video id="scannerVideo" playsinline style="display: none;"></video>
+                            <canvas id="scannerCanvas" style="display: none;"></canvas>
+                            <div class="scanner-overlay" id="scannerOverlay" style="display: none;">
+                                <div class="scanner-reticle">
+                                    <div class="scanner-laser"></div>
+                                </div>
+                            </div>
+                            <div id="cameraPlaceholder" style="color: #ffffff; text-align: center; padding: 20px;">
+                                <div style="font-size: 36px; margin-bottom: 8px;">📷</div>
+                                <div style="font-weight: 600;">Camera is inactive</div>
+                                <div style="font-size: 12px; color: #868e96; margin-top: 4px;">Click "Start Camera" above or upload an image below</div>
+                            </div>
+                        </div>
+
+                        <!-- Image File Dropzone -->
+                        <div class="dropzone mt-3" id="scannerDropzone">
+                            <div class="dropzone-icon">🖼️</div>
+                            <div style="font-weight: 600; margin-bottom: 2px;">Drop QR Code image or paste from clipboard (Ctrl+V)</div>
+                            <div class="text-muted">Supports PNG, JPG, WebP, SVG screenshots</div>
+                            <input type="file" id="scannerFileInput" accept="image/*" style="display: none;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Scan Result Inspection & Actions -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <span class="panel-title">
+                            <span>🔍</span>
+                            <span>Decoded Result & Intelligence</span>
+                        </span>
+                    </div>
+                    <div class="panel-body">
+                        <div id="scanEmptyState" style="text-align: center; padding: 40px 20px; color: var(--text-muted);">
+                            <div style="font-size: 32px; margin-bottom: 8px;">📡</div>
+                            <div>No QR code detected yet</div>
+                            <div style="font-size: 11.5px; margin-top: 4px;">Scan with your camera or drop an image to inspect.</div>
+                        </div>
+
+                        <div id="scanResultContainer" class="hidden">
+                            <span class="scan-type-badge" id="scanTypeBadge">URL</span>
+                            <div class="scan-content-text" id="scanContentText"></div>
+
+                            <!-- Contextual Action Buttons -->
+                            <div class="actions-grid mt-3">
+                                <button type="button" class="btn-action primary" id="btnOpenScanLink">
+                                    <span>↗</span>
+                                    <span id="openScanLinkLabel">Open Link</span>
+                                </button>
+                                <button type="button" class="btn-action" id="btnCopyScanContent">
+                                    <span>📋</span>
+                                    <span>Copy Text</span>
+                                </button>
+                                <button type="button" class="btn-action full-width" id="btnLoadIntoDesigner">
+                                    <span>🎨</span>
+                                    <span>Load into QR Designer</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════════════════
+             VIEW 4: SAVED TEMPLATES & HISTORY
+             ═══════════════════════════════════════════════════════════ -->
+        <section class="view-section" id="viewSaved">
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title">
+                        <span>⭐</span>
+                        <span>Saved QR Templates & Generation History</span>
+                    </span>
+                    <button type="button" class="btn-tool" id="btnClearHistory">
+                        <span>🗑️</span>
+                        <span>Clear All</span>
+                    </button>
+                </div>
+                <div class="panel-body">
+                    <div id="savedEmptyState" style="text-align: center; padding: 40px 20px; color: var(--text-muted);">
+                        <div style="font-size: 32px; margin-bottom: 8px;">📑</div>
+                        <div>No saved templates yet</div>
+                        <div style="font-size: 11.5px; margin-top: 4px;">Click "Save to Templates" in the Designer to quickly bookmark your designs.</div>
+                    </div>
+                    <div class="batch-grid" id="savedTemplatesGrid"></div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Toast notification element -->
+    <div class="toast" id="appToast"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>

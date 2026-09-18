@@ -1,8 +1,9 @@
 {
   "name": "Utilities",
-  "description": "A developer tool suite featuring MD Studio, PDF to Markdown, Image Forge, Audio Forge, File Forge, File Transfer, WebScope, and Secret Lab (Token & Security Studio).",
+  "description": "A developer tool suite featuring MD Studio, PDF to Markdown, Image Forge, Audio Forge, QR Forge, File Forge, File Transfer, WebScope, and Secret Lab.",
   "requestFramePermissions": [
-    "microphone"
+    "microphone",
+    "camera"
   ],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"

@@ -583,6 +583,7 @@ app.use("/File_transfer", express.static(path.join(ROOT_DIR, "File_transfer")));
 app.use("/WebScope/templates", express.static(path.join(ROOT_DIR, "WebScope", "templates")));
 app.use("/WebScope", express.static(path.join(ROOT_DIR, "WebScope")));
 app.use("/Secret_Lab", express.static(path.join(ROOT_DIR, "Secret_Lab")));
+app.use("/QR_Forge", express.static(path.join(ROOT_DIR, "QR_Forge")));
 app.use("/images", express.static(path.join(ROOT_DIR, "images")));
 app.use("/Chrome_Extensions", express.static(path.join(ROOT_DIR, "Chrome_Extensions")));
 
