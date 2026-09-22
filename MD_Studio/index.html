@@ -1579,6 +1579,8 @@
                 overflow: visible !important;
             }
             .toolbar,
+            .mobile-view-bar,
+            .mobile-floating-toggle,
             .divider,
             .pane-left,
             .pane-header,
@@ -1701,41 +1703,409 @@
             }
         }
 
-        /* ── Responsive ───────────────── */
+        /* ── Mobile elements default to hidden on desktop / regular screens ── */
+        .mobile-view-bar {
+            display: none;
+        }
+        .mobile-floating-toggle {
+            display: none;
+        }
+
+        /* ── Responsive & Mobile Refinements ───────────────── */
         @media (max-width: 768px) {
-            .main-container {
-                flex-direction: column;
+            :root {
+                --toolbar-height: 44px;
             }
-            .pane-left {
-                width: 100%;
-                height: 45%;
-                min-width: 0;
-                border-right: none;
-                border-bottom: 1px solid var(--border);
-            }
-            .pane-right {
-                height: 55%;
-                min-width: 0;
-            }
-            .divider {
-                width: 100%;
-                height: 6px;
-                cursor: row-resize;
-            }
+
+            /* Toolbar: smooth touch-scrollable horizontal row */
             .toolbar {
-                gap: 3px;
-                padding: 0 6px;
+                gap: 4px;
+                padding: 0 8px;
+                overflow-x: auto;
+                overflow-y: visible;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none;
+                -ms-overflow-style: none;
             }
-            .toolbar button {
-                padding: 5px 8px;
-                font-size: 11px;
-                gap: 3px;
+            .toolbar::-webkit-scrollbar {
+                display: none;
+            }
+            .toolbar .sep {
+                height: 18px;
+                margin: 0 2px;
+            }
+            .toolbar button,
+            .toolbar .btn-group>button {
+                padding: 6px 10px;
+                font-size: 12px;
+                gap: 4px;
+                min-height: 34px;
+                border-radius: var(--radius-sm);
             }
             .toolbar .badge {
                 display: none;
             }
+            .toolbar .spacer {
+                display: none;
+            }
+
+            /* Export dropdown menu as mobile sheet */
+            .dropdown-menu {
+                position: fixed !important;
+                top: 48px !important;
+                left: 8px !important;
+                right: 8px !important;
+                width: auto !important;
+                min-width: 0 !important;
+                max-width: calc(100vw - 16px) !important;
+                box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28) !important;
+                z-index: 2100 !important;
+                border-radius: var(--radius) !important;
+                padding: 6px !important;
+            }
+            .dropdown-item {
+                padding: 10px 12px !important;
+                font-size: 13.5px !important;
+                min-height: 42px !important;
+            }
+            .dropdown-item-icon {
+                font-size: 18px !important;
+            }
+
+            /* Mobile View Switcher Bar */
+            .mobile-view-bar {
+                display: flex !important;
+                align-items: center;
+                justify-content: space-between;
+                padding: 6px 10px;
+                background: var(--bg-tertiary);
+                border-bottom: 1px solid var(--border);
+                flex-shrink: 0;
+                gap: 8px;
+                z-index: 90;
+            }
+            .mobile-segmented-control {
+                display: inline-flex;
+                background: var(--bg-secondary);
+                border: 1px solid var(--border);
+                border-radius: 6px;
+                padding: 2px;
+                gap: 2px;
+            }
+            .mobile-tab-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+                padding: 5px 12px;
+                border: none;
+                background: transparent;
+                color: var(--text-secondary);
+                font-size: 12px;
+                font-weight: 500;
+                font-family: var(--font-sans);
+                border-radius: 4px;
+                cursor: pointer;
+                transition: all var(--transition);
+                white-space: nowrap;
+                -webkit-tap-highlight-color: transparent;
+            }
+            .mobile-tab-btn.active {
+                background: var(--bg);
+                color: var(--accent);
+                font-weight: 600;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            }
+            [data-theme="dark"] .mobile-tab-btn.active {
+                background: var(--bg-tertiary);
+                color: var(--accent);
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            }
+            .mobile-stats-pill {
+                font-size: 11px;
+                font-family: var(--font-mono);
+                color: var(--text-muted);
+                background: var(--bg);
+                border: 1px solid var(--border-light);
+                padding: 3px 8px;
+                border-radius: 12px;
+                white-space: nowrap;
+                flex-shrink: 0;
+            }
+
+            /* Main Container & Panes in Mobile Modes */
+            .main-container {
+                flex-direction: column;
+                flex: 1;
+                min-height: 0;
+            }
+
+            /* Default mobile state or Tab: Editor */
+            .main-container:not(.mobile-tab-preview):not(.mobile-tab-split) .pane-left,
+            .main-container.mobile-tab-editor .pane-left {
+                display: flex !important;
+                width: 100% !important;
+                height: 100% !important;
+                min-width: 0;
+                border-right: none;
+                border-bottom: none;
+                flex: 1 !important;
+            }
+            .main-container:not(.mobile-tab-preview):not(.mobile-tab-split) .pane-right,
+            .main-container.mobile-tab-editor .pane-right {
+                display: none !important;
+            }
+            .main-container:not(.mobile-tab-preview):not(.mobile-tab-split) .divider,
+            .main-container.mobile-tab-editor .divider {
+                display: none !important;
+            }
+
+            /* Tab: Preview */
+            .main-container.mobile-tab-preview .pane-left {
+                display: none !important;
+            }
+            .main-container.mobile-tab-preview .pane-right {
+                display: flex !important;
+                width: 100% !important;
+                height: 100% !important;
+                min-width: 0;
+                flex: 1 !important;
+            }
+            .main-container.mobile-tab-preview .divider {
+                display: none !important;
+            }
+
+            /* Tab: Split (Top / Bottom) */
+            .main-container.mobile-tab-split {
+                flex-direction: column;
+            }
+            .main-container.mobile-tab-split .pane-left {
+                display: flex !important;
+                width: 100% !important;
+                height: 48% !important;
+                min-width: 0;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+                flex: none !important;
+            }
+            .main-container.mobile-tab-split .pane-right {
+                display: flex !important;
+                width: 100% !important;
+                height: 52% !important;
+                min-width: 0;
+                flex: 1 !important;
+            }
+            .main-container.mobile-tab-split .divider {
+                display: block !important;
+                width: 100% !important;
+                height: 8px !important;
+                cursor: row-resize;
+                background: var(--bg-tertiary);
+                border-top: 1px solid var(--border-light);
+                border-bottom: 1px solid var(--border-light);
+            }
+
+            /* Floating Quick Toggle Button */
+            .mobile-floating-toggle {
+                display: inline-flex !important;
+                position: fixed;
+                bottom: 16px;
+                right: 16px;
+                background: var(--accent);
+                color: #ffffff;
+                border: none;
+                border-radius: 28px;
+                padding: 10px 18px;
+                font-family: var(--font-sans);
+                font-size: 13px;
+                font-weight: 600;
+                box-shadow: 0 4px 14px rgba(76, 110, 245, 0.4), 0 2px 6px rgba(0, 0, 0, 0.15);
+                cursor: pointer;
+                z-index: 150;
+                align-items: center;
+                gap: 6px;
+                transition: transform var(--transition), background var(--transition);
+                -webkit-tap-highlight-color: transparent;
+            }
+            .mobile-floating-toggle:active {
+                transform: scale(0.95);
+                background: var(--accent-hover);
+            }
+
+            /* Editor on mobile */
+            .editor-wrapper {
+                min-height: 0;
+            }
+            .line-numbers {
+                width: 36px;
+                font-size: 11px;
+                padding: 12px 4px 12px 0;
+                line-height: 1.55;
+            }
+            .editor-textarea {
+                padding: 12px 10px;
+                font-size: 13.5px;
+                line-height: 1.55;
+            }
+
+            /* Pane header compact */
+            .pane-header {
+                padding: 6px 10px;
+                font-size: 11px;
+            }
+            .pane-header button {
+                padding: 4px 8px;
+                font-size: 14px;
+                min-height: 32px;
+                min-width: 32px;
+            }
+
+            /* Preview container on mobile */
             .preview-container {
-                padding: 16px;
+                padding: 14px 12px;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+            .preview-container h1 {
+                font-size: 1.6em;
+                margin-top: 0.8em;
+                margin-bottom: 0.4em;
+            }
+            .preview-container h2 {
+                font-size: 1.35em;
+                margin-top: 0.8em;
+                margin-bottom: 0.4em;
+            }
+            .preview-container h3 {
+                font-size: 1.15em;
+            }
+            .preview-container table {
+                display: block;
+                max-width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                border-collapse: collapse;
+                margin: 1em 0;
+                font-size: 13px;
+            }
+            .preview-container pre {
+                max-width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                padding: 10px 12px;
+                font-size: 12px;
+                border-radius: var(--radius-sm);
+            }
+            .preview-container pre code {
+                white-space: pre;
+                word-break: normal;
+                word-wrap: normal;
+            }
+            .preview-container .katex-block,
+            .preview-container .katex-display {
+                max-width: 100%;
+                overflow-x: auto;
+                overflow-y: hidden;
+                -webkit-overflow-scrolling: touch;
+                padding: 4px 0;
+            }
+            .preview-container .mermaid-rendered,
+            .preview-container .mermaid {
+                max-width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            .preview-container .md-note {
+                margin: 0.8em 0;
+                padding: 0.7em 0.9em;
+                font-size: 13.5px;
+            }
+            .cover-page {
+                min-height: auto;
+                padding: 24px 14px;
+            }
+            .cover-page .cover-title {
+                font-size: 1.8em;
+            }
+            .cover-page .cover-subtitle {
+                font-size: 1.05em;
+            }
+
+            /* Modals on mobile */
+            .modal-overlay {
+                padding: 8px;
+                align-items: center;
+                justify-content: center;
+            }
+            .modal {
+                width: 96%;
+                max-width: 100%;
+                padding: 18px 16px;
+                max-height: 88vh;
+                border-radius: var(--radius);
+            }
+            .modal h3 {
+                font-size: 1.1em;
+                margin-bottom: 12px;
+                padding-bottom: 8px;
+            }
+            .modal h4 {
+                margin: 14px 0 6px;
+                font-size: 0.88em;
+            }
+            .modal label {
+                font-size: 12px;
+                margin: 8px 0 3px;
+            }
+            .modal select,
+            .modal input[type="text"],
+            .modal input[type="number"] {
+                padding: 9px 10px;
+                font-size: 13.5px;
+                min-height: 40px;
+            }
+            .modal .modal-actions {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                justify-content: flex-end;
+                margin-top: 14px;
+                padding-top: 12px;
+            }
+            .modal button {
+                padding: 9px 14px;
+                font-size: 13px;
+                min-height: 40px;
+            }
+            #prompt-textarea {
+                min-height: 130px;
+                height: 25vh;
+                font-size: 12px;
+            }
+            .image-dropzone {
+                padding: 14px 10px;
+                margin: 8px 0;
+            }
+
+            /* Toast position */
+            .toast {
+                bottom: 74px;
+                max-width: 90vw;
+                padding: 8px 16px;
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .toolbar button {
+                padding: 5px 8px;
+                font-size: 11.5px;
+            }
+            .mobile-tab-btn {
+                padding: 4px 8px;
+                font-size: 11px;
+            }
+            .mobile-stats-pill {
+                display: none;
             }
         }
     </style>
@@ -1804,6 +2174,22 @@
         <span class="badge" id="read-time-badge">~0 min read</span>
     </div>
 
+    <!-- Mobile View Switcher Bar (visible ONLY on mobile / small screens <= 768px) -->
+    <div class="mobile-view-bar" id="mobile-view-bar">
+        <div class="mobile-segmented-control" role="tablist" aria-label="Editor and Preview Views">
+            <button class="mobile-tab-btn active" id="tab-editor-btn" role="tab" aria-selected="true" onclick="App.setMobileTab('editor')">
+                <span class="tab-icon">📝</span> <span>Editor</span>
+            </button>
+            <button class="mobile-tab-btn" id="tab-preview-btn" role="tab" aria-selected="false" onclick="App.setMobileTab('preview')">
+                <span class="tab-icon">👁️</span> <span>Preview</span>
+            </button>
+            <button class="mobile-tab-btn" id="tab-split-btn" role="tab" aria-selected="false" onclick="App.setMobileTab('split')">
+                <span class="tab-icon">◫</span> <span>Split</span>
+            </button>
+        </div>
+        <div class="mobile-stats-pill" id="mobile-stats-pill" title="Document statistics">0 words</div>
+    </div>
+
     <div class="main-container" id="main-container">
         <div class="pane pane-left" id="pane-left">
             <div class="pane-header">
@@ -1815,7 +2201,7 @@
             </div>
             <div class="editor-wrapper" id="editor-wrapper">
                 <div class="line-numbers" id="line-numbers">1</div>
-                <textarea class="editor-textarea" id="editor" placeholder="# Start writing Markdown here...
+                <textarea class="editor-textarea" id="editor" autocapitalize="none" autocomplete="off" spellcheck="false" placeholder="# Start writing Markdown here...
 Or drag & drop .md or image files (PNG, JPG, SVG, WebP, GIF)...
 
 ## Features
@@ -2058,6 +2444,12 @@ Or drag & drop .md or image files (PNG, JPG, SVG, WebP, GIF)...
             </div>
         </div>
     </div>
+
+    <!-- Mobile Floating Toggle Button (Quick 1-tap view switcher on small screens) -->
+    <button class="mobile-floating-toggle" id="mobile-floating-toggle" onclick="App.toggleMobileTab()" title="Switch Editor / Preview" aria-label="Toggle editor and preview">
+        <span id="mobile-floating-icon">👁️</span>
+        <span id="mobile-floating-label">Preview</span>
+    </button>
 
     <div class="toast" id="toast"></div>
     <input type="file" id="file-input" accept=".md,.markdown,.txt" style="display:none;" />
@@ -3562,6 +3954,11 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
                 wordCountBadge.textContent = 'Words: ' + words.toLocaleString();
                 charCountBadge.textContent = 'Chars: ' + chars.toLocaleString();
                 readTimeBadge.textContent = '~' + readTime + ' min read';
+
+                const mobileStats = document.getElementById('mobile-stats-pill');
+                if (mobileStats) {
+                    mobileStats.textContent = words.toLocaleString() + ' words · ' + chars.toLocaleString() + ' chars';
+                }
             }
 
             // ── Check if a heading is inside a code block or blockquote ──
@@ -5079,17 +5476,87 @@ state.lastRendered = ''; renderPreview();
 showToast(state.settings.theme === 'dark' ? '🌙 Dark mode' : '☀️ Light mode');
 }
 
+// ── Mobile Responsive View Switcher ──────
+let currentMobileTab = 'editor';
+
+function setMobileTab(tab) {
+    currentMobileTab = tab;
+    const container = document.getElementById('main-container');
+    const editorBtn = document.getElementById('tab-editor-btn');
+    const previewBtn = document.getElementById('tab-preview-btn');
+    const splitBtn = document.getElementById('tab-split-btn');
+    const floatIcon = document.getElementById('mobile-floating-icon');
+    const floatLabel = document.getElementById('mobile-floating-label');
+
+    if (!container) return;
+
+    container.classList.remove('mobile-tab-editor', 'mobile-tab-preview', 'mobile-tab-split');
+    container.classList.add('mobile-tab-' + tab);
+
+    [editorBtn, previewBtn, splitBtn].forEach(b => {
+        if (b) {
+            b.classList.remove('active');
+            b.setAttribute('aria-selected', 'false');
+        }
+    });
+
+    if (tab === 'editor') {
+        if (editorBtn) {
+            editorBtn.classList.add('active');
+            editorBtn.setAttribute('aria-selected', 'true');
+        }
+        if (floatIcon) floatIcon.textContent = '👁️';
+        if (floatLabel) floatLabel.textContent = 'Preview';
+    } else if (tab === 'preview') {
+        if (previewBtn) {
+            previewBtn.classList.add('active');
+            previewBtn.setAttribute('aria-selected', 'true');
+        }
+        if (floatIcon) floatIcon.textContent = '📝';
+        if (floatLabel) floatLabel.textContent = 'Editor';
+        renderPreview();
+    } else if (tab === 'split') {
+        if (splitBtn) {
+            splitBtn.classList.add('active');
+            splitBtn.setAttribute('aria-selected', 'true');
+        }
+        if (floatIcon) floatIcon.textContent = '👁️';
+        if (floatLabel) floatLabel.textContent = 'Preview';
+        renderPreview();
+    }
+}
+
+function toggleMobileTab() {
+    if (currentMobileTab === 'editor') {
+        setMobileTab('preview');
+    } else {
+        setMobileTab('editor');
+    }
+}
+
 // ── Fullscreen pane ──────────────────────
 function fullscreenPane(side) {
-const pane = side === 'left' ? paneLeftEl : paneRightEl;
-const isFullscreen = pane.classList.contains('fullscreen');
-if (isFullscreen) { pane.classList.remove('fullscreen');
-pane.style.width = ''; pane.style.flex = ''; dividerEl.style.display = '';
-if (side === 'left') { paneLeftEl.style.width = '50%';
-paneLeftEl.style.flex = ''; paneRightEl.style.display = ''; } else { paneRightEl.style.display = ''; }
-} else { pane.classList.add('fullscreen');
-dividerEl.style.display = 'none'; if (side === 'left') paneRightEl.style.display = 'none'; else paneLeftEl.style
-.display = 'none'; }
+    if (window.innerWidth <= 768) {
+        if (currentMobileTab === 'split') {
+            setMobileTab(side === 'left' ? 'editor' : 'preview');
+        } else {
+            setMobileTab('split');
+        }
+        return;
+    }
+    const pane = side === 'left' ? paneLeftEl : paneRightEl;
+    const isFullscreen = pane.classList.contains('fullscreen');
+    if (isFullscreen) {
+        pane.classList.remove('fullscreen');
+        pane.style.width = ''; pane.style.flex = ''; dividerEl.style.display = '';
+        if (side === 'left') { paneLeftEl.style.width = '50%';
+        paneLeftEl.style.flex = ''; paneRightEl.style.display = ''; } else { paneRightEl.style.display = ''; }
+    } else {
+        pane.classList.add('fullscreen');
+        dividerEl.style.display = 'none';
+        if (side === 'left') paneRightEl.style.display = 'none';
+        else paneLeftEl.style.display = 'none';
+    }
 }
 
 function openPromptGenerator() {
@@ -5415,26 +5882,76 @@ showToast('⚠️ Please press Ctrl+C to copy the selected prompt');
 
 // ── Draggable divider ────────────────────
 function setupDivider() {
-let isDragging = false,
-startX, startLeftWidth;
-dividerEl.addEventListener('mousedown', e => { isDragging = true; startX = e.clientX; startLeftWidth =
-paneLeftEl.getBoundingClientRect().width; dividerEl.classList.add('active'); document.body.style.cursor =
-'col-resize'; document.body.style.userSelect = 'none'; e.preventDefault(); });
-document.addEventListener('mousemove', e => { if (!isDragging) return; const containerWidth = document
-.getElementById('main-container').getBoundingClientRect().width; let newWidth = startLeftWidth + (e.clientX -
-startX); newWidth = Math.max(220, Math.min(containerWidth - 220, newWidth)); paneLeftEl.style.width = newWidth +
-'px'; paneLeftEl.style.flex = 'none'; paneRightEl.style.flex = '1'; });
-document.addEventListener('mouseup', () => { if (isDragging) { isDragging = false; dividerEl.classList.remove(
-'active'); document.body.style.cursor = ''; document.body.style.userSelect = ''; } });
-dividerEl.addEventListener('touchstart', e => { isDragging = true; startX = e.touches[0].clientX;
-startLeftWidth = paneLeftEl.getBoundingClientRect().width; dividerEl.classList.add('active'); e
-.preventDefault(); });
-document.addEventListener('touchmove', e => { if (!isDragging) return; const containerWidth = document
-.getElementById('main-container').getBoundingClientRect().width; let newWidth = startLeftWidth + (e.touches[0]
-.clientX - startX); newWidth = Math.max(220, Math.min(containerWidth - 220, newWidth)); paneLeftEl.style.width =
-newWidth + 'px'; paneLeftEl.style.flex = 'none'; paneRightEl.style.flex = '1'; }, { passive: false });
-document.addEventListener('touchend', () => { if (isDragging) { isDragging = false; dividerEl.classList.remove(
-'active'); } });
+    let isDragging = false;
+    let startX, startY, startLeftWidth, startLeftHeight;
+
+    dividerEl.addEventListener('mousedown', e => {
+        isDragging = true;
+        startX = e.clientX;
+        startLeftWidth = paneLeftEl.getBoundingClientRect().width;
+        dividerEl.classList.add('active');
+        document.body.style.cursor = 'col-resize';
+        document.body.style.userSelect = 'none';
+        e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', e => {
+        if (!isDragging) return;
+        const containerWidth = document.getElementById('main-container').getBoundingClientRect().width;
+        let newWidth = startLeftWidth + (e.clientX - startX);
+        newWidth = Math.max(220, Math.min(containerWidth - 220, newWidth));
+        paneLeftEl.style.width = newWidth + 'px';
+        paneLeftEl.style.flex = 'none';
+        paneRightEl.style.flex = '1';
+    });
+
+    document.addEventListener('mouseup', () => {
+        if (isDragging) {
+            isDragging = false;
+            dividerEl.classList.remove('active');
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+        }
+    });
+
+    dividerEl.addEventListener('touchstart', e => {
+        isDragging = true;
+        if (window.innerWidth <= 768) {
+            startY = e.touches[0].clientY;
+            startLeftHeight = paneLeftEl.getBoundingClientRect().height;
+        } else {
+            startX = e.touches[0].clientX;
+            startLeftWidth = paneLeftEl.getBoundingClientRect().width;
+        }
+        dividerEl.classList.add('active');
+        e.preventDefault();
+    }, { passive: false });
+
+    document.addEventListener('touchmove', e => {
+        if (!isDragging) return;
+        if (window.innerWidth <= 768) {
+            const containerHeight = document.getElementById('main-container').getBoundingClientRect().height;
+            let newHeight = startLeftHeight + (e.touches[0].clientY - startY);
+            newHeight = Math.max(80, Math.min(containerHeight - 80, newHeight));
+            paneLeftEl.style.height = newHeight + 'px';
+            paneLeftEl.style.flex = 'none';
+            paneRightEl.style.flex = '1';
+        } else {
+            const containerWidth = document.getElementById('main-container').getBoundingClientRect().width;
+            let newWidth = startLeftWidth + (e.touches[0].clientX - startX);
+            newWidth = Math.max(220, Math.min(containerWidth - 220, newWidth));
+            paneLeftEl.style.width = newWidth + 'px';
+            paneLeftEl.style.flex = 'none';
+            paneRightEl.style.flex = '1';
+        }
+    }, { passive: false });
+
+    document.addEventListener('touchend', () => {
+        if (isDragging) {
+            isDragging = false;
+            dividerEl.classList.remove('active');
+        }
+    });
 }
 
 // ── Export Dropdown ──────────────────────
@@ -5449,13 +5966,18 @@ function toggleExportDropdown(e) {
         const willOpen = !wrapper.classList.contains('open');
         wrapper.classList.toggle('open', willOpen);
         if (willOpen && menu) {
-            const rect = wrapper.getBoundingClientRect();
-            if (rect.left + 230 > window.innerWidth - 8) {
-                menu.style.left = 'auto';
-                menu.style.right = '0';
+            if (window.innerWidth > 768) {
+                const rect = wrapper.getBoundingClientRect();
+                if (rect.left + 230 > window.innerWidth - 8) {
+                    menu.style.left = 'auto';
+                    menu.style.right = '0';
+                } else {
+                    menu.style.left = '0';
+                    menu.style.right = 'auto';
+                }
             } else {
-                menu.style.left = '0';
-                menu.style.right = 'auto';
+                menu.style.left = '';
+                menu.style.right = '';
             }
         }
     }
@@ -5837,6 +6359,32 @@ setupDragDrop();
 setupKeyboardShortcuts();
 setupSettingsListeners();
 
+window.addEventListener('resize', () => {
+    if (window.innerWidth > 768) {
+        paneLeftEl.style.height = '';
+        paneRightEl.style.height = '';
+        paneLeftEl.style.display = '';
+        paneRightEl.style.display = '';
+        dividerEl.style.display = '';
+        if (!paneLeftEl.classList.contains('fullscreen') && !paneRightEl.classList.contains('fullscreen')) {
+            if (!paneLeftEl.style.width || paneLeftEl.style.width === '100%') {
+                paneLeftEl.style.width = '50%';
+                paneLeftEl.style.flex = '';
+                paneRightEl.style.flex = '1';
+            }
+        }
+    } else {
+        const container = document.getElementById('main-container');
+        if (container && !container.classList.contains('mobile-tab-editor') && !container.classList.contains('mobile-tab-preview') && !container.classList.contains('mobile-tab-split')) {
+            setMobileTab(currentMobileTab || 'editor');
+        }
+    }
+});
+
+if (window.innerWidth <= 768) {
+    setMobileTab('editor');
+}
+
 setInterval(() => { if (editorEl.value !== loadDocument()) saveDocument(editorEl.value); }, 3000);
 showToast('✨ Ready — Start editing or drop a .md file');
 }
@@ -5868,6 +6416,8 @@ closeImageModal,
 insertImageFromModal,
 clearModalImage,
 triggerImageUpload,
+setMobileTab,
+toggleMobileTab,
 };
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
