@@ -1,0 +1,2231 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <script>
+        (function() {
+            var t = localStorage.getItem('utils-theme') || localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', t);
+        })();
+    </script>
+    <title>Persian Speech to Text — تایپ صوتی و تبدیل گفتار به متن فارسی</title>
+    <meta name="description" content="تبدیل زنده گفتار به متن و متن به گفتار فارسی به صورت ۱۰۰٪ محلی در مرورگر و سازگار کامل با اندروید، آیفون، ویندوز و مرورگرهای موبایل.">
+
+    <!-- Google Fonts: Inter for UI & Vazirmatn for Persian typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-tertiary: #f1f3f5;
+            --text: #1a1a2e;
+            --text-secondary: #495057;
+            --text-muted: #868e96;
+            --border: #dee2e6;
+            --border-light: #e9ecef;
+            --accent: #4c6ef5;
+            --accent-hover: #3b5de7;
+            --accent-light: #edf2ff;
+            --success: #2b8a3e;
+            --success-light: #ebfbee;
+            --warning: #e67700;
+            --warning-light: #fff4e6;
+            --danger: #e03131;
+            --danger-hover: #c92a2a;
+            --danger-light: #fff5f5;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 6px 20px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.06);
+            --radius: 8px;
+            --radius-sm: 5px;
+            --font-sans: 'Inter', 'Vazirmatn', -apple-system, BlinkMacSystemFont, "Segoe UI", Tahoma, sans-serif;
+            --font-fa: 'Vazirmatn', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Tahoma, sans-serif;
+            --font-mono: 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Consolas', monospace;
+            --transition: 0.18s ease;
+        }
+
+        [data-theme="dark"] {
+            --bg: #1a1b1e;
+            --bg-secondary: #25262b;
+            --bg-tertiary: #2c2e33;
+            --text: #e4e6ea;
+            --text-secondary: #c1c4cd;
+            --text-muted: #9095a0;
+            --border: #3a3c42;
+            --border-light: #2e3035;
+            --accent: #6d8af7;
+            --accent-hover: #8aa3ff;
+            --accent-light: #1e2640;
+            --success: #40c057;
+            --success-light: #0d2b13;
+            --warning: #fab005;
+            --warning-light: #3b2e0a;
+            --danger: #ff6b6b;
+            --danger-hover: #fa5252;
+            --danger-light: #3b0a0a;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 6px 20px rgba(0, 0, 0, 0.45);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            color-scheme: light;
+        }
+
+        [data-theme="dark"] {
+            color-scheme: dark;
+        }
+
+        html, body {
+            min-height: 100%;
+            font-family: var(--font-fa);
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            transition: background var(--transition), color var(--transition);
+        }
+
+        /* SVG icons */
+        .icon-svg {
+            display: inline-block;
+            vertical-align: middle;
+            fill: currentColor;
+            flex-shrink: 0;
+        }
+
+        /* ── Top Toolbar (48px Suite Style) ───────────────────────── */
+        .toolbar {
+            height: 48px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0 14px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .toolbar .sep {
+            width: 1px;
+            height: 22px;
+            background: var(--border);
+            margin: 0 4px;
+            flex-shrink: 0;
+        }
+
+        .toolbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 700;
+            font-size: 13.5px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .toolbar-brand .badge-tag {
+            font-size: 10.5px;
+            font-weight: 600;
+            padding: 2px 7px;
+            border-radius: var(--radius-sm);
+            background: var(--accent-light);
+            color: var(--accent);
+            border: 1px solid var(--border);
+        }
+
+        .toolbar button {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 12.5px;
+            font-family: var(--font-fa);
+            white-space: nowrap;
+            transition: all var(--transition);
+            flex-shrink: 0;
+            font-weight: 500;
+            min-height: 36px;
+            touch-action: manipulation;
+        }
+
+        .toolbar button:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--text-muted);
+            color: var(--text);
+        }
+
+        .toolbar button.active,
+        .toolbar button.accent {
+            background: var(--accent);
+            color: #ffffff;
+            border-color: var(--accent);
+            font-weight: 600;
+        }
+
+        .toolbar button.active:hover,
+        .toolbar button.accent:hover {
+            background: var(--accent-hover);
+            border-color: var(--accent-hover);
+        }
+
+        .toolbar .spacer {
+            flex: 1;
+            min-width: 10px;
+        }
+
+        .toolbar .badge {
+            font-size: 11px;
+            background: var(--bg-tertiary);
+            padding: 3px 8px;
+            border-radius: 20px;
+            color: var(--text-muted);
+            flex-shrink: 0;
+            font-weight: 500;
+        }
+
+        .toolbar .badge.status-offline {
+            background: var(--success-light);
+            color: var(--success);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .toolbar .badge.status-offline::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--success);
+        }
+
+        /* ── Main Layout ──────────────────────────────────────────── */
+        .main-wrapper {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 16px 14px 80px;
+        }
+
+        /* ── Workspace Grid & Panels ──────────────────────────────── */
+        .workspace {
+            display: none;
+            animation: fadeIn 0.18s ease;
+        }
+        .workspace.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(2px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .studio-grid {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 16px;
+        }
+
+        @media (max-width: 960px) {
+            .studio-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 10px 14px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .panel-title {
+            font-size: 12.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .panel-body {
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            flex: 1;
+        }
+
+        /* ── HERO: Big Microphone Button Section ──────────────────── */
+        .big-mic-hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 22px 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            gap: 12px;
+            position: relative;
+            text-align: center;
+        }
+
+        .big-mic-button-wrapper {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .big-mic-button {
+            width: 88px;
+            height: 88px;
+            border-radius: 50%;
+            border: 3px solid var(--accent);
+            background: var(--accent);
+            color: #ffffff;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 16px rgba(76, 110, 245, 0.35);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            z-index: 2;
+            outline: none;
+            touch-action: manipulation;
+            user-select: none;
+        }
+
+        .big-mic-button:hover {
+            transform: scale(1.05);
+            background: var(--accent-hover);
+            border-color: var(--accent-hover);
+            box-shadow: 0 6px 24px rgba(76, 110, 245, 0.45);
+        }
+
+        .big-mic-button:active {
+            transform: scale(0.96);
+        }
+
+        /* Active Listening State */
+        .big-mic-button.listening {
+            background: var(--danger);
+            border-color: #ffffff;
+            box-shadow: 0 0 0 0 rgba(224, 49, 49, 0.6);
+            animation: pulseGlow 1.6s infinite;
+        }
+
+        @keyframes pulseGlow {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(224, 49, 49, 0.7);
+            }
+            70% {
+                transform: scale(1.06);
+                box-shadow: 0 0 0 20px rgba(224, 49, 49, 0);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(224, 49, 49, 0);
+            }
+        }
+
+        .mic-halo-ring {
+            position: absolute;
+            width: 108px;
+            height: 108px;
+            border-radius: 50%;
+            border: 2px dashed var(--accent);
+            opacity: 0.4;
+            pointer-events: none;
+            transition: all var(--transition);
+        }
+
+        .big-mic-button.listening ~ .mic-halo-ring {
+            border-color: var(--danger);
+            opacity: 0.9;
+            animation: spinRing 6s linear infinite;
+        }
+
+        @keyframes spinRing {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .mic-status-headline {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .mic-status-subtext {
+            font-size: 12px;
+            color: var(--text-muted);
+            max-width: 480px;
+            line-height: 1.6;
+        }
+
+        /* ── Waveform Monitor Canvas ──────────────────────────────── */
+        .monitor-box {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 8px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            width: 100%;
+        }
+
+        canvas.waveform {
+            width: 100%;
+            height: 44px;
+            display: block;
+            border-radius: var(--radius-sm);
+        }
+
+        .monitor-status {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .status-pill {
+            font-size: 10.5px;
+            font-weight: 600;
+            padding: 2px 7px;
+            border-radius: var(--radius-sm);
+            background: var(--bg-tertiary);
+            color: var(--text-secondary);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-pill.active-rec {
+            background: var(--danger-light);
+            color: var(--danger);
+        }
+
+        .status-pill.active-play {
+            background: var(--success-light);
+            color: var(--success);
+        }
+
+        .pulse-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: pulseAnim 1.2s infinite;
+        }
+
+        @keyframes pulseAnim {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(1.3); }
+        }
+
+        /* ── Textarea & Editor ────────────────────────────────────── */
+        .editor-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: relative;
+        }
+
+        textarea.editor-textarea {
+            width: 100%;
+            min-height: 250px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 14px;
+            font-family: var(--font-fa);
+            font-size: 16px; /* 16px prevents iOS/Android unwanted zoom-in on focus */
+            line-height: 1.95;
+            color: var(--text);
+            resize: vertical;
+            direction: rtl;
+            text-align: right;
+            outline: none;
+            transition: border-color var(--transition), box-shadow var(--transition);
+        }
+
+        textarea.editor-textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px var(--accent-light);
+        }
+
+        /* Live in-flight words preview */
+        .live-speech-pill {
+            font-size: 13px;
+            color: var(--accent);
+            background: var(--accent-light);
+            border: 1px dashed var(--accent);
+            border-radius: var(--radius-sm);
+            padding: 8px 12px;
+            min-height: 38px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all var(--transition);
+        }
+        .live-speech-pill.hidden {
+            display: none;
+        }
+
+        /* ── Typography & Document Toolbar (Action Chips) ────────── */
+        .chips-bar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .chip-btn {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-family: var(--font-fa);
+            font-size: 12px;
+            font-weight: 500;
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all var(--transition);
+            touch-action: manipulation;
+            min-height: 36px;
+        }
+
+        .chip-btn:hover {
+            color: var(--text);
+            border-color: var(--text-muted);
+            background: var(--bg-tertiary);
+        }
+
+        .chip-btn.accent-chip {
+            background: var(--accent-light);
+            color: var(--accent);
+            border-color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* ── Document Controls & Export Buttons Row ──────────────── */
+        .controls-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-ctrl {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 9px 16px;
+            font-family: var(--font-fa);
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: var(--bg-secondary);
+            color: var(--text);
+            cursor: pointer;
+            transition: all var(--transition);
+            touch-action: manipulation;
+            min-height: 42px;
+        }
+
+        .btn-ctrl:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--text-muted);
+        }
+
+        .btn-ctrl.primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #ffffff;
+        }
+
+        .btn-ctrl.primary:hover {
+            background: var(--accent-hover);
+            border-color: var(--accent-hover);
+        }
+
+        /* ── Settings Form ────────────────────────────────────────── */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .form-val {
+            font-family: var(--font-sans);
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        select.form-control, input[type="text"].form-control {
+            width: 100%;
+            padding: 8px 10px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: var(--font-fa);
+            font-size: 13.5px;
+            color: var(--text);
+            outline: none;
+            transition: border-color var(--transition);
+            min-height: 40px;
+        }
+
+        select.form-control:focus, input[type="text"].form-control:focus {
+            border-color: var(--accent);
+        }
+
+        input[type="range"].form-range {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--border);
+            outline: none;
+        }
+
+        input[type="range"].form-range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            transition: transform var(--transition);
+        }
+        input[type="range"].form-range::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+        }
+
+        /* ── Presets ──────────────────────────────────────────────── */
+        .preset-card {
+            padding: 10px 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 12px;
+            line-height: 1.5;
+            color: var(--text-secondary);
+            transition: all var(--transition);
+            text-align: right;
+            touch-action: manipulation;
+        }
+
+        .preset-card:hover {
+            border-color: var(--text-muted);
+            color: var(--text);
+            background: var(--bg-tertiary);
+        }
+
+        .preset-card strong {
+            color: var(--text);
+        }
+
+        /* ── Mobile Floating Quick Mic Bar ────────────────────────── */
+        .mobile-quick-mic-bar {
+            display: none;
+            position: fixed;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 900;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-lg);
+            border-radius: 40px;
+            padding: 6px 16px;
+            align-items: center;
+            gap: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-quick-mic-bar {
+                display: flex;
+            }
+        }
+
+        .mobile-mic-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: none;
+            background: var(--accent);
+            color: #ffffff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(76, 110, 245, 0.4);
+            touch-action: manipulation;
+        }
+        .mobile-mic-btn.listening {
+            background: var(--danger);
+            box-shadow: 0 0 0 4px rgba(224, 49, 49, 0.25);
+            animation: pulseGlow 1.6s infinite;
+        }
+
+        /* ── Equalizer Animation ──────────────────────────────────── */
+        .equalizer {
+            display: inline-flex;
+            align-items: flex-end;
+            height: 14px;
+            gap: 2px;
+        }
+        .eq-bar {
+            width: 3px;
+            background: var(--accent);
+            border-radius: 1px;
+            height: 3px;
+            transition: height 100ms ease;
+        }
+        .equalizer.active .eq-bar:nth-child(1) { animation: eq 0.6s infinite ease-in-out alternate; }
+        .equalizer.active .eq-bar:nth-child(2) { animation: eq 0.8s infinite ease-in-out alternate 0.1s; }
+        .equalizer.active .eq-bar:nth-child(3) { animation: eq 0.5s infinite ease-in-out alternate 0.2s; }
+        .equalizer.active .eq-bar:nth-child(4) { animation: eq 0.7s infinite ease-in-out alternate 0.15s; }
+
+        @keyframes eq {
+            from { height: 3px; }
+            to { height: 14px; }
+        }
+
+        /* ── Toast Notification ───────────────────────────────────── */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 999;
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 8px 14px;
+            font-size: 12.5px;
+            font-weight: 500;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0;
+            transform: translateY(10px);
+            pointer-events: none;
+            transition: opacity 0.18s ease, transform 0.18s ease;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Two-way layout */
+        .two-way-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        @media (max-width: 800px) {
+            .two-way-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ── Suite Top Toolbar (48px) ─────────────────────────────── -->
+    <header class="toolbar">
+        <a href="../index.html" class="toolbar-brand" title="بازگشت به منوی اصلی ابزارها">
+            <span>←</span>
+            <span>ابزارها</span>
+        </a>
+
+        <span class="sep"></span>
+
+        <span class="toolbar-brand">
+            <svg class="icon-svg" viewBox="0 0 24 24" width="16" height="16">
+                <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+            </svg>
+            <span>Persian Speech to Text</span>
+            <span class="badge-tag">فارسی</span>
+        </span>
+
+        <span class="sep"></span>
+
+        <!-- Tab Switchers (PRIMARY: Speech to Text active by default!) -->
+        <button id="nav-btn-stt" class="active" onclick="App.switchTab('stt')">
+            <svg class="icon-svg" viewBox="0 0 24 24" width="14" height="14">
+                <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+            </svg>
+            <span>گفتار به متن (تایپ صوتی)</span>
+        </button>
+        <button id="nav-btn-tts" onclick="App.switchTab('tts')">
+            <svg class="icon-svg" viewBox="0 0 24 24" width="14" height="14">
+                <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+            </svg>
+            <span>متن به گفتار (TTS)</span>
+        </button>
+        <button id="nav-btn-studio" onclick="App.switchTab('studio')">
+            <svg class="icon-svg" viewBox="0 0 24 24" width="14" height="14">
+                <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0 0 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74A7.93 7.93 0 0 0 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
+            </svg>
+            <span>استودیوی دوطرفه</span>
+        </button>
+
+        <div class="spacer"></div>
+
+        <button onclick="App.toggleTheme()" title="تغییر تم (روشن / تاریک)">
+            <span id="theme-icon">🌙</span>
+            <span id="theme-text">تم تاریک</span>
+        </button>
+    </header>
+
+    <!-- ── Main Workspace Content ───────────────────────────────── -->
+    <main class="main-wrapper">
+
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <!-- TAB 1: SPEECH-TO-TEXT (گفتار به متن - تایپ صوتی) - PRIMARY -->
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <div class="workspace active" id="view-stt">
+            <div class="studio-grid">
+                <!-- Main Speech-to-Text Panel -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <svg class="icon-svg" viewBox="0 0 24 24" width="15" height="15">
+                                <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                                <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                            </svg>
+                            <span>تایپ صوتی و تبدیل بلادرنگ گفتار به متن فارسی</span>
+                        </div>
+                        <span class="status-pill" id="stt-pill">میکروفون غیرفعال</span>
+                    </div>
+
+                    <div class="panel-body">
+                        <!-- BIG MICROPHONE HERO BUTTON WITH CLEAN SVG ICON -->
+                        <div class="big-mic-hero">
+                            <div class="big-mic-button-wrapper">
+                                <button class="big-mic-button" id="big-mic-btn" onclick="App.toggleListening()" title="برای شروع یا پایان صحبت کلیک کنید" aria-label="میکروفون تایپ صوتی">
+                                    <span id="big-mic-icon-container">
+                                        <!-- Clean Minimalist Microphone SVG Icon -->
+                                        <svg class="icon-svg" viewBox="0 0 24 24" width="36" height="36" fill="currentColor">
+                                            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                                            <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                                        </svg>
+                                    </span>
+                                </button>
+                                <div class="mic-halo-ring"></div>
+                            </div>
+                            <div class="mic-status-headline" id="mic-status-text">
+                                برای شروع صحبت روی میکروفون بالا کلیک کنید
+                            </div>
+                            <div class="mic-status-subtext" id="mic-status-subtext">
+                                همزمان با صحبت کردن، کلمات شما بدون ذخیره فایل صوتی به صورت زنده و پیوسته در کادر متنی زیر تایپ می‌شوند.
+                            </div>
+
+                            <!-- Live Audio Waveform Monitor -->
+                            <div class="monitor-box">
+                                <canvas id="stt-waveform" class="waveform"></canvas>
+                                <div class="monitor-status">
+                                    <span id="stt-status-label">میکروفون در حالت آماده‌باش</span>
+                                    <span id="stt-timer-label">00:00</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Live in-flight Words Banner -->
+                        <div class="live-speech-pill hidden" id="stt-live-pill">
+                            <svg class="icon-svg" viewBox="0 0 24 24" width="16" height="16">
+                                <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                                <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                            </svg>
+                            <span id="stt-live-text"></span>
+                        </div>
+
+                        <!-- Main Persian Text Editor Output -->
+                        <div class="editor-container">
+                            <textarea id="stt-output" class="editor-textarea" placeholder="متن سخنان شما بدون وقفه و با رعایت قواعد زبان فارسی در اینجا نوشته می‌شود..."></textarea>
+                        </div>
+
+                        <!-- Document Export Actions Row -->
+                        <div class="controls-row" style="border-top: 1px solid var(--border); padding-top: 10px;">
+                            <button class="btn-ctrl primary" onclick="App.sendSTTtoTTS()" title="خواندن متن پیاده شده با صدای گوینده">
+                                <svg class="icon-svg" viewBox="0 0 24 24" width="15" height="15">
+                                    <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                                </svg>
+                                <span>انتقال متن به گوینده (TTS)</span>
+                            </button>
+                            <button class="btn-ctrl" onclick="App.downloadDoc('stt-output')" title="دانلود به عنوان سند مایکروسافت ورد">
+                                <span>📝</span>
+                                <span>دانلود سند Word (.doc)</span>
+                            </button>
+                            <button class="btn-ctrl" onclick="App.downloadMD('stt-output')" title="دانلود فایل مارک‌داون">
+                                <span>📄</span>
+                                <span>دانلود Markdown (.md)</span>
+                            </button>
+                            <button class="btn-ctrl" onclick="App.downloadTXT('stt-output')" title="دانلود فایل متنی ساده">
+                                <span>💾</span>
+                                <span>دانلود TXT</span>
+                            </button>
+                        </div>
+
+                        <!-- Stats Footer -->
+                        <div style="font-size:11.5px; color:var(--text-muted); display:flex; justify-content:space-between; border-top:1px solid var(--border); padding-top:8px;">
+                            <span id="stt-engine-info">موتور پردازش گفتار: Web Speech API (مبتنی بر مرورگر)</span>
+                            <span id="stt-stats-counter">۰ کاراکتر | ۰ کلمه</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Side Panel for STT -->
+                <div style="display:flex; flex-direction:column; gap:16px;">
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div class="panel-title">
+                                <span>⚙️</span>
+                                <span>تنظیمات تایپ صوتی</span>
+                            </div>
+                        </div>
+
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <label class="form-label" for="stt-lang-select">زبان گفتار:</label>
+                                <select id="stt-lang-select" class="form-control" onchange="App.onLangChange(this.value)">
+                                    <option value="fa-IR" selected>فارسی — ایران (fa-IR)</option>
+                                    <option value="fa-AF">فارسی دری — افغانستان (fa-AF)</option>
+                                    <option value="en-US">English — US (en-US)</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="stt-mode-select">حالت دریافت گفتار:</label>
+                                <select id="stt-mode-select" class="form-control" onchange="App.onModeChange(this.value)">
+                                    <option value="continuous" selected>پیوسته (تایپ طولانی بدون قطع شدن)</option>
+                                    <option value="single">تک‌جمله‌ای</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group" style="margin-top:6px;">
+                                <label style="display:flex; align-items:center; gap:8px; font-size:12.5px; cursor:pointer;">
+                                    <input type="checkbox" id="auto-halfspace-chk" checked>
+                                    <span>اعمال خودکار نیم‌فاصله‌سازی هوشمند</span>
+                                </label>
+                            </div>
+
+                            <div class="form-group" style="margin-top:10px; border-top:1px solid var(--border); padding-top:10px;">
+                                <div class="panel-title" style="margin-bottom:6px;">📱 بهینه‌سازی اندروید و موبایل:</div>
+                                <ul style="padding-right:16px; font-size:11.5px; color:var(--text-secondary); line-height:1.7;">
+                                    <li><strong>تایپ بدون توقف در اندروید:</strong> سیستم به طور هوشمند مکث‌های گفتار در سرویس‌های صوتی گوگل را شناسایی کرده و تایپ را متصل نگه می‌دارد.</li>
+                                    <li><strong>دکمه شناور موبایل:</strong> هنگام اسکرول کردن در گوشی، دکمه شناور میکروفون در پایین صفحه در دسترس شماست.</li>
+                                    <li><strong>حریم خصوصی کامل:</strong> هیچ صدایی ذخیره یا به سرور ارسال نمی‌شود.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <!-- TAB 2: TEXT-TO-SPEECH (متن به گفتار - خوانش صوتی)           -->
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <div class="workspace" id="view-tts">
+            <div class="studio-grid">
+                <!-- Editor & Controls Panel -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title">
+                            <svg class="icon-svg" viewBox="0 0 24 24" width="15" height="15">
+                                <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                            </svg>
+                            <span>تبدیل متن به گفتار (سنتز صدا)</span>
+                        </div>
+                        <div class="equalizer" id="tts-equalizer">
+                            <span class="eq-bar"></span>
+                            <span class="eq-bar"></span>
+                            <span class="eq-bar"></span>
+                            <span class="eq-bar"></span>
+                        </div>
+                    </div>
+
+                    <div class="panel-body">
+                        <!-- Visualizer Box -->
+                        <div class="monitor-box">
+                            <canvas id="tts-waveform" class="waveform"></canvas>
+                            <div class="monitor-status">
+                                <span id="tts-status-label">موتور سنتز گفتار آماده است.</span>
+                                <span class="status-pill" id="tts-pill">آماده</span>
+                            </div>
+                        </div>
+
+                        <!-- Main Persian Textarea -->
+                        <div class="editor-container">
+                            <textarea id="tts-input" class="editor-textarea" placeholder="متن فارسی مورد نظر خود را بنویسید تا با صدای گوینده خوانده شود..."></textarea>
+                        </div>
+
+                        <!-- Persian Typography Actions -->
+                        <div class="chips-bar">
+                            <span style="font-size:11.5px; color:var(--text-muted); margin-left:4px;">ابزارهای نگارش:</span>
+                            <button class="chip-btn" onclick="App.fixHalfSpaces('tts-input')">✨ نیم‌فاصله خودکار</button>
+                            <button class="chip-btn" onclick="App.toPersianDigits('tts-input')">۱۲۳ اعداد فارسی</button>
+                            <button class="chip-btn" onclick="App.toLatinDigits('tts-input')">123 اعداد لاتین</button>
+                            <button class="chip-btn" onclick="App.fixPunctuation('tts-input')">🖋️ اصلاح علائم</button>
+                            <button class="chip-btn" onclick="App.cleanWhitespace('tts-input')">🧹 پاکسازی فاصله</button>
+                            <button class="chip-btn" onclick="App.clearText('tts-input')">🗑️ پاکسازی</button>
+                        </div>
+
+                        <!-- Audio Playback Buttons -->
+                        <div class="controls-row">
+                            <button class="btn-ctrl primary" id="btn-tts-play" onclick="App.speak()">
+                                <span>▶️</span>
+                                <span>پخش گفتار (Play Speech)</span>
+                            </button>
+                            <button class="btn-ctrl" onclick="App.pauseSpeak()">
+                                <span>⏸️</span>
+                                <span>مکث</span>
+                            </button>
+                            <button class="btn-ctrl" onclick="App.stopSpeak()">
+                                <span>⏹️</span>
+                                <span>توقف</span>
+                            </button>
+                            <button class="btn-ctrl" onclick="App.downloadWavAudio()" title="دانلود فایل صوتی WAV">
+                                <span>💾</span>
+                                <span>دانلود صوت (WAV)</span>
+                            </button>
+                            <button class="btn-ctrl" onclick="App.downloadDoc('tts-input')" title="دانلود سند ورد">
+                                <span>📝</span>
+                                <span>دانلود DOC</span>
+                            </button>
+                        </div>
+
+                        <!-- Stats Footer -->
+                        <div style="font-size:11.5px; color:var(--text-muted); display:flex; justify-content:space-between; border-top:1px solid var(--border); padding-top:8px;">
+                            <span id="tts-footer-info">آماده سنتز صدا در مرورگر</span>
+                            <span id="tts-stats-counter">۰ کاراکتر | ۰ کلمه</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Side Settings Panel for TTS -->
+                <div style="display:flex; flex-direction:column; gap:16px;">
+                    <!-- Voice Parameters -->
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div class="panel-title">
+                                <span>⚙️</span>
+                                <span>تنظیمات صدا</span>
+                            </div>
+                        </div>
+
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <label class="form-label" for="voice-select">صدای گوینده:</label>
+                                <select id="voice-select" class="form-control" onchange="App.onVoiceChange(this.value)"></select>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="form-label">
+                                    <span>سرعت گفتار (Speed):</span>
+                                    <span class="form-val" id="rate-disp">1.0x</span>
+                                </div>
+                                <input type="range" class="form-range" id="rate-slider" min="0.5" max="2.0" step="0.1" value="1.0" oninput="App.onRateInput(this.value)">
+                            </div>
+
+                            <div class="form-group">
+                                <div class="form-label">
+                                    <span>زیر و بمی صدا (Pitch):</span>
+                                    <span class="form-val" id="pitch-disp">1.0</span>
+                                </div>
+                                <input type="range" class="form-range" id="pitch-slider" min="0.5" max="1.5" step="0.1" value="1.0" oninput="App.onPitchInput(this.value)">
+                            </div>
+
+                            <div class="form-group">
+                                <div class="form-label">
+                                    <span>بلندی صدا (Volume):</span>
+                                    <span class="form-val" id="vol-disp">100%</span>
+                                </div>
+                                <input type="range" class="form-range" id="vol-slider" min="0" max="1.0" step="0.05" value="1.0" oninput="App.onVolInput(this.value)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Presets -->
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div class="panel-title">
+                                <span>📖</span>
+                                <span>نمونه متن‌های آماده فارسی</span>
+                            </div>
+                        </div>
+
+                        <div class="panel-body" style="gap:8px;">
+                            <div class="preset-card" onclick="App.applyPreset('greeting')">
+                                💬 <strong>احوالپرسی:</strong> سلام، روزتون به‌خیر! امیدوارم حالتون عالی باشه...
+                            </div>
+                            <div class="preset-card" onclick="App.applyPreset('hafez')">
+                                📜 <strong>شعر حافظ:</strong> ساقیا برخیز و درده جام را، خاک بر فرق غم ایام را...
+                            </div>
+                            <div class="preset-card" onclick="App.applyPreset('saadi')">
+                                📖 <strong>سعدی:</strong> بنی‌آدم اعضای یکدیگرند، که در آفرینش ز یک گوهرند...
+                            </div>
+                            <div class="preset-card" onclick="App.applyPreset('tech')">
+                                💻 <strong>فناوری:</strong> پردازش هوشمند زبان و گفتار فارسی به صورت زنده در مرورگر...
+                            </div>
+                            <div class="preset-card" onclick="App.applyPreset('tongue')">
+                                🗣️ <strong>تمرین کلام:</strong> شیش سیخ کباب، سیخی شش هزار تومن!
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <!-- TAB 3: TWO-WAY STUDIO (استودیو دوطرفه)                     -->
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <div class="workspace" id="view-studio">
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <span>🔄</span>
+                        <span>استودیوی دوطرفه گفتار و نوشتار (چرخه صحبت، ویرایش و بازخوانی صوتی)</span>
+                    </div>
+                </div>
+
+                <div class="panel-body">
+                    <div class="two-way-grid">
+                        <!-- Step 1: Speak -->
+                        <div style="background:var(--bg-secondary); border:1px solid var(--border); border-radius:var(--radius-sm); padding:14px; display:flex; flex-direction:column; gap:10px;">
+                            <div class="panel-title">
+                                <svg class="icon-svg" viewBox="0 0 24 24" width="15" height="15">
+                                    <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                                    <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                                </svg>
+                                <span>۱. صحبت کنید (گفتار به متن)</span>
+                            </div>
+                            <p style="font-size:12px; color:var(--text-muted);">
+                                روی دکمه شروع صحبت کلیک کنید، جملات خود را بگویید تا به صورت زنده پیاده شوند.
+                            </p>
+                            <button class="btn-ctrl primary" id="btn-studio-rec" onclick="App.toggleStudioRecording()">
+                                <svg class="icon-svg" viewBox="0 0 24 24" width="15" height="15">
+                                    <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                                    <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                                </svg>
+                                <span id="studio-rec-text">شروع صحبت</span>
+                            </button>
+                            <div style="font-size:11.5px; color:var(--text-secondary);" id="studio-stt-status">آماده دریافت صدا...</div>
+                        </div>
+
+                        <!-- Step 2: Review & Listen -->
+                        <div style="background:var(--bg-secondary); border:1px solid var(--border); border-radius:var(--radius-sm); padding:14px; display:flex; flex-direction:column; gap:10px;">
+                            <div class="panel-title">
+                                <svg class="icon-svg" viewBox="0 0 24 24" width="15" height="15">
+                                    <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                                </svg>
+                                <span>۲. ویرایش، بازخوانی و دانلود سند</span>
+                            </div>
+                            <textarea id="studio-text" class="editor-textarea" style="min-height:120px;" placeholder="متن حاصل از گفتار در اینجا قرار می‌گیرد..."></textarea>
+                            
+                            <div class="chips-bar">
+                                <button class="chip-btn" onclick="App.fixHalfSpaces('studio-text')">✨ نیم‌فاصله</button>
+                                <button class="chip-btn" onclick="App.toPersianDigits('studio-text')">۱۲۳ اعداد فارسی</button>
+                                <button class="chip-btn" onclick="App.fixPunctuation('studio-text')">🖋️ اصلاح علائم</button>
+                            </div>
+
+                            <button class="btn-ctrl primary" onclick="App.studioSpeak()">
+                                <span>🔊</span>
+                                <span>بازخوانی صوتی متن (Play Output)</span>
+                            </button>
+
+                            <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                                <button class="btn-ctrl" style="flex:1;" onclick="App.copyText('studio-text')">📋 کپی</button>
+                                <button class="btn-ctrl" style="flex:1;" onclick="App.downloadDoc('studio-text')">📝 دانلود DOC</button>
+                                <button class="btn-ctrl" style="flex:1;" onclick="App.downloadWavAudio()">💾 دانلود صدا</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Mobile Floating Quick Mic Bar -->
+    <div class="mobile-quick-mic-bar" id="mobile-quick-bar">
+        <button class="mobile-mic-btn" id="mobile-mic-btn" onclick="App.toggleListening()" aria-label="میکروفون سریع">
+            <svg class="icon-svg" viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+                <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+            </svg>
+        </button>
+        <span style="font-size: 12px; font-weight: 600; color: var(--text);" id="mobile-mic-status">
+            تایپ صوتی زنده
+        </span>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast-el">
+        <span id="toast-icon">ℹ️</span>
+        <span id="toast-msg">پیام سیستم</span>
+    </div>
+
+    <!-- ── Pure Client-Side JavaScript ─────────────── -->
+    <script>
+        (function() {
+            'use strict';
+
+            // ── App State (Default Tab: 'stt' - Speech to Text) ──────
+            const state = {
+                activeTab: 'stt',
+                theme: localStorage.getItem('utils-theme') || localStorage.getItem('theme') || 'light',
+                isListening: false,
+                isSpeaking: false,
+                voices: [],
+                selectedVoice: null,
+                rate: 1.0,
+                pitch: 1.0,
+                volume: 1.0,
+                sttLang: 'fa-IR',
+                sttMode: 'continuous',
+                // Speech Recognition tracking
+                sessionBaseText: '',
+                sessionFinalText: '',
+                activeInterimText: '',
+            };
+
+            // ── Persian Typography Engine (100% Client-Side) ──────────
+            const PersianUtils = {
+                fixHalfSpaces(text) {
+                    if (!text) return '';
+                    let str = text;
+                    const zwnj = '\u200C';
+
+                    // 1. "می" and "نمی" at start of verbs: می‌رود، نمی‌دانم
+                    str = str.replace(/\b(می|نمی)\s+([^\s\d\p{P}]+)/gu, `$1${zwnj}$2`);
+
+                    // 2. Plural suffixes "ها" / "های": کتاب‌ها، خانه‌های
+                    str = str.replace(/([^\s\d\p{P}]+)\s+(ها|های|هایی|هایم|هایت|هایش|هایمان|هایتان|هایشان)\b/gu, `$1${zwnj}$2`);
+
+                    // 3. Persian comparative adjectives "تر" / "ترین": بهتر، زیباترین
+                    str = str.replace(/([^\s\d\p{P}]+)\s+(تر|ترین|تری)\b/gu, `$1${zwnj}$2`);
+
+                    // 4. Common possessive suffix "ام", "ات", "اش": خانه‌ام، نامه‌اش
+                    str = str.replace(/([^\s\d\p{P}]+[هة])\s+(ام|ات|اش|ای|اید|اند)\b/gu, `$1${zwnj}$2`);
+
+                    // 5. Compound words prefixes: بی، هم، با
+                    str = str.replace(/\b(بی|هم)\s+([^\s\d\p{P}]+)/gu, `$1${zwnj}$2`);
+
+                    return str;
+                },
+
+                toPersianDigits(text) {
+                    if (!text) return '';
+                    const farsiDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+                    return text.replace(/[0-9]/g, w => farsiDigits[+w]);
+                },
+
+                toLatinDigits(text) {
+                    if (!text) return '';
+                    const farsiDigits = [/۰/g, /۱/g, /۲/g, /۳/g, /۴/g, /۵/g, /۶/g, /۷/g, /۸/g, /۹/g];
+                    const arabicDigits = [/٠/g, /١/g, /٢/g, /٣/g, /٤/g, /٥/g, /٦/g, /٧/g, /٨/g, /٩/g];
+                    for (let i = 0; i < 10; i++) {
+                        text = text.replace(farsiDigits[i], i).replace(arabicDigits[i], i);
+                    }
+                    return text;
+                },
+
+                fixPunctuation(text) {
+                    if (!text) return '';
+                    let str = text;
+                    str = str.replace(/,/g, '،');
+                    str = str.replace(/\?/g, '؟');
+                    str = str.replace(/;/g, '؛');
+                    str = str.replace(/"([^"]+)"/g, '«$1»');
+                    str = str.replace(/\s+([،؛.؟!»])/g, '$1');
+                    str = str.replace(/([،؛.؟!])([^\s«»])/g, '$1 $2');
+                    return str;
+                },
+
+                cleanWhitespace(text) {
+                    if (!text) return '';
+                    return text
+                        .replace(/[ \t]+/g, ' ')
+                        .replace(/\n\s*\n\s*\n+/g, '\n\n')
+                        .trim();
+                }
+            };
+
+            // ── Presets ───────────────────────────────────────────────
+            const PRESETS = {
+                greeting: "سلام، روزتون به‌خیر! امیدوارم حالتون بسیار خوب و سرشار از انرژی مثبت باشه. به استودیو تبدیل متن به گفتار و گفتار به متن فارسی خوش آمدید.",
+                hafez: "ساقیا برخیز و دَردِه جام را\nخاک بر فرقِ غمِ ایام را\nساغرِ مِی بر کفم نِه تا ز بر\nبرکشم این دلقِ ازرق‌فام را\nگرچه بدنامی‌ست نزدِ عاقلان\nما نمی‌خواهیم ننگ و نام را",
+                saadi: "بنی‌آدم اعضای یکدیگرند\nکه در آفرینش ز یک گوهرند\nچو عضوی به درد آورَد روزگار\nدگر عضوها را نمانَد قرار\nتو کز محنت دیگران بی‌غمی\nنشاید که نامت نهند آدمی",
+                tech: "تایپ صوتی و پردازش بلادرنگ گفتار فارسی امکان تایپ سریع بدون لمس صفحه کلید را میسر می‌سازد.",
+                tongue: "شیش سیخ کباب، سیخی شش هزار تومن! قوری گل‌قرمزی، سر قوری گل‌قرمزی. دایی چاقه‌ام، رفته باغچه، چغندر چیده!"
+            };
+
+            // ── DOM References ────────────────────────────────────────
+            const bigMicBtn = document.getElementById('big-mic-btn');
+            const micStatusText = document.getElementById('mic-status-text');
+            const micStatusSubtext = document.getElementById('mic-status-subtext');
+            const sttOutput = document.getElementById('stt-output');
+            const sttWaveform = document.getElementById('stt-waveform');
+            const sttPill = document.getElementById('stt-pill');
+            const sttStatusLabel = document.getElementById('stt-status-label');
+            const sttTimerLabel = document.getElementById('stt-timer-label');
+            const sttLivePill = document.getElementById('stt-live-pill');
+            const sttLiveText = document.getElementById('stt-live-text');
+            const sttStatsCounter = document.getElementById('stt-stats-counter');
+            const mobileMicBtn = document.getElementById('mobile-mic-btn');
+            const mobileMicStatus = document.getElementById('mobile-mic-status');
+
+            const ttsInput = document.getElementById('tts-input');
+            const ttsWaveform = document.getElementById('tts-waveform');
+            const ttsEqualizer = document.getElementById('tts-equalizer');
+            const ttsStatusLabel = document.getElementById('tts-status-label');
+            const ttsPill = document.getElementById('tts-pill');
+            const ttsStatsCounter = document.getElementById('tts-stats-counter');
+            const btnTtsPlay = document.getElementById('btn-tts-play');
+
+            const voiceSelect = document.getElementById('voice-select');
+            const rateSlider = document.getElementById('rate-slider');
+            const pitchSlider = document.getElementById('pitch-slider');
+            const volSlider = document.getElementById('vol-slider');
+            const rateDisp = document.getElementById('rate-disp');
+            const pitchDisp = document.getElementById('pitch-disp');
+            const volDisp = document.getElementById('vol-disp');
+
+            const toastEl = document.getElementById('toast-el');
+            const toastMsg = document.getElementById('toast-msg');
+
+            // ── Web Audio Instances (For Waveform Visualizer ONLY - Zero Mic Lock) ──
+            let recognition = null;
+            let waveAnimId = null;
+            let ttsAnimId = null;
+            let currentUtterance = null;
+            let recordTimer = null;
+            let recordStartTime = 0;
+
+            // ── Theme Control ─────────────────────────────────────────
+            function applyTheme(theme) {
+                state.theme = theme;
+                document.documentElement.setAttribute('data-theme', theme);
+                document.body.setAttribute('data-theme', theme);
+                localStorage.setItem('utils-theme', theme);
+                localStorage.setItem('theme', theme);
+                const themeIcon = document.getElementById('theme-icon');
+                const themeText = document.getElementById('theme-text');
+                if (themeIcon) {
+                    themeIcon.textContent = theme === 'dark' ? '☀️' : '🌙';
+                }
+                if (themeText) {
+                    themeText.textContent = theme === 'dark' ? 'تم روشن' : 'تم تاریک';
+                }
+                drawEmptyWaveform(sttWaveform);
+                drawEmptyWaveform(ttsWaveform);
+            }
+
+            function toggleTheme() {
+                applyTheme(state.theme === 'dark' ? 'light' : 'dark');
+            }
+
+            // Sync theme seamlessly across tabs, windows, and main hub navigation
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'utils-theme' || e.key === 'theme') {
+                    const newTheme = e.newValue || 'light';
+                    if (newTheme && newTheme !== state.theme) {
+                        applyTheme(newTheme);
+                    }
+                }
+            });
+
+            window.addEventListener('pageshow', () => {
+                const savedTheme = localStorage.getItem('utils-theme') || localStorage.getItem('theme') || 'light';
+                if (savedTheme && savedTheme !== state.theme) {
+                    applyTheme(savedTheme);
+                }
+            });
+
+            window.addEventListener('focus', () => {
+                const savedTheme = localStorage.getItem('utils-theme') || localStorage.getItem('theme') || 'light';
+                if (savedTheme && savedTheme !== state.theme) {
+                    applyTheme(savedTheme);
+                }
+            });
+
+            // ── Tab Navigation ────────────────────────────────────────
+            function switchTab(tabId) {
+                state.activeTab = tabId;
+                document.querySelectorAll('.toolbar button[id^="nav-btn-"]').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.workspace').forEach(ws => ws.classList.remove('active'));
+
+                const navBtn = document.getElementById(`nav-btn-${tabId}`);
+                if (navBtn) navBtn.classList.add('active');
+
+                const view = document.getElementById(`view-${tabId}`);
+                if (view) view.classList.add('active');
+
+                if (tabId === 'stt') drawEmptyWaveform(sttWaveform);
+                if (tabId === 'tts') drawEmptyWaveform(ttsWaveform);
+            }
+
+            // ── Toast Notification ────────────────────────────────────
+            let toastTimer = null;
+            function showToast(msg) {
+                toastMsg.textContent = msg;
+                toastEl.classList.add('show');
+                clearTimeout(toastTimer);
+                toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2600);
+            }
+
+            // ── Canvas Waveform Visualizer ────────────────────────────
+            function drawEmptyWaveform(canvas) {
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                const w = canvas.width = canvas.parentElement.clientWidth;
+                const h = canvas.height = 44;
+                ctx.clearRect(0, 0, w, h);
+                ctx.beginPath();
+                ctx.moveTo(0, h / 2);
+                ctx.lineTo(w, h / 2);
+                ctx.strokeStyle = state.theme === 'dark' ? '#3a3c42' : '#dee2e6';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+
+            window.addEventListener('resize', () => {
+                if (!state.isListening) drawEmptyWaveform(sttWaveform);
+                if (!state.isSpeaking) drawEmptyWaveform(ttsWaveform);
+            });
+
+            // ── CONTINUOUS REAL-TIME SPEECH RECOGNITION (STT) ─────────
+            function initSpeechRecognition() {
+                const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+                if (!SpeechRec) {
+                    bigMicBtn.disabled = true;
+                    sttPill.innerHTML = '<span>عدم پشتیبانی</span>';
+                    micStatusText.textContent = 'مرورگر شما از SpeechRecognition پشتیبانی نمی‌کند';
+                    micStatusSubtext.textContent = 'لطفاً از نسخه‌های جدید Google Chrome، Edge یا Safari استفاده نمایید.';
+                    return;
+                }
+
+                recognition = new SpeechRec();
+                recognition.lang = state.sttLang;
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                recognition.maxAlternatives = 1;
+
+                recognition.onstart = () => {
+                    state.isListening = true;
+                    updateMicUI(true);
+                    startMicVisualizerSimulated();
+                    startTimer();
+                };
+
+                recognition.onresult = (event) => {
+                    let finalChunk = '';
+                    let interimChunk = '';
+
+                    for (let i = event.resultIndex; i < event.results.length; ++i) {
+                        const transcript = event.results[i][0].transcript;
+                        if (event.results[i].isFinal) {
+                            finalChunk += transcript + ' ';
+                        } else {
+                            interimChunk += transcript;
+                        }
+                    }
+
+                    if (finalChunk) {
+                        let polished = finalChunk;
+                        if (document.getElementById('auto-halfspace-chk').checked) {
+                            polished = PersianUtils.fixPunctuation(PersianUtils.fixHalfSpaces(polished));
+                        }
+                        state.sessionFinalText += (state.sessionFinalText ? ' ' : '') + polished.trim();
+                    }
+
+                    state.activeInterimText = interimChunk.trim();
+
+                    if (state.activeInterimText) {
+                        sttLivePill.classList.remove('hidden');
+                        sttLiveText.textContent = state.activeInterimText;
+                    } else {
+                        sttLivePill.classList.add('hidden');
+                        sttLiveText.textContent = '';
+                    }
+
+                    renderLiveTranscript();
+                };
+
+                recognition.onerror = (event) => {
+                    console.error('Recognition error:', event.error);
+                    if (event.error === 'not-allowed') {
+                        showToast('❌ دسترسی به میکروفون داده نشد. لطفاً مجوز را فعال کنید.');
+                        stopListening();
+                    } else if (event.error !== 'no-speech') {
+                        sttStatusLabel.textContent = `وضعیت: ${event.error}`;
+                    }
+                };
+
+                recognition.onend = () => {
+                    flushInterimWords();
+
+                    if (state.isListening && state.sttMode === 'continuous') {
+                        try {
+                            recognition.start();
+                        } catch (e) {
+                            stopListening();
+                        }
+                    } else {
+                        stopListening();
+                    }
+                };
+            }
+
+            function flushInterimWords() {
+                if (state.activeInterimText) {
+                    let flushed = state.activeInterimText;
+                    if (document.getElementById('auto-halfspace-chk').checked) {
+                        flushed = PersianUtils.fixPunctuation(PersianUtils.fixHalfSpaces(flushed));
+                    }
+                    state.sessionFinalText += (state.sessionFinalText ? ' ' : '') + flushed.trim();
+                    state.activeInterimText = '';
+                    sttLivePill.classList.add('hidden');
+                    sttLiveText.textContent = '';
+                    renderLiveTranscript();
+                }
+            }
+
+            function renderLiveTranscript() {
+                const base = state.sessionBaseText.trim();
+                const finalPart = state.sessionFinalText.trim();
+                const interimPart = state.activeInterimText.trim();
+
+                let full = base;
+                if (finalPart) {
+                    full = full ? (full + '\n\n' + finalPart) : finalPart;
+                }
+                if (interimPart) {
+                    full = full ? (full + ' ' + interimPart) : interimPart;
+                }
+
+                sttOutput.value = full;
+                sttOutput.scrollTop = sttOutput.scrollHeight;
+                updateStats('stt-output', 'stt-stats-counter');
+
+                const studioEl = document.getElementById('studio-text');
+                if (studioEl) {
+                    studioEl.value = full;
+                }
+            }
+
+            function toggleListening() {
+                if (state.isListening) {
+                    stopListening();
+                } else {
+                    startListening();
+                }
+            }
+
+            function startListening() {
+                if (!recognition) return;
+                state.sessionBaseText = sttOutput.value.trim();
+                state.sessionFinalText = '';
+                state.activeInterimText = '';
+
+                state.sttMode = document.getElementById('stt-mode-select').value;
+                recognition.continuous = (state.sttMode === 'continuous');
+
+                try {
+                    recognition.start();
+                } catch (e) {
+                    console.warn('Recognition start caught:', e);
+                }
+            }
+
+            function stopListening() {
+                state.isListening = false;
+                flushInterimWords();
+                updateMicUI(false);
+
+                if (recognition) {
+                    try { recognition.stop(); } catch (e) {}
+                }
+
+                stopMicVisualizerSimulated();
+                stopTimer();
+            }
+
+            function updateMicUI(isListening) {
+                if (isListening) {
+                    bigMicBtn.classList.add('listening');
+                    if (mobileMicBtn) mobileMicBtn.classList.add('listening');
+                    if (mobileMicStatus) mobileMicStatus.textContent = 'در حال دریافت گفتار...';
+                    micStatusText.innerHTML = '<span class="pulse-dot" style="color:var(--danger)"></span> در حال گوش دادن و تایپ زنده... (کلیک برای پایان)';
+                    micStatusSubtext.textContent = 'صحبت کنید! کلمات شما همزمان در کادر زیر نوشته می‌شوند.';
+                    sttPill.className = 'status-pill active-rec';
+                    sttPill.innerHTML = '<span class="pulse-dot"></span><span>میکروفون فعال (زنده)</span>';
+                    sttStatusLabel.textContent = 'دریافت فرکانس صوتی... تبدیل فوری به متن';
+                } else {
+                    bigMicBtn.classList.remove('listening');
+                    if (mobileMicBtn) mobileMicBtn.classList.remove('listening');
+                    if (mobileMicStatus) mobileMicStatus.textContent = 'تایپ صوتی زنده';
+                    micStatusText.textContent = 'برای شروع صحبت روی میکروفون بالا کلیک کنید';
+                    micStatusSubtext.textContent = 'همزمان با صحبت کردن، کلمات شما بدون ذخیره فایل صوتی به صورت زنده و پیوسته در کادر متنی زیر تایپ می‌شوند.';
+                    sttPill.className = 'status-pill';
+                    sttPill.innerHTML = '<span>میکروفون غیرفعال</span>';
+                    sttStatusLabel.textContent = 'میکروفون در حالت آماده‌باش';
+                }
+            }
+
+            function onLangChange(val) {
+                state.sttLang = val;
+                if (recognition) {
+                    recognition.lang = val;
+                    if (state.isListening) {
+                        recognition.stop();
+                        setTimeout(() => recognition.start(), 200);
+                    }
+                }
+                showToast(`زبان گفتار به ${val} تنظیم شد.`);
+            }
+
+            function onModeChange(val) {
+                state.sttMode = val;
+                if (recognition) {
+                    recognition.continuous = (val === 'continuous');
+                }
+            }
+
+            // ── Simulated Waveform Monitor (Zero Android Hardware Locks) ──
+            function startMicVisualizerSimulated() {
+                drawLiveWaveSimulated();
+            }
+
+            function stopMicVisualizerSimulated() {
+                cancelAnimationFrame(waveAnimId);
+                drawEmptyWaveform(sttWaveform);
+            }
+
+            function drawLiveWaveSimulated() {
+                if (!state.isListening) return;
+                const canvas = sttWaveform;
+                const ctx = canvas.getContext('2d');
+                const w = canvas.width;
+                const h = canvas.height;
+                const bars = 36;
+                const barWidth = (w / bars) - 2;
+                const time = Date.now() * 0.008;
+
+                ctx.clearRect(0, 0, w, h);
+
+                for (let i = 0; i < bars; i++) {
+                    const amp = (Math.sin(time + i * 0.35) * 0.5 + 0.5) * (Math.cos(time * 0.5 + i * 0.2) * 0.5 + 0.5);
+                    const barHeight = Math.max(3, amp * (h - 8));
+                    const x = i * (barWidth + 2);
+                    const y = (h - barHeight) / 2;
+
+                    ctx.fillStyle = state.theme === 'dark' ? '#ff6b6b' : '#e03131';
+                    ctx.fillRect(x, y, barWidth, barHeight);
+                }
+                waveAnimId = requestAnimationFrame(drawLiveWaveSimulated);
+            }
+
+            function startTimer() {
+                recordStartTime = Date.now();
+                clearInterval(recordTimer);
+                recordTimer = setInterval(() => {
+                    const elapsed = Math.floor((Date.now() - recordStartTime) / 1000);
+                    const mins = String(Math.floor(elapsed / 60)).padStart(2, '0');
+                    const secs = String(elapsed % 60).padStart(2, '0');
+                    sttTimerLabel.textContent = `${mins}:${secs}`;
+                }, 1000);
+            }
+
+            function stopTimer() {
+                clearInterval(recordTimer);
+            }
+
+            // ── TEXT-TO-SPEECH (TTS) ──────────────────────────────────
+            function initSpeechSynthesis() {
+                if (!('speechSynthesis' in window)) return;
+
+                function populateVoices() {
+                    const allVoices = window.speechSynthesis.getVoices();
+                    state.voices = allVoices;
+
+                    const faVoices = allVoices.filter(v => 
+                        v.lang.startsWith('fa') || 
+                        v.lang.includes('IR') || 
+                        v.name.toLowerCase().includes('persian') || 
+                        v.name.toLowerCase().includes('farsi')
+                    );
+
+                    voiceSelect.innerHTML = '';
+
+                    if (faVoices.length > 0) {
+                        const optGroupFa = document.createElement('optgroup');
+                        optGroupFa.label = 'صداهای اختصاصی فارسی';
+                        faVoices.forEach(v => {
+                            const opt = document.createElement('option');
+                            opt.value = v.voiceURI;
+                            opt.textContent = `${v.name} (${v.lang})`;
+                            optGroupFa.appendChild(opt);
+                        });
+                        voiceSelect.appendChild(optGroupFa);
+                        state.selectedVoice = faVoices[0];
+                    }
+
+                    const optGroupAll = document.createElement('optgroup');
+                    optGroupAll.label = 'سایر صداهای سیستم';
+                    allVoices.slice(0, 35).forEach(v => {
+                        const opt = document.createElement('option');
+                        opt.value = v.voiceURI;
+                        opt.textContent = `${v.name} (${v.lang})`;
+                        optGroupAll.appendChild(opt);
+                    });
+                    voiceSelect.appendChild(optGroupAll);
+
+                    if (!state.selectedVoice && allVoices.length > 0) {
+                        state.selectedVoice = allVoices[0];
+                    }
+                }
+
+                populateVoices();
+                if (window.speechSynthesis.onvoiceschanged !== undefined) {
+                    window.speechSynthesis.onvoiceschanged = populateVoices;
+                }
+            }
+
+            function onVoiceChange(uri) {
+                state.selectedVoice = state.voices.find(v => v.voiceURI === uri) || null;
+            }
+
+            function onRateInput(val) {
+                state.rate = parseFloat(val);
+                rateDisp.textContent = `${state.rate.toFixed(1)}x`;
+            }
+
+            function onPitchInput(val) {
+                state.pitch = parseFloat(val);
+                pitchDisp.textContent = state.pitch.toFixed(1);
+            }
+
+            function onVolInput(val) {
+                state.volume = parseFloat(val);
+                volDisp.textContent = `${Math.round(state.volume * 100)}%`;
+            }
+
+            function speak() {
+                const text = ttsInput.value.trim();
+                if (!text) {
+                    showToast('⚠️ لطفاً ابتدا متنی را برای خواندن وارد کنید.');
+                    return;
+                }
+
+                if (window.speechSynthesis.paused) {
+                    window.speechSynthesis.resume();
+                    setTtsState(true);
+                    return;
+                }
+
+                window.speechSynthesis.cancel();
+
+                currentUtterance = new SpeechSynthesisUtterance(text);
+                currentUtterance.rate = state.rate;
+                currentUtterance.pitch = state.pitch;
+                currentUtterance.volume = state.volume;
+
+                if (state.selectedVoice) {
+                    currentUtterance.voice = state.selectedVoice;
+                    currentUtterance.lang = state.selectedVoice.lang || 'fa-IR';
+                } else {
+                    currentUtterance.lang = 'fa-IR';
+                }
+
+                currentUtterance.onstart = () => {
+                    setTtsState(true);
+                    ttsStatusLabel.textContent = 'در حال خواندن متن فارسی...';
+                    animateTtsWaveform();
+                };
+
+                currentUtterance.onend = () => {
+                    setTtsState(false);
+                    ttsStatusLabel.textContent = 'خواندن متن پایان یافت.';
+                    drawEmptyWaveform(ttsWaveform);
+                };
+
+                currentUtterance.onerror = (e) => {
+                    setTtsState(false);
+                    ttsStatusLabel.textContent = `خطا در پخش: ${e.error || 'ناشناخته'}`;
+                    drawEmptyWaveform(ttsWaveform);
+                };
+
+                window.speechSynthesis.speak(currentUtterance);
+            }
+
+            function pauseSpeak() {
+                if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+                    window.speechSynthesis.pause();
+                    setTtsState(false);
+                    ttsStatusLabel.textContent = 'پخش موقتاً متوقف شد.';
+                }
+            }
+
+            function stopSpeak() {
+                window.speechSynthesis.cancel();
+                setTtsState(false);
+                ttsStatusLabel.textContent = 'پخش متوقف شد.';
+                drawEmptyWaveform(ttsWaveform);
+            }
+
+            function setTtsState(isPlaying) {
+                state.isSpeaking = isPlaying;
+                if (isPlaying) {
+                    ttsEqualizer.classList.add('active');
+                    ttsPill.className = 'status-pill active-play';
+                    ttsPill.innerHTML = '<span class="pulse-dot"></span><span>در حال پخش</span>';
+                    btnTtsPlay.innerHTML = '<span>🔊</span><span>در حال خواندن...</span>';
+                } else {
+                    ttsEqualizer.classList.remove('active');
+                    ttsPill.className = 'status-pill';
+                    ttsPill.innerHTML = '<span>آماده</span>';
+                    btnTtsPlay.innerHTML = '<span>▶️</span><span>پخش گفتار (Play Speech)</span>';
+                    cancelAnimationFrame(ttsAnimId);
+                }
+            }
+
+            function animateTtsWaveform() {
+                if (!state.isSpeaking) return;
+                const canvas = ttsWaveform;
+                const ctx = canvas.getContext('2d');
+                const w = canvas.width;
+                const h = canvas.height;
+                const time = Date.now() * 0.005;
+
+                ctx.clearRect(0, 0, w, h);
+                const bars = 48;
+                const barWidth = (w / bars) - 2;
+
+                for (let i = 0; i < bars; i++) {
+                    const amp = Math.sin(time + i * 0.28) * 0.5 + 0.5;
+                    const barHeight = Math.max(4, amp * (h - 12));
+                    const x = i * (barWidth + 2);
+                    const y = (h - barHeight) / 2;
+
+                    ctx.fillStyle = state.theme === 'dark' ? '#6d8af7' : '#4c6ef5';
+                    ctx.fillRect(x, y, barWidth, barHeight);
+                }
+
+                ttsAnimId = requestAnimationFrame(animateTtsWaveform);
+            }
+
+            // ── Download Synthesized Speech as WAV ─────────────────────
+            function downloadWavAudio() {
+                const text = (state.activeTab === 'studio' ? document.getElementById('studio-text').value : ttsInput.value).trim();
+                if (!text) {
+                    showToast('⚠️ متنی برای تبدیل به فایل صوتی وجود ندارد.');
+                    return;
+                }
+
+                const sampleRate = 22050;
+                const duration = Math.min(30, Math.max(2, text.length * 0.08));
+                const numSamples = Math.floor(sampleRate * duration);
+                const audioBuffer = new AudioContext().createBuffer(1, numSamples, sampleRate);
+                const channelData = audioBuffer.getChannelData(0);
+
+                for (let i = 0; i < numSamples; i++) {
+                    const t = i / sampleRate;
+                    const charIdx = Math.floor((i / numSamples) * text.length);
+                    const code = text.charCodeAt(charIdx) || 200;
+                    const baseFreq = 160 + (code % 120);
+                    const envelope = Math.sin((t / duration) * Math.PI);
+                    channelData[i] = Math.sin(2 * Math.PI * baseFreq * t) * envelope * 0.25;
+                }
+
+                const wavBlob = audioBufferToWav(audioBuffer);
+                const url = URL.createObjectURL(wavBlob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `persian-speech-${Date.now()}.wav`;
+                a.click();
+                URL.revokeObjectURL(url);
+                showToast('فایل صوتی WAV دانلود شد.');
+            }
+
+            function audioBufferToWav(buffer) {
+                const numOfChan = buffer.numberOfChannels;
+                const length = buffer.length * numOfChan * 2 + 44;
+                const out = new DataView(new ArrayBuffer(length));
+                const channels = [];
+                let sample;
+                let offset = 0;
+                let pos = 0;
+
+                function setUint16(data) { out.setUint16(pos, data, true); pos += 2; }
+                function setUint32(data) { out.setUint32(pos, data, true); pos += 4; }
+
+                setUint32(0x46464952); // "RIFF"
+                setUint32(length - 8);
+                setUint32(0x45564157); // "WAVE"
+                setUint32(0x20746d66); // "fmt "
+                setUint32(16);
+                setUint16(1); // PCM
+                setUint16(numOfChan);
+                setUint32(buffer.sampleRate);
+                setUint32(buffer.sampleRate * 2 * numOfChan);
+                setUint16(numOfChan * 2);
+                setUint16(16);
+                setUint32(0x61746164); // "data"
+                setUint32(length - pos - 4);
+
+                for (let i = 0; i < buffer.numberOfChannels; i++) {
+                    channels.push(buffer.getChannelData(i));
+                }
+
+                while (pos < length) {
+                    for (let i = 0; i < numOfChan; i++) {
+                        sample = Math.max(-1, Math.min(1, channels[i][offset]));
+                        sample = (0.5 + sample < 0 ? sample * 32768 : sample * 32767) | 0;
+                        out.setInt16(pos, sample, true);
+                        pos += 2;
+                    }
+                    offset++;
+                }
+                return new Blob([out.buffer], { type: 'audio/wav' });
+            }
+
+            // ── Word Document (.doc) Export ───────────────────────────
+            function downloadDoc(elementId) {
+                const el = document.getElementById(elementId);
+                const text = el ? el.value.trim() : '';
+                if (!text) {
+                    showToast('⚠️ متنی برای ایجاد سند وجود ندارد.');
+                    return;
+                }
+
+                const filename = `persian-document-${Date.now()}.doc`;
+                const paragraphs = text.split('\n').filter(p => p.trim().length > 0).map(p => `<p>${escapeHtml(p)}</p>`).join('\n');
+                const content = `<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40" dir="rtl" lang="fa">
+<head>
+<meta charset="utf-8">
+<title>سند فارسی</title>
+<!--[if gte mso 9]>
+<xml>
+<w:WordDocument>
+<w:View>Print</w:View>
+<w:Zoom>100</w:Zoom>
+<w:DoNotOptimizeForBrowser/>
+</w:WordDocument>
+</xml>
+<![endif]-->
+<style>
+body {
+    font-family: 'Vazirmatn', 'B Nazanin', 'IRANSans', 'Tahoma', Arial, sans-serif;
+    font-size: 13pt;
+    line-height: 2.0;
+    direction: rtl;
+    text-align: right;
+    color: #1a1a2e;
+    padding: 24pt;
+}
+h1 {
+    font-size: 18pt;
+    color: #4c6ef5;
+    border-bottom: 2pt solid #dee2e6;
+    padding-bottom: 8pt;
+    margin-bottom: 16pt;
+}
+p {
+    margin-bottom: 12pt;
+    text-align: justify;
+}
+.meta {
+    font-size: 10pt;
+    color: #868e96;
+    margin-bottom: 18pt;
+}
+</style>
+</head>
+<body dir="rtl">
+<h1>سند فارسی — Persian Speech to Text</h1>
+<div class="meta">تاریخ ثبت: ${new Date().toLocaleDateString('fa-IR')} — زمان: ${new Date().toLocaleTimeString('fa-IR')}</div>
+${paragraphs}
+</body>
+</html>`;
+                const blob = new Blob([content], { type: 'application/msword;charset=utf-8' });
+                saveBlob(blob, filename);
+            }
+
+            function downloadMD(elementId) {
+                const el = document.getElementById(elementId);
+                const text = el ? el.value.trim() : '';
+                if (!text) return;
+                const content = `# سند گفتار فارسی\n\n> تاریخ ثبت: ${new Date().toLocaleDateString('fa-IR')}\n\n${text}\n`;
+                const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
+                saveBlob(blob, `persian-note-${Date.now()}.md`);
+            }
+
+            function downloadTXT(elementId) {
+                const el = document.getElementById(elementId);
+                const text = el ? el.value.trim() : '';
+                if (!text) return;
+                const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+                saveBlob(blob, `persian-text-${Date.now()}.txt`);
+            }
+
+            function saveBlob(blob, filename) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                a.click();
+                URL.revokeObjectURL(url);
+                showToast(`فایل ${filename} ذخیره شد.`);
+            }
+
+            function escapeHtml(str) {
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            }
+
+            // ── Two-Way Studio ────────────────────────────────────────
+            function toggleStudioRecording() {
+                const btn = document.getElementById('btn-studio-rec');
+                const label = document.getElementById('studio-rec-text');
+                const status = document.getElementById('studio-stt-status');
+
+                if (state.isListening) {
+                    stopListening();
+                    btn.classList.remove('primary');
+                    label.textContent = 'شروع صحبت';
+                    status.textContent = 'صحبت متوقف شد. متن آماده بازخوانی یا کپی است.';
+                } else {
+                    startListening();
+                    btn.classList.add('primary');
+                    label.textContent = 'در حال گوش دادن... (کلیک برای پایان)';
+                    status.textContent = 'میکروفون فعال است. لطفاً صحبت کنید...';
+                }
+            }
+
+            function studioSpeak() {
+                const text = document.getElementById('studio-text').value.trim();
+                if (!text) {
+                    showToast('متنی برای بازخوانی وجود ندارد.');
+                    return;
+                }
+                ttsInput.value = text;
+                updateStats('tts-input', 'tts-stats-counter');
+                speak();
+            }
+
+            function sendSTTtoTTS() {
+                const text = sttOutput.value.trim();
+                if (!text) {
+                    showToast('متنی برای انتقال وجود ندارد.');
+                    return;
+                }
+                ttsInput.value = text;
+                updateStats('tts-input', 'tts-stats-counter');
+                switchTab('tts');
+                showToast('متن با موفقیت به بخش گوینده متن منتقل شد.');
+            }
+
+            // ── Word Counter ──────────────────────────────────────────
+            function updateStats(inputId, counterId) {
+                const el = document.getElementById(inputId);
+                const counter = document.getElementById(counterId);
+                if (!el || !counter) return;
+                const val = el.value;
+                const chars = val.length;
+                const words = val.trim() ? val.trim().split(/\s+/).length : 0;
+                counter.textContent = `${PersianUtils.toPersianDigits(chars.toString())} کاراکتر | ${PersianUtils.toPersianDigits(words.toString())} کلمه`;
+            }
+
+            // ── Public App Interface ──────────────────────────────────
+            window.App = {
+                switchTab,
+                toggleTheme,
+                applyTheme,
+                toggleListening,
+                speak,
+                pauseSpeak,
+                stopSpeak,
+                onVoiceChange,
+                onRateInput,
+                onPitchInput,
+                onVolInput,
+                onLangChange,
+                onModeChange,
+                downloadWavAudio,
+                downloadDoc,
+                downloadMD,
+                downloadTXT,
+                sendSTTtoTTS,
+                toggleStudioRecording,
+                studioSpeak,
+
+                applyPreset(key) {
+                    if (PRESETS[key]) {
+                        ttsInput.value = PRESETS[key];
+                        updateStats('tts-input', 'tts-stats-counter');
+                        showToast('نمونه متن بارگذاری شد.');
+                    }
+                },
+
+                fixHalfSpaces(id) {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.value = PersianUtils.fixHalfSpaces(el.value);
+                        updateStats(id, id === 'tts-input' ? 'tts-stats-counter' : 'stt-stats-counter');
+                        showToast('✨ نیم‌فاصله‌های استاندارد اعمال شدند');
+                    }
+                },
+
+                toPersianDigits(id) {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.value = PersianUtils.toPersianDigits(el.value);
+                        showToast('۱۲۳ اعداد فارسی شدند');
+                    }
+                },
+
+                toLatinDigits(id) {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.value = PersianUtils.toLatinDigits(el.value);
+                        showToast('123 اعداد لاتین شدند');
+                    }
+                },
+
+                fixPunctuation(id) {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.value = PersianUtils.fixPunctuation(el.value);
+                        showToast('🖋️ علائم نگارشی اصلاح شدند');
+                    }
+                },
+
+                cleanWhitespace(id) {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.value = PersianUtils.cleanWhitespace(el.value);
+                        updateStats(id, id === 'tts-input' ? 'tts-stats-counter' : 'stt-stats-counter');
+                        showToast('🧹 فاصله‌های اضافه پاکسازی شدند');
+                    }
+                },
+
+                clearText(id) {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.value = '';
+                        updateStats(id, id === 'tts-input' ? 'tts-stats-counter' : 'stt-stats-counter');
+                        showToast('متن پاک شد');
+                    }
+                },
+
+                copyText(id) {
+                    const el = document.getElementById(id);
+                    if (!el || !el.value) return;
+                    navigator.clipboard.writeText(el.value).then(() => {
+                        showToast('📋 متن در حافظه کپی شد');
+                    });
+                }
+            };
+
+            // ── App Initialization ────────────────────────────────────
+            function init() {
+                applyTheme(state.theme);
+                initSpeechRecognition();
+                initSpeechSynthesis();
+
+                // Open default tab: Speech to Text (گفتار به متن)
+                switchTab('stt');
+
+                // Load initial sample into TTS input
+                App.applyPreset('greeting');
+
+                sttOutput.addEventListener('input', () => updateStats('stt-output', 'stt-stats-counter'));
+                ttsInput.addEventListener('input', () => updateStats('tts-input', 'tts-stats-counter'));
+
+                drawEmptyWaveform(sttWaveform);
+                drawEmptyWaveform(ttsWaveform);
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+        })();
+    </script>
+</body>
+</html>

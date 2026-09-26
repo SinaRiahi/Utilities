@@ -3,10 +3,16 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+        (function() {
+            var t = localStorage.getItem('utils-theme') || localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', t);
+        })();
+    </script>
     <title>Utilities — Developer Tool Suite</title>
-    <meta name="description" content="A developer tool suite featuring MD Studio, PDF to Markdown, Image Forge, Audio Forge, QR Forge, File Forge, File Transfer, WebScope, and Secret Lab." />
+    <meta name="description" content="A developer tool suite featuring MD Studio, PDF to Markdown, Image Forge, Audio Forge, Persian Text to Speech, QR Forge, File Forge, File Transfer, WebScope, and Secret Lab." />
     <meta property="og:title" content="Utilities — Developer Tool Suite" />
-    <meta property="og:description" content="A developer tool suite featuring MD Studio, PDF to Markdown, Image Forge, Audio Forge, QR Forge, File Forge, File Transfer, WebScope, and Secret Lab." />
+    <meta property="og:description" content="A developer tool suite featuring MD Studio, PDF to Markdown, Image Forge, Audio Forge, Persian Text to Speech, QR Forge, File Forge, File Transfer, WebScope, and Secret Lab." />
 
     <!-- Google Fonts (Inter) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -639,6 +645,11 @@
                 name: "PDF to Markdown",
                 description: "Convert PDFs into clean Markdown files with smart layout detection, table extraction, math formulas, image export, and live preview.",
                 folder: "PDF_to_Markdown/"
+            },{
+                icon: "🎙️",
+                name: "Persian Speech to Text",
+                description: "Real-time Persian (Farsi) voice typing, speech-to-text dictation, natural text-to-speech, Persian typography tools, and Word DOC export.",
+                folder: "Persian_Text_to_Speech/"
             }]
         },{
             category: "🎨 Design & Media",
@@ -878,6 +889,7 @@
                 document.documentElement.setAttribute('data-theme', theme);
                 document.body.setAttribute('data-theme', theme);
                 localStorage.setItem('utils-theme', theme);
+                localStorage.setItem('theme', theme);
                 themeBtn.textContent = theme === 'dark' ? '☀️ Light' : '🌓 Dark';
             }
 
@@ -885,6 +897,29 @@
                 setTheme(state.theme === 'dark' ? 'light' : 'dark');
                 showToast(state.theme === 'dark' ? '🌙 Dark mode' : '☀️ Light mode');
             }
+
+            window.addEventListener('storage', (e) => {
+                if (e.key === 'utils-theme' || e.key === 'theme') {
+                    const newTheme = e.newValue || 'light';
+                    if (newTheme !== state.theme) {
+                        setTheme(newTheme);
+                    }
+                }
+            });
+
+            window.addEventListener('pageshow', () => {
+                const saved = localStorage.getItem('utils-theme') || localStorage.getItem('theme') || 'light';
+                if (saved !== state.theme) {
+                    setTheme(saved);
+                }
+            });
+
+            window.addEventListener('focus', () => {
+                const saved = localStorage.getItem('utils-theme') || localStorage.getItem('theme') || 'light';
+                if (saved !== state.theme) {
+                    setTheme(saved);
+                }
+            });
 
             // ── Open tool ──────────────────────────────────────────────
             function openTool(folder) {

@@ -6,11 +6,29 @@ import crypto from "crypto";
 import multer from "multer";
 import QRCode from "qrcode";
 import archiver from "archiver";
+import { GoogleGenAI } from "@google/genai";
 
 const app = express();
 const PORT = 3000;
 const HOST = "0.0.0.0";
 const ROOT_DIR = process.cwd();
+
+// Initialize Gemini API client if API key is provided
+let aiClient: GoogleGenAI | null = null;
+try {
+  if (process.env.GEMINI_API_KEY) {
+    aiClient = new GoogleGenAI({
+      apiKey: process.env.GEMINI_API_KEY,
+      httpOptions: {
+        headers: {
+          "User-Agent": "aistudio-build",
+        },
+      },
+    });
+  }
+} catch (err) {
+  console.warn("Gemini client initialization notice:", err);
+}
 
 // Parse JSON and form-encoded data
 app.use(express.json({ limit: "50mb" }));
@@ -577,6 +595,8 @@ app.use("/MD_Studio", express.static(path.join(ROOT_DIR, "MD_Studio")));
 app.use("/PDF_to_Markdown", express.static(path.join(ROOT_DIR, "PDF_to_Markdown")));
 app.use("/Image_Forge", express.static(path.join(ROOT_DIR, "Image_Forge")));
 app.use("/Audio_Forge", express.static(path.join(ROOT_DIR, "Audio_Forge")));
+app.use("/Persian_Text_to_Speech", express.static(path.join(ROOT_DIR, "Persian_Text_to_Speech")));
+app.use("/Voice_Forge", express.static(path.join(ROOT_DIR, "Persian_Text_to_Speech")));
 app.use("/File_Forge", express.static(path.join(ROOT_DIR, "File_Forge")));
 app.use("/File_transfer/static", express.static(path.join(ROOT_DIR, "File_transfer", "static")));
 app.use("/File_transfer", express.static(path.join(ROOT_DIR, "File_transfer")));

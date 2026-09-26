@@ -137,6 +137,32 @@ Rather than creating dozens of half-finished tools, I'd rather build a smaller c
 
 ---
 
+## 🎙️ Persian Text to Speech
+> Professional Persian (Farsi) text-to-speech synthesis, speech recognition, and live audio transcription studio.
+
+* 🎙️ **Speech-to-Text (تبدیل گفتار به متن)**:
+  * Continuous and single-phrase Persian speech recognition powered by Web Speech API (`fa-IR` and `fa-AF`)
+  * Live audio visualizer oscilloscope canvas via Web Audio API (`AnalyserNode`)
+  * Real-time provisional speech display and auto-punctuated transcription
+  * Pre-recorded audio file transcription (`.mp3`, `.wav`, `.m4a`, `.ogg`, `.webm`)
+  * Multi-format document export: download transcripts as Word Document (`.doc`), Markdown (`.md`), or Plain Text (`.txt`)
+* ✍️ **Persian Typography & Text Polish**:
+  * Auto-normalization of standard Persian half-spaces (*نیم‌فاصله* like `می‌شود` and `کتاب‌ها`)
+  * Bidirectional Persian and Latin number conversion (`۱۲۳۴۵` ↔ `12345`)
+  * Smart Persian punctuation fixing (`،`, `؟`, `؛`, and `«»` quotation marks)
+  * Real-time Persian word count, character count, and speech reading time calculation
+* 🔊 **Text-to-Speech (تبدیل متن به گفتار)**:
+  * 100% client-side Persian speech synthesis with voice picker (native browser voices, zero API keys required)
+  * Dynamic speech parameter adjustments (Rate 0.5x–2.0x, Pitch 0.5–1.5, Volume 0–100%)
+  * Play, Pause, Resume, and Stop controls with live audio equalizer bar animations
+  * Curated Persian literature presets: Hafez, Saadi, conversational Persian, tech prose, and tongue twisters
+  * Download synthesized speech and microphone recordings directly as `.wav` files
+* 🔄 **Two-Way Voice Studio**:
+  * Unified speech-to-text-to-speech feedback loop for dictation and voice rehearsal
+  * Clean, streamlined interface focused on productivity without clutter
+
+---
+
 ## 🔳 QR Forge
 > Complete QR code design studio, batch generator, and live scanner — 100% client-side with zero data leakage.
 
