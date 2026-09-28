@@ -9,18 +9,18 @@
             document.documentElement.setAttribute('data-theme', t);
         })();
     </script>
-    <title>PDF Workshop — Split & Optimize PDFs</title>
-    <meta name="description" content="Professional in-browser PDF splitting, chunking, and AI optimization studio." />
+    <title>PDF Workshop — Split PDFs</title>
+    <meta name="description" content="Fast, private client-side PDF splitter. Divide large documents into multiple PDFs and download as a ZIP." />
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
-    <!-- PDF-Lib for client-side PDF manipulation -->
+    <!-- PDF-Lib for client-side PDF splitting -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
 
-    <!-- PDF.js for rendering thumbnails and text extraction -->
+    <!-- PDF.js for rendering page preview thumbnails -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
     <!-- JSZip for ZIP packaging -->
@@ -236,11 +236,11 @@
         }
         .dropzone-box {
             width: 100%;
-            max-width: 580px;
+            max-width: 540px;
             background: var(--bg-secondary);
             border: 2px dashed var(--border);
             border-radius: var(--radius);
-            padding: 48px 32px;
+            padding: 44px 32px;
             text-align: center;
             cursor: pointer;
             transition: all var(--transition);
@@ -251,20 +251,19 @@
         }
         .dropzone-icon {
             font-size: 3rem;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
             display: block;
         }
         .dropzone-title {
-            font-size: 1.2rem;
+            font-size: 1.15rem;
             font-weight: 600;
             color: var(--text);
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
         .dropzone-subtitle {
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             color: var(--text-muted);
-            margin-bottom: 20px;
-            line-height: 1.45;
+            margin-bottom: 18px;
         }
         .dropzone-buttons {
             display: flex;
@@ -275,8 +274,8 @@
 
         /* ── Sidebar Panel ──────────────────────────────────────── */
         .sidebar {
-            width: 340px;
-            min-width: 280px;
+            width: 330px;
+            min-width: 270px;
             background: var(--bg-secondary);
             border-right: 1px solid var(--border);
             display: flex;
@@ -319,8 +318,8 @@
         /* Segmented Mode Selector */
         .segmented-tabs {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 4px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 3px;
             background: var(--bg-tertiary);
             padding: 3px;
             border-radius: var(--radius-sm);
@@ -328,9 +327,9 @@
         .segmented-tab {
             background: transparent;
             border: none;
-            padding: 6px 4px;
+            padding: 6px 2px;
             border-radius: 4px;
-            font-size: 11.5px;
+            font-size: 11px;
             font-weight: 600;
             color: var(--text-secondary);
             cursor: pointer;
@@ -360,10 +359,6 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-        }
-        .form-label small {
-            font-weight: 400;
-            color: var(--text-muted);
         }
         .form-input, .form-select {
             background: var(--bg);
@@ -401,27 +396,6 @@
             border-color: var(--accent);
             color: var(--accent);
             background: var(--accent-light);
-        }
-
-        /* Checkbox Toggles */
-        .option-toggle {
-            display: flex;
-            align-items: flex-start;
-            gap: 8px;
-            padding: 6px 0;
-            cursor: pointer;
-            user-select: none;
-        }
-        .option-toggle input[type="checkbox"] {
-            margin-top: 3px;
-            accent-color: var(--accent);
-            cursor: pointer;
-        }
-        .option-label {
-            font-size: 12.5px;
-            font-weight: 500;
-            color: var(--text);
-            line-height: 1.35;
         }
 
         /* Sidebar Footer */
@@ -500,7 +474,7 @@
         /* Chunks Grid */
         .chunks-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
             gap: 12px;
         }
         .chunk-card {
@@ -585,7 +559,6 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            cursor: pointer;
             position: relative;
             user-select: none;
             transition: all var(--transition);
@@ -593,11 +566,6 @@
         .page-thumb-card:hover {
             border-color: var(--accent);
             box-shadow: var(--shadow);
-            transform: translateY(-1px);
-        }
-        .page-thumb-card.selected {
-            border-color: var(--accent);
-            background: var(--accent-light);
         }
         .page-thumb-card.chunk-start {
             border-top: 3px solid var(--accent);
@@ -639,13 +607,6 @@
             align-items: center;
             gap: 4px;
         }
-        .blank-tag {
-            font-size: 9px;
-            background: var(--warning-light);
-            color: var(--warning);
-            padding: 1px 4px;
-            border-radius: 3px;
-        }
 
         /* ── Progress Bar ───────────────────────────────────────── */
         .progress-bar-wrap {
@@ -677,77 +638,6 @@
             background: var(--accent);
             width: 0%;
             transition: width 0.15s ease;
-        }
-
-        /* ── Modal ──────────────────────────────────────────────── */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.55);
-            backdrop-filter: blur(2px);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .modal-overlay.active {
-            display: flex;
-        }
-        .modal-card {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            max-width: 700px;
-            width: 100%;
-            max-height: 80vh;
-            display: flex;
-            flex-direction: column;
-            box-shadow: var(--shadow-lg);
-            overflow: hidden;
-        }
-        .modal-header {
-            padding: 12px 18px;
-            background: var(--bg-secondary);
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .modal-header h3 {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text);
-        }
-        .modal-close {
-            background: transparent;
-            border: none;
-            font-size: 16px;
-            cursor: pointer;
-            color: var(--text-muted);
-            padding: 2px 6px;
-        }
-        .modal-close:hover {
-            color: var(--text);
-        }
-        .modal-content {
-            padding: 16px 18px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .code-box {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            padding: 12px;
-            font-family: var(--font-mono);
-            font-size: 12px;
-            color: var(--text);
-            overflow-x: auto;
-            white-space: pre-wrap;
-            max-height: 340px;
         }
 
         /* ── Toast ──────────────────────────────────────────────── */
@@ -809,8 +699,7 @@
         <div class="badge" id="doc-stats-badge" style="display: none;">
             <strong id="doc-badge-name">document.pdf</strong> ·
             <span id="doc-badge-pages">0 pages</span> ·
-            <span id="doc-badge-size">0 KB</span> ·
-            <span id="doc-badge-tokens">~0 tokens</span>
+            <span id="doc-badge-size">0 KB</span>
         </div>
 
         <span class="sep" id="doc-sep-1" style="display: none;"></span>
@@ -834,13 +723,13 @@
             <div class="dropzone-box" id="dropzone" onclick="document.getElementById('pdf-file-input').click()">
                 <span class="dropzone-icon">📥</span>
                 <div class="dropzone-title">Drop PDF here or click to browse</div>
-                <div class="dropzone-subtitle">Split multi-page documents into structured, optimized chunks for Gemini LM & AI analysis.</div>
+                <div class="dropzone-subtitle">Divide large PDF documents into multiple smaller PDFs and download them in a single ZIP.</div>
                 <div class="dropzone-buttons">
                     <button class="toolbar-btn accent" type="button" onclick="event.stopPropagation(); document.getElementById('pdf-file-input').click()">
                         📂 Select PDF
                     </button>
                     <button class="toolbar-btn" type="button" onclick="event.stopPropagation(); Workshop.loadSamplePDF()">
-                        📄 Try Sample Document
+                        📄 Try Sample PDF
                     </button>
                 </div>
             </div>
@@ -849,13 +738,12 @@
         <!-- Loaded Studio Layout -->
         <div class="sidebar" id="sidebar" style="display: none;">
 
-            <!-- Strategy Section -->
+            <!-- Splitting Strategy Section -->
             <details class="sidebar-section" open>
-                <summary>Splitting Strategy</summary>
+                <summary>Splitting Method</summary>
                 <div class="sidebar-content">
                     <div class="segmented-tabs">
                         <button class="segmented-tab active" id="tab-fixed" onclick="Workshop.switchMode('fixed')">Fixed</button>
-                        <button class="segmented-tab" id="tab-tokens" onclick="Workshop.switchMode('tokens')">Tokens</button>
                         <button class="segmented-tab" id="tab-custom" onclick="Workshop.switchMode('custom')">Ranges</button>
                         <button class="segmented-tab" id="tab-toc" onclick="Workshop.switchMode('toc')">Chapters</button>
                         <button class="segmented-tab" id="tab-burst" onclick="Workshop.switchMode('burst')">Burst</button>
@@ -865,7 +753,7 @@
                     <div id="panel-fixed" class="mode-panel">
                         <div class="form-row">
                             <label class="form-label">
-                                Pages per Chunk
+                                Pages per PDF
                             </label>
                             <input type="number" id="fixed-pages-input" class="form-input" min="1" max="500" value="10" oninput="Workshop.recalculatePlan()">
                         </div>
@@ -877,27 +765,12 @@
                         </div>
                         <div class="form-row" style="margin-top: 8px;">
                             <label class="form-label">
-                                Boundary Overlap
+                                Page Overlap
                             </label>
                             <select id="chunk-overlap-select" class="form-select" onchange="Workshop.recalculatePlan()">
-                                <option value="0">0 Pages</option>
+                                <option value="0">0 Pages (Strict Split)</option>
                                 <option value="1">1 Page Overlap</option>
                                 <option value="2">2 Pages Overlap</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Tokens Mode -->
-                    <div id="panel-tokens" class="mode-panel" style="display: none;">
-                        <div class="form-row">
-                            <label class="form-label">
-                                Target Token Window
-                            </label>
-                            <select id="token-target-select" class="form-select" onchange="Workshop.recalculatePlan()">
-                                <option value="25000">~25,000 Tokens (Light)</option>
-                                <option value="50000" selected>~50,000 Tokens (Balanced)</option>
-                                <option value="100000">~100,000 Tokens (Standard)</option>
-                                <option value="200000">~200,000 Tokens (Deep)</option>
                             </select>
                         </div>
                     </div>
@@ -906,70 +779,43 @@
                     <div id="panel-custom" class="mode-panel" style="display: none;">
                         <div class="form-row">
                             <label class="form-label">
-                                Custom Ranges
+                                Page Ranges
                             </label>
                             <input type="text" id="custom-ranges-input" class="form-input" placeholder="1-5, 6-12, 13-end" value="1-5, 6-end" oninput="Workshop.recalculatePlan()">
                         </div>
                         <div class="chip-group" style="margin-top: 4px;">
-                            <span class="chip-btn" onclick="Workshop.setRangePreset('halves')">Halves</span>
-                            <span class="chip-btn" onclick="Workshop.setRangePreset('thirds')">Thirds</span>
-                            <span class="chip-btn" onclick="Workshop.setRangePreset('quarters')">Quarters</span>
+                            <span class="chip-btn" onclick="Workshop.setRangePreset('halves')">2 Halves</span>
+                            <span class="chip-btn" onclick="Workshop.setRangePreset('thirds')">3 Thirds</span>
+                            <span class="chip-btn" onclick="Workshop.setRangePreset('quarters')">4 Quarters</span>
                         </div>
                     </div>
 
                     <!-- TOC Chapters Mode -->
                     <div id="panel-toc" class="mode-panel" style="display: none;">
                         <div id="toc-container" style="font-size: 12px; color: var(--text-muted);">
-                            Scanning outline...
+                            Scanning bookmarks...
                         </div>
                     </div>
 
                     <!-- Burst Mode -->
                     <div id="panel-burst" class="mode-panel" style="display: none;">
-                        <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 6px;">
-                            Extracts each page as an individual 1-page PDF file.
-                        </div>
-                        <div style="display: flex; gap: 6px;">
-                            <button class="chip-btn" style="flex:1; text-align:center;" onclick="Workshop.selectAllPages(true)">Select All</button>
-                            <button class="chip-btn" style="flex:1; text-align:center;" onclick="Workshop.selectAllPages(false)">Deselect All</button>
+                        <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.4;">
+                            Extracts every individual page into its own 1-page PDF file.
                         </div>
                     </div>
                 </div>
             </details>
 
-            <!-- AI & Processing Options -->
-            <details class="sidebar-section" open>
-                <summary>AI & Processing Options</summary>
-                <div class="sidebar-content">
-                    <label class="option-toggle">
-                        <input type="checkbox" id="opt-generate-manifest" checked>
-                        <span class="option-label">Generate Prompt Guide & Manifest</span>
-                    </label>
-                    <label class="option-toggle">
-                        <input type="checkbox" id="opt-inject-metadata" checked>
-                        <span class="option-label">Embed Part & Context Metadata</span>
-                    </label>
-                    <label class="option-toggle">
-                        <input type="checkbox" id="opt-strip-blank" checked>
-                        <span class="option-label">Filter Blank Pages</span>
-                    </label>
-                    <label class="option-toggle">
-                        <input type="checkbox" id="opt-extract-text" checked>
-                        <span class="option-label">Extract Companion Text Files (.md)</span>
-                    </label>
-                </div>
-            </details>
-
             <!-- Compression & Naming -->
             <details class="sidebar-section">
-                <summary>Output & Compression</summary>
+                <summary>Output Settings</summary>
                 <div class="sidebar-content">
                     <div class="form-row">
-                        <label class="form-label">Compression Level</label>
+                        <label class="form-label">Compression</label>
                         <select id="compression-level-select" class="form-select">
-                            <option value="standard" selected>Standard (Object Streams)</option>
-                            <option value="compact">Compact (Minimal Bloat)</option>
-                            <option value="none">Original (No Compression)</option>
+                            <option value="standard" selected>Standard (Optimized Object Streams)</option>
+                            <option value="compact">Compact (Minimal File Size)</option>
+                            <option value="none">Original (Fastest)</option>
                         </select>
                     </div>
                     <div class="form-row">
@@ -981,11 +827,8 @@
 
             <!-- Sidebar Actions Footer -->
             <div class="sidebar-footer">
-                <button class="toolbar-btn accent" style="padding: 9px; font-weight: 600; justify-content: center;" onclick="Workshop.processAndDownloadZip()">
-                    ⚡ Download AI Bundle (ZIP)
-                </button>
-                <button class="toolbar-btn" style="padding: 7px; justify-content: center;" onclick="Workshop.previewManifest()">
-                    📋 View Manifest Preview
+                <button class="toolbar-btn accent" style="padding: 10px; font-weight: 600; justify-content: center;" onclick="Workshop.processAndDownloadZip()">
+                    ⬇️ Download Split PDFs (.zip)
                 </button>
             </div>
         </div>
@@ -996,7 +839,7 @@
             <!-- Progress Tracker -->
             <div class="progress-bar-wrap" id="progress-bar-wrap">
                 <div class="progress-info">
-                    <span id="progress-status-text">Processing PDF chunks...</span>
+                    <span id="progress-status-text">Splitting PDF...</span>
                     <span id="progress-percentage-text">0%</span>
                 </div>
                 <div class="progress-track">
@@ -1008,10 +851,10 @@
             <div class="workspace-header">
                 <div class="view-tabs">
                     <button class="view-tab active" id="view-tab-chunks" onclick="Workshop.switchView('chunks')">
-                        Planned Chunks (<span id="chunks-count-tab">0</span>)
+                        Divided PDFs (<span id="chunks-count-tab">0</span>)
                     </button>
                     <button class="view-tab" id="view-tab-pages" onclick="Workshop.switchView('pages')">
-                        Page Map (<span id="pages-count-tab">0</span>)
+                        Page Preview (<span id="pages-count-tab">0</span>)
                     </button>
                 </div>
                 <div class="workspace-actions">
@@ -1037,19 +880,6 @@
 
     </div>
 
-    <!-- ── MODAL (MANIFEST / INSPECTOR) ────────────────────────── -->
-    <div class="modal-overlay" id="modal-overlay" onclick="if(event.target === this) Workshop.closeModal()">
-        <div class="modal-card">
-            <div class="modal-header">
-                <h3 id="modal-title">Manifest Preview</h3>
-                <button class="modal-close" onclick="Workshop.closeModal()">✕</button>
-            </div>
-            <div class="modal-content" id="modal-content">
-                <!-- Content injected dynamically -->
-            </div>
-        </div>
-    </div>
-
     <!-- ── TOAST NOTIFICATION ──────────────────────────────────── -->
     <div class="toast" id="toast"></div>
 
@@ -1068,7 +898,6 @@
                 pdfFileName: 'document.pdf',
                 pdfFileSize: 0,
                 totalPages: 0,
-                pagesData: [],
                 outline: [],
                 mode: 'fixed',
                 activeView: 'chunks',
@@ -1087,7 +916,6 @@
                 docBadgeName: document.getElementById('doc-badge-name'),
                 docBadgePages: document.getElementById('doc-badge-pages'),
                 docBadgeSize: document.getElementById('doc-badge-size'),
-                docBadgeTokens: document.getElementById('doc-badge-tokens'),
                 docSep1: document.getElementById('doc-sep-1'),
                 btnDownloadZip: document.getElementById('btn-download-zip'),
                 progressBarWrap: document.getElementById('progress-bar-wrap'),
@@ -1099,9 +927,6 @@
                 chunksView: document.getElementById('chunks-view'),
                 pagesView: document.getElementById('pages-view'),
                 btnRefreshThumbs: document.getElementById('btn-refresh-thumbs'),
-                modalOverlay: document.getElementById('modal-overlay'),
-                modalTitle: document.getElementById('modal-title'),
-                modalContent: document.getElementById('modal-content'),
                 toast: document.getElementById('toast'),
                 themeBtn: document.getElementById('theme-btn'),
             };
@@ -1169,10 +994,10 @@
                     const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
                     const chapters = [
-                        { title: "Chapter 1: Multimodal AI Foundations", pages: 4, desc: "Explores vision-language architectures, cross-attention mechanics, and token representations across long-horizon reasoning." },
-                        { title: "Chapter 2: Context Window & Chunk Dynamics", pages: 4, desc: "Detailed mathematical proofs on retrieval bottlenecks, cross-attention latency, and multi-PDF synthesis in Gemini." },
-                        { title: "Chapter 3: Benchmark Evaluations", pages: 4, desc: "Tabular comparisons across MMLU, GSM8K, DocVQA, and needle-in-a-haystack multimodal retrieval benchmarks." },
-                        { title: "Chapter 4: Implementation Guide", pages: 4, desc: "System architectures, API parameters, temperature calibration, and structured prompt engineering." }
+                        { title: "Chapter 1: Overview and Introduction", pages: 4 },
+                        { title: "Chapter 2: Methods and Specifications", pages: 4 },
+                        { title: "Chapter 3: Evaluation and Data Analysis", pages: 4 },
+                        { title: "Chapter 4: Conclusions and Appendix", pages: 4 }
                     ];
 
                     let pageNum = 1;
@@ -1181,32 +1006,30 @@
                             const page = pdfDoc.addPage([595.28, 841.89]);
                             const { width, height } = page.getSize();
 
-                            page.drawText(`AI RESEARCH PAPERS SERIES — VOLUME 4`, { x: 50, y: height - 40, size: 9, font: font, color: rgb(0.5, 0.5, 0.5) });
+                            page.drawText(`DOCUMENT SERIES — SAMPLE DOCUMENT`, { x: 50, y: height - 40, size: 9, font: font, color: rgb(0.5, 0.5, 0.5) });
                             page.drawLine({ start: { x: 50, y: height - 48 }, end: { x: width - 50, y: height - 48 }, thickness: 0.5, color: rgb(0.8, 0.8, 0.8) });
 
                             if (p === 1) {
                                 page.drawText(ch.title, { x: 50, y: height - 85, size: 18, font: fontBold, color: rgb(0.1, 0.15, 0.3) });
-                                page.drawText(ch.desc, { x: 50, y: height - 110, size: 10, font: font, color: rgb(0.3, 0.3, 0.3), maxWidth: 490, lineHeight: 14 });
                             } else {
-                                page.drawText(`${ch.title} (Cont.)`, { x: 50, y: height - 80, size: 13, font: fontBold, color: rgb(0.2, 0.2, 0.2) });
+                                page.drawText(`${ch.title} (Continued)`, { x: 50, y: height - 80, size: 13, font: fontBold, color: rgb(0.2, 0.2, 0.2) });
                             }
 
-                            let startY = p === 1 ? height - 160 : height - 110;
+                            let startY = p === 1 ? height - 130 : height - 110;
                             for (let i = 0; i < 5; i++) {
-                                const dummyText = `Section ${pageNum}.${i+1}: Modern large language models equipped with massive context windows (such as Google Gemini Pro/Flash) demonstrate extraordinary reasoning capabilities. Splitting large documents into coherent, structured chunks of 5 to 20 pages allows distributed prompting, fine-grained semantic retrieval, and precise verification without exceeding model attention density constraints.`;
+                                const dummyText = `Section ${pageNum}.${i+1}: This is a sample multi-page document demonstrating fast client-side PDF splitting. You can split documents by fixed page sizes, custom page ranges, chapters, or individual page bursts and download the divided PDFs as a ZIP package.`;
                                 page.drawText(dummyText, { x: 50, y: startY - (i * 90), size: 10, font: font, color: rgb(0.2, 0.2, 0.2), maxWidth: 495, lineHeight: 15 });
                             }
 
                             page.drawLine({ start: { x: 50, y: 50 }, end: { x: width - 50, y: 50 }, thickness: 0.5, color: rgb(0.8, 0.8, 0.8) });
                             page.drawText(`Page ${pageNum} of 16`, { x: width / 2 - 25, y: 35, size: 9, font: font, color: rgb(0.4, 0.4, 0.4) });
-                            page.drawText(`PDF Workshop Document`, { x: width - 160, y: 35, size: 9, font: font, color: rgb(0.5, 0.5, 0.5) });
 
                             pageNum++;
                         }
                     }
 
                     const pdfBytes = await pdfDoc.save();
-                    state.pdfFileName = 'Gemini_Multimodal_AI_Compendium.pdf';
+                    state.pdfFileName = 'Sample_Document.pdf';
                     state.pdfFileSize = pdfBytes.byteLength;
                     state.pdfBytes = pdfBytes;
                     await parseAndDisplayPdf();
@@ -1222,43 +1045,17 @@
                 state.pdfDoc = await loadingTask.promise;
                 state.totalPages = state.pdfDoc.numPages;
 
-                state.pagesData = [];
-                let totalEstimatedTokens = 0;
-
-                for (let i = 1; i <= state.totalPages; i++) {
-                    const page = await state.pdfDoc.getPage(i);
-                    const textContent = await page.getTextContent();
-                    const textStr = textContent.items.map(item => item.str).join(' ').trim();
-                    const viewport = page.getViewport({ scale: 1.0 });
-
-                    const tokens = Math.max(1, Math.round(textStr.length / 4));
-                    const isBlank = textStr.length < 25;
-
-                    totalEstimatedTokens += tokens;
-
-                    state.pagesData.push({
-                        index: i,
-                        width: viewport.width,
-                        height: viewport.height,
-                        text: textStr,
-                        tokens: tokens,
-                        isBlank: isBlank,
-                        selected: true,
-                    });
-                }
-
                 // Update Toolbar Badges
                 el.docBadgeName.textContent = state.pdfFileName;
                 el.docBadgePages.textContent = `${state.totalPages} pages`;
                 el.docBadgeSize.textContent = formatBytes(state.pdfFileSize);
-                el.docBadgeTokens.textContent = `~${totalEstimatedTokens.toLocaleString()} tokens`;
 
                 el.docStatsBadge.style.display = 'inline-flex';
                 el.docSep1.style.display = 'inline-block';
                 el.btnResetDoc.style.display = 'inline-flex';
                 el.btnDownloadZip.style.display = 'inline-flex';
 
-                // Try fetching outline
+                // Try fetching outline/bookmarks
                 try {
                     state.outline = await state.pdfDoc.getOutline();
                     renderOutline();
@@ -1280,7 +1077,6 @@
             function resetDocument() {
                 state.pdfDoc = null;
                 state.pdfBytes = null;
-                state.pagesData = [];
                 state.plannedChunks = [];
                 el.fileInput.value = '';
 
@@ -1297,7 +1093,7 @@
 
             function switchMode(mode) {
                 state.mode = mode;
-                const modes = ['fixed', 'tokens', 'custom', 'toc', 'burst'];
+                const modes = ['fixed', 'custom', 'toc', 'burst'];
                 modes.forEach(m => {
                     const tab = document.getElementById(`tab-${m}`);
                     const panel = document.getElementById(`panel-${m}`);
@@ -1366,7 +1162,7 @@
             }
 
             function recalculatePlan() {
-                if (!state.totalPages || state.pagesData.length === 0) return;
+                if (!state.totalPages) return;
 
                 const baseName = state.pdfFileName.replace(/\.[^/.]+$/, '');
                 const total = state.totalPages;
@@ -1384,12 +1180,9 @@
                     while (start <= total) {
                         let end = Math.min(total, start + pagesPerChunk - 1);
                         const chunkPages = [];
-                        let chunkTokens = 0;
 
                         for (let p = start; p <= end; p++) {
                             chunkPages.push(p);
-                            const pData = state.pagesData[p - 1];
-                            if (pData) chunkTokens += pData.tokens;
                         }
 
                         const chunkName = `${baseName}_part_${String(part).padStart(2, '0')}_p${start}-${end}.pdf`;
@@ -1399,7 +1192,6 @@
                             startPage: start,
                             endPage: end,
                             pageCount: chunkPages.length,
-                            tokens: chunkTokens,
                             pages: chunkPages
                         });
 
@@ -1409,53 +1201,6 @@
                             start = state.plannedChunks[state.plannedChunks.length - 1].startPage + 1;
                         }
                         part++;
-                    }
-
-                } else if (state.mode === 'tokens') {
-                    const targetTokenSelect = document.getElementById('token-target-select');
-                    const targetTokens = parseInt(targetTokenSelect ? targetTokenSelect.value : 50000, 10) || 50000;
-
-                    let currentPages = [];
-                    let currentTokens = 0;
-                    let part = 1;
-
-                    for (let i = 1; i <= total; i++) {
-                        const pData = state.pagesData[i - 1];
-                        const pTokens = pData ? pData.tokens : 200;
-
-                        if (currentPages.length > 0 && (currentTokens + pTokens > targetTokens)) {
-                            const sPage = currentPages[0];
-                            const ePage = currentPages[currentPages.length - 1];
-                            state.plannedChunks.push({
-                                partIndex: part,
-                                name: `${baseName}_part_${String(part).padStart(2, '0')}_p${sPage}-${ePage}.pdf`,
-                                startPage: sPage,
-                                endPage: ePage,
-                                pageCount: currentPages.length,
-                                tokens: currentTokens,
-                                pages: [...currentPages]
-                            });
-                            part++;
-                            currentPages = [];
-                            currentTokens = 0;
-                        }
-
-                        currentPages.push(i);
-                        currentTokens += pTokens;
-                    }
-
-                    if (currentPages.length > 0) {
-                        const sPage = currentPages[0];
-                        const ePage = currentPages[currentPages.length - 1];
-                        state.plannedChunks.push({
-                            partIndex: part,
-                            name: `${baseName}_part_${String(part).padStart(2, '0')}_p${sPage}-${ePage}.pdf`,
-                            startPage: sPage,
-                            endPage: ePage,
-                            pageCount: currentPages.length,
-                            tokens: currentTokens,
-                            pages: [...currentPages]
-                        });
                     }
 
                 } else if (state.mode === 'custom') {
@@ -1485,11 +1230,8 @@
                         end = Math.max(start, Math.min(total, end));
 
                         const chunkPages = [];
-                        let chunkTokens = 0;
                         for (let p = start; p <= end; p++) {
                             chunkPages.push(p);
-                            const pData = state.pagesData[p - 1];
-                            if (pData) chunkTokens += pData.tokens;
                         }
 
                         state.plannedChunks.push({
@@ -1498,39 +1240,29 @@
                             startPage: start,
                             endPage: end,
                             pageCount: chunkPages.length,
-                            tokens: chunkTokens,
                             pages: chunkPages
                         });
                         part++;
                     }
 
                 } else if (state.mode === 'burst') {
-                    let part = 1;
                     for (let i = 1; i <= total; i++) {
-                        const pData = state.pagesData[i - 1];
-                        if (pData && pData.selected) {
-                            state.plannedChunks.push({
-                                partIndex: part,
-                                name: `${baseName}_page_${String(i).padStart(3, '0')}.pdf`,
-                                startPage: i,
-                                endPage: i,
-                                pageCount: 1,
-                                tokens: pData.tokens,
-                                pages: [i]
-                            });
-                            part++;
-                        }
+                        state.plannedChunks.push({
+                            partIndex: i,
+                            name: `${baseName}_page_${String(i).padStart(3, '0')}.pdf`,
+                            startPage: i,
+                            endPage: i,
+                            pageCount: 1,
+                            pages: [i]
+                        });
                     }
                 } else if (state.mode === 'toc') {
                     const chunkSize = Math.max(1, Math.ceil(total / 4));
                     for (let start = 1, part = 1; start <= total; start += chunkSize, part++) {
                         const end = Math.min(total, start + chunkSize - 1);
                         const chunkPages = [];
-                        let chunkTokens = 0;
                         for (let p = start; p <= end; p++) {
                             chunkPages.push(p);
-                            const pData = state.pagesData[p - 1];
-                            if (pData) chunkTokens += pData.tokens;
                         }
                         state.plannedChunks.push({
                             partIndex: part,
@@ -1538,7 +1270,6 @@
                             startPage: start,
                             endPage: end,
                             pageCount: chunkPages.length,
-                            tokens: chunkTokens,
                             pages: chunkPages
                         });
                     }
@@ -1567,15 +1298,10 @@
                         </div>
                         <div class="chunk-card-meta">
                             <span>📄 ${chunk.pageCount} ${chunk.pageCount === 1 ? 'page' : 'pages'}</span>
-                            <span>•</span>
-                            <span>🧠 ~${chunk.tokens.toLocaleString()} tokens</span>
                         </div>
                         <div class="chunk-card-actions">
-                            <button class="chunk-card-btn" title="Download only this chunk" onclick="Workshop.downloadSingleChunk(${chunk.partIndex})">
-                                💾 Download
-                            </button>
-                            <button class="chunk-card-btn" title="Open in PDF to Markdown" onclick="Workshop.sendChunkToMarkdown(${chunk.partIndex})">
-                                📝 Markdown
+                            <button class="chunk-card-btn" title="Download only this PDF" onclick="Workshop.downloadSingleChunk(${chunk.partIndex})">
+                                💾 Download PDF
                             </button>
                         </div>
                     `;
@@ -1590,9 +1316,8 @@
                 const startPagesSet = new Set(state.plannedChunks.map(c => c.startPage));
 
                 for (let i = 1; i <= state.totalPages; i++) {
-                    const pData = state.pagesData[i - 1];
                     const card = document.createElement('div');
-                    card.className = `page-thumb-card ${pData && pData.selected ? 'selected' : ''} ${startPagesSet.has(i) ? 'chunk-start' : ''}`;
+                    card.className = `page-thumb-card ${startPagesSet.has(i) ? 'chunk-start' : ''}`;
                     card.id = `page-thumb-card-${i}`;
 
                     let chunkBadgeHtml = '';
@@ -1607,22 +1332,9 @@
                             <span style="font-size: 11px; color: #999;">Page ${i}</span>
                         </div>
                         <div class="page-thumb-label">
-                            <span>p. ${i}</span>
-                            ${pData && pData.isBlank ? '<span class="blank-tag">Blank</span>' : ''}
+                            <span>Page ${i}</span>
                         </div>
                     `;
-
-                    card.onclick = () => {
-                        if (state.mode === 'burst') {
-                            if (pData) {
-                                pData.selected = !pData.selected;
-                                card.classList.toggle('selected', pData.selected);
-                                recalculatePlan();
-                            }
-                        } else {
-                            showPageInspectorModal(i);
-                        }
-                    };
 
                     el.pagesView.appendChild(card);
                     renderPageThumbnail(i);
@@ -1677,55 +1389,15 @@
                 }
             }
 
-            function selectAllPages(select) {
-                state.pagesData.forEach(p => p.selected = select);
-                for (let i = 1; i <= state.totalPages; i++) {
-                    const card = document.getElementById(`page-thumb-card-${i}`);
-                    if (card) card.classList.toggle('selected', select);
-                }
-                recalculatePlan();
-            }
-
             async function buildChunkPdfBytes(chunk) {
                 const { PDFDocument } = PDFLib;
                 const srcDoc = await PDFDocument.load(state.pdfBytes);
                 const outDoc = await PDFDocument.create();
 
-                const stripBlank = document.getElementById('opt-strip-blank')?.checked ?? true;
-                const injectMetadata = document.getElementById('opt-inject-metadata')?.checked ?? true;
-
-                const pageIndices = [];
-                for (const p of chunk.pages) {
-                    const pData = state.pagesData[p - 1];
-                    if (stripBlank && pData && pData.isBlank && chunk.pages.length > 1) {
-                        continue;
-                    }
-                    pageIndices.push(p - 1);
-                }
-
-                if (pageIndices.length === 0) {
-                    pageIndices.push(chunk.pages[0] - 1);
-                }
-
+                const pageIndices = chunk.pages.map(p => p - 1);
                 const copiedPages = await outDoc.copyPages(srcDoc, pageIndices);
                 for (const cp of copiedPages) {
                     outDoc.addPage(cp);
-                }
-
-                if (injectMetadata) {
-                    const totalParts = state.plannedChunks.length;
-                    const cleanDocTitle = state.pdfFileName.replace(/\.[^/.]+$/, '');
-                    outDoc.setTitle(`[Part ${chunk.partIndex}/${totalParts}] ${cleanDocTitle} (pp. ${chunk.startPage}-${chunk.endPage})`);
-                    outDoc.setSubject(`AI Digestion Chunk for Gemini LM — Document Slice ${chunk.startPage} to ${chunk.endPage}`);
-                    outDoc.setKeywords([
-                        'Gemini LM Chunk',
-                        `Part-${chunk.partIndex}-of-${totalParts}`,
-                        `Pages-${chunk.startPage}-to-${chunk.endPage}`,
-                        `Tokens-${chunk.tokens}`,
-                        cleanDocTitle
-                    ]);
-                    outDoc.setProducer('Utilities PDF Workshop');
-                    outDoc.setCreator('PDF Workshop');
                 }
 
                 const compressionLevel = document.getElementById('compression-level-select')?.value || 'standard';
@@ -1748,85 +1420,35 @@
                     el.progressBarWrap.classList.add('active');
                     el.progressFill.style.width = '5%';
                     el.progressPercentageText.textContent = '5%';
-                    el.progressStatusText.textContent = 'Preparing chunks...';
+                    el.progressStatusText.textContent = 'Dividing PDF...';
 
                     const zip = new JSZip();
-                    const chunksFolder = zip.folder("pdf_chunks");
-                    const textFolder = zip.folder("extracted_text");
-
-                    const genManifest = document.getElementById('opt-generate-manifest')?.checked ?? true;
-                    const extractText = document.getElementById('opt-extract-text')?.checked ?? true;
-
                     const totalChunks = state.plannedChunks.length;
-                    const manifestChunks = [];
 
                     for (let idx = 0; idx < totalChunks; idx++) {
                         const chunk = state.plannedChunks[idx];
-                        const pct = Math.round(((idx + 1) / totalChunks) * 80);
+                        const pct = Math.round(((idx + 1) / totalChunks) * 85);
                         el.progressFill.style.width = `${pct}%`;
                         el.progressPercentageText.textContent = `${pct}%`;
-                        el.progressStatusText.textContent = `Building Chunk ${idx + 1}/${totalChunks} (pp. ${chunk.startPage}–${chunk.endPage})...`;
+                        el.progressStatusText.textContent = `Building PDF ${idx + 1}/${totalChunks} (pp. ${chunk.startPage}–${chunk.endPage})...`;
 
                         const chunkPdfBytes = await buildChunkPdfBytes(chunk);
-                        chunksFolder.file(chunk.name, chunkPdfBytes);
-
-                        let chunkFullText = '';
-                        for (const p of chunk.pages) {
-                            const pData = state.pagesData[p - 1];
-                            if (pData && pData.text) {
-                                chunkFullText += `--- PAGE ${p} ---\n${pData.text}\n\n`;
-                            }
-                        }
-
-                        if (extractText) {
-                            const txtName = chunk.name.replace(/\.pdf$/, '.md');
-                            textFolder.file(txtName, `# ${chunk.name}\n\nPages: ${chunk.startPage} to ${chunk.endPage}\nEstimated Tokens: ${chunk.tokens}\n\n${chunkFullText}`);
-                        }
-
-                        manifestChunks.push({
-                            part: chunk.partIndex,
-                            filename: chunk.name,
-                            pagesSpan: `${chunk.startPage}-${chunk.endPage}`,
-                            pageCount: chunk.pageCount,
-                            estimatedTokens: chunk.tokens,
-                            snippet: chunkFullText.slice(0, 300).replace(/\s+/g, ' ').trim() + '...'
-                        });
+                        zip.file(chunk.name, chunkPdfBytes);
                     }
 
-                    if (genManifest) {
-                        el.progressStatusText.textContent = 'Generating manifest & prompt guide...';
-                        const manifestData = {
-                            document: {
-                                originalFilename: state.pdfFileName,
-                                totalPages: state.totalPages,
-                                totalTokensEst: state.pagesData.reduce((acc, p) => acc + p.tokens, 0),
-                                totalChunks: totalChunks,
-                                generatedAt: new Date().toISOString(),
-                                generator: "PDF Workshop"
-                            },
-                            chunks: manifestChunks
-                        };
-
-                        zip.file("manifest.json", JSON.stringify(manifestData, null, 2));
-
-                        const guideContent = createGeminiPromptGuide(manifestData);
-                        zip.file("GEMINI_PROMPT_GUIDE.md", guideContent);
-                        zip.file("README_CHUNKS.txt", `PDF WORKSHOP — AI DIGESTION BUNDLE\n\nOriginal: ${state.pdfFileName}\nTotal Pages: ${state.totalPages}\nTotal Chunks: ${totalChunks}`);
-                    }
-
-                    el.progressFill.style.width = '95%';
-                    el.progressPercentageText.textContent = '95%';
-                    el.progressStatusText.textContent = 'Compressing ZIP archive...';
+                    el.progressFill.style.width = '92%';
+                    el.progressPercentageText.textContent = '92%';
+                    el.progressStatusText.textContent = 'Packaging ZIP...';
 
                     const zipBlob = await zip.generateAsync({ type: "blob" });
-                    const zipFilename = `${state.pdfFileName.replace(/\.[^/.]+$/, '')}_AI_Chunks.zip`;
+                    const zipFilename = `${state.pdfFileName.replace(/\.[^/.]+$/, '')}_split.zip`;
 
                     triggerDownload(zipBlob, zipFilename);
 
                     el.progressFill.style.width = '100%';
                     el.progressPercentageText.textContent = '100%';
-                    el.progressStatusText.textContent = 'Ready!';
-                    showToast(`ZIP downloaded: ${zipFilename}`);
+                    el.progressStatusText.textContent = 'Done!';
+                    showToast(`Downloaded ${zipFilename}`);
 
                     setTimeout(() => {
                         el.progressBarWrap.classList.remove('active');
@@ -1834,7 +1456,7 @@
 
                 } catch (err) {
                     console.error(err);
-                    showToast('Error during export: ' + err.message);
+                    showToast('Error during split: ' + err.message);
                     el.progressBarWrap.classList.remove('active');
                 } finally {
                     state.isProcessing = false;
@@ -1853,39 +1475,8 @@
                     showToast(`Downloaded ${chunk.name}`);
                 } catch (err) {
                     console.error(err);
-                    showToast('Error downloading chunk: ' + err.message);
+                    showToast('Error downloading PDF: ' + err.message);
                 }
-            }
-
-            function sendChunkToMarkdown(partIndex) {
-                showToast(`Opening PDF to Markdown...`);
-                window.location.href = `../PDF_to_Markdown/index.html`;
-            }
-
-            function createGeminiPromptGuide(manifest) {
-                return `# 🤖 Gemini LM Multi-PDF Prompt & Digestion Guide
-
-> **Document:** \`${manifest.document.originalFilename}\`  
-> **Total Pages:** ${manifest.document.totalPages} | **Total Parts:** ${manifest.document.totalChunks} | **Est. Tokens:** ${manifest.document.totalTokensEst.toLocaleString()}  
-
----
-
-## 🎯 How to use these chunks with Gemini in Google AI Studio / Gemini Advanced
-
-1. **Upload Chunks:** Attach \`pdf_chunks/\` files directly into Google AI Studio (Gemini 1.5/2.0 Pro / Flash) or NotebookLM.
-2. **System Prompt:**
-
-\`\`\`markdown
-You are analyzing "${manifest.document.originalFilename}" partitioned into ${manifest.document.totalChunks} sequential chunks.
-Always reference findings with the Part Number and original page spans.
-\`\`\`
-
----
-
-## 📑 Chunk Map
-
-${manifest.chunks.map(c => `- **Part ${c.part}:** \`${c.filename}\` (pp. ${c.pagesSpan}, ~${c.estimatedTokens.toLocaleString()} tokens)`).join('\n')}
-`;
             }
 
             function triggerDownload(blob, filename) {
@@ -1899,61 +1490,6 @@ ${manifest.chunks.map(c => `- **Part ${c.part}:** \`${c.filename}\` (pp. ${c.pag
                     document.body.removeChild(a);
                     URL.revokeObjectURL(url);
                 }, 100);
-            }
-
-            function previewManifest() {
-                if (state.plannedChunks.length === 0) {
-                    showToast('No chunks planned');
-                    return;
-                }
-
-                const manifest = {
-                    document: state.pdfFileName,
-                    totalPages: state.totalPages,
-                    totalChunks: state.plannedChunks.length,
-                    chunks: state.plannedChunks.map(c => ({
-                        part: c.partIndex,
-                        file: c.name,
-                        pages: `${c.startPage}-${c.endPage}`,
-                        pageCount: c.pageCount,
-                        tokensEst: c.tokens
-                    }))
-                };
-
-                el.modalTitle.textContent = 'Manifest Preview (manifest.json)';
-                el.modalContent.innerHTML = `
-                    <pre class="code-box">${escapeHTML(JSON.stringify(manifest, null, 2))}</pre>
-                `;
-                el.modalOverlay.classList.add('active');
-            }
-
-            function showPageInspectorModal(pageNum) {
-                const pData = state.pagesData[pageNum - 1];
-                if (!pData) return;
-
-                el.modalTitle.textContent = `Page ${pageNum} of ${state.totalPages}`;
-                el.modalContent.innerHTML = `
-                    <div style="display:flex; gap:8px; font-size:11.5px; color:var(--text-muted); background:var(--bg-secondary); padding:8px 12px; border-radius:var(--radius-sm); border:1px solid var(--border);">
-                        <span>Dimensions: <strong>${Math.round(pData.width)} × ${Math.round(pData.height)} pt</strong></span>
-                        <span>•</span>
-                        <span>Tokens: <strong>~${pData.tokens}</strong></span>
-                        <span>•</span>
-                        <span>${pData.isBlank ? 'Blank Page' : 'Text Detected'}</span>
-                    </div>
-                    <div style="font-size:12px; font-weight:600; color:var(--text); margin-top:4px;">Extracted Page Text:</div>
-                    <pre class="code-box">${escapeHTML(pData.text || '(No selectable text)')}</pre>
-                `;
-                el.modalOverlay.classList.add('active');
-            }
-
-            function closeModal() {
-                el.modalOverlay.classList.remove('active');
-            }
-
-            function escapeHTML(str) {
-                const d = document.createElement('div');
-                d.textContent = str;
-                return d.innerHTML;
             }
 
             function setupDragAndDrop() {
@@ -2010,14 +1546,10 @@ ${manifest.chunks.map(c => `- **Part ${c.part}:** \`${c.filename}\` (pp. ${c.pag
                 switchView,
                 setFixedPreset,
                 setRangePreset,
-                selectAllPages,
                 recalculatePlan,
                 renderAllThumbnails,
                 processAndDownloadZip,
-                downloadSingleChunk,
-                sendChunkToMarkdown,
-                previewManifest,
-                closeModal
+                downloadSingleChunk
             };
         })();
 
