@@ -96,6 +96,26 @@ Rather than creating dozens of half-finished tools, I'd rather build a smaller c
 
 ---
 
+## 🛠️ PDF Workshop
+> High-performance in-browser PDF splitting, compression, and AI digestion studio designed for Google Gemini LM, NotebookLM, and multimodal LLMs.
+
+* ⚡ **Intelligent Chunking Engine**:
+  * **Page-Count Slicing (Every N Pages)**: Split documents evenly into 5, 10, 20, or 50-page sections with optional 1–2 page boundary overlap to preserve cross-page LLM context.
+  * **AI Token Budget Splitter**: Groups pages dynamically based on character/token density targets (~25k to ~200k tokens per slice).
+  * **Custom Page Ranges**: Flexible syntax parser supporting complex expressions (`1-5, 6-12, 13-end`).
+  * **TOC & Chapter Slicing**: Automatically parses embedded bookmarks and outline trees for instant chapter extraction.
+  * **Single Page Burst & Selective Extract**: Burst all pages into standalone files or pick custom page selections visually.
+* 🤖 **Gemini LM Optimization Suite**:
+  * **Prompt Guide & Manifest**: Automatically generates and bundles `GEMINI_PROMPT_GUIDE.md` and `manifest.json` mapping all parts, page ranges, token estimates, and summary snippets.
+  * **Context Metadata Stamping**: Injects `[Part X of Y]`, page span, and document title into PDF internal headers so AI models understand document structure immediately upon upload.
+  * **Blank Page Stripper**: Detects and filters out blank or low-content divider pages.
+  * **Companion Text Extraction**: Exports clean `.txt` / `.md` text files alongside each chunk in the ZIP.
+* 🗜️ **Compression & Performance**:
+  * Object stream optimization, unused object cleanup, and metadata minimization via PDF-Lib.
+  * 100% client-side, zero-server uploads, private, and instant.
+
+---
+
 ## 🖼️ Image Forge
 > Professional in-browser image editor, batch converter, and enhancement studio.
 

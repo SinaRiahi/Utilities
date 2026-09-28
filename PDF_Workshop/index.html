@@ -1,0 +1,2027 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        (function() {
+            var t = localStorage.getItem('utils-theme') || localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', t);
+        })();
+    </script>
+    <title>PDF Workshop — Split & Optimize PDFs</title>
+    <meta name="description" content="Professional in-browser PDF splitting, chunking, and AI optimization studio." />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- PDF-Lib for client-side PDF manipulation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+
+    <!-- PDF.js for rendering thumbnails and text extraction -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+    <!-- JSZip for ZIP packaging -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+    <style>
+        :root {
+            --bg: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-tertiary: #f1f3f5;
+            --text: #1a1a2e;
+            --text-secondary: #495057;
+            --text-muted: #868e96;
+            --border: #dee2e6;
+            --border-light: #e9ecef;
+            --accent: #4c6ef5;
+            --accent-hover: #3b5de7;
+            --accent-light: #edf2ff;
+            --success: #2b8a3e;
+            --success-light: #ebfbee;
+            --warning: #e67700;
+            --warning-light: #fff4e6;
+            --danger: #c92a2a;
+            --danger-light: #fff5f5;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.10), 0 2px 6px rgba(0, 0, 0, 0.06);
+            --radius: 8px;
+            --radius-sm: 5px;
+            --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', 'SF Mono', 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+            --transition: 0.18s ease;
+            --toolbar-height: 48px;
+        }
+
+        [data-theme="dark"] {
+            --bg: #1a1b1e;
+            --bg-secondary: #25262b;
+            --bg-tertiary: #2c2e33;
+            --text: #e4e6ea;
+            --text-secondary: #c1c4cd;
+            --text-muted: #9095a0;
+            --border: #3a3c42;
+            --border-light: #2e3035;
+            --accent: #6d8af7;
+            --accent-hover: #8aa3ff;
+            --accent-light: #1e2640;
+            --success: #40c057;
+            --success-light: #0d2b13;
+            --warning: #fab005;
+            --warning-light: #3b2e0a;
+            --danger: #ff6b6b;
+            --danger-light: #3b0a0a;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            color-scheme: light;
+        }
+
+        [data-theme="dark"] {
+            color-scheme: dark;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            font-family: var(--font-sans);
+            background: var(--bg);
+            color: var(--text);
+            transition: background var(--transition), color var(--transition);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Scrollbars ─────────────────────────────────────────── */
+        ::-webkit-scrollbar {
+            width: 7px;
+            height: 7px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        /* ── Top Toolbar ────────────────────────────────────────── */
+        .toolbar {
+            height: var(--toolbar-height);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0 12px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            z-index: 100;
+            flex-shrink: 0;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .toolbar-brand {
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-right: 4px;
+            white-space: nowrap;
+        }
+        .toolbar .sep {
+            width: 1px;
+            height: 22px;
+            background: var(--border);
+            margin: 0 4px;
+            flex-shrink: 0;
+        }
+        .toolbar button, .toolbar label.toolbar-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 12px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 12.5px;
+            font-family: var(--font-sans);
+            white-space: nowrap;
+            transition: all var(--transition);
+            flex-shrink: 0;
+            font-weight: 500;
+            user-select: none;
+        }
+        .toolbar button:hover, .toolbar label.toolbar-btn:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--text-muted);
+            color: var(--text);
+        }
+        .toolbar button.accent {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+            font-weight: 600;
+        }
+        .toolbar button.accent:hover {
+            background: var(--accent-hover);
+            border-color: var(--accent-hover);
+        }
+        .toolbar button.success {
+            background: var(--success);
+            color: #fff;
+            border-color: var(--success);
+            font-weight: 600;
+        }
+        .toolbar button.success:hover {
+            opacity: 0.92;
+        }
+        .toolbar button:disabled, .toolbar label.toolbar-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .toolbar .spacer {
+            flex: 1;
+            min-width: 10px;
+        }
+        .toolbar .badge {
+            font-size: 11.5px;
+            background: var(--bg-tertiary);
+            padding: 4px 10px;
+            border-radius: 20px;
+            color: var(--text-muted);
+            flex-shrink: 0;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .toolbar .badge strong {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        /* ── Main Container ─────────────────────────────────────── */
+        .main-container {
+            display: flex;
+            height: calc(100% - var(--toolbar-height));
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* ── Empty State / Dropzone ─────────────────────────────── */
+        .empty-workspace {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 32px;
+            background: var(--bg);
+        }
+        .dropzone-box {
+            width: 100%;
+            max-width: 580px;
+            background: var(--bg-secondary);
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 48px 32px;
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+        .dropzone-box:hover, .dropzone-box.dragover {
+            border-color: var(--accent);
+            background: var(--accent-light);
+        }
+        .dropzone-icon {
+            font-size: 3rem;
+            margin-bottom: 14px;
+            display: block;
+        }
+        .dropzone-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+        .dropzone-subtitle {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            line-height: 1.45;
+        }
+        .dropzone-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* ── Sidebar Panel ──────────────────────────────────────── */
+        .sidebar {
+            width: 340px;
+            min-width: 280px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+        details.sidebar-section {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-light);
+        }
+        details.sidebar-section summary {
+            cursor: pointer;
+            list-style: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            user-select: none;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+        }
+        details.sidebar-section summary::-webkit-details-marker { display: none; }
+        details.sidebar-section summary::after {
+            content: '▼';
+            font-size: 9px;
+            color: var(--text-muted);
+            transition: transform 0.2s;
+        }
+        details.sidebar-section[open] summary::after {
+            transform: rotate(180deg);
+        }
+        .sidebar-content {
+            margin-top: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* Segmented Mode Selector */
+        .segmented-tabs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4px;
+            background: var(--bg-tertiary);
+            padding: 3px;
+            border-radius: var(--radius-sm);
+        }
+        .segmented-tab {
+            background: transparent;
+            border: none;
+            padding: 6px 4px;
+            border-radius: 4px;
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            text-align: center;
+            transition: all var(--transition);
+            white-space: nowrap;
+        }
+        .segmented-tab:hover {
+            color: var(--text);
+        }
+        .segmented-tab.active {
+            background: var(--bg);
+            color: var(--accent);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+        }
+
+        /* Form Controls */
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .form-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .form-label small {
+            font-weight: 400;
+            color: var(--text-muted);
+        }
+        .form-input, .form-select {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: var(--radius-sm);
+            padding: 6px 10px;
+            font-size: 12.5px;
+            font-family: var(--font-sans);
+            outline: none;
+            transition: border var(--transition);
+            width: 100%;
+        }
+        .form-input:focus, .form-select:focus {
+            border-color: var(--accent);
+        }
+
+        .chip-group {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+        .chip-btn {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 11px;
+            font-weight: 500;
+            padding: 3px 8px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+        .chip-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-light);
+        }
+
+        /* Checkbox Toggles */
+        .option-toggle {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 6px 0;
+            cursor: pointer;
+            user-select: none;
+        }
+        .option-toggle input[type="checkbox"] {
+            margin-top: 3px;
+            accent-color: var(--accent);
+            cursor: pointer;
+        }
+        .option-label {
+            font-size: 12.5px;
+            font-weight: 500;
+            color: var(--text);
+            line-height: 1.35;
+        }
+
+        /* Sidebar Footer */
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 16px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-light);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: sticky;
+            bottom: 0;
+            z-index: 10;
+        }
+
+        /* ── Right Workspace ────────────────────────────────────── */
+        .workspace {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background: var(--bg);
+        }
+
+        /* Workspace Toolbar Header */
+        .workspace-header {
+            height: 44px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+        .view-tabs {
+            display: flex;
+            gap: 4px;
+        }
+        .view-tab {
+            padding: 5px 12px;
+            border: 1px solid transparent;
+            border-radius: var(--radius-sm);
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 12.5px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+        .view-tab:hover {
+            background: var(--bg-tertiary);
+            color: var(--text);
+        }
+        .view-tab.active {
+            background: var(--bg);
+            border-color: var(--border);
+            color: var(--accent);
+            font-weight: 600;
+        }
+        .workspace-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Workspace Scroll View */
+        .workspace-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 18px;
+        }
+
+        /* Chunks Grid */
+        .chunks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 12px;
+        }
+        .chunk-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            transition: all var(--transition);
+        }
+        .chunk-card:hover {
+            border-color: var(--accent);
+            background: var(--bg);
+            box-shadow: var(--shadow);
+        }
+        .chunk-card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .chunk-card-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+        }
+        .chunk-card-badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 7px;
+            background: var(--accent-light);
+            color: var(--accent);
+            border-radius: 10px;
+        }
+        .chunk-card-meta {
+            font-size: 12px;
+            color: var(--text-muted);
+            display: flex;
+            gap: 8px;
+        }
+        .chunk-card-actions {
+            display: flex;
+            gap: 6px;
+            margin-top: 4px;
+            padding-top: 8px;
+            border-top: 1px solid var(--border-light);
+        }
+        .chunk-card-btn {
+            flex: 1;
+            padding: 5px 8px;
+            font-size: 11.5px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg);
+            color: var(--text-secondary);
+            cursor: pointer;
+            text-align: center;
+            transition: all var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+        .chunk-card-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-light);
+        }
+
+        /* Page Thumbnails Grid */
+        .pages-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 12px;
+        }
+        .page-thumb-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+            user-select: none;
+            transition: all var(--transition);
+        }
+        .page-thumb-card:hover {
+            border-color: var(--accent);
+            box-shadow: var(--shadow);
+            transform: translateY(-1px);
+        }
+        .page-thumb-card.selected {
+            border-color: var(--accent);
+            background: var(--accent-light);
+        }
+        .page-thumb-card.chunk-start {
+            border-top: 3px solid var(--accent);
+        }
+        .page-chunk-badge {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            background: var(--accent);
+            color: #fff;
+            font-size: 9px;
+            font-weight: 700;
+            padding: 2px 5px;
+            border-radius: 3px;
+            z-index: 2;
+        }
+        .page-canvas-box {
+            width: 100%;
+            height: 145px;
+            background: #ffffff;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+        .page-canvas-box canvas {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        .page-thumb-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .blank-tag {
+            font-size: 9px;
+            background: var(--warning-light);
+            color: var(--warning);
+            padding: 1px 4px;
+            border-radius: 3px;
+        }
+
+        /* ── Progress Bar ───────────────────────────────────────── */
+        .progress-bar-wrap {
+            display: none;
+            padding: 8px 16px;
+            background: var(--bg-tertiary);
+            border-bottom: 1px solid var(--border);
+            flex-direction: column;
+            gap: 4px;
+        }
+        .progress-bar-wrap.active {
+            display: flex;
+        }
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--text);
+        }
+        .progress-track {
+            height: 5px;
+            background: var(--border);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: var(--accent);
+            width: 0%;
+            transition: width 0.15s ease;
+        }
+
+        /* ── Modal ──────────────────────────────────────────────── */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(2px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            max-width: 700px;
+            width: 100%;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+        .modal-header {
+            padding: 12px 18px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .modal-header h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+        }
+        .modal-close {
+            background: transparent;
+            border: none;
+            font-size: 16px;
+            cursor: pointer;
+            color: var(--text-muted);
+            padding: 2px 6px;
+        }
+        .modal-close:hover {
+            color: var(--text);
+        }
+        .modal-content {
+            padding: 16px 18px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .code-box {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 12px;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            color: var(--text);
+            overflow-x: auto;
+            white-space: pre-wrap;
+            max-height: 340px;
+        }
+
+        /* ── Toast ──────────────────────────────────────────────── */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a1a2e;
+            color: #fff;
+            padding: 8px 18px;
+            border-radius: 20px;
+            font-size: 12.5px;
+            font-family: var(--font-sans);
+            z-index: 2000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            box-shadow: var(--shadow-lg);
+        }
+        .toast.show {
+            opacity: 1;
+        }
+        [data-theme="dark"] .toast {
+            background: #2c2e33;
+            color: #e4e6ea;
+        }
+
+        .hidden-file-input {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ── TOP TOOLBAR ─────────────────────────────────────────── -->
+    <header class="toolbar">
+        <button onclick="window.location.href='../index.html'" title="Back to Utilities Hub">
+            ← Utilities
+        </button>
+        <span class="sep"></span>
+        <div class="toolbar-brand">
+            <span>PDF Workshop</span>
+        </div>
+
+        <input type="file" id="pdf-file-input" class="hidden-file-input" accept="application/pdf" onchange="Workshop.handleFileSelect(event)">
+        <label for="pdf-file-input" class="toolbar-btn" title="Open a local PDF file">
+            📂 Open PDF
+        </label>
+        <button onclick="Workshop.loadSamplePDF()" title="Load a sample multi-page document">
+            📄 Sample
+        </button>
+        <button id="btn-reset-doc" style="display: none;" onclick="Workshop.resetDocument()" title="Clear current document">
+            🔄 Reset
+        </button>
+
+        <span class="spacer"></span>
+
+        <div class="badge" id="doc-stats-badge" style="display: none;">
+            <strong id="doc-badge-name">document.pdf</strong> ·
+            <span id="doc-badge-pages">0 pages</span> ·
+            <span id="doc-badge-size">0 KB</span> ·
+            <span id="doc-badge-tokens">~0 tokens</span>
+        </div>
+
+        <span class="sep" id="doc-sep-1" style="display: none;"></span>
+
+        <button class="accent" id="btn-download-zip" style="display: none;" onclick="Workshop.processAndDownloadZip()" title="Download split PDFs as a ZIP bundle">
+            ⬇️ Download ZIP
+        </button>
+
+        <span class="sep"></span>
+
+        <button onclick="Workshop.toggleTheme()" id="theme-btn" title="Toggle Light/Dark Theme">
+            🌓 Theme
+        </button>
+    </header>
+
+    <!-- ── MAIN CONTAINER ──────────────────────────────────────── -->
+    <div class="main-container">
+
+        <!-- Empty State Dropzone -->
+        <div class="empty-workspace" id="empty-workspace">
+            <div class="dropzone-box" id="dropzone" onclick="document.getElementById('pdf-file-input').click()">
+                <span class="dropzone-icon">📥</span>
+                <div class="dropzone-title">Drop PDF here or click to browse</div>
+                <div class="dropzone-subtitle">Split multi-page documents into structured, optimized chunks for Gemini LM & AI analysis.</div>
+                <div class="dropzone-buttons">
+                    <button class="toolbar-btn accent" type="button" onclick="event.stopPropagation(); document.getElementById('pdf-file-input').click()">
+                        📂 Select PDF
+                    </button>
+                    <button class="toolbar-btn" type="button" onclick="event.stopPropagation(); Workshop.loadSamplePDF()">
+                        📄 Try Sample Document
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loaded Studio Layout -->
+        <div class="sidebar" id="sidebar" style="display: none;">
+
+            <!-- Strategy Section -->
+            <details class="sidebar-section" open>
+                <summary>Splitting Strategy</summary>
+                <div class="sidebar-content">
+                    <div class="segmented-tabs">
+                        <button class="segmented-tab active" id="tab-fixed" onclick="Workshop.switchMode('fixed')">Fixed</button>
+                        <button class="segmented-tab" id="tab-tokens" onclick="Workshop.switchMode('tokens')">Tokens</button>
+                        <button class="segmented-tab" id="tab-custom" onclick="Workshop.switchMode('custom')">Ranges</button>
+                        <button class="segmented-tab" id="tab-toc" onclick="Workshop.switchMode('toc')">Chapters</button>
+                        <button class="segmented-tab" id="tab-burst" onclick="Workshop.switchMode('burst')">Burst</button>
+                    </div>
+
+                    <!-- Fixed Pages Mode -->
+                    <div id="panel-fixed" class="mode-panel">
+                        <div class="form-row">
+                            <label class="form-label">
+                                Pages per Chunk
+                            </label>
+                            <input type="number" id="fixed-pages-input" class="form-input" min="1" max="500" value="10" oninput="Workshop.recalculatePlan()">
+                        </div>
+                        <div class="chip-group" style="margin-top: 4px;">
+                            <span class="chip-btn" onclick="Workshop.setFixedPreset(5)">5 Pages</span>
+                            <span class="chip-btn" onclick="Workshop.setFixedPreset(10)">10 Pages</span>
+                            <span class="chip-btn" onclick="Workshop.setFixedPreset(20)">20 Pages</span>
+                            <span class="chip-btn" onclick="Workshop.setFixedPreset(50)">50 Pages</span>
+                        </div>
+                        <div class="form-row" style="margin-top: 8px;">
+                            <label class="form-label">
+                                Boundary Overlap
+                            </label>
+                            <select id="chunk-overlap-select" class="form-select" onchange="Workshop.recalculatePlan()">
+                                <option value="0">0 Pages</option>
+                                <option value="1">1 Page Overlap</option>
+                                <option value="2">2 Pages Overlap</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Tokens Mode -->
+                    <div id="panel-tokens" class="mode-panel" style="display: none;">
+                        <div class="form-row">
+                            <label class="form-label">
+                                Target Token Window
+                            </label>
+                            <select id="token-target-select" class="form-select" onchange="Workshop.recalculatePlan()">
+                                <option value="25000">~25,000 Tokens (Light)</option>
+                                <option value="50000" selected>~50,000 Tokens (Balanced)</option>
+                                <option value="100000">~100,000 Tokens (Standard)</option>
+                                <option value="200000">~200,000 Tokens (Deep)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Custom Ranges Mode -->
+                    <div id="panel-custom" class="mode-panel" style="display: none;">
+                        <div class="form-row">
+                            <label class="form-label">
+                                Custom Ranges
+                            </label>
+                            <input type="text" id="custom-ranges-input" class="form-input" placeholder="1-5, 6-12, 13-end" value="1-5, 6-end" oninput="Workshop.recalculatePlan()">
+                        </div>
+                        <div class="chip-group" style="margin-top: 4px;">
+                            <span class="chip-btn" onclick="Workshop.setRangePreset('halves')">Halves</span>
+                            <span class="chip-btn" onclick="Workshop.setRangePreset('thirds')">Thirds</span>
+                            <span class="chip-btn" onclick="Workshop.setRangePreset('quarters')">Quarters</span>
+                        </div>
+                    </div>
+
+                    <!-- TOC Chapters Mode -->
+                    <div id="panel-toc" class="mode-panel" style="display: none;">
+                        <div id="toc-container" style="font-size: 12px; color: var(--text-muted);">
+                            Scanning outline...
+                        </div>
+                    </div>
+
+                    <!-- Burst Mode -->
+                    <div id="panel-burst" class="mode-panel" style="display: none;">
+                        <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 6px;">
+                            Extracts each page as an individual 1-page PDF file.
+                        </div>
+                        <div style="display: flex; gap: 6px;">
+                            <button class="chip-btn" style="flex:1; text-align:center;" onclick="Workshop.selectAllPages(true)">Select All</button>
+                            <button class="chip-btn" style="flex:1; text-align:center;" onclick="Workshop.selectAllPages(false)">Deselect All</button>
+                        </div>
+                    </div>
+                </div>
+            </details>
+
+            <!-- AI & Processing Options -->
+            <details class="sidebar-section" open>
+                <summary>AI & Processing Options</summary>
+                <div class="sidebar-content">
+                    <label class="option-toggle">
+                        <input type="checkbox" id="opt-generate-manifest" checked>
+                        <span class="option-label">Generate Prompt Guide & Manifest</span>
+                    </label>
+                    <label class="option-toggle">
+                        <input type="checkbox" id="opt-inject-metadata" checked>
+                        <span class="option-label">Embed Part & Context Metadata</span>
+                    </label>
+                    <label class="option-toggle">
+                        <input type="checkbox" id="opt-strip-blank" checked>
+                        <span class="option-label">Filter Blank Pages</span>
+                    </label>
+                    <label class="option-toggle">
+                        <input type="checkbox" id="opt-extract-text" checked>
+                        <span class="option-label">Extract Companion Text Files (.md)</span>
+                    </label>
+                </div>
+            </details>
+
+            <!-- Compression & Naming -->
+            <details class="sidebar-section">
+                <summary>Output & Compression</summary>
+                <div class="sidebar-content">
+                    <div class="form-row">
+                        <label class="form-label">Compression Level</label>
+                        <select id="compression-level-select" class="form-select">
+                            <option value="standard" selected>Standard (Object Streams)</option>
+                            <option value="compact">Compact (Minimal Bloat)</option>
+                            <option value="none">Original (No Compression)</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label">Naming Pattern</label>
+                        <input type="text" id="naming-pattern-input" class="form-input" value="{doc}_part_{part}_{range}.pdf">
+                    </div>
+                </div>
+            </details>
+
+            <!-- Sidebar Actions Footer -->
+            <div class="sidebar-footer">
+                <button class="toolbar-btn accent" style="padding: 9px; font-weight: 600; justify-content: center;" onclick="Workshop.processAndDownloadZip()">
+                    ⚡ Download AI Bundle (ZIP)
+                </button>
+                <button class="toolbar-btn" style="padding: 7px; justify-content: center;" onclick="Workshop.previewManifest()">
+                    📋 View Manifest Preview
+                </button>
+            </div>
+        </div>
+
+        <!-- Right Workspace -->
+        <div class="workspace" id="workspace" style="display: none;">
+
+            <!-- Progress Tracker -->
+            <div class="progress-bar-wrap" id="progress-bar-wrap">
+                <div class="progress-info">
+                    <span id="progress-status-text">Processing PDF chunks...</span>
+                    <span id="progress-percentage-text">0%</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+            </div>
+
+            <!-- Workspace Top Bar -->
+            <div class="workspace-header">
+                <div class="view-tabs">
+                    <button class="view-tab active" id="view-tab-chunks" onclick="Workshop.switchView('chunks')">
+                        Planned Chunks (<span id="chunks-count-tab">0</span>)
+                    </button>
+                    <button class="view-tab" id="view-tab-pages" onclick="Workshop.switchView('pages')">
+                        Page Map (<span id="pages-count-tab">0</span>)
+                    </button>
+                </div>
+                <div class="workspace-actions">
+                    <button class="toolbar-btn" id="btn-refresh-thumbs" style="display: none;" onclick="Workshop.renderAllThumbnails(true)">
+                        🔄 Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- Workspace Content Scroll Area -->
+            <div class="workspace-content">
+                <!-- Chunks Grid View -->
+                <div class="chunks-grid" id="chunks-view">
+                    <!-- Rendered by JS -->
+                </div>
+
+                <!-- Page Map View -->
+                <div class="pages-grid" id="pages-view" style="display: none;">
+                    <!-- Rendered by JS -->
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ── MODAL (MANIFEST / INSPECTOR) ────────────────────────── -->
+    <div class="modal-overlay" id="modal-overlay" onclick="if(event.target === this) Workshop.closeModal()">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="modal-title">Manifest Preview</h3>
+                <button class="modal-close" onclick="Workshop.closeModal()">✕</button>
+            </div>
+            <div class="modal-content" id="modal-content">
+                <!-- Content injected dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ── TOAST NOTIFICATION ──────────────────────────────────── -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        if (window.pdfjsLib) {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
+
+        const Workshop = (function() {
+            'use strict';
+
+            const state = {
+                theme: localStorage.getItem('utils-theme') || localStorage.getItem('theme') || 'light',
+                pdfDoc: null,
+                pdfBytes: null,
+                pdfFileName: 'document.pdf',
+                pdfFileSize: 0,
+                totalPages: 0,
+                pagesData: [],
+                outline: [],
+                mode: 'fixed',
+                activeView: 'chunks',
+                plannedChunks: [],
+                isProcessing: false,
+            };
+
+            const el = {
+                emptyWorkspace: document.getElementById('empty-workspace'),
+                dropzone: document.getElementById('dropzone'),
+                fileInput: document.getElementById('pdf-file-input'),
+                sidebar: document.getElementById('sidebar'),
+                workspace: document.getElementById('workspace'),
+                btnResetDoc: document.getElementById('btn-reset-doc'),
+                docStatsBadge: document.getElementById('doc-stats-badge'),
+                docBadgeName: document.getElementById('doc-badge-name'),
+                docBadgePages: document.getElementById('doc-badge-pages'),
+                docBadgeSize: document.getElementById('doc-badge-size'),
+                docBadgeTokens: document.getElementById('doc-badge-tokens'),
+                docSep1: document.getElementById('doc-sep-1'),
+                btnDownloadZip: document.getElementById('btn-download-zip'),
+                progressBarWrap: document.getElementById('progress-bar-wrap'),
+                progressFill: document.getElementById('progress-fill'),
+                progressStatusText: document.getElementById('progress-status-text'),
+                progressPercentageText: document.getElementById('progress-percentage-text'),
+                chunksCountTab: document.getElementById('chunks-count-tab'),
+                pagesCountTab: document.getElementById('pages-count-tab'),
+                chunksView: document.getElementById('chunks-view'),
+                pagesView: document.getElementById('pages-view'),
+                btnRefreshThumbs: document.getElementById('btn-refresh-thumbs'),
+                modalOverlay: document.getElementById('modal-overlay'),
+                modalTitle: document.getElementById('modal-title'),
+                modalContent: document.getElementById('modal-content'),
+                toast: document.getElementById('toast'),
+                themeBtn: document.getElementById('theme-btn'),
+            };
+
+            let toastTimer = null;
+
+            function showToast(msg) {
+                el.toast.textContent = msg;
+                el.toast.classList.add('show');
+                clearTimeout(toastTimer);
+                toastTimer = setTimeout(() => el.toast.classList.remove('show'), 2000);
+            }
+
+            function formatBytes(bytes) {
+                if (!bytes || bytes === 0) return '0 B';
+                const k = 1024;
+                const sizes = ['B', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+            }
+
+            function applyTheme(t) {
+                state.theme = t;
+                document.documentElement.setAttribute('data-theme', t);
+                document.body.setAttribute('data-theme', t);
+                localStorage.setItem('utils-theme', t);
+                localStorage.setItem('theme', t);
+                if (el.themeBtn) {
+                    el.themeBtn.textContent = t === 'dark' ? '☀️ Light' : '🌙 Dark';
+                }
+            }
+
+            function toggleTheme() {
+                const next = state.theme === 'dark' ? 'light' : 'dark';
+                applyTheme(next);
+                showToast(`Switched to ${next} mode`);
+            }
+
+            async function handleFileSelect(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                await loadPdfFromFile(file);
+            }
+
+            async function loadPdfFromFile(file) {
+                try {
+                    showToast('Reading PDF...');
+                    state.pdfFileName = file.name || 'document.pdf';
+                    state.pdfFileSize = file.size;
+                    const arrayBuffer = await file.arrayBuffer();
+                    state.pdfBytes = new Uint8Array(arrayBuffer);
+                    await parseAndDisplayPdf();
+                } catch (err) {
+                    console.error(err);
+                    showToast('Error reading PDF: ' + err.message);
+                }
+            }
+
+            async function loadSamplePDF() {
+                try {
+                    showToast('Generating sample 16-page PDF...');
+                    const { PDFDocument, rgb, StandardFonts } = PDFLib;
+                    const pdfDoc = await PDFDocument.create();
+                    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+                    const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+
+                    const chapters = [
+                        { title: "Chapter 1: Multimodal AI Foundations", pages: 4, desc: "Explores vision-language architectures, cross-attention mechanics, and token representations across long-horizon reasoning." },
+                        { title: "Chapter 2: Context Window & Chunk Dynamics", pages: 4, desc: "Detailed mathematical proofs on retrieval bottlenecks, cross-attention latency, and multi-PDF synthesis in Gemini." },
+                        { title: "Chapter 3: Benchmark Evaluations", pages: 4, desc: "Tabular comparisons across MMLU, GSM8K, DocVQA, and needle-in-a-haystack multimodal retrieval benchmarks." },
+                        { title: "Chapter 4: Implementation Guide", pages: 4, desc: "System architectures, API parameters, temperature calibration, and structured prompt engineering." }
+                    ];
+
+                    let pageNum = 1;
+                    for (const ch of chapters) {
+                        for (let p = 1; p <= ch.pages; p++) {
+                            const page = pdfDoc.addPage([595.28, 841.89]);
+                            const { width, height } = page.getSize();
+
+                            page.drawText(`AI RESEARCH PAPERS SERIES — VOLUME 4`, { x: 50, y: height - 40, size: 9, font: font, color: rgb(0.5, 0.5, 0.5) });
+                            page.drawLine({ start: { x: 50, y: height - 48 }, end: { x: width - 50, y: height - 48 }, thickness: 0.5, color: rgb(0.8, 0.8, 0.8) });
+
+                            if (p === 1) {
+                                page.drawText(ch.title, { x: 50, y: height - 85, size: 18, font: fontBold, color: rgb(0.1, 0.15, 0.3) });
+                                page.drawText(ch.desc, { x: 50, y: height - 110, size: 10, font: font, color: rgb(0.3, 0.3, 0.3), maxWidth: 490, lineHeight: 14 });
+                            } else {
+                                page.drawText(`${ch.title} (Cont.)`, { x: 50, y: height - 80, size: 13, font: fontBold, color: rgb(0.2, 0.2, 0.2) });
+                            }
+
+                            let startY = p === 1 ? height - 160 : height - 110;
+                            for (let i = 0; i < 5; i++) {
+                                const dummyText = `Section ${pageNum}.${i+1}: Modern large language models equipped with massive context windows (such as Google Gemini Pro/Flash) demonstrate extraordinary reasoning capabilities. Splitting large documents into coherent, structured chunks of 5 to 20 pages allows distributed prompting, fine-grained semantic retrieval, and precise verification without exceeding model attention density constraints.`;
+                                page.drawText(dummyText, { x: 50, y: startY - (i * 90), size: 10, font: font, color: rgb(0.2, 0.2, 0.2), maxWidth: 495, lineHeight: 15 });
+                            }
+
+                            page.drawLine({ start: { x: 50, y: 50 }, end: { x: width - 50, y: 50 }, thickness: 0.5, color: rgb(0.8, 0.8, 0.8) });
+                            page.drawText(`Page ${pageNum} of 16`, { x: width / 2 - 25, y: 35, size: 9, font: font, color: rgb(0.4, 0.4, 0.4) });
+                            page.drawText(`PDF Workshop Document`, { x: width - 160, y: 35, size: 9, font: font, color: rgb(0.5, 0.5, 0.5) });
+
+                            pageNum++;
+                        }
+                    }
+
+                    const pdfBytes = await pdfDoc.save();
+                    state.pdfFileName = 'Gemini_Multimodal_AI_Compendium.pdf';
+                    state.pdfFileSize = pdfBytes.byteLength;
+                    state.pdfBytes = pdfBytes;
+                    await parseAndDisplayPdf();
+                    showToast('Sample PDF loaded');
+                } catch (err) {
+                    console.error(err);
+                    showToast('Error loading sample: ' + err.message);
+                }
+            }
+
+            async function parseAndDisplayPdf() {
+                const loadingTask = pdfjsLib.getDocument({ data: state.pdfBytes.slice() });
+                state.pdfDoc = await loadingTask.promise;
+                state.totalPages = state.pdfDoc.numPages;
+
+                state.pagesData = [];
+                let totalEstimatedTokens = 0;
+
+                for (let i = 1; i <= state.totalPages; i++) {
+                    const page = await state.pdfDoc.getPage(i);
+                    const textContent = await page.getTextContent();
+                    const textStr = textContent.items.map(item => item.str).join(' ').trim();
+                    const viewport = page.getViewport({ scale: 1.0 });
+
+                    const tokens = Math.max(1, Math.round(textStr.length / 4));
+                    const isBlank = textStr.length < 25;
+
+                    totalEstimatedTokens += tokens;
+
+                    state.pagesData.push({
+                        index: i,
+                        width: viewport.width,
+                        height: viewport.height,
+                        text: textStr,
+                        tokens: tokens,
+                        isBlank: isBlank,
+                        selected: true,
+                    });
+                }
+
+                // Update Toolbar Badges
+                el.docBadgeName.textContent = state.pdfFileName;
+                el.docBadgePages.textContent = `${state.totalPages} pages`;
+                el.docBadgeSize.textContent = formatBytes(state.pdfFileSize);
+                el.docBadgeTokens.textContent = `~${totalEstimatedTokens.toLocaleString()} tokens`;
+
+                el.docStatsBadge.style.display = 'inline-flex';
+                el.docSep1.style.display = 'inline-block';
+                el.btnResetDoc.style.display = 'inline-flex';
+                el.btnDownloadZip.style.display = 'inline-flex';
+
+                // Try fetching outline
+                try {
+                    state.outline = await state.pdfDoc.getOutline();
+                    renderOutline();
+                } catch {
+                    state.outline = [];
+                }
+
+                // Show Workspace
+                el.emptyWorkspace.style.display = 'none';
+                el.sidebar.style.display = 'flex';
+                el.workspace.style.display = 'flex';
+
+                el.pagesCountTab.textContent = state.totalPages;
+
+                recalculatePlan();
+                renderAllThumbnails();
+            }
+
+            function resetDocument() {
+                state.pdfDoc = null;
+                state.pdfBytes = null;
+                state.pagesData = [];
+                state.plannedChunks = [];
+                el.fileInput.value = '';
+
+                el.docStatsBadge.style.display = 'none';
+                el.docSep1.style.display = 'none';
+                el.btnResetDoc.style.display = 'none';
+                el.btnDownloadZip.style.display = 'none';
+
+                el.sidebar.style.display = 'none';
+                el.workspace.style.display = 'none';
+                el.emptyWorkspace.style.display = 'flex';
+                showToast('Document cleared');
+            }
+
+            function switchMode(mode) {
+                state.mode = mode;
+                const modes = ['fixed', 'tokens', 'custom', 'toc', 'burst'];
+                modes.forEach(m => {
+                    const tab = document.getElementById(`tab-${m}`);
+                    const panel = document.getElementById(`panel-${m}`);
+                    if (tab) tab.classList.toggle('active', m === mode);
+                    if (panel) panel.style.display = (m === mode ? 'block' : 'none');
+                });
+                recalculatePlan();
+            }
+
+            function switchView(view) {
+                state.activeView = view;
+                const isChunks = view === 'chunks';
+                document.getElementById('view-tab-chunks').classList.toggle('active', isChunks);
+                document.getElementById('view-tab-pages').classList.toggle('active', !isChunks);
+                el.chunksView.style.display = isChunks ? 'grid' : 'none';
+                el.pagesView.style.display = isChunks ? 'none' : 'grid';
+                el.btnRefreshThumbs.style.display = isChunks ? 'none' : 'inline-flex';
+            }
+
+            function setFixedPreset(val) {
+                const input = document.getElementById('fixed-pages-input');
+                if (input) input.value = val;
+                recalculatePlan();
+            }
+
+            function setRangePreset(type) {
+                if (!state.totalPages) return;
+                const total = state.totalPages;
+                let str = '';
+                if (type === 'halves') {
+                    const mid = Math.ceil(total / 2);
+                    str = `1-${mid}, ${mid + 1}-${total}`;
+                } else if (type === 'thirds') {
+                    const t1 = Math.ceil(total / 3);
+                    const t2 = Math.ceil((total / 3) * 2);
+                    str = `1-${t1}, ${t1 + 1}-${t2}, ${t2 + 1}-${total}`;
+                } else if (type === 'quarters') {
+                    const q1 = Math.ceil(total / 4);
+                    const q2 = Math.ceil((total / 4) * 2);
+                    const q3 = Math.ceil((total / 4) * 3);
+                    str = `1-${q1}, ${q1 + 1}-${q2}, ${q2 + 1}-${q3}, ${q3 + 1}-${total}`;
+                }
+                const input = document.getElementById('custom-ranges-input');
+                if (input) input.value = str;
+                recalculatePlan();
+            }
+
+            function renderOutline() {
+                const container = document.getElementById('toc-container');
+                if (!container) return;
+                if (!state.outline || state.outline.length === 0) {
+                    container.innerHTML = `<div style="font-size: 11.5px; color: var(--text-muted);">No outline bookmarks detected in PDF.</div>`;
+                    return;
+                }
+
+                let html = '<div style="display:flex; flex-direction:column; gap:4px; max-height:160px; overflow-y:auto;">';
+                state.outline.forEach((item, idx) => {
+                    html += `
+                        <div style="background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-sm); padding:4px 8px; font-size:11.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                            ${item.title || `Section ${idx+1}`}
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                container.innerHTML = html;
+            }
+
+            function recalculatePlan() {
+                if (!state.totalPages || state.pagesData.length === 0) return;
+
+                const baseName = state.pdfFileName.replace(/\.[^/.]+$/, '');
+                const total = state.totalPages;
+                state.plannedChunks = [];
+
+                if (state.mode === 'fixed') {
+                    const fixedInput = document.getElementById('fixed-pages-input');
+                    const pagesPerChunk = Math.max(1, parseInt(fixedInput ? fixedInput.value : 10, 10) || 10);
+                    const overlapSelect = document.getElementById('chunk-overlap-select');
+                    const overlap = Math.max(0, parseInt(overlapSelect ? overlapSelect.value : 0, 10) || 0);
+
+                    let start = 1;
+                    let part = 1;
+
+                    while (start <= total) {
+                        let end = Math.min(total, start + pagesPerChunk - 1);
+                        const chunkPages = [];
+                        let chunkTokens = 0;
+
+                        for (let p = start; p <= end; p++) {
+                            chunkPages.push(p);
+                            const pData = state.pagesData[p - 1];
+                            if (pData) chunkTokens += pData.tokens;
+                        }
+
+                        const chunkName = `${baseName}_part_${String(part).padStart(2, '0')}_p${start}-${end}.pdf`;
+                        state.plannedChunks.push({
+                            partIndex: part,
+                            name: chunkName,
+                            startPage: start,
+                            endPage: end,
+                            pageCount: chunkPages.length,
+                            tokens: chunkTokens,
+                            pages: chunkPages
+                        });
+
+                        if (end >= total) break;
+                        start = end + 1 - overlap;
+                        if (start <= state.plannedChunks[state.plannedChunks.length - 1].startPage) {
+                            start = state.plannedChunks[state.plannedChunks.length - 1].startPage + 1;
+                        }
+                        part++;
+                    }
+
+                } else if (state.mode === 'tokens') {
+                    const targetTokenSelect = document.getElementById('token-target-select');
+                    const targetTokens = parseInt(targetTokenSelect ? targetTokenSelect.value : 50000, 10) || 50000;
+
+                    let currentPages = [];
+                    let currentTokens = 0;
+                    let part = 1;
+
+                    for (let i = 1; i <= total; i++) {
+                        const pData = state.pagesData[i - 1];
+                        const pTokens = pData ? pData.tokens : 200;
+
+                        if (currentPages.length > 0 && (currentTokens + pTokens > targetTokens)) {
+                            const sPage = currentPages[0];
+                            const ePage = currentPages[currentPages.length - 1];
+                            state.plannedChunks.push({
+                                partIndex: part,
+                                name: `${baseName}_part_${String(part).padStart(2, '0')}_p${sPage}-${ePage}.pdf`,
+                                startPage: sPage,
+                                endPage: ePage,
+                                pageCount: currentPages.length,
+                                tokens: currentTokens,
+                                pages: [...currentPages]
+                            });
+                            part++;
+                            currentPages = [];
+                            currentTokens = 0;
+                        }
+
+                        currentPages.push(i);
+                        currentTokens += pTokens;
+                    }
+
+                    if (currentPages.length > 0) {
+                        const sPage = currentPages[0];
+                        const ePage = currentPages[currentPages.length - 1];
+                        state.plannedChunks.push({
+                            partIndex: part,
+                            name: `${baseName}_part_${String(part).padStart(2, '0')}_p${sPage}-${ePage}.pdf`,
+                            startPage: sPage,
+                            endPage: ePage,
+                            pageCount: currentPages.length,
+                            tokens: currentTokens,
+                            pages: [...currentPages]
+                        });
+                    }
+
+                } else if (state.mode === 'custom') {
+                    const rangeInput = document.getElementById('custom-ranges-input');
+                    const rawStr = rangeInput ? rangeInput.value : '1-end';
+                    const parts = rawStr.split(/[,;]+/).map(s => s.trim()).filter(Boolean);
+
+                    let part = 1;
+                    for (const pStr of parts) {
+                        let start = 1;
+                        let end = total;
+
+                        if (pStr.includes('-')) {
+                            const [sRaw, eRaw] = pStr.split('-');
+                            start = parseInt(sRaw.trim(), 10) || 1;
+                            if (eRaw.trim().toLowerCase() === 'end') {
+                                end = total;
+                            } else {
+                                end = parseInt(eRaw.trim(), 10) || total;
+                            }
+                        } else {
+                            start = parseInt(pStr, 10) || 1;
+                            end = start;
+                        }
+
+                        start = Math.max(1, Math.min(total, start));
+                        end = Math.max(start, Math.min(total, end));
+
+                        const chunkPages = [];
+                        let chunkTokens = 0;
+                        for (let p = start; p <= end; p++) {
+                            chunkPages.push(p);
+                            const pData = state.pagesData[p - 1];
+                            if (pData) chunkTokens += pData.tokens;
+                        }
+
+                        state.plannedChunks.push({
+                            partIndex: part,
+                            name: `${baseName}_part_${String(part).padStart(2, '0')}_p${start}-${end}.pdf`,
+                            startPage: start,
+                            endPage: end,
+                            pageCount: chunkPages.length,
+                            tokens: chunkTokens,
+                            pages: chunkPages
+                        });
+                        part++;
+                    }
+
+                } else if (state.mode === 'burst') {
+                    let part = 1;
+                    for (let i = 1; i <= total; i++) {
+                        const pData = state.pagesData[i - 1];
+                        if (pData && pData.selected) {
+                            state.plannedChunks.push({
+                                partIndex: part,
+                                name: `${baseName}_page_${String(i).padStart(3, '0')}.pdf`,
+                                startPage: i,
+                                endPage: i,
+                                pageCount: 1,
+                                tokens: pData.tokens,
+                                pages: [i]
+                            });
+                            part++;
+                        }
+                    }
+                } else if (state.mode === 'toc') {
+                    const chunkSize = Math.max(1, Math.ceil(total / 4));
+                    for (let start = 1, part = 1; start <= total; start += chunkSize, part++) {
+                        const end = Math.min(total, start + chunkSize - 1);
+                        const chunkPages = [];
+                        let chunkTokens = 0;
+                        for (let p = start; p <= end; p++) {
+                            chunkPages.push(p);
+                            const pData = state.pagesData[p - 1];
+                            if (pData) chunkTokens += pData.tokens;
+                        }
+                        state.plannedChunks.push({
+                            partIndex: part,
+                            name: `${baseName}_section_${String(part).padStart(2, '0')}_p${start}-${end}.pdf`,
+                            startPage: start,
+                            endPage: end,
+                            pageCount: chunkPages.length,
+                            tokens: chunkTokens,
+                            pages: chunkPages
+                        });
+                    }
+                }
+
+                renderChunksList();
+                updatePageVisualMarkers();
+            }
+
+            function renderChunksList() {
+                el.chunksCountTab.textContent = state.plannedChunks.length;
+                el.chunksView.innerHTML = '';
+
+                if (state.plannedChunks.length === 0) {
+                    el.chunksView.innerHTML = `<div style="font-size:12.5px; color:var(--text-muted); padding:16px;">No chunks configured.</div>`;
+                    return;
+                }
+
+                state.plannedChunks.forEach((chunk) => {
+                    const card = document.createElement('div');
+                    card.className = 'chunk-card';
+                    card.innerHTML = `
+                        <div class="chunk-card-top">
+                            <div class="chunk-card-title">Part ${chunk.partIndex}</div>
+                            <span class="chunk-card-badge">pp. ${chunk.startPage}–${chunk.endPage}</span>
+                        </div>
+                        <div class="chunk-card-meta">
+                            <span>📄 ${chunk.pageCount} ${chunk.pageCount === 1 ? 'page' : 'pages'}</span>
+                            <span>•</span>
+                            <span>🧠 ~${chunk.tokens.toLocaleString()} tokens</span>
+                        </div>
+                        <div class="chunk-card-actions">
+                            <button class="chunk-card-btn" title="Download only this chunk" onclick="Workshop.downloadSingleChunk(${chunk.partIndex})">
+                                💾 Download
+                            </button>
+                            <button class="chunk-card-btn" title="Open in PDF to Markdown" onclick="Workshop.sendChunkToMarkdown(${chunk.partIndex})">
+                                📝 Markdown
+                            </button>
+                        </div>
+                    `;
+                    el.chunksView.appendChild(card);
+                });
+            }
+
+            function renderAllThumbnails(force = false) {
+                if (!state.pdfDoc) return;
+                el.pagesView.innerHTML = '';
+
+                const startPagesSet = new Set(state.plannedChunks.map(c => c.startPage));
+
+                for (let i = 1; i <= state.totalPages; i++) {
+                    const pData = state.pagesData[i - 1];
+                    const card = document.createElement('div');
+                    card.className = `page-thumb-card ${pData && pData.selected ? 'selected' : ''} ${startPagesSet.has(i) ? 'chunk-start' : ''}`;
+                    card.id = `page-thumb-card-${i}`;
+
+                    let chunkBadgeHtml = '';
+                    const chunkMatch = state.plannedChunks.find(c => c.startPage === i);
+                    if (chunkMatch) {
+                        chunkBadgeHtml = `<span class="page-chunk-badge">Part ${chunkMatch.partIndex}</span>`;
+                    }
+
+                    card.innerHTML = `
+                        ${chunkBadgeHtml}
+                        <div class="page-canvas-box" id="page-canvas-box-${i}">
+                            <span style="font-size: 11px; color: #999;">Page ${i}</span>
+                        </div>
+                        <div class="page-thumb-label">
+                            <span>p. ${i}</span>
+                            ${pData && pData.isBlank ? '<span class="blank-tag">Blank</span>' : ''}
+                        </div>
+                    `;
+
+                    card.onclick = () => {
+                        if (state.mode === 'burst') {
+                            if (pData) {
+                                pData.selected = !pData.selected;
+                                card.classList.toggle('selected', pData.selected);
+                                recalculatePlan();
+                            }
+                        } else {
+                            showPageInspectorModal(i);
+                        }
+                    };
+
+                    el.pagesView.appendChild(card);
+                    renderPageThumbnail(i);
+                }
+            }
+
+            async function renderPageThumbnail(pageNum) {
+                try {
+                    const wrap = document.getElementById(`page-canvas-box-${pageNum}`);
+                    if (!wrap || wrap.querySelector('canvas')) return;
+
+                    const page = await state.pdfDoc.getPage(pageNum);
+                    const viewport = page.getViewport({ scale: 0.28 });
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
+                    const ctx = canvas.getContext('2d');
+
+                    await page.render({
+                        canvasContext: ctx,
+                        viewport: viewport
+                    }).promise;
+
+                    wrap.innerHTML = '';
+                    wrap.appendChild(canvas);
+                } catch (err) {
+                    console.warn(`Could not render thumb ${pageNum}`, err);
+                }
+            }
+
+            function updatePageVisualMarkers() {
+                const startPagesMap = new Map();
+                state.plannedChunks.forEach(c => startPagesMap.set(c.startPage, c.partIndex));
+
+                for (let i = 1; i <= state.totalPages; i++) {
+                    const card = document.getElementById(`page-thumb-card-${i}`);
+                    if (!card) continue;
+
+                    const oldBadge = card.querySelector('.page-chunk-badge');
+                    if (oldBadge) oldBadge.remove();
+
+                    if (startPagesMap.has(i)) {
+                        card.classList.add('chunk-start');
+                        const b = document.createElement('span');
+                        b.className = 'page-chunk-badge';
+                        b.textContent = `Part ${startPagesMap.get(i)}`;
+                        card.prepend(b);
+                    } else {
+                        card.classList.remove('chunk-start');
+                    }
+                }
+            }
+
+            function selectAllPages(select) {
+                state.pagesData.forEach(p => p.selected = select);
+                for (let i = 1; i <= state.totalPages; i++) {
+                    const card = document.getElementById(`page-thumb-card-${i}`);
+                    if (card) card.classList.toggle('selected', select);
+                }
+                recalculatePlan();
+            }
+
+            async function buildChunkPdfBytes(chunk) {
+                const { PDFDocument } = PDFLib;
+                const srcDoc = await PDFDocument.load(state.pdfBytes);
+                const outDoc = await PDFDocument.create();
+
+                const stripBlank = document.getElementById('opt-strip-blank')?.checked ?? true;
+                const injectMetadata = document.getElementById('opt-inject-metadata')?.checked ?? true;
+
+                const pageIndices = [];
+                for (const p of chunk.pages) {
+                    const pData = state.pagesData[p - 1];
+                    if (stripBlank && pData && pData.isBlank && chunk.pages.length > 1) {
+                        continue;
+                    }
+                    pageIndices.push(p - 1);
+                }
+
+                if (pageIndices.length === 0) {
+                    pageIndices.push(chunk.pages[0] - 1);
+                }
+
+                const copiedPages = await outDoc.copyPages(srcDoc, pageIndices);
+                for (const cp of copiedPages) {
+                    outDoc.addPage(cp);
+                }
+
+                if (injectMetadata) {
+                    const totalParts = state.plannedChunks.length;
+                    const cleanDocTitle = state.pdfFileName.replace(/\.[^/.]+$/, '');
+                    outDoc.setTitle(`[Part ${chunk.partIndex}/${totalParts}] ${cleanDocTitle} (pp. ${chunk.startPage}-${chunk.endPage})`);
+                    outDoc.setSubject(`AI Digestion Chunk for Gemini LM — Document Slice ${chunk.startPage} to ${chunk.endPage}`);
+                    outDoc.setKeywords([
+                        'Gemini LM Chunk',
+                        `Part-${chunk.partIndex}-of-${totalParts}`,
+                        `Pages-${chunk.startPage}-to-${chunk.endPage}`,
+                        `Tokens-${chunk.tokens}`,
+                        cleanDocTitle
+                    ]);
+                    outDoc.setProducer('Utilities PDF Workshop');
+                    outDoc.setCreator('PDF Workshop');
+                }
+
+                const compressionLevel = document.getElementById('compression-level-select')?.value || 'standard';
+                const saveOptions = {
+                    useObjectStreams: compressionLevel !== 'none',
+                    addDefaultPage: false,
+                };
+
+                return await outDoc.save(saveOptions);
+            }
+
+            async function processAndDownloadZip() {
+                if (!state.pdfBytes || state.plannedChunks.length === 0) {
+                    showToast('No PDF loaded or no chunks configured');
+                    return;
+                }
+
+                try {
+                    state.isProcessing = true;
+                    el.progressBarWrap.classList.add('active');
+                    el.progressFill.style.width = '5%';
+                    el.progressPercentageText.textContent = '5%';
+                    el.progressStatusText.textContent = 'Preparing chunks...';
+
+                    const zip = new JSZip();
+                    const chunksFolder = zip.folder("pdf_chunks");
+                    const textFolder = zip.folder("extracted_text");
+
+                    const genManifest = document.getElementById('opt-generate-manifest')?.checked ?? true;
+                    const extractText = document.getElementById('opt-extract-text')?.checked ?? true;
+
+                    const totalChunks = state.plannedChunks.length;
+                    const manifestChunks = [];
+
+                    for (let idx = 0; idx < totalChunks; idx++) {
+                        const chunk = state.plannedChunks[idx];
+                        const pct = Math.round(((idx + 1) / totalChunks) * 80);
+                        el.progressFill.style.width = `${pct}%`;
+                        el.progressPercentageText.textContent = `${pct}%`;
+                        el.progressStatusText.textContent = `Building Chunk ${idx + 1}/${totalChunks} (pp. ${chunk.startPage}–${chunk.endPage})...`;
+
+                        const chunkPdfBytes = await buildChunkPdfBytes(chunk);
+                        chunksFolder.file(chunk.name, chunkPdfBytes);
+
+                        let chunkFullText = '';
+                        for (const p of chunk.pages) {
+                            const pData = state.pagesData[p - 1];
+                            if (pData && pData.text) {
+                                chunkFullText += `--- PAGE ${p} ---\n${pData.text}\n\n`;
+                            }
+                        }
+
+                        if (extractText) {
+                            const txtName = chunk.name.replace(/\.pdf$/, '.md');
+                            textFolder.file(txtName, `# ${chunk.name}\n\nPages: ${chunk.startPage} to ${chunk.endPage}\nEstimated Tokens: ${chunk.tokens}\n\n${chunkFullText}`);
+                        }
+
+                        manifestChunks.push({
+                            part: chunk.partIndex,
+                            filename: chunk.name,
+                            pagesSpan: `${chunk.startPage}-${chunk.endPage}`,
+                            pageCount: chunk.pageCount,
+                            estimatedTokens: chunk.tokens,
+                            snippet: chunkFullText.slice(0, 300).replace(/\s+/g, ' ').trim() + '...'
+                        });
+                    }
+
+                    if (genManifest) {
+                        el.progressStatusText.textContent = 'Generating manifest & prompt guide...';
+                        const manifestData = {
+                            document: {
+                                originalFilename: state.pdfFileName,
+                                totalPages: state.totalPages,
+                                totalTokensEst: state.pagesData.reduce((acc, p) => acc + p.tokens, 0),
+                                totalChunks: totalChunks,
+                                generatedAt: new Date().toISOString(),
+                                generator: "PDF Workshop"
+                            },
+                            chunks: manifestChunks
+                        };
+
+                        zip.file("manifest.json", JSON.stringify(manifestData, null, 2));
+
+                        const guideContent = createGeminiPromptGuide(manifestData);
+                        zip.file("GEMINI_PROMPT_GUIDE.md", guideContent);
+                        zip.file("README_CHUNKS.txt", `PDF WORKSHOP — AI DIGESTION BUNDLE\n\nOriginal: ${state.pdfFileName}\nTotal Pages: ${state.totalPages}\nTotal Chunks: ${totalChunks}`);
+                    }
+
+                    el.progressFill.style.width = '95%';
+                    el.progressPercentageText.textContent = '95%';
+                    el.progressStatusText.textContent = 'Compressing ZIP archive...';
+
+                    const zipBlob = await zip.generateAsync({ type: "blob" });
+                    const zipFilename = `${state.pdfFileName.replace(/\.[^/.]+$/, '')}_AI_Chunks.zip`;
+
+                    triggerDownload(zipBlob, zipFilename);
+
+                    el.progressFill.style.width = '100%';
+                    el.progressPercentageText.textContent = '100%';
+                    el.progressStatusText.textContent = 'Ready!';
+                    showToast(`ZIP downloaded: ${zipFilename}`);
+
+                    setTimeout(() => {
+                        el.progressBarWrap.classList.remove('active');
+                    }, 1200);
+
+                } catch (err) {
+                    console.error(err);
+                    showToast('Error during export: ' + err.message);
+                    el.progressBarWrap.classList.remove('active');
+                } finally {
+                    state.isProcessing = false;
+                }
+            }
+
+            async function downloadSingleChunk(partIndex) {
+                const chunk = state.plannedChunks.find(c => c.partIndex === partIndex);
+                if (!chunk) return;
+
+                try {
+                    showToast(`Generating ${chunk.name}...`);
+                    const chunkPdfBytes = await buildChunkPdfBytes(chunk);
+                    const blob = new Blob([chunkPdfBytes], { type: 'application/pdf' });
+                    triggerDownload(blob, chunk.name);
+                    showToast(`Downloaded ${chunk.name}`);
+                } catch (err) {
+                    console.error(err);
+                    showToast('Error downloading chunk: ' + err.message);
+                }
+            }
+
+            function sendChunkToMarkdown(partIndex) {
+                showToast(`Opening PDF to Markdown...`);
+                window.location.href = `../PDF_to_Markdown/index.html`;
+            }
+
+            function createGeminiPromptGuide(manifest) {
+                return `# 🤖 Gemini LM Multi-PDF Prompt & Digestion Guide
+
+> **Document:** \`${manifest.document.originalFilename}\`  
+> **Total Pages:** ${manifest.document.totalPages} | **Total Parts:** ${manifest.document.totalChunks} | **Est. Tokens:** ${manifest.document.totalTokensEst.toLocaleString()}  
+
+---
+
+## 🎯 How to use these chunks with Gemini in Google AI Studio / Gemini Advanced
+
+1. **Upload Chunks:** Attach \`pdf_chunks/\` files directly into Google AI Studio (Gemini 1.5/2.0 Pro / Flash) or NotebookLM.
+2. **System Prompt:**
+
+\`\`\`markdown
+You are analyzing "${manifest.document.originalFilename}" partitioned into ${manifest.document.totalChunks} sequential chunks.
+Always reference findings with the Part Number and original page spans.
+\`\`\`
+
+---
+
+## 📑 Chunk Map
+
+${manifest.chunks.map(c => `- **Part ${c.part}:** \`${c.filename}\` (pp. ${c.pagesSpan}, ~${c.estimatedTokens.toLocaleString()} tokens)`).join('\n')}
+`;
+            }
+
+            function triggerDownload(blob, filename) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(() => {
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }, 100);
+            }
+
+            function previewManifest() {
+                if (state.plannedChunks.length === 0) {
+                    showToast('No chunks planned');
+                    return;
+                }
+
+                const manifest = {
+                    document: state.pdfFileName,
+                    totalPages: state.totalPages,
+                    totalChunks: state.plannedChunks.length,
+                    chunks: state.plannedChunks.map(c => ({
+                        part: c.partIndex,
+                        file: c.name,
+                        pages: `${c.startPage}-${c.endPage}`,
+                        pageCount: c.pageCount,
+                        tokensEst: c.tokens
+                    }))
+                };
+
+                el.modalTitle.textContent = 'Manifest Preview (manifest.json)';
+                el.modalContent.innerHTML = `
+                    <pre class="code-box">${escapeHTML(JSON.stringify(manifest, null, 2))}</pre>
+                `;
+                el.modalOverlay.classList.add('active');
+            }
+
+            function showPageInspectorModal(pageNum) {
+                const pData = state.pagesData[pageNum - 1];
+                if (!pData) return;
+
+                el.modalTitle.textContent = `Page ${pageNum} of ${state.totalPages}`;
+                el.modalContent.innerHTML = `
+                    <div style="display:flex; gap:8px; font-size:11.5px; color:var(--text-muted); background:var(--bg-secondary); padding:8px 12px; border-radius:var(--radius-sm); border:1px solid var(--border);">
+                        <span>Dimensions: <strong>${Math.round(pData.width)} × ${Math.round(pData.height)} pt</strong></span>
+                        <span>•</span>
+                        <span>Tokens: <strong>~${pData.tokens}</strong></span>
+                        <span>•</span>
+                        <span>${pData.isBlank ? 'Blank Page' : 'Text Detected'}</span>
+                    </div>
+                    <div style="font-size:12px; font-weight:600; color:var(--text); margin-top:4px;">Extracted Page Text:</div>
+                    <pre class="code-box">${escapeHTML(pData.text || '(No selectable text)')}</pre>
+                `;
+                el.modalOverlay.classList.add('active');
+            }
+
+            function closeModal() {
+                el.modalOverlay.classList.remove('active');
+            }
+
+            function escapeHTML(str) {
+                const d = document.createElement('div');
+                d.textContent = str;
+                return d.innerHTML;
+            }
+
+            function setupDragAndDrop() {
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                    el.dropzone.addEventListener(eventName, (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    }, false);
+                });
+
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    el.dropzone.addEventListener(eventName, () => el.dropzone.classList.add('dragover'), false);
+                });
+
+                ['dragleave', 'drop'].forEach(eventName => {
+                    el.dropzone.addEventListener(eventName, () => el.dropzone.classList.remove('dragover'), false);
+                });
+
+                el.dropzone.addEventListener('drop', (e) => {
+                    const dt = e.dataTransfer;
+                    const files = dt.files;
+                    if (files && files.length > 0) {
+                        loadPdfFromFile(files[0]);
+                    }
+                }, false);
+            }
+
+            function init() {
+                applyTheme(state.theme);
+                setupDragAndDrop();
+
+                window.addEventListener('storage', (e) => {
+                    if (e.key === 'utils-theme' && e.newValue) {
+                        applyTheme(e.newValue);
+                    }
+                });
+                window.addEventListener('pageshow', () => {
+                    const current = localStorage.getItem('utils-theme') || 'light';
+                    if (current !== state.theme) applyTheme(current);
+                });
+                window.addEventListener('focus', () => {
+                    const current = localStorage.getItem('utils-theme') || 'light';
+                    if (current !== state.theme) applyTheme(current);
+                });
+            }
+
+            return {
+                init,
+                toggleTheme,
+                handleFileSelect,
+                loadSamplePDF,
+                resetDocument,
+                switchMode,
+                switchView,
+                setFixedPreset,
+                setRangePreset,
+                selectAllPages,
+                recalculatePlan,
+                renderAllThumbnails,
+                processAndDownloadZip,
+                downloadSingleChunk,
+                sendChunkToMarkdown,
+                previewManifest,
+                closeModal
+            };
+        })();
+
+        document.addEventListener('DOMContentLoaded', Workshop.init);
+    </script>
+</body>
+</html>

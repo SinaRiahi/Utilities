@@ -593,6 +593,7 @@ app.get("/api/download-bundle/:id", (req, res) => {
 // Dedicated tool redirects & static serving
 app.use("/MD_Studio", express.static(path.join(ROOT_DIR, "MD_Studio")));
 app.use("/PDF_to_Markdown", express.static(path.join(ROOT_DIR, "PDF_to_Markdown")));
+app.use("/PDF_Workshop", express.static(path.join(ROOT_DIR, "PDF_Workshop")));
 app.use("/Image_Forge", express.static(path.join(ROOT_DIR, "Image_Forge")));
 app.use("/Audio_Forge", express.static(path.join(ROOT_DIR, "Audio_Forge")));
 app.use("/Persian_Text_to_Speech", express.static(path.join(ROOT_DIR, "Persian_Text_to_Speech")));
