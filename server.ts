@@ -329,6 +329,59 @@ app.post("/api/settings/folder", (req, res) => {
   }
 });
 
+// Quick Chat / Text Clipboard for File Transfer
+interface ChatMessage {
+  id: string;
+  text: string;
+  sender: string;
+  timestamp: number;
+}
+const chatMessages: ChatMessage[] = [];
+
+app.get("/api/chat", (req, res) => {
+  if (!validateToken(req)) {
+    return res.status(403).json({ detail: "Invalid transfer token" });
+  }
+  res.json(chatMessages);
+});
+
+app.post("/api/chat", (req, res) => {
+  if (!validateToken(req)) {
+    return res.status(403).json({ detail: "Invalid transfer token" });
+  }
+  const text = (req.body.text || "").toString().trim();
+  if (!text) {
+    return res.status(400).json({ detail: "Text content is required" });
+  }
+  const message: ChatMessage = {
+    id: req.body.id || `msg_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+    text,
+    sender: (req.body.sender || "Device").toString().slice(0, 32),
+    timestamp: typeof req.body.timestamp === "number" ? req.body.timestamp : Date.now(),
+  };
+  chatMessages.push(message);
+  if (chatMessages.length > 100) {
+    chatMessages.shift();
+  }
+  broadcastTransferEvent({
+    type: "chat_message",
+    message,
+  });
+  res.json({ ok: true, message });
+});
+
+app.delete("/api/chat", (req, res) => {
+  if (!validateToken(req)) {
+    return res.status(403).json({ detail: "Invalid transfer token" });
+  }
+  chatMessages.length = 0;
+  broadcastTransferEvent({
+    type: "chat_cleared",
+    timestamp: Date.now(),
+  });
+  res.json({ ok: true });
+});
+
 // ─────────────────────────────────────────────────────────────
 // 2. WEBSCOPE MODULE
 // ─────────────────────────────────────────────────────────────

@@ -11,6 +11,7 @@ A private, direct PC ↔ Mobile file transfer utility that works both directly i
 - **QR Code Pairing**: Scan the QR code with iOS/Android camera to connect instantly.
 - **Drag & Drop**: Select or drag multiple files of any type.
 - **Real-time Progress & Download**: View upload/download progress and download files with one click.
+- **💬 Quick Text Clipboard & Chat**: Simple, real-time text chatroom to type notes, links, or messages on your phone and copy them with one click on your laptop (or vice versa), each message featuring an instant copy button.
 - **Instant Auto-Sync Signals**: Automatic cross-device refresh triggers whenever an upload is completed.
 - **Manual Refresh Button**: One-click refresh button with real-time feedback to quickly check for newly uploaded contents.
 - **Light & Dark Theme**: Full theme support.

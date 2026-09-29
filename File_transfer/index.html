@@ -75,7 +75,161 @@ h1 { font-size: 20px; }
 .drop p { color: var(--text-muted); font-size: 13px; margin-bottom: 16px; max-width: 440px; line-height: 1.4; }
 .file-list-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-top: 1px solid var(--border); background: var(--bg-tertiary); font-size: 12px; font-weight: 600; }
 .file-list-header-left { display: flex; align-items: center; gap: 8px; }
-.file-list { max-height: 420px; overflow: auto; }
+.main-col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.file-list { max-height: 280px; overflow: auto; }
+
+/* Quick Text Clipboard & Chatroom */
+.chat-card {
+  display: flex;
+  flex-direction: column;
+}
+.chat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border);
+  border-radius: var(--radius) var(--radius) 0 0;
+}
+.chat-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.chat-pill {
+  font-size: 11px;
+  background: var(--accent-light);
+  color: var(--accent);
+  padding: 1px 7px;
+  border-radius: 10px;
+  font-weight: 700;
+}
+.chat-hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: normal;
+}
+.chat-messages {
+  max-height: 220px;
+  min-height: 80px;
+  overflow-y: auto;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--bg-secondary);
+}
+.chat-empty {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 12px;
+  padding: 24px 12px;
+}
+.chat-msg {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  border: 1px solid var(--border-light);
+  transition: border-color 0.15s;
+}
+.chat-msg:hover {
+  border-color: var(--border);
+}
+.chat-msg.mine {
+  border-left: 3px solid var(--accent);
+}
+.chat-msg.peer {
+  border-left: 3px solid var(--success);
+}
+.chat-msg-body {
+  flex: 1;
+  min-width: 0;
+}
+.chat-msg-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 3px;
+}
+.chat-msg-sender {
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.chat-msg-time {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+.chat-msg-text {
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--text);
+  word-break: break-word;
+  white-space: pre-wrap;
+  user-select: text;
+}
+.chat-msg-text a {
+  color: var(--accent);
+  text-decoration: underline;
+}
+.chat-copy-btn {
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+  background: var(--bg-secondary);
+  color: var(--text);
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+.chat-copy-btn:hover {
+  background: var(--accent-light);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.chat-copy-btn.copied {
+  background: var(--success-light);
+  border-color: var(--success);
+  color: var(--success);
+  font-weight: 600;
+}
+.chat-form {
+  display: flex;
+  gap: 8px;
+  padding: 10px 14px;
+  border-top: 1px solid var(--border);
+  background: var(--bg-tertiary);
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+.chat-form input {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  transition: border-color 0.15s;
+}
+.chat-form input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
 .file-row { display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-bottom: 1px solid var(--border-light); }
 .file-icon { font-size: 19px; width: 26px; text-align: center; }
 .file-main { min-width: 0; flex: 1; }
@@ -214,31 +368,62 @@ h1 { font-size: 20px; }
 </header>
 
 <div class="layout">
-  <section class="card">
-    <div class="drop" id="drop">
-      <div class="drop-icon">⇅</div>
-      <h2 id="dropHeading">Drop files here to share</h2>
-      <p id="dropSub">Files are encrypted and transferred directly between devices. When an upload finishes, other devices refresh automatically in real time.</p>
-      <button class="btn primary" id="chooseBtn" onclick="fileInput.click()">Choose files</button>
-      <input id="fileInput" type="file" multiple hidden>
-      <div class="status" id="status">Connecting to peer network…</div>
-      <div class="progress" id="progressBar" style="display:none;"><div id="progressFill"></div></div>
-    </div>
-
-    <div class="file-list-header">
-      <div class="file-list-header-left">
-        <span>Files & Transfers (<span id="fileCount">0</span>)</span>
-        <span class="live-sync-indicator" id="liveSyncIndicator">⚡ Real-time signal active</span>
+  <div class="main-col">
+    <section class="card">
+      <div class="drop" id="drop">
+        <div class="drop-icon">⇅</div>
+        <h2 id="dropHeading">Drop files here to share</h2>
+        <p id="dropSub">Files are encrypted and transferred directly between devices. When an upload finishes, other devices refresh automatically in real time.</p>
+        <button class="btn primary" id="chooseBtn" onclick="fileInput.click()">Choose files</button>
+        <input id="fileInput" type="file" multiple hidden>
+        <div class="status" id="status">Connecting to peer network…</div>
+        <div class="progress" id="progressBar" style="display:none;"><div id="progressFill"></div></div>
       </div>
-      <button class="icon-btn" id="listRefreshBtn" onclick="manualRefresh()" title="Refresh file list">
-        <span id="listRefreshIcon">↻</span> Refresh
-      </button>
-    </div>
 
-    <div class="file-list" id="fileList">
-      <div class="empty">No files transferred yet. Connect a second device or drop files here.</div>
-    </div>
-  </section>
+      <div class="file-list-header">
+        <div class="file-list-header-left">
+          <span>Files & Transfers (<span id="fileCount">0</span>)</span>
+          <span class="live-sync-indicator" id="liveSyncIndicator">⚡ Real-time signal active</span>
+        </div>
+        <button class="icon-btn" id="listRefreshBtn" onclick="manualRefresh()" title="Refresh file list">
+          <span id="listRefreshIcon">↻</span> Refresh
+        </button>
+      </div>
+
+      <div class="file-list" id="fileList">
+        <div class="empty">No files transferred yet. Connect a second device or drop files here.</div>
+      </div>
+    </section>
+
+    <!-- Quick Chat & Text Clipboard -->
+    <section class="card chat-card">
+      <div class="chat-header">
+        <div class="chat-header-left">
+          <span class="chat-title">💬 Text Clipboard & Chat</span>
+          <span class="chat-pill" id="chatCount">0</span>
+          <span class="chat-hint">Type on phone, copy instantly on laptop</span>
+        </div>
+        <div class="chat-header-actions">
+          <button class="icon-btn" id="clearChatBtn" onclick="clearChat()" title="Clear chat messages">🧹 Clear</button>
+        </div>
+      </div>
+
+      <div class="chat-messages" id="chatMessages">
+        <div class="chat-empty" id="chatEmpty">No messages yet. Send a note, link, or text from your phone to copy it on your laptop.</div>
+      </div>
+
+      <form class="chat-form" id="chatForm" onsubmit="sendChat(event)">
+        <input 
+          type="text" 
+          id="chatInput" 
+          placeholder="Type or paste text to share across devices (press Enter)…" 
+          autocomplete="off"
+          maxlength="3000"
+        />
+        <button type="submit" class="btn primary" id="chatSendBtn">Send ➔</button>
+      </form>
+    </section>
+  </div>
 
   <aside class="card side">
     <div id="peerStatusBadge" class="badge-status waiting">📡 Waiting for peer...</div>
@@ -597,6 +782,20 @@ function initServerEventStream() {
           fetchServerFiles(true);
         } else if (data.type === 'file_deleted' || data.type === 'files_cleaned') {
           fetchServerFiles(true);
+        } else if (data.type === 'chat_message' && data.message) {
+          const alreadyExists = chatHistory.some(m => m.id === data.message.id);
+          if (!alreadyExists) {
+            addChatMessage({
+              ...data.message,
+              isMine: false
+            });
+            statusEl.textContent = `💬 New text from ${data.message.sender || 'peer'}! Ready to copy.`;
+            statusEl.className = 'status ok';
+          }
+        } else if (data.type === 'chat_cleared') {
+          chatHistory.length = 0;
+          try { sessionStorage.removeItem('util_transfer_chat'); } catch {}
+          renderChatMessages();
         }
       } catch {}
     };
@@ -934,6 +1133,17 @@ function handleIncomingData(data) {
     if (activeConn && activeConn.open) {
       activeConn.send({ type: 'refresh-signal', timestamp: Date.now() });
     }
+  } else if (data.type === 'chat-message' && data.message) {
+    addChatMessage({
+      ...data.message,
+      isMine: false
+    });
+    statusEl.textContent = `💬 New text from ${data.message.sender || 'peer'}! Ready to copy.`;
+    statusEl.className = 'status ok';
+  } else if (data.type === 'chat-clear') {
+    chatHistory.length = 0;
+    try { sessionStorage.removeItem('util_transfer_chat'); } catch {}
+    renderChatMessages();
   } else if (data.type === 'refresh-signal') {
     // Automatically refresh file list when signal is received from peer
     statusEl.textContent = `⚡ Peer uploaded new content — auto-refreshed!`;
@@ -969,8 +1179,212 @@ fileInput.addEventListener('change', e => handleFiles(e.target.files));
 ['dragleave', 'drop'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.remove('drag'); }));
 drop.addEventListener('drop', e => { e.preventDefault(); handleFiles(e.dataTransfer.files); });
 
+// ─────────────────────────────────────────────────────────────
+// Quick Text Clipboard & Chatroom
+// ─────────────────────────────────────────────────────────────
+let chatHistory = [];
+try {
+  const cached = sessionStorage.getItem('util_transfer_chat');
+  if (cached) chatHistory = JSON.parse(cached);
+} catch {}
+
+function getDeviceLabel() {
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  return isMobile ? '📱 Phone' : '💻 Laptop';
+}
+
+function renderChatMessages() {
+  const chatMessagesEl = document.getElementById('chatMessages');
+  const chatCountEl = document.getElementById('chatCount');
+  if (chatCountEl) chatCountEl.textContent = chatHistory.length;
+  if (!chatMessagesEl) return;
+
+  if (!chatHistory.length) {
+    chatMessagesEl.innerHTML = '<div class="chat-empty" id="chatEmpty">No messages yet. Send a note, link, or text from your phone to copy it on your laptop.</div>';
+    return;
+  }
+
+  chatMessagesEl.innerHTML = chatHistory.map(msg => {
+    const isMine = !!msg.isMine;
+    const senderLabel = escapeHtml(msg.sender || (isMine ? 'You' : 'Peer'));
+    const timeLabel = fmtTime(msg.timestamp);
+    const escapedText = escapeHtml(msg.text);
+    // Linkify URLs safely
+    const formattedText = escapedText.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
+
+    return `
+      <div class="chat-msg ${isMine ? 'mine' : 'peer'}">
+        <div class="chat-msg-body">
+          <div class="chat-msg-meta">
+            <span class="chat-msg-sender">${senderLabel}</span>
+            <span class="chat-msg-time">${timeLabel}</span>
+          </div>
+          <div class="chat-msg-text">${formattedText}</div>
+        </div>
+        <button class="chat-copy-btn" onclick="copyChatText(this, '${escapeHtml(msg.id)}')" title="Copy text to clipboard">
+          <span>📋</span> Copy
+        </button>
+      </div>
+    `;
+  }).join('');
+
+  chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+}
+
+function addChatMessage(msg) {
+  if (!msg || !msg.text) return;
+  if (chatHistory.some(m => m.id === msg.id)) return;
+  chatHistory.push(msg);
+  if (chatHistory.length > 100) chatHistory.shift();
+  try {
+    sessionStorage.setItem('util_transfer_chat', JSON.stringify(chatHistory.slice(-50)));
+  } catch {}
+  renderChatMessages();
+}
+
+function copyChatText(btn, msgId) {
+  const msg = chatHistory.find(m => m.id === msgId);
+  if (!msg) return;
+
+  const textToCopy = msg.text;
+  const doFeedback = () => {
+    const origHtml = btn.innerHTML;
+    btn.innerHTML = '<span>✓</span> Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.innerHTML = origHtml;
+      btn.classList.remove('copied');
+    }, 1500);
+
+    statusEl.textContent = '✓ Text copied to clipboard!';
+    statusEl.className = 'status ok';
+  };
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(textToCopy).then(doFeedback).catch(() => {
+      fallbackCopy(textToCopy, doFeedback);
+    });
+  } else {
+    fallbackCopy(textToCopy, doFeedback);
+  }
+}
+
+function fallbackCopy(text, cb) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try {
+    document.execCommand('copy');
+    if (cb) cb();
+  } catch (err) {
+    prompt('Copy text manually:', text);
+  }
+  document.body.removeChild(ta);
+}
+
+async function sendChat(e) {
+  if (e) e.preventDefault();
+  const input = document.getElementById('chatInput');
+  if (!input) return;
+  const text = (input.value || '').trim();
+  if (!text) return;
+
+  const myLabel = getDeviceLabel();
+  const msgId = 'c_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+  const msgObj = {
+    id: msgId,
+    text: text,
+    sender: myLabel,
+    timestamp: Date.now(),
+    isMine: true
+  };
+
+  addChatMessage(msgObj);
+  input.value = '';
+  if (!/Android|iPhone|iPad/i.test(navigator.userAgent)) {
+    input.focus();
+  }
+
+  // Send via WebRTC P2P DataChannel if active
+  if (activeConn && activeConn.open) {
+    try {
+      activeConn.send({
+        type: 'chat-message',
+        message: {
+          id: msgObj.id,
+          text: msgObj.text,
+          sender: msgObj.sender,
+          timestamp: msgObj.timestamp
+        }
+      });
+    } catch (err) {
+      console.warn('P2P chat send error:', err);
+    }
+  }
+
+  // Send to local server if available
+  if (isServerAvailable) {
+    try {
+      fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: msgObj.id,
+          text: msgObj.text,
+          sender: msgObj.sender,
+          timestamp: msgObj.timestamp
+        })
+      }).catch(() => {});
+    } catch {}
+  }
+}
+
+async function clearChat() {
+  if (!chatHistory.length) return;
+  chatHistory.length = 0;
+  try { sessionStorage.removeItem('util_transfer_chat'); } catch {}
+  renderChatMessages();
+
+  if (activeConn && activeConn.open) {
+    try { activeConn.send({ type: 'chat-clear' }); } catch {}
+  }
+
+  if (isServerAvailable) {
+    try { await fetch('/api/chat', { method: 'DELETE' }); } catch {}
+  }
+
+  statusEl.textContent = 'Chat history cleared.';
+  statusEl.className = 'status';
+}
+
+async function fetchServerChat() {
+  try {
+    const res = await fetch('/api/chat');
+    if (res.ok) {
+      const msgs = await res.json();
+      if (Array.isArray(msgs)) {
+        msgs.forEach(m => {
+          if (!chatHistory.some(existing => existing.id === m.id)) {
+            chatHistory.push({
+              ...m,
+              isMine: false
+            });
+          }
+        });
+        renderChatMessages();
+      }
+    }
+  } catch {}
+}
+
 // Initialize files, SSE events, and P2P connection on start
+renderChatMessages();
 fetchServerFiles();
+fetchServerChat();
 initServerEventStream();
 initP2P();
 </script>

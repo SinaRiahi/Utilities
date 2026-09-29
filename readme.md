@@ -238,6 +238,7 @@ Rather than creating dozens of half-finished tools, I'd rather build a smaller c
 * 🔢 **4-Digit Quick Code**: Pair PC to PC instantly by entering a 4-digit code
 * 📷 Scan QR code to pair phone and PC instantly
 * ⚡ Direct chunked streaming with real-time transfer progress
+* 💬 **Quick Text Clipboard & Chat**: Simple real-time chatroom to type text/links on your phone and copy them with one click on your laptop (or vice versa), each message featuring an instant copy button
 * 🔄 **Instant Auto-Sync Signals**: Connected devices automatically refresh whenever an upload is completed
 * ↻ **Manual Refresh**: Quick-action refresh button to instantly fetch and verify newly uploaded content
 * 🔒 End-to-end private transfer
