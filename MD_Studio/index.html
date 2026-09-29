@@ -1569,14 +1569,25 @@
         @media print {
             html,
             body {
+                display: block !important;
                 overflow: visible !important;
                 height: auto !important;
+                min-height: 0 !important;
                 background: #fff !important;
+                color: #000 !important;
+                margin: 0 !important;
+                padding: 0 !important;
             }
             .main-container {
                 display: block !important;
                 height: auto !important;
+                min-height: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
                 overflow: visible !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                position: static !important;
             }
             .toolbar,
             .mobile-view-bar,
@@ -1588,34 +1599,46 @@
             .toast,
             .copy-code-btn,
             .pane-actions,
-            .line-numbers {
+            .line-numbers,
+            .dropdown-menu,
+            .dropdown-wrapper,
+            .editor-drop-overlay {
                 display: none !important;
             }
             .pane-right {
                 display: block !important;
                 width: 100% !important;
+                max-width: 100% !important;
                 min-width: 0 !important;
                 flex: none !important;
                 height: auto !important;
+                min-height: 0 !important;
                 overflow: visible !important;
-                border: none;
+                border: none !important;
                 background: #fff !important;
                 position: static !important;
+                margin: 0 !important;
+                padding: 0 !important;
             }
             .preview-container {
+                display: block !important;
                 padding: 0 !important;
+                margin: 0 !important;
                 overflow: visible !important;
                 height: auto !important;
+                min-height: 0 !important;
                 background: #fff !important;
                 color: #000 !important;
                 font-size: 11pt;
                 line-height: 1.6;
-                max-width: 100%;
+                width: 100% !important;
+                max-width: 100% !important;
             }
             .preview-container pre {
                 background: #f8f9fa !important;
                 border: 1px solid #ddd !important;
                 page-break-inside: avoid;
+                break-inside: avoid;
                 white-space: pre-wrap;
                 word-wrap: break-word;
             }
@@ -1624,15 +1647,18 @@
             }
             .preview-container table {
                 page-break-inside: auto;
+                break-inside: auto;
             }
             .preview-container table tr {
                 page-break-inside: avoid;
+                break-inside: avoid;
             }
             .preview-container h1,
             .preview-container h2,
             .preview-container h3,
             .preview-container h4 {
                 page-break-after: avoid;
+                break-after: avoid;
             }
             .preview-container blockquote,
             .preview-container .mermaid-rendered,
@@ -1640,6 +1666,7 @@
             .preview-container img,
             .preview-container .katex-block {
                 page-break-inside: avoid;
+                break-inside: avoid;
             }
             /* Mermaid print fitting: scale to fit page width, never overflow */
             .preview-container .mermaid-rendered,
@@ -1647,6 +1674,7 @@
                 max-width: 100% !important;
                 overflow: hidden !important;
                 page-break-inside: avoid !important;
+                break-inside: avoid !important;
                 text-align: center !important;
             }
             .preview-container .mermaid-rendered svg,
@@ -1656,21 +1684,24 @@
             }
             .preview-container .toc-container {
                 page-break-after: always;
+                break-after: page;
                 background: #fafafa !important;
                 border: 1px solid #e0e0e0 !important;
             }
             .preview-container .cover-page {
                 page-break-after: always;
+                break-after: page;
                 border-bottom: 3px double #ccc !important;
             }
-          .preview-container .document-header {
-            color: #495057 !important;
-            border-bottom: 1px solid #dee2e6 !important;
-            break-inside: avoid !important;
-            page-break-inside: avoid !important;
-          }
+            .preview-container .document-header {
+                color: #495057 !important;
+                border-bottom: 1px solid #dee2e6 !important;
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+            }
             .preview-container .pagebreak-marker {
                 page-break-after: always;
+                break-after: page;
                 border: none;
                 color: transparent;
                 margin: 0;
@@ -1689,17 +1720,6 @@
             @page {
                 size: A4;
                 margin: 20mm;
-                @bottom-center {
-                    content: "Page " counter(page) " of " counter(pages);
-                    font-size: 9px;
-                    color: #666;
-                    font-family: 'Inter', 'Segoe UI', sans-serif;
-                }
-            }
-            @page :first {
-                @bottom-center {
-                    content: none;
-                }
             }
         }
 
@@ -1712,7 +1732,7 @@
         }
 
         /* ── Responsive & Mobile Refinements ───────────────── */
-        @media (max-width: 768px) {
+        @media screen and (max-width: 768px) {
             :root {
                 --toolbar-height: 44px;
             }
@@ -2095,7 +2115,7 @@
             }
         }
 
-        @media (max-width: 480px) {
+        @media screen and (max-width: 480px) {
             .toolbar button {
                 padding: 5px 8px;
                 font-size: 11.5px;
@@ -5187,8 +5207,17 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
 
             // ── Export functions ────────────────────
             function exportPDF() {
+                closeExportDropdown();
+                updatePrintStyles();
+                fitAllMermaidDiagramsToPrintPage();
                 const unrenderedMermaids = previewEl.querySelectorAll('pre.mermaid-source:not([data-mermaid-rendered="true"])');
                 const uncompletedImgs = Array.from(previewEl.querySelectorAll('img')).filter(img => !img.complete);
+
+                const executePrint = () => {
+                    updatePrintStyles();
+                    fitAllMermaidDiagramsToPrintPage();
+                    window.print();
+                };
 
                 if (unrenderedMermaids.length > 0 || mermaidRenderPromise || uncompletedImgs.length > 0) {
                     showToast('⏳ Preparing document & images…');
@@ -5198,10 +5227,10 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
                         img.onerror = res;
                     }));
                     Promise.all([Promise.resolve(mermaidRenderPromise), ...imgPromises]).finally(() => {
-                        window.print();
+                        setTimeout(executePrint, 60);
                     });
                 } else {
-                    window.print();
+                    executePrint();
                 }
             }
 
@@ -6379,6 +6408,12 @@ window.addEventListener('resize', () => {
             setMobileTab(currentMobileTab || 'editor');
         }
     }
+});
+
+window.addEventListener('beforeprint', () => {
+    closeExportDropdown();
+    updatePrintStyles();
+    fitAllMermaidDiagramsToPrintPage();
 });
 
 if (window.innerWidth <= 768) {
