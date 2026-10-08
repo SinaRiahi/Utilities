@@ -3,10 +3,15 @@ import path from "path";
 import fs from "fs";
 import os from "os";
 import crypto from "crypto";
+import { spawn } from "child_process";
 import multer from "multer";
 import QRCode from "qrcode";
 import archiver from "archiver";
 import { GoogleGenAI } from "@google/genai";
+import { Innertube, ClientType, Platform, UniversalCache } from "youtubei.js";
+
+// Initialize youtubei.js decipher evaluator
+Platform.shim.eval = (data: any) => new Function(data.output)();
 
 const app = express();
 const PORT = 3000;
@@ -640,10 +645,387 @@ app.get("/api/download-bundle/:id", (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────
+// 2.5 YOUTUBE DOWNLOADER MODULE
+// ─────────────────────────────────────────────────────────────
+let globalYouTubeCookies: string = "";
+
+function extractYouTubeId(urlOrId: string): string | null {
+  if (!urlOrId || typeof urlOrId !== "string") return null;
+  const cleaned = urlOrId.trim();
+  if (/^[a-zA-Z0-9_-]{11}$/.test(cleaned)) {
+    return cleaned;
+  }
+  const match = cleaned.match(/(?:youtube\.com\/(?:watch\?.*?v=|embed\/|shorts\/|v\/)|youtu\.be\/|music\.youtube\.com\/watch\?.*?v=)([a-zA-Z0-9_-]{11})/i);
+  return match ? match[1] : null;
+}
+
+function formatDuration(sec?: number): string {
+  if (!sec || isNaN(sec)) return "0:00";
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  const s = Math.floor(sec % 60);
+  if (h > 0) {
+    return `${h}:${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
+  }
+  return `${m}:${s.toString().padStart(2, "0")}`;
+}
+
+function formatNumber(n?: number): string {
+  if (!n || isNaN(n)) return "0";
+  return new Intl.NumberFormat("en-US").format(n);
+}
+
+function formatBytes(bytes?: number): string {
+  if (!bytes || isNaN(bytes)) return "";
+  const units = ["B", "KB", "MB", "GB"];
+  let b = bytes;
+  let i = 0;
+  while (b >= 1024 && i < units.length - 1) {
+    b /= 1024;
+    i++;
+  }
+  return `${b.toFixed(1)} ${units[i]}`;
+}
+
+async function getInnertubeForVideo(videoId: string, customCookies?: string) {
+  const cookie = customCookies || globalYouTubeCookies;
+  const clientsToTry = [
+    ClientType.KIDS,
+    ClientType.IOS,
+    ClientType.TV_EMBEDDED,
+    ClientType.ANDROID,
+    ClientType.WEB,
+  ];
+
+  let lastError: any = null;
+  for (const clientType of clientsToTry) {
+    try {
+      const yt = await Innertube.create({
+        client_type: clientType,
+        cache: new UniversalCache(false),
+        ...(cookie ? { cookie } : {}),
+      });
+
+      // Try getBasicInfo first for fast streaming data
+      let info: any = null;
+      try {
+        info = await yt.getBasicInfo(videoId);
+      } catch {
+        // Fallback to getInfo
+        info = await yt.getInfo(videoId);
+      }
+
+      if (info && info.streaming_data) {
+        return { yt, info };
+      }
+    } catch (err: any) {
+      lastError = err;
+    }
+  }
+
+  throw lastError || new Error("Failed to load video streams from YouTube.");
+}
+
+// YouTube Downloader API: Video Info
+app.post("/api/yt/info", async (req, res) => {
+  const { url, cookies } = req.body;
+  const videoId = extractYouTubeId(url);
+  if (!videoId) {
+    return res.status(400).json({ success: false, error: "Invalid YouTube URL or Video ID." });
+  }
+
+  try {
+    const { yt, info } = await getInnertubeForVideo(videoId, cookies);
+    const basic = info.basic_info || {};
+    const streaming = info.streaming_data || {};
+
+    const duration = basic.duration || 0;
+    const title = basic.title || "YouTube Video";
+    const author = basic.author || "YouTube Channel";
+    const thumbnail = basic.thumbnail?.[0]?.url || `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
+    const views = basic.view_count || 0;
+
+    // Process video formats
+    const adaptive = streaming.adaptive_formats || [];
+    const combined = streaming.formats || [];
+
+    // Distinct resolution options for easy download
+    const qualityMap = new Map<string, any>();
+
+    // 1. First add combined formats (video+audio)
+    for (const f of combined) {
+      if (f.has_video) {
+        const qLabel = f.quality_label || (f.height ? `${f.height}p` : f.quality) || "360p";
+        if (!qualityMap.has(qLabel)) {
+          qualityMap.set(qLabel, {
+            itag: f.itag,
+            quality: qLabel,
+            qualityLabel: qLabel,
+            container: (f.mime_type && f.mime_type.includes("webm")) ? "webm" : "mp4",
+            hasAudio: true,
+            fps: f.fps || 30,
+            bitrate: f.bitrate,
+            filesize: f.content_length ? parseInt(f.content_length, 10) : undefined,
+            filesizeFormatted: f.content_length ? formatBytes(parseInt(f.content_length, 10)) : undefined,
+          });
+        }
+      }
+    }
+
+    // 2. Add adaptive video formats (which we mux with audio via ffmpeg)
+    for (const f of adaptive) {
+      if (f.has_video) {
+        const qLabel = f.quality_label || (f.height ? `${f.height}p` : f.quality) || "360p";
+        const isWebm = (f.mime_type && f.mime_type.includes("webm"));
+        const container = isWebm ? "webm" : "mp4";
+        // Prefer MP4 over WebM for general compatibility
+        if (!qualityMap.has(qLabel) || (!isWebm && qualityMap.get(qLabel).container === "webm")) {
+          const estBytes = (f.bitrate && duration) ? Math.round((f.bitrate * duration) / 8) : undefined;
+          qualityMap.set(qLabel, {
+            itag: f.itag,
+            quality: qLabel,
+            qualityLabel: qLabel,
+            container,
+            hasAudio: false, // will be muxed with audio
+            fps: f.fps || 30,
+            bitrate: f.bitrate,
+            filesize: f.content_length ? parseInt(f.content_length, 10) : estBytes,
+            filesizeFormatted: formatBytes(f.content_length ? parseInt(f.content_length, 10) : estBytes),
+            isEstimate: !f.content_length && !!estBytes,
+          });
+        }
+      }
+    }
+
+    // Sort video formats from highest to lowest resolution
+    const resRank = (q: string) => {
+      const match = q.match(/(\d+)p/);
+      return match ? parseInt(match[1], 10) : 0;
+    };
+
+    const videoOptions = Array.from(qualityMap.values()).sort((a, b) => resRank(b.quality) - resRank(a.quality));
+
+    // Raw formats list
+    const rawFormats = [...combined, ...adaptive].map((f) => ({
+      itag: f.itag,
+      quality: f.quality_label || f.quality,
+      qualityLabel: f.quality_label,
+      container: (f.mime_type && f.mime_type.includes("webm")) ? "webm" : "mp4",
+      mimeType: f.mime_type,
+      hasVideo: !!f.has_video,
+      hasAudio: !!f.has_audio,
+      bitrate: f.bitrate,
+      codecs: f.mime_type ? f.mime_type.split(";")[1]?.replace('codecs="', "").replace('"', "")?.trim() : undefined,
+    }));
+
+    return res.json({
+      success: true,
+      video: {
+        id: videoId,
+        title,
+        author,
+        duration,
+        durationFormatted: formatDuration(duration),
+        thumbnail,
+        views,
+        viewsFormatted: formatNumber(views),
+        uploadDate: basic.upload_date,
+        videoOptions,
+        rawFormats,
+      },
+    });
+  } catch (err: any) {
+    console.error("YouTube info error:", err);
+    const isBot = /not a bot|LOGIN_REQUIRED|captcha/i.test(err?.message || "");
+    const errorMsg = isBot
+      ? "YouTube requested verification for this video. You can configure your session cookies using the 🍪 Cookies button at the top to access it."
+      : (err?.message || "Failed to retrieve video information.");
+    return res.status(500).json({ success: false, error: errorMsg, isBot });
+  }
+});
+
+// YouTube Downloader API: Direct File Download
+app.get("/api/yt/download", async (req, res) => {
+  const videoId = req.query.id as string;
+  const type = (req.query.type as string) || "video";
+  const format = (req.query.format as string) || (type === "audio" ? "mp3" : "mp4");
+  const quality = (req.query.quality as string) || "720p";
+  const itag = req.query.itag ? parseInt(req.query.itag as string, 10) : undefined;
+  const customCookies = req.query.cookies as string;
+
+  if (!videoId || !extractYouTubeId(videoId)) {
+    return res.status(400).send("Invalid YouTube video ID.");
+  }
+
+  try {
+    const { yt, info } = await getInnertubeForVideo(videoId, customCookies);
+    const title = safeFilename(info.basic_info?.title || "youtube_download");
+    const author = info.basic_info?.author || "YouTube";
+
+    // ── AUDIO DOWNLOAD ──────────────────────────────────────────
+    if (type === "audio") {
+      const audioFormat = info.chooseFormat({ type: "audio", quality: "best" });
+      if (!audioFormat) {
+        return res.status(404).send("Audio stream not found for this video.");
+      }
+      const audioUrl = await audioFormat.decipher(yt.session.player);
+
+      if (format === "mp3") {
+        const bitrate = quality === "320k" ? "320k" : quality === "128k" ? "128k" : "192k";
+        const filename = `${title} [${bitrate}].mp3`;
+
+        res.setHeader("Content-Type", "audio/mpeg");
+        res.setHeader("Content-Disposition", `attachment; filename="${encodeURIComponent(filename)}"; filename*=UTF-8''${encodeURIComponent(filename)}`);
+
+        const ffmpeg = spawn("ffmpeg", [
+          "-headers", "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)\r\n",
+          "-i", audioUrl,
+          "-vn",
+          "-c:a", "libmp3lame",
+          "-b:a", bitrate,
+          "-metadata", `title=${info.basic_info?.title || "Audio"}`,
+          "-metadata", `artist=${author}`,
+          "-id3v2_version", "3",
+          "-f", "mp3",
+          "pipe:1",
+        ]);
+
+        ffmpeg.stdout.pipe(res);
+
+        req.on("close", () => {
+          try {
+            ffmpeg.kill("SIGKILL");
+          } catch {}
+        });
+
+        ffmpeg.on("error", (err) => {
+          console.error("FFmpeg audio error:", err);
+          if (!res.headersSent) res.status(500).send("Audio encoding error");
+        });
+        return;
+      } else {
+        // Direct M4A / WebM stream
+        const ext = audioFormat.mime_type?.includes("webm") ? "webm" : "m4a";
+        const filename = `${title}.${ext}`;
+        res.setHeader("Content-Type", audioFormat.mime_type || "audio/mp4");
+        res.setHeader("Content-Disposition", `attachment; filename="${encodeURIComponent(filename)}"; filename*=UTF-8''${encodeURIComponent(filename)}`);
+
+        const ffmpeg = spawn("ffmpeg", [
+          "-headers", "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)\r\n",
+          "-i", audioUrl,
+          "-c:a", "copy",
+          "-f", ext === "webm" ? "webm" : "ipod",
+          "pipe:1",
+        ]);
+
+        ffmpeg.stdout.pipe(res);
+
+        req.on("close", () => {
+          try {
+            ffmpeg.kill("SIGKILL");
+          } catch {}
+        });
+        return;
+      }
+    }
+
+    // ── VIDEO DOWNLOAD ──────────────────────────────────────────
+    const requestedQuality = quality || "720p";
+    const filename = `${title} [${requestedQuality}].mp4`;
+
+    res.setHeader("Content-Type", "video/mp4");
+    res.setHeader("Content-Disposition", `attachment; filename="${encodeURIComponent(filename)}"; filename*=UTF-8''${encodeURIComponent(filename)}`);
+
+    // Choose video format
+    const allFormats = (info.streaming_data?.formats || []).concat(info.streaming_data?.adaptive_formats || []);
+    const videoFormat = itag
+      ? allFormats.find((f: any) => f.itag === itag)
+      : info.chooseFormat({ type: "video", quality: requestedQuality });
+
+    if (!videoFormat) {
+      return res.status(404).send("Requested video format not found.");
+    }
+
+    const videoUrl = await videoFormat.decipher(yt.session.player);
+
+    if (videoFormat.has_audio) {
+      // Direct progressive MP4 with audio
+      const ffmpeg = spawn("ffmpeg", [
+        "-headers", "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)\r\n",
+        "-i", videoUrl,
+        "-c", "copy",
+        "-movflags", "+frag_keyframe+empty_moov",
+        "-f", "mp4",
+        "pipe:1",
+      ]);
+
+      ffmpeg.stdout.pipe(res);
+
+      req.on("close", () => {
+        try {
+          ffmpeg.kill("SIGKILL");
+        } catch {}
+      });
+      return;
+    }
+
+    // Adaptive video: mux with best audio stream
+    const audioFormat = info.chooseFormat({ type: "audio", quality: "best" });
+    if (!audioFormat) {
+      return res.status(404).send("Audio stream for muxing not found.");
+    }
+
+    const audioUrl = await audioFormat.decipher(yt.session.player);
+
+    const ffmpeg = spawn("ffmpeg", [
+      "-headers", "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)\r\n",
+      "-i", videoUrl,
+      "-headers", "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)\r\n",
+      "-i", audioUrl,
+      "-c:v", "copy",
+      "-c:a", "aac",
+      "-movflags", "+frag_keyframe+empty_moov",
+      "-f", "mp4",
+      "pipe:1",
+    ]);
+
+    ffmpeg.stdout.pipe(res);
+
+    req.on("close", () => {
+      try {
+        ffmpeg.kill("SIGKILL");
+      } catch {}
+    });
+
+    ffmpeg.on("error", (err) => {
+      console.error("FFmpeg video mux error:", err);
+      if (!res.headersSent) res.status(500).send("Video muxing error");
+    });
+  } catch (err: any) {
+    console.error("YouTube download error:", err);
+    if (!res.headersSent) {
+      res.status(500).send(`Download failed: ${err.message}`);
+    }
+  }
+});
+
+// YouTube Downloader API: Cookie Management
+app.post("/api/yt/cookies", (req, res) => {
+  const { cookies } = req.body;
+  globalYouTubeCookies = typeof cookies === "string" ? cookies.trim() : "";
+  res.json({ success: true, configured: !!globalYouTubeCookies });
+});
+
+app.get("/api/yt/cookie-status", (_req, res) => {
+  res.json({ configured: !!globalYouTubeCookies });
+});
+
+// ─────────────────────────────────────────────────────────────
 // 3. STATIC SITES & TOOL MOUNTS
 // ─────────────────────────────────────────────────────────────
 
 // Dedicated tool redirects & static serving
+app.use("/YouTube_Downloader", express.static(path.join(ROOT_DIR, "YouTube_Downloader")));
 app.use("/MD_Studio", express.static(path.join(ROOT_DIR, "MD_Studio")));
 app.use("/PDF_to_Markdown", express.static(path.join(ROOT_DIR, "PDF_to_Markdown")));
 app.use("/PDF_Workshop", express.static(path.join(ROOT_DIR, "PDF_Workshop")));

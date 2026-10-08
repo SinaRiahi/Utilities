@@ -1,6 +1,6 @@
 {
   "name": "Utilities",
-  "description": "A developer tool suite featuring MD Studio, PDF to Markdown, PDF Workshop, Image Forge, Audio Forge, Persian Text to Speech, QR Forge, File Forge, File Transfer, WebScope, and Secret Lab.",
+  "description": "A developer tool suite featuring MD Studio, PDF to Markdown, PDF Workshop, YouTube Downloader, Image Forge, Audio Forge, Persian Text to Speech, QR Forge, File Forge, File Transfer, WebScope, and Secret Lab.",
   "requestFramePermissions": [
     "microphone",
     "camera"

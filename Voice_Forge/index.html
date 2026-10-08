@@ -902,35 +902,46 @@
 
                         <!-- Live in-flight Words Banner -->
                         <div class="live-speech-pill hidden" id="stt-live-pill">
-                            <svg class="icon-svg" viewBox="0 0 24 24" width="16" height="16">
-                                <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
-                                <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
-                            </svg>
-                            <span id="stt-live-text"></span>
+                            <span class="pulse-dot" style="color:var(--danger); margin-left:6px;"></span>
+                            <span style="font-weight:700; color:var(--text); font-size:12px;">در حال دریافت:</span>
+                            <span id="stt-live-text" style="font-weight:500; margin-right:6px;"></span>
                         </div>
 
                         <!-- Main Persian Text Editor Output -->
                         <div class="editor-container">
-                            <textarea id="stt-output" class="editor-textarea" placeholder="متن سخنان شما بدون وقفه و با رعایت قواعد زبان فارسی در اینجا نوشته می‌شود..."></textarea>
+                            <textarea id="stt-output" class="editor-textarea" placeholder="متن سخنان شما بدون وقفه، بدون پرش و با بالاترین سرعت در اینجا پیاده و ذخیره می‌شود..."></textarea>
+                        </div>
+
+                        <!-- Persian Typography Actions for STT -->
+                        <div class="chips-bar" style="margin-top: 8px;">
+                            <span style="font-size:11.5px; color:var(--text-muted); margin-left:4px;">ابزارهای نگارش:</span>
+                            <button type="button" class="chip-btn" onclick="App.insertSampleSTT()" title="درج متن نمونه برای آزمایش سریع ابزارها">📝 درج متن نمونه</button>
+                            <button type="button" class="chip-btn" onclick="App.copyText('stt-output')" title="کپی متن در کلیپ‌بورد">📋 کپی متن</button>
+                            <button type="button" class="chip-btn" onclick="App.fixHalfSpaces('stt-output')">✨ نیم‌فاصله خودکار</button>
+                            <button type="button" class="chip-btn" onclick="App.toPersianDigits('stt-output')">۱۲۳ اعداد فارسی</button>
+                            <button type="button" class="chip-btn" onclick="App.toLatinDigits('stt-output')">123 اعداد لاتین</button>
+                            <button type="button" class="chip-btn" onclick="App.fixPunctuation('stt-output')">🖋️ اصلاح علائم</button>
+                            <button type="button" class="chip-btn" onclick="App.cleanWhitespace('stt-output')">🧹 پاکسازی فاصله</button>
+                            <button type="button" class="chip-btn" onclick="App.clearText('stt-output')">🗑️ پاکسازی متن</button>
                         </div>
 
                         <!-- Document Export Actions Row -->
                         <div class="controls-row" style="border-top: 1px solid var(--border); padding-top: 10px;">
-                            <button class="btn-ctrl primary" onclick="App.sendSTTtoTTS()" title="خواندن متن پیاده شده با صدای گوینده">
+                            <button type="button" class="btn-ctrl primary" onclick="App.sendSTTtoTTS()" title="خواندن متن پیاده شده با صدای گوینده">
                                 <svg class="icon-svg" viewBox="0 0 24 24" width="15" height="15">
                                     <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
                                 </svg>
                                 <span>انتقال متن به گوینده (TTS)</span>
                             </button>
-                            <button class="btn-ctrl" onclick="App.downloadDoc('stt-output')" title="دانلود به عنوان سند مایکروسافت ورد">
+                            <button type="button" class="btn-ctrl" onclick="App.downloadDoc('stt-output')" title="دانلود به عنوان سند مایکروسافت ورد">
                                 <span>📝</span>
                                 <span>دانلود سند Word (.doc)</span>
                             </button>
-                            <button class="btn-ctrl" onclick="App.downloadMD('stt-output')" title="دانلود فایل مارک‌داون">
+                            <button type="button" class="btn-ctrl" onclick="App.downloadMD('stt-output')" title="دانلود فایل مارک‌داون">
                                 <span>📄</span>
                                 <span>دانلود Markdown (.md)</span>
                             </button>
-                            <button class="btn-ctrl" onclick="App.downloadTXT('stt-output')" title="دانلود فایل متنی ساده">
+                            <button type="button" class="btn-ctrl" onclick="App.downloadTXT('stt-output')" title="دانلود فایل متنی ساده">
                                 <span>💾</span>
                                 <span>دانلود TXT</span>
                             </button>
@@ -1268,19 +1279,19 @@
                     const zwnj = '\u200C';
 
                     // 1. "می" and "نمی" at start of verbs: می‌رود، نمی‌دانم
-                    str = str.replace(/\b(می|نمی)\s+([^\s\d\p{P}]+)/gu, `$1${zwnj}$2`);
+                    str = str.replace(/(^|[\s\p{P}])(می|نمی)\s+([^\s\d\p{P}]+)/gu, `$1$2${zwnj}$3`);
 
                     // 2. Plural suffixes "ها" / "های": کتاب‌ها، خانه‌های
-                    str = str.replace(/([^\s\d\p{P}]+)\s+(ها|های|هایی|هایم|هایت|هایش|هایمان|هایتان|هایشان)\b/gu, `$1${zwnj}$2`);
+                    str = str.replace(/([^\s\d\p{P}]+)\s+(ها|های|هایی|هایم|هایت|هایش|هایمان|هایتان|هایشان)(?=$|[\s\p{P}])/gu, `$1${zwnj}$2`);
 
                     // 3. Persian comparative adjectives "تر" / "ترین": بهتر، زیباترین
-                    str = str.replace(/([^\s\d\p{P}]+)\s+(تر|ترین|تری)\b/gu, `$1${zwnj}$2`);
+                    str = str.replace(/([^\s\d\p{P}]+)\s+(تر|ترین|تری)(?=$|[\s\p{P}])/gu, `$1${zwnj}$2`);
 
                     // 4. Common possessive suffix "ام", "ات", "اش": خانه‌ام، نامه‌اش
-                    str = str.replace(/([^\s\d\p{P}]+[هة])\s+(ام|ات|اش|ای|اید|اند)\b/gu, `$1${zwnj}$2`);
+                    str = str.replace(/([^\s\d\p{P}]+[هة])\s+(ام|ات|اش|ای|اید|اند)(?=$|[\s\p{P}])/gu, `$1${zwnj}$2`);
 
-                    // 5. Compound words prefixes: بی، هم، با
-                    str = str.replace(/\b(بی|هم)\s+([^\s\d\p{P}]+)/gu, `$1${zwnj}$2`);
+                    // 5. Compound words prefixes: بی، هم
+                    str = str.replace(/(^|[\s\p{P}])(بی|هم)\s+([^\s\d\p{P}]+)/gu, `$1$2${zwnj}$3`);
 
                     return str;
                 },
@@ -1366,7 +1377,6 @@
             const toastMsg = document.getElementById('toast-msg');
 
             // ── Web Audio Instances (For Waveform Visualizer ONLY - Zero Mic Lock) ──
-            let recognition = null;
             let waveAnimId = null;
             let ttsAnimId = null;
             let currentUtterance = null;
@@ -1466,127 +1476,36 @@
             });
 
             // ── CONTINUOUS REAL-TIME SPEECH RECOGNITION (STT) ─────────
+            let recognition = null;
+            let isUserListening = false;
+            let isRestartingRecognition = false;
+            let restartTimer = null;
+            let watchdogTimer = null;
+            let sessionFinalIndex = 0;
+            let committedText = '';
+            let activeInterim = '';
+            let statsDebounceTimer = null;
+            let lastWaveframeTime = 0;
+
             function initSpeechRecognition() {
                 const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
                 if (!SpeechRec) {
-                    bigMicBtn.disabled = true;
-                    sttPill.innerHTML = '<span>عدم پشتیبانی</span>';
-                    micStatusText.textContent = 'مرورگر شما از SpeechRecognition پشتیبانی نمی‌کند';
-                    micStatusSubtext.textContent = 'لطفاً از نسخه‌های جدید Google Chrome، Edge یا Safari استفاده نمایید.';
+                    sttPill.className = 'status-pill';
+                    sttPill.innerHTML = '<span>نیاز به مرورگر کروم/اج</span>';
+                    micStatusText.textContent = 'برای تایپ صوتی از Google Chrome، Edge یا Safari استفاده فرمایید';
+                    micStatusSubtext.textContent = 'مرورگر فعلی از Web Speech API به طور پیش‌فرض پشتیبانی نمی‌کند. شما می‌توانید با کلیک روی میکروفون یا دکمه «درج متن نمونه»، ابزارهای ویرایش را آزمایش کنید.';
                     return;
-                }
-
-                recognition = new SpeechRec();
-                recognition.lang = state.sttLang;
-                recognition.continuous = true;
-                recognition.interimResults = true;
-                recognition.maxAlternatives = 1;
-
-                recognition.onstart = () => {
-                    state.isListening = true;
-                    updateMicUI(true);
-                    startMicVisualizerSimulated();
-                    startTimer();
-                };
-
-                recognition.onresult = (event) => {
-                    let finalChunk = '';
-                    let interimChunk = '';
-
-                    for (let i = event.resultIndex; i < event.results.length; ++i) {
-                        const transcript = event.results[i][0].transcript;
-                        if (event.results[i].isFinal) {
-                            finalChunk += transcript + ' ';
-                        } else {
-                            interimChunk += transcript;
-                        }
-                    }
-
-                    if (finalChunk) {
-                        let polished = finalChunk;
-                        if (document.getElementById('auto-halfspace-chk').checked) {
-                            polished = PersianUtils.fixPunctuation(PersianUtils.fixHalfSpaces(polished));
-                        }
-                        state.sessionFinalText += (state.sessionFinalText ? ' ' : '') + polished.trim();
-                    }
-
-                    state.activeInterimText = interimChunk.trim();
-
-                    if (state.activeInterimText) {
-                        sttLivePill.classList.remove('hidden');
-                        sttLiveText.textContent = state.activeInterimText;
-                    } else {
-                        sttLivePill.classList.add('hidden');
-                        sttLiveText.textContent = '';
-                    }
-
-                    renderLiveTranscript();
-                };
-
-                recognition.onerror = (event) => {
-                    console.error('Recognition error:', event.error);
-                    if (event.error === 'not-allowed') {
-                        showToast('❌ دسترسی به میکروفون داده نشد. لطفاً مجوز را فعال کنید.');
-                        stopListening();
-                    } else if (event.error !== 'no-speech') {
-                        sttStatusLabel.textContent = `وضعیت: ${event.error}`;
-                    }
-                };
-
-                recognition.onend = () => {
-                    flushInterimWords();
-
-                    if (state.isListening && state.sttMode === 'continuous') {
-                        try {
-                            recognition.start();
-                        } catch (e) {
-                            stopListening();
-                        }
-                    } else {
-                        stopListening();
-                    }
-                };
-            }
-
-            function flushInterimWords() {
-                if (state.activeInterimText) {
-                    let flushed = state.activeInterimText;
-                    if (document.getElementById('auto-halfspace-chk').checked) {
-                        flushed = PersianUtils.fixPunctuation(PersianUtils.fixHalfSpaces(flushed));
-                    }
-                    state.sessionFinalText += (state.sessionFinalText ? ' ' : '') + flushed.trim();
-                    state.activeInterimText = '';
-                    sttLivePill.classList.add('hidden');
-                    sttLiveText.textContent = '';
-                    renderLiveTranscript();
-                }
-            }
-
-            function renderLiveTranscript() {
-                const base = state.sessionBaseText.trim();
-                const finalPart = state.sessionFinalText.trim();
-                const interimPart = state.activeInterimText.trim();
-
-                let full = base;
-                if (finalPart) {
-                    full = full ? (full + '\n\n' + finalPart) : finalPart;
-                }
-                if (interimPart) {
-                    full = full ? (full + ' ' + interimPart) : interimPart;
-                }
-
-                sttOutput.value = full;
-                sttOutput.scrollTop = sttOutput.scrollHeight;
-                updateStats('stt-output', 'stt-stats-counter');
-
-                const studioEl = document.getElementById('studio-text');
-                if (studioEl) {
-                    studioEl.value = full;
                 }
             }
 
             function toggleListening() {
-                if (state.isListening) {
+                const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+                if (!SpeechRec) {
+                    showToast('⚠️ این مرورگر از تبدیل گفتار پشتیبانی نمی‌کند. متن آزمایشی درج شد.');
+                    App.insertSampleSTT();
+                    return;
+                }
+                if (isUserListening) {
                     stopListening();
                 } else {
                     startListening();
@@ -1594,32 +1513,280 @@
             }
 
             function startListening() {
-                if (!recognition) return;
-                state.sessionBaseText = sttOutput.value.trim();
-                state.sessionFinalText = '';
-                state.activeInterimText = '';
+                const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+                if (!SpeechRec) {
+                    showToast('❌ مرورگر شما از تبدیل گفتار به متن پشتیبانی نمی‌کند.');
+                    return;
+                }
 
-                state.sttMode = document.getElementById('stt-mode-select').value;
-                recognition.continuous = (state.sttMode === 'continuous');
+                isUserListening = true;
+                state.isListening = true;
+
+                // Sync committedText with existing content in the editor
+                committedText = sttOutput.value || '';
+                activeInterim = '';
+                sessionFinalIndex = 0;
+
+                const modeSelect = document.getElementById('stt-mode-select');
+                if (modeSelect) {
+                    state.sttMode = modeSelect.value;
+                }
+
+                updateMicUI(true);
+                startMicVisualizerSimulated();
+                startTimer();
+                startWatchdog();
+
+                createAndStartRecognition();
+            }
+
+            function updateEditorDisplay() {
+                const separator = (committedText && !committedText.endsWith('\n') && !committedText.endsWith(' ')) ? ' ' : '';
+                if (activeInterim) {
+                    sttOutput.value = committedText ? (committedText + separator + activeInterim) : activeInterim;
+                } else {
+                    sttOutput.value = committedText;
+                }
+                sttOutput.scrollTop = sttOutput.scrollHeight;
+                debouncedUpdateStats();
+                syncToStudio();
+            }
+
+            function commitFinalChunk(text) {
+                if (!text || !text.trim()) return;
+                let chunk = text.trim();
+                const autoHalfspace = document.getElementById('auto-halfspace-chk');
+                if (autoHalfspace && autoHalfspace.checked) {
+                    chunk = PersianUtils.fixPunctuation(PersianUtils.fixHalfSpaces(chunk));
+                }
+                const separator = (committedText && !committedText.endsWith('\n') && !committedText.endsWith(' ')) ? ' ' : '';
+                committedText = committedText ? (committedText + separator + chunk) : chunk;
+                activeInterim = '';
+                updateEditorDisplay();
+            }
+
+            function commitActiveInterimNow() {
+                if (!activeInterim || !activeInterim.trim()) return;
+                let chunk = activeInterim.trim();
+                const autoHalfspace = document.getElementById('auto-halfspace-chk');
+                if (autoHalfspace && autoHalfspace.checked) {
+                    chunk = PersianUtils.fixPunctuation(PersianUtils.fixHalfSpaces(chunk));
+                }
+                const separator = (committedText && !committedText.endsWith('\n') && !committedText.endsWith(' ')) ? ' ' : '';
+                committedText = committedText ? (committedText + separator + chunk) : chunk;
+                activeInterim = '';
+                updateEditorDisplay();
+                sttLivePill.classList.add('hidden');
+                sttLiveText.textContent = '';
+            }
+
+            function createAndStartRecognition() {
+                if (!isUserListening) return;
+
+                const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+                if (!SpeechRec) return;
+
+                // Safely clean up any existing instance without throwing
+                if (recognition) {
+                    try {
+                        recognition.onstart = null;
+                        recognition.onresult = null;
+                        recognition.onerror = null;
+                        recognition.onend = null;
+                        recognition.onspeechstart = null;
+                        recognition.onspeechend = null;
+                        recognition.abort();
+                    } catch (e) {}
+                    recognition = null;
+                }
+
+                sessionFinalIndex = 0;
+                activeInterim = '';
 
                 try {
+                    recognition = new SpeechRec();
+                    recognition.lang = state.sttLang || 'fa-IR';
+                    recognition.continuous = (state.sttMode === 'continuous');
+                    recognition.interimResults = true;
+                    recognition.maxAlternatives = 1;
+
+                    recognition.onstart = () => {
+                        isRestartingRecognition = false;
+                        updateMicUI(true);
+                        sttStatusLabel.textContent = 'میکروفون فعال: در حال دریافت گفتار...';
+                    };
+
+                    recognition.onspeechstart = () => {
+                        sttStatusLabel.textContent = 'صدای گفتار دریافت شد...';
+                    };
+
+                    recognition.onspeechend = () => {
+                        // User paused speaking. Chrome is processing and will mark final result.
+                        // We do NOT abort recognition here. Chrome will finalize the result.
+                        sttStatusLabel.textContent = 'مکث گفتار... در حال پردازش و دریافت';
+                    };
+
+                    recognition.onresult = (event) => {
+                        let interim = '';
+
+                        for (let i = 0; i < event.results.length; ++i) {
+                            const result = event.results[i];
+                            if (!result || !result[0]) continue;
+                            const transcript = result[0].transcript || '';
+
+                            if (result.isFinal) {
+                                if (i >= sessionFinalIndex) {
+                                    commitFinalChunk(transcript);
+                                    sessionFinalIndex = i + 1;
+                                }
+                            } else {
+                                interim += transcript;
+                            }
+                        }
+
+                        activeInterim = interim.trim();
+                        updateEditorDisplay();
+
+                        if (activeInterim) {
+                            sttLivePill.classList.remove('hidden');
+                            sttLiveText.textContent = activeInterim;
+                            sttStatusLabel.textContent = 'در حال تایپ زنده گفتار...';
+                        } else {
+                            sttLivePill.classList.add('hidden');
+                            sttLiveText.textContent = '';
+                        }
+                    };
+
+                    recognition.onerror = (event) => {
+                        console.warn('SpeechRecognition notice:', event.error);
+                        if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+                            showToast('❌ دسترسی به میکروفون داده نشد. لطفاً دسترسی به میکروفون را فعال نمایید.');
+                            stopListening();
+                            return;
+                        }
+                        if (event.error === 'no-speech') {
+                            // Normal silence pause when user pauses. Keep listening!
+                            sttStatusLabel.textContent = 'مکث طبیعی گفتار (آماده ادامه صحبت)...';
+                            return;
+                        }
+                        if (event.error === 'network') {
+                            sttStatusLabel.textContent = 'خطای موقت شبکه، در حال برقراری اتصال...';
+                            if (isUserListening && state.sttMode === 'continuous') {
+                                scheduleReconnect(300);
+                            }
+                            return;
+                        }
+                        if (event.error === 'aborted') {
+                            // Expected on manual stop or restart
+                            return;
+                        }
+                        sttStatusLabel.textContent = `وضعیت: ${event.error}`;
+                    };
+
+                    recognition.onend = () => {
+                        // Crucial: Commit any lingering in-flight words before restarting,
+                        // so NO text is ever lost when Chrome ends a segment.
+                        commitActiveInterimNow();
+
+                        if (isUserListening && state.sttMode === 'continuous') {
+                            // Seamless auto-resume for continuous dictation
+                            sttStatusLabel.textContent = 'آماده دریافت ادامه گفتار...';
+                            scheduleReconnect(40);
+                        } else {
+                            stopListeningInternal();
+                        }
+                    };
+
                     recognition.start();
                 } catch (e) {
-                    console.warn('Recognition start caught:', e);
+                    console.warn('Recognition start exception:', e);
+                    if (isUserListening && state.sttMode === 'continuous') {
+                        scheduleReconnect(200);
+                    } else {
+                        stopListening();
+                    }
                 }
             }
 
+            function scheduleReconnect(delay = 50) {
+                if (!isUserListening) return;
+                if (restartTimer) clearTimeout(restartTimer);
+
+                isRestartingRecognition = true;
+                restartTimer = setTimeout(() => {
+                    if (isUserListening) {
+                        createAndStartRecognition();
+                    }
+                }, delay);
+            }
+
             function stopListening() {
+                isUserListening = false;
                 state.isListening = false;
-                flushInterimWords();
+                if (restartTimer) {
+                    clearTimeout(restartTimer);
+                    restartTimer = null;
+                }
+                stopWatchdog();
+                commitActiveInterimNow();
+                stopListeningInternal();
+            }
+
+            function stopListeningInternal() {
+                state.isListening = false;
+                isUserListening = false;
                 updateMicUI(false);
 
                 if (recognition) {
-                    try { recognition.stop(); } catch (e) {}
+                    try {
+                        recognition.onstart = null;
+                        recognition.onresult = null;
+                        recognition.onerror = null;
+                        recognition.onend = null;
+                        recognition.onspeechstart = null;
+                        recognition.onspeechend = null;
+                        recognition.stop();
+                    } catch (e) {}
+                    recognition = null;
                 }
 
                 stopMicVisualizerSimulated();
                 stopTimer();
+            }
+
+            function startWatchdog() {
+                stopWatchdog();
+                watchdogTimer = setInterval(() => {
+                    if (!isUserListening) {
+                        stopWatchdog();
+                        return;
+                    }
+                    if (!recognition && !isRestartingRecognition) {
+                        scheduleReconnect(80);
+                    }
+                }, 2000);
+            }
+
+            function stopWatchdog() {
+                if (watchdogTimer) {
+                    clearInterval(watchdogTimer);
+                    watchdogTimer = null;
+                }
+            }
+
+            function debouncedUpdateStats() {
+                if (statsDebounceTimer) return;
+                statsDebounceTimer = setTimeout(() => {
+                    statsDebounceTimer = null;
+                    updateStats('stt-output', 'stt-stats-counter');
+                }, 180);
+            }
+
+            function syncToStudio() {
+                const studioEl = document.getElementById('studio-text');
+                if (studioEl && studioEl !== document.activeElement) {
+                    studioEl.value = sttOutput.value;
+                }
             }
 
             function updateMicUI(isListening) {
@@ -1628,43 +1795,55 @@
                     if (mobileMicBtn) mobileMicBtn.classList.add('listening');
                     if (mobileMicStatus) mobileMicStatus.textContent = 'در حال دریافت گفتار...';
                     micStatusText.innerHTML = '<span class="pulse-dot" style="color:var(--danger)"></span> در حال گوش دادن و تایپ زنده... (کلیک برای پایان)';
-                    micStatusSubtext.textContent = 'صحبت کنید! کلمات شما همزمان در کادر زیر نوشته می‌شوند.';
+                    micStatusSubtext.textContent = 'صحبت کنید! جملات شما با بالاترین سرعت و دقت بدون توقف در کادر زیر تایپ می‌شوند.';
                     sttPill.className = 'status-pill active-rec';
-                    sttPill.innerHTML = '<span class="pulse-dot"></span><span>میکروفون فعال (زنده)</span>';
-                    sttStatusLabel.textContent = 'دریافت فرکانس صوتی... تبدیل فوری به متن';
+                    sttPill.innerHTML = '<span class="pulse-dot"></span><span>میکروفون فعال (پیوسته)</span>';
+                    sttStatusLabel.textContent = 'میکروفون فعال: در حال دریافت گفتار...';
                 } else {
                     bigMicBtn.classList.remove('listening');
                     if (mobileMicBtn) mobileMicBtn.classList.remove('listening');
                     if (mobileMicStatus) mobileMicStatus.textContent = 'تایپ صوتی زنده';
                     micStatusText.textContent = 'برای شروع صحبت روی میکروفون بالا کلیک کنید';
-                    micStatusSubtext.textContent = 'همزمان با صحبت کردن، کلمات شما بدون ذخیره فایل صوتی به صورت زنده و پیوسته در کادر متنی زیر تایپ می‌شوند.';
+                    micStatusSubtext.textContent = 'با شروع صحبت، کلمات شما بدون ذخیره فایل صوتی به صورت زنده، روان و پیوسته در کادر زیر تایپ می‌شوند.';
                     sttPill.className = 'status-pill';
                     sttPill.innerHTML = '<span>میکروفون غیرفعال</span>';
                     sttStatusLabel.textContent = 'میکروفون در حالت آماده‌باش';
+                }
+
+                const studioBtn = document.getElementById('btn-studio-rec');
+                const studioLabel = document.getElementById('studio-rec-text');
+                const studioStatus = document.getElementById('studio-stt-status');
+                if (studioBtn && studioLabel && studioStatus) {
+                    if (isListening) {
+                        studioBtn.classList.add('primary');
+                        studioLabel.textContent = 'در حال گوش دادن... (کلیک برای پایان)';
+                        studioStatus.textContent = 'میکروفون فعال است. لطفاً صحبت کنید...';
+                    } else {
+                        studioBtn.classList.remove('primary');
+                        studioLabel.textContent = 'شروع صحبت';
+                        studioStatus.textContent = 'صحبت متوقف شد. متن آماده بازخوانی یا کپی است.';
+                    }
                 }
             }
 
             function onLangChange(val) {
                 state.sttLang = val;
-                if (recognition) {
-                    recognition.lang = val;
-                    if (state.isListening) {
-                        recognition.stop();
-                        setTimeout(() => recognition.start(), 200);
-                    }
+                if (isUserListening) {
+                    scheduleReconnect(80);
                 }
                 showToast(`زبان گفتار به ${val} تنظیم شد.`);
             }
 
             function onModeChange(val) {
                 state.sttMode = val;
-                if (recognition) {
-                    recognition.continuous = (val === 'continuous');
+                if (isUserListening) {
+                    scheduleReconnect(80);
                 }
             }
 
-            // ── Simulated Waveform Monitor (Zero Android Hardware Locks) ──
+            // ── Simulated Waveform Monitor (Smooth & Battery Friendly) ──
             function startMicVisualizerSimulated() {
+                lastWaveframeTime = performance.now();
                 drawLiveWaveSimulated();
             }
 
@@ -1673,15 +1852,23 @@
                 drawEmptyWaveform(sttWaveform);
             }
 
-            function drawLiveWaveSimulated() {
+            function drawLiveWaveSimulated(now = performance.now()) {
                 if (!state.isListening) return;
+
+                // Throttle to ~30 FPS to save CPU for speech processing
+                if (now - lastWaveframeTime < 33) {
+                    waveAnimId = requestAnimationFrame(drawLiveWaveSimulated);
+                    return;
+                }
+                lastWaveframeTime = now;
+
                 const canvas = sttWaveform;
                 const ctx = canvas.getContext('2d');
                 const w = canvas.width;
                 const h = canvas.height;
                 const bars = 36;
                 const barWidth = (w / bars) - 2;
-                const time = Date.now() * 0.008;
+                const time = now * 0.006;
 
                 ctx.clearRect(0, 0, w, h);
 
@@ -2027,7 +2214,10 @@ ${paragraphs}
             function downloadMD(elementId) {
                 const el = document.getElementById(elementId);
                 const text = el ? el.value.trim() : '';
-                if (!text) return;
+                if (!text) {
+                    showToast('⚠️ متنی برای دانلود مارک‌داون وجود ندارد. لطفاً ابتدا متنی بنویسید.');
+                    return;
+                }
                 const content = `# سند گفتار فارسی\n\n> تاریخ ثبت: ${new Date().toLocaleDateString('fa-IR')}\n\n${text}\n`;
                 const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
                 saveBlob(blob, `persian-note-${Date.now()}.md`);
@@ -2036,7 +2226,10 @@ ${paragraphs}
             function downloadTXT(elementId) {
                 const el = document.getElementById(elementId);
                 const text = el ? el.value.trim() : '';
-                if (!text) return;
+                if (!text) {
+                    showToast('⚠️ متنی برای ذخیره فایل متنی وجود ندارد. لطفاً ابتدا متنی بنویسید.');
+                    return;
+                }
                 const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
                 saveBlob(blob, `persian-text-${Date.now()}.txt`);
             }
@@ -2141,65 +2334,144 @@ ${paragraphs}
                     }
                 },
 
+                insertSampleSTT() {
+                    const sample = "هوش مصنوعی و پردازش گفتار فارسی امکان تایپ سریع بدون لمس صفحه کلید را میسر می‌سازد. جملات شما به صورت زنده، روان و با کیفیت بالا ثبت می‌شوند و می‌توانید فایل‌های Word، Markdown و متن ساده را دانلود نمایید.";
+                    sttOutput.value = sample;
+                    committedText = sample;
+                    activeInterim = '';
+                    updateStats('stt-output', 'stt-stats-counter');
+                    syncToStudio();
+                    showToast('📝 متن نمونه برای آزمایش ابزارها در کادر قرار گرفت');
+                },
+
                 fixHalfSpaces(id) {
                     const el = document.getElementById(id);
-                    if (el) {
-                        el.value = PersianUtils.fixHalfSpaces(el.value);
-                        updateStats(id, id === 'tts-input' ? 'tts-stats-counter' : 'stt-stats-counter');
-                        showToast('✨ نیم‌فاصله‌های استاندارد اعمال شدند');
+                    if (!el) return;
+                    if (!el.value.trim()) {
+                        showToast('⚠️ کادر متن خالی است. ابتدا متنی بنویسید یا از «درج متن نمونه» استفاده کنید.');
+                        return;
                     }
+                    el.value = PersianUtils.fixHalfSpaces(el.value);
+                    if (id === 'stt-output') {
+                        committedText = el.value;
+                        activeInterim = '';
+                    }
+                    updateStats(id, id === 'tts-input' ? 'tts-stats-counter' : 'stt-stats-counter');
+                    showToast('✨ نیم‌فاصله‌های استاندارد اعمال شدند');
                 },
 
                 toPersianDigits(id) {
                     const el = document.getElementById(id);
-                    if (el) {
-                        el.value = PersianUtils.toPersianDigits(el.value);
-                        showToast('۱۲۳ اعداد فارسی شدند');
+                    if (!el) return;
+                    if (!el.value.trim()) {
+                        showToast('⚠️ کادر متن خالی است. ابتدا متنی بنویسید یا از «درج متن نمونه» استفاده کنید.');
+                        return;
                     }
+                    el.value = PersianUtils.toPersianDigits(el.value);
+                    if (id === 'stt-output') {
+                        committedText = el.value;
+                        activeInterim = '';
+                    }
+                    showToast('۱۲۳ اعداد به فارسی تبدیل شدند');
                 },
 
                 toLatinDigits(id) {
                     const el = document.getElementById(id);
-                    if (el) {
-                        el.value = PersianUtils.toLatinDigits(el.value);
-                        showToast('123 اعداد لاتین شدند');
+                    if (!el) return;
+                    if (!el.value.trim()) {
+                        showToast('⚠️ کادر متن خالی است. ابتدا متنی بنویسید یا از «درج متن نمونه» استفاده کنید.');
+                        return;
                     }
+                    el.value = PersianUtils.toLatinDigits(el.value);
+                    if (id === 'stt-output') {
+                        committedText = el.value;
+                        activeInterim = '';
+                    }
+                    showToast('123 اعداد به لاتین تبدیل شدند');
                 },
 
                 fixPunctuation(id) {
                     const el = document.getElementById(id);
-                    if (el) {
-                        el.value = PersianUtils.fixPunctuation(el.value);
-                        showToast('🖋️ علائم نگارشی اصلاح شدند');
+                    if (!el) return;
+                    if (!el.value.trim()) {
+                        showToast('⚠️ کادر متن خالی است. ابتدا متنی بنویسید یا از «درج متن نمونه» استفاده کنید.');
+                        return;
                     }
+                    el.value = PersianUtils.fixPunctuation(el.value);
+                    if (id === 'stt-output') {
+                        committedText = el.value;
+                        activeInterim = '';
+                    }
+                    showToast('🖋️ علائم نگارشی اصلاح شدند');
                 },
 
                 cleanWhitespace(id) {
                     const el = document.getElementById(id);
-                    if (el) {
-                        el.value = PersianUtils.cleanWhitespace(el.value);
-                        updateStats(id, id === 'tts-input' ? 'tts-stats-counter' : 'stt-stats-counter');
-                        showToast('🧹 فاصله‌های اضافه پاکسازی شدند');
+                    if (!el) return;
+                    if (!el.value.trim()) {
+                        showToast('⚠️ کادر متن خالی است.');
+                        return;
                     }
+                    el.value = PersianUtils.cleanWhitespace(el.value);
+                    if (id === 'stt-output') {
+                        committedText = el.value;
+                        activeInterim = '';
+                    }
+                    updateStats(id, id === 'tts-input' ? 'tts-stats-counter' : 'stt-stats-counter');
+                    showToast('🧹 فاصله‌های اضافه پاکسازی شدند');
                 },
 
                 clearText(id) {
                     const el = document.getElementById(id);
-                    if (el) {
-                        el.value = '';
-                        updateStats(id, id === 'tts-input' ? 'tts-stats-counter' : 'stt-stats-counter');
-                        showToast('متن پاک شد');
+                    if (!el) return;
+                    if (!el.value) {
+                        showToast('کادر متن هم‌اکنون خالی است.');
+                        return;
                     }
+                    el.value = '';
+                    if (id === 'stt-output') {
+                        committedText = '';
+                        activeInterim = '';
+                    }
+                    updateStats(id, id === 'tts-input' ? 'tts-stats-counter' : 'stt-stats-counter');
+                    showToast('🗑️ متن با موفقیت پاکسازی شد');
                 },
 
                 copyText(id) {
                     const el = document.getElementById(id);
-                    if (!el || !el.value) return;
-                    navigator.clipboard.writeText(el.value).then(() => {
-                        showToast('📋 متن در حافظه کپی شد');
-                    });
+                    const text = el ? el.value : '';
+                    if (!text || !text.trim()) {
+                        showToast('⚠️ متنی برای کپی وجود ندارد. ابتدا متنی بنویسید یا صحبت کنید.');
+                        return;
+                    }
+
+                    // Robust copy with clipboard API and document.execCommand fallback for iframes
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(text).then(() => {
+                            showToast('📋 متن با موفقیت در کلیپ‌بورد کپی شد');
+                        }).catch(() => {
+                            fallbackExecCommandCopy(el);
+                        });
+                    } else {
+                        fallbackExecCommandCopy(el);
+                    }
                 }
             };
+
+            function fallbackExecCommandCopy(el) {
+                try {
+                    if (el) {
+                        el.focus();
+                        el.select();
+                        const success = document.execCommand('copy');
+                        if (success) {
+                            showToast('📋 متن با موفقیت در کلیپ‌بورد کپی شد');
+                            return;
+                        }
+                    }
+                } catch (e) {}
+                showToast('❌ لطفاً متن را به صورت دستی انتخاب و کپی فرمایید.');
+            }
 
             // ── App Initialization ────────────────────────────────────
             function init() {
@@ -2213,7 +2485,26 @@ ${paragraphs}
                 // Load initial sample into TTS input
                 App.applyPreset('greeting');
 
-                sttOutput.addEventListener('input', () => updateStats('stt-output', 'stt-stats-counter'));
+                // Programmatic event listener bindings to guarantee button responsiveness in all iframes
+                if (bigMicBtn) {
+                    bigMicBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        App.toggleListening();
+                    });
+                }
+                if (mobileMicBtn) {
+                    mobileMicBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        App.toggleListening();
+                    });
+                }
+
+                sttOutput.addEventListener('input', () => {
+                    committedText = sttOutput.value;
+                    activeInterim = '';
+                    debouncedUpdateStats();
+                    syncToStudio();
+                });
                 ttsInput.addEventListener('input', () => updateStats('tts-input', 'tts-stats-counter'));
 
                 drawEmptyWaveform(sttWaveform);

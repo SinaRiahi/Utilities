@@ -153,14 +153,36 @@ Rather than creating dozens of half-finished tools, I'd rather build a smaller c
 
 ---
 
+## 📺 YouTube Downloader
+> Fast, reliable YouTube video and audio downloader with high-quality MP4 video (up to 4K/1080p) and dedicated 320kbps MP3 extraction.
+
+* 🎬 **Full Video Quality Extraction**:
+  * Download video in MP4 container with audio automatically muxed for universal compatibility (QuickTime, Windows Media Player, iOS, Android, VLC)
+  * Supports up to 4K (2160p), 1440p (2K), 1080p Full HD, 720p HD, 480p SD, 360p, and 240p
+  * Displays resolution, FPS (60fps/30fps), video codecs, and approximate file sizes
+* 🎵 **Audio & MP3 Extraction**:
+  * One-click MP3 conversion powered by FFmpeg with 320 kbps (Studio Quality), 192 kbps (Standard HQ), and 128 kbps (Compact/Voice) presets
+  * Automatically embeds ID3 title and artist tags into the resulting MP3
+  * Lossless direct downloads for original M4A (AAC) and WebM (Opus) streams
+* 🔍 **Smart Video Analysis**:
+  * Accepts standard video URLs (`watch?v=...`), short links (`youtu.be/...`), YouTube Shorts (`shorts/...`), embed links, and YouTube Music
+  * Instant retrieval of video thumbnail, title, channel name, duration, and view count
+* ⚡ **High-Speed Streaming Pipeline**:
+  * Zero-delay direct stream piping with FFmpeg fragmented MP4 muxing (`+frag_keyframe+empty_moov`)
+  * Starts downloading immediately in browser without unnecessary server disk bottlenecks
+* 🍪 **Cookie Authentication Manager**:
+  * Built-in cookie manager to bypass bot challenges and download age-restricted or private videos
+
+---
+
 ## 🎙️ Persian Text to Speech
 > Professional Persian (Farsi) text-to-speech synthesis, speech recognition, and live audio transcription studio.
 
 * 🎙️ **Speech-to-Text (تبدیل گفتار به متن)**:
-  * Continuous and single-phrase Persian speech recognition powered by Web Speech API (`fa-IR` and `fa-AF`)
-  * Live audio visualizer oscilloscope canvas via Web Audio API (`AnalyserNode`)
-  * Real-time provisional speech display and auto-punctuated transcription
-  * Pre-recorded audio file transcription (`.mp3`, `.wav`, `.m4a`, `.ogg`, `.webm`)
+  * Persistent continuous Persian speech recognition with smooth pause handling and seamless auto-reconnect
+  * Zero-deletion non-destructive text pipeline: finalized speech and in-flight words are permanently protected so previous text is never wiped when resuming speech
+  * Live visual frequency monitor and animated active-stream banner
+  * Built-in typography toolbar: 1-click clipboard copy with iframe fallback, 1-click sample text, intelligent half-spacing (*نیم‌فاصله*), Persian numbers, punctuation, and whitespace cleaning
   * Multi-format document export: download transcripts as Word Document (`.doc`), Markdown (`.md`), or Plain Text (`.txt`)
 * ✍️ **Persian Typography & Text Polish**:
   * Auto-normalization of standard Persian half-spaces (*نیم‌فاصله* like `می‌شود` and `کتاب‌ها`)

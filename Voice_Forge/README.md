@@ -10,10 +10,13 @@ Persian Speech to Text is a high-performance Persian (Farsi) voice studio. It fe
 
 ### 🎙️ Speech-to-Text (تبدیل گفتار به متن - Main Feature)
 * **Big Microphone Button**: Click the large centered microphone button to start or stop listening instantly.
-* **Continuous Real-Time Writing**: As you talk in Persian, your spoken words are streamed and typed directly into the text box with zero delay.
+* **Continuous Real-Time Writing & Pause Handling**: Seamless dictation engine that gracefully handles natural brief pauses during speech without stopping unexpectedly, dropping words, or resetting.
+* **Strict Zero Text Deletion**: Non-destructive text pipeline where finalized phrases are permanently committed to the document, and remaining in-flight words are automatically locked in so previous speech is never wiped when you resume speaking.
+* **Low-Latency & Lag-Free**: Optimized fast-path interim display and debounced statistics ensure smooth, responsive 60fps typing without UI thread freezes.
+* **Integrated STT Typography Toolbar & Quick Sample**: Quick-action buttons above the text editor for 1-click clipboard copy (with iframe-safe document fallback), intelligent half-space fixing, Persian/Latin digit conversion, punctuation correction, whitespace cleanup, and 1-click sample text testing.
 * **Zero Audio Recording**: **No audio is recorded or stored** to disk or server. Audio waves are processed purely in real-time in your browser's memory and converted on the fly.
 * **No API Keys or Cloud AI Required**: 100% free, unlimited, and private using the browser's native Web Speech API (`fa-IR` and `fa-AF`).
-* **Live Frequency Waveform Monitor**: Real-time canvas visualizer shows microphone activity using the Web Audio API.
+* **Live Frequency Waveform Monitor**: Real-time canvas visualizer shows microphone activity with optimized battery and CPU usage.
 * **Persian Typography Engine**:
   * ✍️ **Nim-Fasele (نیم‌فاصله)**: Automatically normalizes standard Persian half-spaces (`می‌شود`, `کتاب‌ها`, `خانه‌اش`).
   * 🔢 **Persian Digits**: Instant bidirectional conversion between Latin (`123`) and Persian digits (`۱۲۳`).
