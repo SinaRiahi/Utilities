@@ -1694,10 +1694,24 @@
                 border-bottom: 3px double #ccc !important;
             }
             .preview-container .document-header {
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
                 color: #495057 !important;
                 border-bottom: 1px solid #dee2e6 !important;
-                break-inside: avoid !important;
-                page-break-inside: avoid !important;
+                background: #fff !important;
+                padding-bottom: 5px !important;
+                margin-top: 0 !important;
+                margin-bottom: 0 !important;
+                font-size: 8.5pt !important;
+                line-height: 1.4 !important;
+                z-index: 9999 !important;
+            }
+            .preview-container .cover-page ~ .document-header {
+                display: block !important;
             }
             .preview-container .pagebreak-marker {
                 page-break-after: always;
@@ -2387,7 +2401,7 @@ Or drag & drop .md or image files (PNG, JPG, SVG, WebP, GIF)...
             </div>
             <label>Header Text (optional)</label>
             <input type="text" id="setting-header-text" placeholder="Custom header text…" />
-            <div style="font-size:11px;color:var(--text-muted);margin-top:4px;line-height:1.4;">Leave empty for no header. The existing page-number footer is unchanged.</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:4px;line-height:1.4;">Leave empty for no header. Displayed as the header of every page when exporting/printing.</div>
             <div class="modal-actions">
                 <button onclick="App.closeSettings()">Cancel</button>
                 <button class="accent" onclick="App.applySettings()">Apply & Close</button>
@@ -5137,6 +5151,15 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
             break-inside: avoid !important;
             box-shadow: none !important;
           }
+          ${(s.headerText || '').trim() ? `
+          .preview-container {
+            padding-top: 24px !important;
+          }
+          .preview-container .cover-page {
+            margin-top: -24px !important;
+            padding-top: 48px !important;
+          }
+          ` : ''}
         }`;
             }
 
@@ -5216,7 +5239,15 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
                 const executePrint = () => {
                     updatePrintStyles();
                     fitAllMermaidDiagramsToPrintPage();
-                    window.print();
+                    const prevTitle = document.title;
+                    document.title = '';
+                    try {
+                        window.print();
+                    } finally {
+                        setTimeout(() => {
+                            document.title = prevTitle || 'Markdown → PDF — Professional Document Converter';
+                        }, 500);
+                    }
                 };
 
                 if (unrenderedMermaids.length > 0 || mermaidRenderPromise || uncompletedImgs.length > 0) {
@@ -6410,10 +6441,17 @@ window.addEventListener('resize', () => {
     }
 });
 
+let originalDocumentTitle = document.title;
 window.addEventListener('beforeprint', () => {
     closeExportDropdown();
     updatePrintStyles();
     fitAllMermaidDiagramsToPrintPage();
+    originalDocumentTitle = document.title;
+    document.title = '';
+});
+
+window.addEventListener('afterprint', () => {
+    document.title = originalDocumentTitle || 'Markdown → PDF — Professional Document Converter';
 });
 
 if (window.innerWidth <= 768) {
