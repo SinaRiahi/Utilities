@@ -99,7 +99,6 @@
         [data-theme="dark"] body,
         [data-theme="dark"] .toolbar,
         [data-theme="dark"] .editor-wrapper,
-        [data-theme="dark"] .preview-container,
         [data-theme="dark"] .modal {
             scrollbar-color: #666b76 #25262b;
         }
@@ -134,7 +133,6 @@
         [data-theme="dark"] body::-webkit-scrollbar-thumb,
         [data-theme="dark"] .toolbar::-webkit-scrollbar-thumb,
         [data-theme="dark"] .editor-wrapper::-webkit-scrollbar-thumb,
-        [data-theme="dark"] .preview-container::-webkit-scrollbar-thumb,
         [data-theme="dark"] .modal::-webkit-scrollbar-thumb {
             background: #666b76;
             border-color: #25262b;
@@ -143,7 +141,6 @@
         [data-theme="dark"] body::-webkit-scrollbar-track,
         [data-theme="dark"] .toolbar::-webkit-scrollbar-track,
         [data-theme="dark"] .editor-wrapper::-webkit-scrollbar-track,
-        [data-theme="dark"] .preview-container::-webkit-scrollbar-track,
         [data-theme="dark"] .modal::-webkit-scrollbar-track {
             background: #25262b;
         }
@@ -503,18 +500,42 @@
             box-shadow: inset 0 0 0 2px var(--accent-light);
         }
 
-        /* ── Preview ──────────────────── */
-        .preview-container {
+        /* ── Preview ────────────────────
+           The preview panel models a physical printed paper document.
+           It must remain completely consistent and unchanged regardless of
+           whether the application interface is in light mode or dark mode. */
+        .preview-container,
+        [data-theme="dark"] .preview-container {
+            --bg: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-tertiary: #f1f3f5;
+            --text: #1a1a2e;
+            --text-secondary: #495057;
+            --text-muted: #868e96;
+            --border: #dee2e6;
+            --border-light: #e9ecef;
+            --accent: #4c6ef5;
+            --accent-hover: #3b5de7;
+            --accent-light: #edf2ff;
+            color-scheme: light !important;
             flex: 1;
             overflow-y: auto;
             overflow-x: hidden;
             padding: 28px 32px;
-            background: #fff;
-            color: #1a1a2e;
+            background: #ffffff !important;
+            color: #1a1a2e !important;
             font-family: var(--font-serif);
             font-size: var(--preview-font-size);
             line-height: var(--line-height);
             scroll-behavior: smooth;
+            scrollbar-color: #adb5bd #f1f3f5;
+        }
+        [data-theme="dark"] .preview-container::-webkit-scrollbar-thumb {
+            background: #adb5bd;
+            border-color: #f1f3f5;
+        }
+        [data-theme="dark"] .preview-container::-webkit-scrollbar-track {
+            background: #f1f3f5;
         }
 
         /* ── Bidirectional document support ─────────────────────
@@ -614,9 +635,66 @@
             padding-left: 0;
             padding-right: 1.8em;
         }
+        /* ── Definition Lists (dl, dt, dd) ─────────────────────── */
+        .preview-container dl {
+            margin: 1.4em 0;
+            padding: 4px 0;
+        }
+        .preview-container dt {
+            font-weight: 700;
+            font-size: 1.05em;
+            color: #1a1a2e !important;
+            margin-top: 1.2em;
+            margin-bottom: 0.35em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: -0.01em;
+        }
+        .preview-container dt:first-child {
+            margin-top: 0.2em;
+        }
+        .preview-container dt::before {
+            content: "";
+            display: inline-block;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background-color: #4c6ef5 !important;
+            flex-shrink: 0;
+            opacity: 0.85;
+        }
+        .preview-container dd {
+            margin: 0 0 1.1em 0;
+            padding: 8px 16px;
+            background: rgba(76, 110, 245, 0.05) !important;
+            border-left: 3px solid #4c6ef5 !important;
+            border-right: none !important;
+            border-radius: 0 var(--radius-sm, 6px) var(--radius-sm, 6px) 0;
+            color: #495057 !important;
+            line-height: 1.65;
+            font-size: 0.96em;
+        }
+        .preview-container dd > p {
+            margin: 0.3em 0;
+            color: inherit;
+        }
+        .preview-container dd > p:first-child {
+            margin-top: 0;
+        }
+        .preview-container dd > p:last-child {
+            margin-bottom: 0;
+        }
+        .preview-container[dir="rtl"] dt::before {
+            order: 1;
+        }
         .preview-container[dir="rtl"] dd {
             margin-left: 0;
-            margin-right: 2em;
+            margin-right: 0;
+            border-left: none !important;
+            border-right: 3px solid #4c6ef5 !important;
+            border-radius: var(--radius-sm, 6px) 0 0 var(--radius-sm, 6px);
+            padding: 8px 16px;
         }
         .preview-container[dir="rtl"] .document-header {
             direction: rtl;
@@ -629,10 +707,6 @@
         .editor-textarea[dir="ltr"] {
             direction: ltr;
             text-align: left;
-        }
-        [data-theme="dark"] .preview-container {
-            background: #1e1f23;
-            color: #e4e6ea;
         }
 
         /* ── Bi-directional Sync Highlight ───────────── */
@@ -656,26 +730,26 @@
             }
         }
 
-        /* ── Mermaid fitting: ensure diagrams never overflow ── */
+        /* ── Mermaid fitting: ensure diagrams never overflow or look disproportionately huge ── */
         .preview-container .mermaid-rendered,
         .preview-container .mermaid {
             max-width: 100%;
-            overflow: auto;
+            overflow-x: auto;
+            overflow-y: hidden;
             text-align: center;
-            margin: 1em 0;
+            margin: 1.4em auto;
             page-break-inside: avoid;
+            break-inside: avoid;
+            background: transparent;
         }
         .preview-container .mermaid-rendered svg,
         .preview-container .mermaid svg {
             max-width: 100% !important;
-            height: auto !important;
+            max-height: 520px;
+            width: auto;
+            height: auto;
             display: block;
             margin: 0 auto;
-        }
-        /* For very wide diagrams, allow horizontal scroll within the container */
-        .preview-container .mermaid-rendered {
-            overflow-x: auto;
-            overflow-y: visible;
         }
 
         /* ── Cover Page Designs ───────────────── */
@@ -923,9 +997,6 @@
             font-weight: 600;
             letter-spacing: 0.05em;
         }
-        [data-theme="dark"] .cover-technical-badge {
-            background: rgba(76, 110, 245, 0.2);
-        }
         .cover-style-technical .cover-title {
             font-size: 2.4em;
             font-weight: 700;
@@ -977,10 +1048,6 @@
             font-family: var(--font-mono);
         }
 
-        [data-theme="dark"] .cover-page {
-            border-bottom-color: #3a3c42;
-        }
-
         /* Optional document header. It exists only when the user enters
            Header Text in Settings. It is deliberately separate from the cover. */
         .document-header {
@@ -995,10 +1062,6 @@
             font-size: 0.82em;
             font-weight: 600;
             letter-spacing: 0.02em;
-        }
-        [data-theme="dark"] .document-header {
-            color: #adb5bd;
-            border-bottom-color: #495057;
         }
 
         /* Preview typography */
@@ -1032,10 +1095,6 @@
         .preview-container h4 {
             font-size: 1.15em;
         }
-        [data-theme="dark"] .preview-container h1,
-        [data-theme="dark"] .preview-container h2 {
-            border-color: #3a3c42;
-        }
         .preview-container p {
             margin: 0.7em 0;
         }
@@ -1062,9 +1121,6 @@
             padding: 2px 6px;
             border-radius: 3px;
         }
-        [data-theme="dark"] .preview-container code {
-            background: #2c2e33;
-        }
         .preview-container pre {
             background: #f8f9fa;
             border: 1px solid #e9ecef;
@@ -1074,10 +1130,6 @@
             margin: 1em 0;
             position: relative;
             page-break-inside: avoid;
-        }
-        [data-theme="dark"] .preview-container pre {
-            background: #25262b;
-            border-color: #3a3c42;
         }
         .preview-container pre code {
             background: none;
@@ -1127,16 +1179,6 @@
         .preview-container table tr:nth-child(even) td {
             background: #fafbfc;
         }
-        [data-theme="dark"] .preview-container table th,
-        [data-theme="dark"] .preview-container table td {
-            border-color: #3a3c42;
-        }
-        [data-theme="dark"] .preview-container table th {
-            background: #2c2e33;
-        }
-        [data-theme="dark"] .preview-container table tr:nth-child(even) td {
-            background: #25262b;
-        }
         .preview-container table thead {
             page-break-after: avoid;
         }
@@ -1164,9 +1206,6 @@
             margin: 1.2em auto;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         }
-        [data-theme="dark"] .preview-container img {
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
-        }
         .preview-container .task-list-item {
             list-style: none;
             margin-left: -1.4em;
@@ -1193,10 +1232,6 @@
             margin: 1em 0 2em;
             page-break-after: always;
         }
-        [data-theme="dark"] .preview-container .toc-container {
-            background: #25262b;
-            border-color: #3a3c42;
-        }
         .preview-container .toc-container h3 {
             margin-top: 0;
             font-size: 1.1em;
@@ -1208,10 +1243,18 @@
         .preview-container .toc-container ul ul {
             padding-left: 1.2em;
         }
-        .preview-container .toc-container a {
-            color: var(--text-secondary);
+        .preview-container .toc-container a,
+        .preview-container .toc-container a:link,
+        .preview-container .toc-container a:visited {
+            color: #495057 !important;
             font-family: inherit;
             font-size: 0.9em;
+            text-decoration: none;
+        }
+        .preview-container .toc-container a:hover,
+        .preview-container .toc-container a:active {
+            color: #1a1a2e !important;
+            text-decoration: underline;
         }
         .pagebreak-marker {
             border-top: 2px dashed #dee2e6;
@@ -1262,6 +1305,7 @@
             max-height: 85vh;
             overflow-y: auto;
             color: var(--text);
+            position: relative;
         }
         .modal h3 {
             margin: 0 0 16px;
@@ -1303,8 +1347,15 @@
             gap: 8px;
             justify-content: flex-end;
             margin-top: 18px;
+            margin-left: -28px;
+            margin-right: -28px;
+            margin-bottom: -24px;
             border-top: 1px solid var(--border-light);
-            padding-top: 14px;
+            padding: 14px 28px;
+            position: sticky;
+            bottom: -24px;
+            background: var(--bg);
+            z-index: 10;
         }
         .modal button {
             padding: 8px 16px;
@@ -1320,6 +1371,34 @@
             background: var(--accent);
             color: #fff;
             border-color: var(--accent);
+        }
+        .toc-custom-levels {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 14px;
+            margin: 8px 0 12px;
+            padding: 10px 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+        }
+        .toc-custom-levels label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin: 0;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            color: var(--text);
+            user-select: none;
+        }
+        .toc-custom-levels input[type="checkbox"] {
+            accent-color: var(--accent);
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            margin: 0;
         }
         .modal .cover-fields {
             border-left: 3px solid var(--accent);
@@ -1536,6 +1615,31 @@
             border-color: #e9ecef !important;
         }
         [data-theme="dark"] .preview-container a { color: #4c6ef5 !important; }
+        [data-theme="dark"] .preview-container .toc-container a,
+        [data-theme="dark"] .preview-container .toc-container a:link,
+        [data-theme="dark"] .preview-container .toc-container a:visited {
+            color: #495057 !important;
+        }
+        [data-theme="dark"] .preview-container .toc-container a:hover,
+        [data-theme="dark"] .preview-container .toc-container a:active {
+            color: #1a1a2e !important;
+        }
+        [data-theme="dark"] .preview-container dt {
+            color: #1a1a2e !important;
+        }
+        [data-theme="dark"] .preview-container dt::before {
+            background-color: #4c6ef5 !important;
+        }
+        [data-theme="dark"] .preview-container dd {
+            background: rgba(76, 110, 245, 0.05) !important;
+            color: #495057 !important;
+            border-left: 3px solid #4c6ef5 !important;
+            border-right: none !important;
+        }
+        [data-theme="dark"] .preview-container[dir="rtl"] dd {
+            border-left: none !important;
+            border-right: 3px solid #4c6ef5 !important;
+        }
         [data-theme="dark"] .preview-container blockquote {
             background: #edf2ff !important;
             color: #495057 !important;
@@ -1554,16 +1658,28 @@
             background: #f8f9fa !important;
             border-color: #e9ecef !important;
         }
+        [data-theme="dark"] .preview-container .toc-container h3 {
+            color: #1a1a2e !important;
+        }
         [data-theme="dark"] .preview-container .md-note { color: #1a1a2e !important; }
-        [data-theme="dark"] .preview-container .md-note-definition { background: #eff6ff !important; }
-        [data-theme="dark"] .preview-container .md-note-important { background: #f5f3ff !important; }
-        [data-theme="dark"] .preview-container .md-note-example { background: #f0fdf4 !important; }
-        [data-theme="dark"] .preview-container .md-note-tip { background: #fff7ed !important; }
-        [data-theme="dark"] .preview-container .md-note-warning { background: #fef2f2 !important; }
-        [data-theme="dark"] .preview-container .md-note-note { background: #ecfeff !important; }
-        [data-theme="dark"] .preview-container .md-note-exam { background: #fdf2f8 !important; }
-        [data-theme="dark"] .preview-container .md-note-reminder { background: #fefce8 !important; }
-        [data-theme="dark"] .preview-container .md-note-secondary { background: #f8fafc !important; }
+        [data-theme="dark"] .preview-container .md-note-definition { background: #eff6ff !important; border-left-color: #2563eb !important; }
+        [data-theme="dark"] .preview-container[dir="rtl"] .md-note-definition { border-right-color: #2563eb !important; border-left: none !important; }
+        [data-theme="dark"] .preview-container .md-note-important { background: #f5f3ff !important; border-left-color: #7c3aed !important; }
+        [data-theme="dark"] .preview-container[dir="rtl"] .md-note-important { border-right-color: #7c3aed !important; border-left: none !important; }
+        [data-theme="dark"] .preview-container .md-note-example { background: #f0fdf4 !important; border-left-color: #16a34a !important; }
+        [data-theme="dark"] .preview-container[dir="rtl"] .md-note-example { border-right-color: #16a34a !important; border-left: none !important; }
+        [data-theme="dark"] .preview-container .md-note-tip { background: #fff7ed !important; border-left-color: #ea580c !important; }
+        [data-theme="dark"] .preview-container[dir="rtl"] .md-note-tip { border-right-color: #ea580c !important; border-left: none !important; }
+        [data-theme="dark"] .preview-container .md-note-warning { background: #fef2f2 !important; border-left-color: #dc2626 !important; }
+        [data-theme="dark"] .preview-container[dir="rtl"] .md-note-warning { border-right-color: #dc2626 !important; border-left: none !important; }
+        [data-theme="dark"] .preview-container .md-note-note { background: #ecfeff !important; border-left-color: #0891b2 !important; }
+        [data-theme="dark"] .preview-container[dir="rtl"] .md-note-note { border-right-color: #0891b2 !important; border-left: none !important; }
+        [data-theme="dark"] .preview-container .md-note-exam { background: #fdf2f8 !important; border-left-color: #db2777 !important; }
+        [data-theme="dark"] .preview-container[dir="rtl"] .md-note-exam { border-right-color: #db2777 !important; border-left: none !important; }
+        [data-theme="dark"] .preview-container .md-note-reminder { background: #fefce8 !important; border-left-color: #ca8a04 !important; }
+        [data-theme="dark"] .preview-container[dir="rtl"] .md-note-reminder { border-right-color: #ca8a04 !important; border-left: none !important; }
+        [data-theme="dark"] .preview-container .md-note-secondary { background: #f8fafc !important; border-left-color: #6b7280 !important; }
+        [data-theme="dark"] .preview-container[dir="rtl"] .md-note-secondary { border-right-color: #6b7280 !important; border-left: none !important; }
 
         /* ── Print styles ─────────────── */
         @media print {
@@ -1668,19 +1784,54 @@
                 page-break-inside: avoid;
                 break-inside: avoid;
             }
-            /* Mermaid print fitting: scale to fit page width, never overflow */
+            /* Mermaid print fitting: scale to fit page width, never overflow or cut in middle */
             .preview-container .mermaid-rendered,
             .preview-container .mermaid {
+                width: 100% !important;
                 max-width: 100% !important;
-                overflow: hidden !important;
+                overflow: visible !important;
                 page-break-inside: avoid !important;
                 break-inside: avoid !important;
                 text-align: center !important;
+                margin: 1.2em auto !important;
+                display: block !important;
             }
             .preview-container .mermaid-rendered svg,
             .preview-container .mermaid svg {
                 max-width: 100% !important;
+                max-height: 100% !important;
                 height: auto !important;
+                display: block !important;
+                margin: 0 auto !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+            .preview-container dl {
+                margin: 1.2em 0 !important;
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+            .preview-container dt {
+                font-weight: 700 !important;
+                color: #111 !important;
+                margin-top: 1em !important;
+                margin-bottom: 0.3em !important;
+                page-break-after: avoid !important;
+                break-after: avoid !important;
+            }
+            .preview-container dd {
+                margin: 0 0 0.8em 0 !important;
+                padding: 6px 14px !important;
+                border-left: 3px solid #4c6ef5 !important;
+                background: #f8f9fa !important;
+                color: #333 !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+            .preview-container[dir="rtl"] dd {
+                border-left: none !important;
+                border-right: 3px solid #4c6ef5 !important;
+                padding: 6px 14px !important;
             }
             .preview-container .toc-container {
                 page-break-after: always;
@@ -2374,8 +2525,16 @@ Or drag & drop .md or image files (PNG, JPG, SVG, WebP, GIF)...
             </select>
             <label>TOC Depth (which heading levels to include)</label>
             <select id="setting-toc-depth">
-                <option value="1">H1 only</option><option value="2">H1 + H2</option><option value="3" selected>H1 + H2 + H3</option><option value="4">H1 + H2 + H3 + H4</option><option value="5">H1–H5</option><option value="6">H1–H6 (all)</option>
+                <option value="1">H1 only</option><option value="2">H1 + H2</option><option value="3" selected>H1 + H2 + H3</option><option value="4">H1 + H2 + H3 + H4</option><option value="5">H1–H5</option><option value="6">H1–H6 (all)</option><option value="custom">Custom (choose headers)</option>
             </select>
+            <div id="toc-custom-levels-group" class="toc-custom-levels" style="display:none;">
+                <label><input type="checkbox" id="setting-toc-h1" value="1" checked /> H1</label>
+                <label><input type="checkbox" id="setting-toc-h2" value="2" checked /> H2</label>
+                <label><input type="checkbox" id="setting-toc-h3" value="3" checked /> H3</label>
+                <label><input type="checkbox" id="setting-toc-h4" value="4" /> H4</label>
+                <label><input type="checkbox" id="setting-toc-h5" value="5" /> H5</label>
+                <label><input type="checkbox" id="setting-toc-h6" value="6" /> H6</label>
+            </div>
             <h4>📔 Cover Page</h4>
             <label>Enable Cover Page</label>
             <select id="setting-cover-enabled">
@@ -2784,6 +2943,7 @@ Or drag & drop .md or image files (PNG, JPG, SVG, WebP, GIF)...
                     mermaidTheme: 'default',
                     tocEnabled: true,
                     tocDepth: 3,
+                    tocCustomLevels: [1, 2, 3],
                     coverEnabled: false,
                     coverStyle: 'classic',
                     coverTitle: '',
@@ -2842,6 +3002,15 @@ Adapt the document to the user's requested purpose. Prioritize accuracy, clarity
 - Do not include conversational text, banter, AI disclaimers, or meta-commentary.
 - Do not wrap the entire document inside a Markdown code block.
 - The final output should require no manual formatting before PDF export.
+
+# Definition Lists
+MD Studio supports native definition lists for terminology, glossaries, vocabularies, parameter specifications, and key-concept pairs. Use the standard definition list syntax:
+
+Term
+: Definition or explanation of the term.
+
+Another Term
+: Another explanation.
 
 # MD Studio Semantic Callout Boxes
 MD Studio supports semantic colored callout boxes. Use them selectively to highlight information that benefits from visual scanning and memory. Keep ordinary prose normal; do not turn the document into a collection of boxes.
@@ -2930,6 +3099,15 @@ Use fenced code blocks with language labels. Use KaTeX for formulas, with $$...$
 - Do not generate boxed items or othe relements that require scrolling (since pdfs cant be scrolled)
 
 Prioritize tables over everything else when a table can convey the same information clearly.
+
+# Definition Lists
+MD Studio supports native definition lists for terminology, glossaries, vocabularies, parameter specifications, and key-concept pairs. Use the standard definition list syntax:
+
+Term
+: Definition or explanation of the term.
+
+Another Term
+: Another explanation.
 
 # MD Studio Semantic Callout Boxes
 MD Studio supports semantic colored callout boxes. Use them selectively to highlight information that benefits from visual scanning and memory. Keep ordinary prose normal; do not turn the document into a collection of boxes.
@@ -3022,6 +3200,15 @@ Use fenced code blocks with language labels and explain important examples. Use 
 
 End with a concise review of the most important concepts, relationships, formulas, and takeaways.
 
+# Definition Lists
+MD Studio supports native definition lists for terminology, glossaries, vocabularies, parameter specifications, and key-concept pairs. Use the standard definition list syntax:
+
+Term
+: Definition or explanation of the term.
+
+Another Term
+: Another explanation.
+
 # MD Studio Semantic Callout Boxes
 MD Studio supports semantic colored callout boxes. Use them selectively to highlight information that benefits from visual scanning and memory. Keep ordinary prose normal; do not turn the document into a collection of boxes.
 
@@ -3113,6 +3300,15 @@ Use tables whenever comparisons, classifications, terminology, algorithms, or tr
 - Do not generate boxed items or othe relements that require scrolling (since pdfs cant be scrolled)
 
 The completed sequence should read like one comprehensive university course, with each response forming exactly one connected chapter.
+
+# Definition Lists
+MD Studio supports native definition lists for terminology, glossaries, vocabularies, parameter specifications, and key-concept pairs. Use the standard definition list syntax:
+
+Term
+: Definition or explanation of the term.
+
+Another Term
+: Another explanation.
 
 # MD Studio Semantic Callout Boxes
 MD Studio supports semantic colored callout boxes. Use them selectively to highlight information that benefits from visual scanning and memory. Keep ordinary prose normal; do not turn the document into a collection of boxes.
@@ -3209,6 +3405,15 @@ Use tables when they improve clarity for dependencies, configuration options, te
 
 End the complete project sequence with clear running, verification, and sensible next-step guidance. Do not implement optional future improvements unless requested.
 
+# Definition Lists
+MD Studio supports native definition lists for terminology, glossaries, vocabularies, parameter specifications, and key-concept pairs. Use the standard definition list syntax:
+
+Term
+: Definition or explanation of the term.
+
+Another Term
+: Another explanation.
+
 # MD Studio Semantic Callout Boxes
 MD Studio supports semantic colored callout boxes. Use them selectively to highlight information that benefits from visual scanning and memory. Keep ordinary prose normal; do not turn the document into a collection of boxes.
 
@@ -3300,6 +3505,15 @@ Use tables whenever comparisons, classifications, alternatives, terminology, or 
 
 Prioritize depth, precision, and connected understanding over brevity, while avoiding repetition and irrelevant expansion.
 
+# Definition Lists
+MD Studio supports native definition lists for terminology, glossaries, vocabularies, parameter specifications, and key-concept pairs. Use the standard definition list syntax:
+
+Term
+: Definition or explanation of the term.
+
+Another Term
+: Another explanation.
+
 # MD Studio Semantic Callout Boxes
 MD Studio supports semantic colored callout boxes. Use them selectively to highlight information that benefits from visual scanning and memory. Keep ordinary prose normal; do not turn the document into a collection of boxes.
 
@@ -3376,6 +3590,15 @@ Use numbered lists for prioritized recommendations and procedures, bullets for c
 
 Produce only valid GFM. Do not include conversational text, banter, AI disclaimers, or meta-commentary. Do not wrap the document in a Markdown code block.
 
+# Definition Lists
+MD Studio supports native definition lists for terminology, glossaries, vocabularies, parameter specifications, and key-concept pairs. Use the standard definition list syntax:
+
+Term
+: Definition or explanation of the term.
+
+Another Term
+: Another explanation.
+
 # MD Studio Semantic Callout Boxes
 MD Studio supports semantic colored callout boxes. Use them selectively to highlight information that benefits from visual scanning and memory. Keep ordinary prose normal; do not turn the document into a collection of boxes.
 
@@ -3445,6 +3668,15 @@ Preserve names, decisions, commitments, dates, and terminology exactly when prov
 
 # Formatting
 Prefer tables for action items, decisions, owners, and deadlines when that improves scanability. Use numbered lists for ordered actions and bullets for discussion points. Do not add blank lines merely for spacing. Use ---pagebreak--- only for a genuinely long meeting record where a major section needs a new page. Produce only valid GFM with no conversational text, banter, disclaimers, or meta-commentary.
+
+# Definition Lists
+MD Studio supports native definition lists for terminology, glossaries, vocabularies, parameter specifications, and key-concept pairs. Use the standard definition list syntax:
+
+Term
+: Definition or explanation of the term.
+
+Another Term
+: Another explanation.
 
 # MD Studio Semantic Callout Boxes
 MD Studio supports semantic colored callout boxes. Use them selectively to highlight information that benefits from visual scanning and memory. Keep ordinary prose normal; do not turn the document into a collection of boxes.
@@ -3519,6 +3751,15 @@ Be explicit about assumptions and trade-offs. Do not invent evidence or claim ce
 # Formatting
 Avoid unnecessary blank lines and page breaks. Use ---pagebreak--- only between major proposal chapters when it improves readability. Use blockquotes only for critical reviewer attention. Produce only valid GFM with no conversational text, banter, AI disclaimers, or meta-commentary.
 
+# Definition Lists
+MD Studio supports native definition lists for terminology, glossaries, vocabularies, parameter specifications, and key-concept pairs. Use the standard definition list syntax:
+
+Term
+: Definition or explanation of the term.
+
+Another Term
+: Another explanation.
+
 # MD Studio Semantic Callout Boxes
 MD Studio supports semantic colored callout boxes. Use them selectively to highlight information that benefits from visual scanning and memory. Keep ordinary prose normal; do not turn the document into a collection of boxes.
 
@@ -3588,6 +3829,15 @@ Prefer tables for quantitative results, comparisons, datasets, and structured fi
 
 # Formatting
 Keep prose concise but sufficient to preserve meaning. Do not add blank lines merely for spacing. Use ---pagebreak--- only between major chapters when it improves readability. Use blockquotes only for important caveats. Produce only valid GFM with no conversational text, banter, AI disclaimers, or meta-commentary.
+
+# Definition Lists
+MD Studio supports native definition lists for terminology, glossaries, vocabularies, parameter specifications, and key-concept pairs. Use the standard definition list syntax:
+
+Term
+: Definition or explanation of the term.
+
+Another Term
+: Another explanation.
 
 # MD Studio Semantic Callout Boxes
 MD Studio supports semantic colored callout boxes. Use them selectively to highlight information that benefits from visual scanning and memory. Keep ordinary prose normal; do not turn the document into a collection of boxes.
@@ -3663,6 +3913,15 @@ Use H1 for the person's name. Use H2 for major sections and H3 for individual ro
 # Formatting
 Avoid unnecessary blank lines, page breaks, and filler. Keep bullets concise and scannable. Produce only valid GFM with no conversational text, banter, AI disclaimers, or meta-commentary.
 
+# Definition Lists
+MD Studio supports native definition lists for terminology, glossaries, vocabularies, parameter specifications, and key-concept pairs. Use the standard definition list syntax:
+
+Term
+: Definition or explanation of the term.
+
+Another Term
+: Another explanation.
+
 # MD Studio Semantic Callout Boxes
 MD Studio supports semantic colored callout boxes. Use them selectively to highlight information that benefits from visual scanning and memory. Keep ordinary prose normal; do not turn the document into a collection of boxes.
 
@@ -3732,6 +3991,15 @@ Answer each question directly first, then provide the necessary explanation. Use
 
 # Accuracy and Formatting
 Do not invent product behavior, policies, commands, or facts. Use blockquotes for important warnings or irreversible actions. Avoid unnecessary blank lines and page breaks. Use ---pagebreak--- only when a major topic group genuinely needs a new page. Produce only valid GFM with no conversational text, banter, AI disclaimers, or meta-commentary.
+
+# Definition Lists
+MD Studio supports native definition lists for terminology, glossaries, vocabularies, parameter specifications, and key-concept pairs. Use the standard definition list syntax:
+
+Term
+: Definition or explanation of the term.
+
+Another Term
+: Another explanation.
 
 # MD Studio Semantic Callout Boxes
 MD Studio supports semantic colored callout boxes. Use them selectively to highlight information that benefits from visual scanning and memory. Keep ordinary prose normal; do not turn the document into a collection of boxes.
@@ -3805,6 +4073,11 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
 - از علائم نگارشی استاندارد فارسی استفاده کنید: ویرگول فارسی (،)، نقطه ویرگول (؛)، گیومه « » و علامت سوال فارسی (؟).
 - برای جداول، داده‌ها را به طور منظم در ساختار جدول مارک‌داون قرار دهید (جهت راست‌به‌چپ به طور خودکار اعمال می‌شود).
 
+# فهرست تعاریف و واژه‌نامه (Definition Lists)
+استودیو MD از فهرست تعاریف استاندارد برای واژه‌نامه، اصطلاحات و معانی مفاهیم پشتیبانی می‌کند:
+واژه یا اصطلاح
+: تعریف دقیق، گویا و روان مفهوم یا اصطلاح مورد نظر.
+
 # بلوک‌های راهنما و جعبه‌های پیام (Semantic Callouts)
 استودیو MD از جعبه‌های پیام دلالت‌گر با رنگ‌بندی استاندارد پشتیبانی می‌کند:
 [definition]
@@ -3851,6 +4124,11 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
 # قواعد اللغة العربية والترقيم
 - اكتب بلغة عربية فصحى رصينة وسليمة، خالية من الحشو.
 - استخدم علامات الترقيم العربية الصحيحة: الفاصلة العربية (،)، الفاصلة المنقوطة (؛)، علامة الاستفهام (؟)، وأقواس الاقتباس « ».
+
+# قوائم التعريفات والمسرد (Definition Lists)
+يدعم البرنامج قوائم التعريفات القياسية للمصطلحات والمسرد وشرح المفاهيم:
+المصطلح أو المفهوم
+: شرح دقيق ومفصل للمصطلح بوضوح.
 
 # الصناديق والملاحظات الدلالية (Semantic Callouts)
 يدعم البرنامج صناديق ملونة ذات دلالة واضحة ومظهر أنيق:
@@ -3922,6 +4200,10 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
                 ]);
                 if (!mermaidThemes.has(state.settings.mermaidTheme)) {
                     state.settings.mermaidTheme = 'default';
+                }
+
+                if (!Array.isArray(state.settings.tocCustomLevels)) {
+                    state.settings.tocCustomLevels = [1, 2, 3];
                 }
             }
 
@@ -4015,12 +4297,20 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
             // every exported PDF has real, clickable per-heading navigation targets —
             // this is what lets "jump to a chapter" work in PDF readers, independent of
             // whether the visible Table of Contents block is turned on.
-            function assignHeadingIds(depth) {
+            function assignHeadingIds(depthOrFilter) {
                 const allHeadings = previewEl.querySelectorAll('h1, h2, h3, h4, h5, h6');
                 const headings = [];
                 allHeadings.forEach(h => {
                     const level = parseInt(h.tagName[1]);
-                    if (level <= depth && !isInsideExcludedContainer(h)) {
+                    let matches = false;
+                    if (Array.isArray(depthOrFilter)) {
+                        matches = depthOrFilter.includes(level);
+                    } else if (typeof depthOrFilter === 'number') {
+                        matches = level <= depthOrFilter;
+                    } else {
+                        matches = true;
+                    }
+                    if (matches && !isInsideExcludedContainer(h)) {
                         headings.push(h);
                     }
                 });
@@ -4049,9 +4339,18 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
             }
 
             // ── SIMPLE & RELIABLE TOC generation ─────
-            function buildTOCFromDOM(depth) {
-                const headings = assignHeadingIds(depth);
-                if (headings.length === 0) return null;
+            function buildTOCFromDOM() {
+                let headings;
+                if (state.settings.tocDepth === 'custom') {
+                    const customLevels = Array.isArray(state.settings.tocCustomLevels) && state.settings.tocCustomLevels.length > 0
+                        ? state.settings.tocCustomLevels.map(Number)
+                        : [1, 2, 3];
+                    headings = assignHeadingIds(customLevels);
+                } else {
+                    const depth = parseInt(state.settings.tocDepth) || 3;
+                    headings = assignHeadingIds(depth);
+                }
+                if (!headings || headings.length === 0) return null;
 
                 // Build flat TOC list with indentation based on heading level
                 const isFa = state.settings.documentLanguage === 'fa';
@@ -4704,8 +5003,10 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
                 assignHeadingIds(6);
 
                 // Insert TOC after cover page (if enabled)
-                if (state.settings.tocEnabled && state.settings.tocDepth > 0) {
-                    const tocEl = buildTOCFromDOM(state.settings.tocDepth);
+                const isTocActive = state.settings.tocEnabled &&
+                    (state.settings.tocDepth === 'custom' || (parseInt(state.settings.tocDepth) || 0) > 0);
+                if (isTocActive) {
+                    const tocEl = buildTOCFromDOM();
                     if (tocEl) {
                         const coverInDOM = previewEl.querySelector('.cover-page');
                         if (coverInDOM && coverInDOM.nextSibling) {
@@ -4884,28 +5185,38 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
                 if (!svg) return;
                 const intrinsic = getSvgIntrinsicSize(svg);
                 const box = getMermaidPrintBoxPx();
-                const scale = Math.min(box.width / intrinsic.width, box.height / intrinsic.height, 1);
-                const width = Math.max(1, intrinsic.width * scale);
-                const height = Math.max(1, intrinsic.height * scale);
+                // Get the available width in the live preview container as well
+                const previewContentWidth = previewEl.clientWidth ? (previewEl.clientWidth - 48) : box.width;
+                // Diagrams must fit sideways within both printable content width and preview column width
+                const targetMaxWidth = Math.max(10, Math.min(box.width, previewContentWidth > 100 ? previewContentWidth : box.width));
+                // Cap max print height at 80% of page content height to prevent diagram splitting or touching margins
+                const targetMaxHeight = Math.min(box.height * 0.8, box.height - 40);
+                
+                // Scale factor ensures diagram fits completely sideways and vertically without page border clipping
+                const scale = Math.min(targetMaxWidth / intrinsic.width, targetMaxHeight / intrinsic.height, 1);
+                const width = Math.max(1, Math.round(intrinsic.width * scale));
+                const height = Math.max(1, Math.round(intrinsic.height * scale));
 
                 svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
                 svg.style.width = width + 'px';
                 svg.style.height = height + 'px';
-                svg.style.maxWidth = 'none';
-                svg.style.maxHeight = 'none';
+                svg.style.maxWidth = '100%';
+                svg.style.maxHeight = targetMaxHeight + 'px';
                 svg.style.display = 'block';
                 svg.style.margin = '0 auto';
+                svg.style.boxSizing = 'border-box';
 
                 const parent = svg.closest('.mermaid-rendered');
                 if (parent) {
                     parent.style.width = '100%';
-                    parent.style.maxWidth = box.width + 'px';
-                    parent.style.maxHeight = box.height + 'px';
+                    parent.style.maxWidth = targetMaxWidth + 'px';
+                    parent.style.maxHeight = '';
                     parent.style.marginLeft = 'auto';
                     parent.style.marginRight = 'auto';
-                    parent.style.overflow = 'hidden';
+                    parent.style.overflow = 'visible';
                     parent.style.breakInside = 'avoid';
                     parent.style.pageBreakInside = 'avoid';
+                    parent.style.boxSizing = 'border-box';
                 }
             }
 
@@ -5122,20 +5433,21 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
           .preview-container .mermaid {
             width: 100% !important;
             max-width: ${box.width}px !important;
-            max-height: ${box.height}px !important;
-            overflow: hidden !important;
+            overflow: visible !important;
             page-break-inside: avoid !important;
             break-inside: avoid !important;
             text-align: center !important;
-            margin-left: auto !important;
-            margin-right: auto !important;
+            margin: 1.2em auto !important;
+            display: block !important;
           }
           .preview-container .mermaid-rendered svg,
           .preview-container .mermaid svg {
-            max-width: none !important;
-            max-height: none !important;
+            max-width: 100% !important;
+            max-height: ${Math.round(box.height * 0.8)}px !important;
             display: block !important;
             margin: 0 auto !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
           }
           .preview-container .md-note {
             break-inside: avoid !important;
@@ -5163,7 +5475,6 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
         }`;
             }
 
-            // ── Settings modal ─────────────────────
             function openSettingsModal() {
                 const s = state.settings;
                 document.getElementById('setting-paper-size').value = s.paperSize;
@@ -5179,6 +5490,13 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
                 document.getElementById('setting-mermaid-theme').value = s.mermaidTheme || 'default';
                 document.getElementById('setting-toc').value = s.tocEnabled ? 'enabled' : 'disabled';
                 document.getElementById('setting-toc-depth').value = s.tocDepth;
+                const customLevels = Array.isArray(s.tocCustomLevels) ? s.tocCustomLevels : [1, 2, 3];
+                for (let lvl = 1; lvl <= 6; lvl++) {
+                    const cb = document.getElementById('setting-toc-h' + lvl);
+                    if (cb) cb.checked = customLevels.includes(lvl);
+                }
+                const customGroup = document.getElementById('toc-custom-levels-group');
+                if (customGroup) customGroup.style.display = s.tocDepth === 'custom' ? 'flex' : 'none';
                 document.getElementById('setting-cover-enabled').value = s.coverEnabled ? 'enabled' : 'disabled';
                 const coverStyleEl = document.getElementById('setting-cover-style');
                 if (coverStyleEl) coverStyleEl.value = s.coverStyle || 'classic';
@@ -5208,7 +5526,14 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
                 state.settings.codeTheme = document.getElementById('setting-code-theme').value;
                 state.settings.mermaidTheme = document.getElementById('setting-mermaid-theme').value;
                 state.settings.tocEnabled = document.getElementById('setting-toc').value === 'enabled';
-                state.settings.tocDepth = parseInt(document.getElementById('setting-toc-depth').value) || 3;
+                const tocDepthVal = document.getElementById('setting-toc-depth').value;
+                state.settings.tocDepth = tocDepthVal === 'custom' ? 'custom' : (parseInt(tocDepthVal) || 3);
+                const selectedCustomLevels = [];
+                for (let lvl = 1; lvl <= 6; lvl++) {
+                    const cb = document.getElementById('setting-toc-h' + lvl);
+                    if (cb && cb.checked) selectedCustomLevels.push(lvl);
+                }
+                state.settings.tocCustomLevels = selectedCustomLevels.length > 0 ? selectedCustomLevels : [1, 2, 3];
                 state.settings.coverEnabled = document.getElementById('setting-cover-enabled').value === 'enabled';
                 const styleInput = document.getElementById('setting-cover-style');
                 state.settings.coverStyle = styleInput ? styleInput.value : 'classic';
@@ -5359,6 +5684,10 @@ When using Mermaid, prefer focused diagrams. If a concept would create an extrem
         body[dir="rtl"] .md-note-exam { border-right-color:#db2777; }
         body[dir="rtl"] .md-note-reminder { border-right-color:#ca8a04; }
         body[dir="rtl"] .md-note-secondary { border-right-color:#6b7280; }
+        dl { margin: 1.2em 0; }
+        dt { font-weight: 700; color: #1a1a2e; margin-top: 1.1em; margin-bottom: 0.3em; }
+        dd { margin: 0 0 0.9em 0; padding: 6px 14px; background: rgba(76, 110, 245, 0.05); border-left: 3px solid #4c6ef5; border-radius: 0 6px 6px 0; color: #495057; line-height: 1.6; }
+        body[dir="rtl"] dd { border-left: none; border-right: 3px solid #4c6ef5; border-radius: 6px 0 0 6px; }
         .mermaid-rendered, .mermaid { max-width:100%; overflow:hidden; text-align:center; page-break-inside:avoid; direction:ltr; }
         .mermaid-rendered svg, .mermaid svg { max-width:100% !important; height:auto !important; }
 </style></head><body dir="${documentDir}" lang="${documentLang}">${htmlContent}</body></html>`;
@@ -5410,6 +5739,10 @@ body[dir="rtl"] .md-note-secondary { border-right-color:#6b7280; }
 .md-note-exam { border-left-color:#db2777; background:#fdf2f8; }
 .md-note-reminder { border-left-color:#ca8a04; background:#fefce8; }
 .md-note-secondary { border-left-color:#6b7280; background:#f8fafc; }
+dl { margin: 1.2em 0; }
+dt { font-weight: 700; color: #1a1a2e; margin-top: 1.1em; margin-bottom: 0.3em; }
+dd { margin: 0 0 0.9em 0; padding: 6px 14px; background: #f0f4ff; border-left: 3px solid #4c6ef5; color: #495057; line-height: 1.6; }
+body[dir="rtl"] dd { border-left: none; border-right: 3px solid #4c6ef5; }
 .mermaid-rendered, .mermaid { max-width:100%; overflow:hidden; text-align:center; page-break-inside:avoid; direction:ltr; }
 .mermaid-rendered svg, .mermaid svg { max-width:100% !important; height:auto !important; }
 </style></head><body dir="${documentDir}" lang="${documentLang}">${htmlContent}</body></html>`;
@@ -6094,10 +6427,33 @@ document.getElementById('custom-margin-group').style.display = this.value === 'c
 document.getElementById('setting-cover-enabled').addEventListener('change', function() {
 document.getElementById('cover-fields-group').classList.toggle('visible', this.value === 'enabled');
 });
-settingsModal.addEventListener('click', e => { if (e.target === settingsModal) closeSettingsModal(); });
-promptModal.addEventListener('click', e => { if (e.target === promptModal) closePromptGenerator(); });
+const tocDepthEl = document.getElementById('setting-toc-depth');
+if (tocDepthEl) {
+    tocDepthEl.addEventListener('change', function() {
+        const customGroup = document.getElementById('toc-custom-levels-group');
+        if (customGroup) customGroup.style.display = this.value === 'custom' ? 'flex' : 'none';
+    });
+}
+
+// Prevent mouse drag-out from inside the modal closing the modal
+function attachSafeOverlayDismiss(overlayEl, closeFn) {
+    if (!overlayEl) return;
+    let mouseDownOnOverlay = false;
+    overlayEl.addEventListener('mousedown', e => {
+        mouseDownOnOverlay = (e.target === overlayEl);
+    });
+    overlayEl.addEventListener('click', e => {
+        if (e.target === overlayEl && mouseDownOnOverlay) {
+            closeFn();
+        }
+        mouseDownOnOverlay = false;
+    });
+}
+
+attachSafeOverlayDismiss(settingsModal, closeSettingsModal);
+attachSafeOverlayDismiss(promptModal, closePromptGenerator);
 if (imageModal) {
-    imageModal.addEventListener('click', e => { if (e.target === imageModal) closeImageModal(); });
+    attachSafeOverlayDismiss(imageModal, closeImageModal);
 }
 if (imageFileInput) {
     imageFileInput.addEventListener('change', handleImageFileInputChange);
@@ -6439,6 +6795,7 @@ window.addEventListener('resize', () => {
             setMobileTab(currentMobileTab || 'editor');
         }
     }
+    requestAnimationFrame(() => fitAllMermaidDiagramsToPrintPage());
 });
 
 let originalDocumentTitle = document.title;

@@ -16,10 +16,13 @@ A modern browser-based Markdown editor with live preview and professional docume
 - 🔤 Comprehensive Typography: Extended Google Fonts selection (Inter, Plus Jakarta Sans, Outfit, Merriweather, Lora, EB Garamond, JetBrains Mono, Fira Code, and specialized RTL fonts including B Nazanin)
 - 🌐 Persian & Arabic RTL support with smart auto-detection & typography (Vazirmatn, Amiri, Cairo, Noto Sans Arabic, and B Nazanin with native Persian numerals)
 - 📐 KaTeX math rendering
-- 📊 Mermaid diagrams
+- 📊 Mermaid diagrams with page-safe rendering (prevents mid-chart breaks and oversized scaling in exported PDFs)
 - 🎨 Light & Dark themes
 - 🔍 Search & Replace
-- 📑 Automatic Table of Contents with Unicode anchors & localized titles
+- 📑 Automatic Table of Contents with configurable heading depth & custom heading level checkboxes (H1–H6)
+- 📖 Definition Lists support with stylish bullet indicators, accent bars, and terminology cards (fully integrated with all AI Prompt templates)
+- 📄 WYSIWYG Light Document Preview (faithfully preserves printed document colors and styling across light and dark theme toggling)
+- ⚙️ Persistent settings modal footer & drag-safe backdrop controls
 - 💻 Syntax highlighting
 - 📱 Responsive design
 

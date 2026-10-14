@@ -65,6 +65,8 @@ Rather than creating dozens of half-finished tools, I'd rather build a smaller c
 * 🌐 Persian & Arabic support (B Nazanin with Persian digits, Vazirmatn, Amiri, Cairo, Noto Sans Arabic & smart RTL detection)
 * 🧮 KaTeX math & 📊 Mermaid diagram support
 * 🎨 Syntax highlighting & automatic Table of Contents
+* 📖 Definition Lists with styled terminology cards & prompt library integration
+* 📄 WYSIWYG paper preview that stays identical across light and dark theme toggling
 * 🌙 Light & Dark mode
 
 ---
